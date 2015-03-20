@@ -3,9 +3,9 @@
 `can-connect` provides persisted data middleware.  Use it to 
 speed up application load times by:
 
- - creating a CRUD connection - [persist]
+ - creating a CRUD connection - [persist](#persist)
  - combining overlapping or reduntant requests - [combine-requests](#combine-requests)
- - saving response data and using it for future requests - [params-cache]
+ - saving response data and using it for future requests - [params-cache](#params-cache)
  
 Planned:
 
