@@ -42,6 +42,7 @@ sets of data they load overlap.
 ```js
 combineBehavior = combineRequests( persistBehavior, {time: 100} );
 
+// the following makes a single request
 combineBehavior.getListData({}) //-> promise(Array<items>)
 combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
 combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
