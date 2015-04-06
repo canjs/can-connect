@@ -2,7 +2,7 @@
 var connect = require("can-connect");
 var canObject = require("can/util/object/object");
 var can = require("can/util/util");
-var setHelpers = require("./set_helpers");
+var setHelpers = require("./set-helpers");
 
 // TODO: rename combine-requests
 /**
