@@ -1,8 +1,7 @@
 
 var connect = require("can-connect");
-var canObject = require("can/util/object/object");
+var canSet = require("can-set");
 var can = require("can/util/util");
-var setHelpers = require("./set-helpers");
 
 // TODO: rename combine-requests
 /**
@@ -19,13 +18,11 @@ var setHelpers = require("./set-helpers");
  * 
  *   @option {can.Object.compare} compare 
  */
-module.exports = connect.behavior(function(base, options){
+module.exports = connect.behavior("combined-requests",function(base, options){
 	options = options || {};
 	var pendingRequests; //[{params, deferred}]
 	
 	return {
-		combineParams: setHelpers.combineParams,
-		combineRange: setHelpers.combineRange,
 		combinePendingRequests: function(pendingParams){
 			// this should try to merge existing param requests, into an array of 
 			// others to send out
@@ -35,11 +32,13 @@ module.exports = connect.behavior(function(base, options){
 			// we need the "biggest" sets first so they can swallow up everything else
 			// O(n log n)
 			pendingRequests.sort(function(pReq1, pReq2){
-				if(canObject.subset(pReq1.params, pReq2.params, options.compare)) {
+				
+				if(canSet.subset(pReq1.params, pReq2.params, options.compare)) {
 					return 1;
-				} else if( canObject.subset(pReq2.params, pReq1.params, options.compare) ) {
+				} else if( canSet.subset(pReq2.params, pReq1.params, options.compare) ) {
 					return -1;
 				} 
+				
 			});
 			
 			// O(n^2).  This can probably be made faster, but there are rarely lots of pending requests.
@@ -55,7 +54,7 @@ module.exports = connect.behavior(function(base, options){
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = self.combineParams(current.params, pendingRequest.params, options);
+					var combined = canSet.union(current.params, pendingRequest.params, options.compare);
 					if(combined) {
 						// add next 
 						current.params = combined;
@@ -68,19 +67,8 @@ module.exports = connect.behavior(function(base, options){
 			
 			return new can.Deferred().resolve(combineData);
 		},
-		filter: function(data, params){
-			// pull out data that matches
-			var len = data.length,
-				items = [];
-				
-			for (var i = 0; i < len; i++) {
-				//check this subset
-				var item = data[i];
-				if (can.Object.subset(item,params , options.compare)) {
-					items.push(item);
-				}
-			}
-			return items;
+		getSubset: function(params, combinedParams, data, options){
+			return canSet.getSubset(params, combinedParams, data, options.compare);
 		},
 		getListData: function(params){
 			var self = this;
@@ -91,15 +79,18 @@ module.exports = connect.behavior(function(base, options){
 				
 				setTimeout(function(){
 					var combineDataPromise = self.combinePendingRequests(params);
+					
 					combineDataPromise.then(function(combinedData){
 						// farm out requests
 						combinedData.forEach(function(combined){
+							
 							base.getListData(combined.params).then(function(data){
+								
 								if(combined.pendingRequests.length === 1) {
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									combined.pendingRequests.forEach(function(pending){
-										pending.deferred.resolve( self.filter(data, pending.params) );
+										pending.deferred.resolve( self.getSubset(pending.params, combined.params, data, options) );
 									});
 								}
 								

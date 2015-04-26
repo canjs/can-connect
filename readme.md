@@ -83,37 +83,3 @@ This suppors the following hooks:
 
 Some other hooks that might need to exist.
 
-```
-hooks = {
-	getListData: function(){
-		// parseListData?
-	},
-	getInstances: function(){
-		
-	},
-	makeInstances: function(){
-		
-	},
-	id: function(){},
-	// a hook to know when an instance is doing something
-	observeInstance: function(){ },
-	unobserveInstance: function(){ },
-	observeList: function(){ },
-	unobserveList: function(){ },
-	
-	// a hook to know whenever an instance is created .. this is so other hooks can be setup
-	createdInstance: function(){},
-	createdList: function(){},
-	
-	// persiste this instance
-	postInstance: function(){
-		
-	},
-	putInstance: function(){
-		
-	},
-	deleteInstance: function(){
-		
-	}
-};
-```

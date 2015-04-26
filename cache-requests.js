@@ -1,8 +1,8 @@
 
 var connect = require("can-connect");
-var canObject = require("can/util/object/object");
 var can = require("can/util/util");
-var setHelpers = require("./set-helpers");
+
+var canSet = require("can-set");
 
 
 /**
@@ -24,7 +24,7 @@ var setHelpers = require("./set-helpers");
  * 
  *   @option {can.Object.compare} compare 
  */
-module.exports = connect.behavior(function(base, options){
+module.exports = connect.behavior("cache-requests",function(base, options){
 	options = options || {};
 	
 	// This keeps data 3 different ways
@@ -54,40 +54,48 @@ module.exports = connect.behavior(function(base, options){
 		 * 
 		 * We could prevent that by "collapsing" sets similar to the combine-set
 		 * method.  Then the sets loaded should be unique and easier to 
+		 * 
+		 * returns
+		 *   - what needs to be loaded - difference  - setA \ setB 
+		 *   - what is already available  - intersection - setA ∩ setB
+		 *   - the count
 		 */
 		diffSet: function( params, availableSets ){
 			
-			var minDiff;
+			var minSets;
 			
 			availableSets.forEach(function(set){
-				var diff;
-				if(canObject.subset(params,set)) {
-					diff = {
-						count: -1,
-						cached: params
+				var curSets;
+				var difference = canSet.difference(params, set, options.compare);
+				if(typeof difference === "object") {
+					curSets = {
+						needed: difference,
+						cached: canSet.intersection(params, set, options.compare),
+						count: canSet.count(difference, options.compare)
 					};
-				} else {
-					diff = setHelpers.diffRanges(set, params, options);
+				} else if( canSet.subset(params, set, options.compare) ){
+					curSets = {
+						cached: params,
+						count: 0
+					};
 				}
-				
-				if(diff) {
-					if(!minDiff || diff.count < minDiff.count) {
-						minDiff = diff;
+				if(curSets) {
+					if(!minSets || curSets.count < minSets.count) {
+						minSets = curSets;
 					} 
 				}
 			});
 			
-			if(!minDiff) {
+			if(!minSets) {
 				return {
-					needs: params
+					needed: params
 				};
 			} else {
 				return {
-					needs: minDiff.needs,
-					cached: minDiff.cached
+					needed: minSets.needed,
+					cached: minSets.cached
 				};
 			}
-
 		},
 		/**
 		 * 
@@ -95,35 +103,15 @@ module.exports = connect.behavior(function(base, options){
 		 * @return {Array<>} Array of cached data for these params
 		 */
 		getListCachedData: function(set){
-			console.log("getCached", set)
-			// if this is ranged
-			if( setHelpers.paramsHasRangedProperties(set, options) ) {
-				// go through and see if there is a diff.  If there is get those items
-				for( var i = 0 ; i < setData.length; i++ ) {
-					var setDatum = setData[i];
-					var diff = setHelpers.diff( setDatum.set, set, options );
-					if(diff){
-						var startRange = setDatum.set[diff.properties[0]];
-						var items = setDatum.items.slice(diff.cached[0] - startRange, diff.cached[1] -startRange +1);
-						return new can.Deferred().resolve(items);
-					}
+			var setDatum;
+			for(var i = 0; i < setData.length; i++) {
+				setDatum = setData[i];
+				
+				if( canSet.subset(set, setDatum.set, options.compare) ) {
+					var items = canSet.getSubset(set, setDatum.set, setDatum.items, options.compare);
+					return new can.Deferred().resolve(items);
 				}
-			} else {
-				// pull out data that matches
-				var len = cachedData.length,
-					items = [];
-					
-				for (var i = 0; i < len; i++) {
-					//check this subset
-					var item = cachedData[i];
-					if (can.Object.subset(item,set , options.compare)) {
-						items.push(item);
-					}
-				}
-				return new can.Deferred().resolve(items);
 			}
-			
-			
 		},
 		/**
 		 * Adds a set and its data
@@ -132,73 +120,49 @@ module.exports = connect.behavior(function(base, options){
 		 * @param {Object} options - current options
 		 */
 		addListCachedData: function(set, data, options){
+			// when a union can be made ... make it
 			console.log("addListCachedData", set);
-			// If this was a ranged request, we need to merge its data into other params
-			if( setHelpers.paramsHasRangedProperties(set, options) ) {
-				setData.push({
-					set: set,
-					items: data
-				});
-				setData = setHelpers.merge(setData, options, function(o1, o2, combined, options){
-					var rangedProperties = setHelpers.rangedProperties(options);
-					if(rangedProperties) {
-						var diff = setHelpers.diff( o1.set, o2.set, options );
-						if( diff ) {
-							return {
-								set: combined,
-								items: diff.insertNeeds === "before" ? o2.items.concat(o1.items) : o1.items.concat(o2.items)
-							};
-						}
-					}
-					return {
-						set: combined
-					};
-				});
-			} else {
-				setData.push({set: set});
-				setData = setHelpers.merge(setData, options);
-			}
-
-			// add to our list of everything
-			var idProp = this.id();
-			data.forEach(function(item){
-				var id = item[idProp];
-				if(!cachedDataMap[id]){ 
-					cachedData.push( cachedDataMap[id] = item );
+			
+			for(var i = 0 ; i < setData.length; i++) {
+				var setDatum = setData[i];
+				var union = canSet.union(setDatum.set, set, options.compare);
+				if(union) {
+					setDatum.items = canSet.getUnion(setDatum.set, set, setDatum.items, data, options.compare);
+					setDatum.set = union;
+					return new can.Deferred().resolve();
 				}
-			});
-			
-			
+			}
+			setData.push({set: set, items: data});
 			
 			return new can.Deferred().resolve();
 		},
-		mergeData: function(params, diff, needed, cached, options){
+		mergeData: function(params, diff, neededItems, cachedItems, options){
 			// using the diff, re-construct everything
-			return setHelpers.mergeData(params, diff, needed, cached, options);
+			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, options.compare);
 		},
 		getListData: function(params){
-			console.log("getListData", params);
+			
 			var self = this;
 			
 			return this.getAvailableSets(params).then(function(sets){
 				
 				var diff = self.diffSet(params, sets);
 				
-				if(!diff.needs) {
+				if(!diff.needed) {
 					return self.getListCachedData(diff.cached);
 				} else if(!diff.cached) {
-					return base.getListData(diff.needs).then(function(data){
-						return self.addListCachedData(diff.needs, data, options).then(function(){
+					return base.getListData(diff.needed).then(function(data){
+						return self.addListCachedData(diff.needed, data, options).then(function(){
 							return data;
 						});
 						
 					});
 				} else {
 					var cachedPromise = self.getListCachedData(diff.cached);
-					var needsPromise = base.getListData(diff.needs);
+					var needsPromise = base.getListData(diff.needed);
 					
 					var savedPromise = needsPromise.then(function(data){
-						return self.addListCachedData(diff.needs, data, options).then(function(){
+						return self.addListCachedData(diff.needed, data, options).then(function(){
 							return data;
 						});
 					});

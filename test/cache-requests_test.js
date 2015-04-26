@@ -1,11 +1,11 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("./persist");
-var cacheRequests = require("./cache-requests");
-
+var persist = require("../persist");
+var cacheRequests = require("../cache-requests");
+var set = require("can-set");
 
 var getId = function(d){ return d.id};
-var compareOptions = {compare: { rangedProperties: ["start","end"] }};
+var compareOptions = {compare: set.comparators.rangeInclusive("start","end")};
 
 QUnit.module("can-connect/cache-requests",{
 	setup: function(){
