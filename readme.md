@@ -54,7 +54,7 @@ The API is broken up into:
 
 - The different behaviors, like perist, instance-store, etc
 - A full list of options that behaviors consume.
-- A list of hooks that behaviors can call or implement.
+- [The core list of hooks that behaviors can call or implement](#core-hooks)
 - How to create a behavior.
 
 
@@ -163,3 +163,46 @@ Hooks that your library and code should be calling.
 - `unobserveInstance(instance)` - Called whenever an instance is no longer observed. This serves as a signal that memory-unsafe should be removed.
 - `observedList(list)` - Called whenever a a list is observed.
 - `unobservedList(list)` - Called whenever a a list is unobserved.
+
+
+## Creating Behaviors
+
+To create your own behavior, call `connect.behavior` with the name of your behavior and a function that
+returns an object that defines the hooks you want to overwrite or provide:
+
+```js
+connect.behavior("my-behavior", function(baseBehavior, options){
+  return {
+    // Hooks here
+  };
+})
+```
+
+For example, localStorage might looks like:
+
+```js
+connect.behavior("localstorage", function(baseBehavior, options){
+  return {
+    getInstanceData: function(params){
+      var id = this.idProp;
+      return new Promise(function(resolve){
+        var data = localStorage.getItem(options.name+"/"+params[id]);
+        resolve( JSON.parse(data) )
+      });
+    },
+    createInstanceData: function(props){
+      var nextId = ++JSON.parse( localStorage.getItem(options.name+"-ID") || "0");
+      localStorage.setItem(options.name+"-ID"), nextId);
+      var id = this.idProp;
+      return new Promise(function(resolve){
+        props[id] = nextId;
+        localStorage.setItem(options.name+"/"+nextId, props);
+        resolve( props )
+      });
+    },
+    updateInstanceData: function(){ ... },
+    destroyInstanceData: function(){ ...}
+  };
+})
+```
+
