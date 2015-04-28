@@ -29,22 +29,33 @@ var pairs = {
 module.exports = connect.behavior("parse-data",function(baseConnect, options){
 	
 	var behavior = {
-		parseListData: function( items ) {
+		// The ONLY job of this is to get this into the {data: items} format
+		parseListData: function( items, xhr, headers ) {
+			var result;
 			if( can.isArray(items) ) {
-				return items;
-			}
+				result = {data: items};
+			} else {
+				var prop = options.parseListProp || 'data';
 
-			prop = options.parseListProp || 'data';
-
-			var result = can.getObject(prop, items);
-			
-			if(!can.isArray(result)) {
-				throw new Error('Could not get any raw data while converting using .models');
+				items.data = can.getObject(prop, items);
+				result = items;
+				if(prop !== "data") {
+					delete items[prop];
+				}
+				if(!can.isArray(result.data)) {
+					throw new Error('Could not get any raw data while converting using .models');
+				}
+				
 			}
+			var arr = [];
+			for(var i =0 ; i < result.data.length; i++) {
+				arr.push( this.parseInstanceData(result.data[i], xhr, headers) );
+			}
+			result.data = arr;
 			return result;
 		},
 		parseInstanceData: function( props ) {
-			return options.parseInstanceProp ? can.getObject(options.parseInstanceProp, props) : props;
+			return options.parseInstanceProp ? can.getObject(options.parseInstanceProp, props) || props : props;
 		}
 	};
 	

@@ -57,7 +57,7 @@ module.exports = connect.behavior("instance-store",function(baseConnect, options
 		},
 		_addInstance: function(instance){
 			var id = this.id(instance);
-			if(id !== undefined) {
+			if(id != undefined) {
 				var data = this.instanceStore[id];
 				if( !data ) {
 					return this.instanceStore[id] = {instance: instance, observedCount: 0};

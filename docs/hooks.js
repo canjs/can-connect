@@ -24,9 +24,9 @@ var hooks = {
 		
 	},
 	id: function(props){
-		return props.id;
+		return props[this.idProp];
 	},
-	
+	idProp: "id",
 	// given array data, returns instances
 	makeInstances: function(){},
 	// given instance data, returns instance

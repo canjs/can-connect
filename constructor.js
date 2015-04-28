@@ -27,21 +27,28 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 	
 	var behavior = {
 		findAll: function(params) {
-			return pipe(baseConnect.getListData(params), this, function(data){
+			return pipe(baseConnect.getListData.call(this, params), this, function(data){
 				return this.makeInstances(data);
 			});
 		},
 		findOne: function(params) {
-			return pipe(baseConnect.getInstanceData(params), this, function(data){
+			return pipe(baseConnect.getInstanceData.call(this, params), this, function(data){
 				return this.makeInstance(data, options);
 			});
 		},
-		makeInstances: function(items){
-			var arr = [];
-			for(var i = 0; i < items.length; i++) {
-				arr.push( this.makeInstance(items[i]) );
+		
+		// given raw data, makes the instances
+		makeInstances: function(instanceData){
+			if(can.isArray(instanceData)) {
+				instanceData = {data: instanceData};
 			}
-			return options.list(arr);
+			
+			var arr = [];
+			for(var i = 0; i < instanceData.data.length; i++) {
+				arr.push( this.makeInstance(instanceData.data[i]) );
+			}
+			instanceData.data = arr;
+			return options.list(instanceData);
 		},
 		makeInstance: function(props){
 			return options.instance(props);

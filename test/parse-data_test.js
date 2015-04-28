@@ -10,6 +10,10 @@ QUnit.module("can-connect/parse-data",{
 		fixture.delay = 1;
 	}
 });
+var logErrorAndStart = function(e){
+	ok(false,"Error "+e);
+	start();
+};
 
 QUnit.test("basics", function(assert){
 	
@@ -46,26 +50,26 @@ QUnit.test("basics", function(assert){
 	
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, [{id: 1}], "findAll");
+		deepEqual(items, {data: [{id: 1}]}, "findAll");
 		start();
-	});
+	}, logErrorAndStart);
 	
 	stop();
 	connection.getInstanceData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 2}, "findOne");
 		start();
-	});
+	},logErrorAndStart);
 	
 	stop();
 	connection.createInstanceData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 3}, "create");
 		start();
-	});
+	},logErrorAndStart);
 	
 	stop();
 	connection.destroyInstanceData({foo: "bar", id: 3}).then(function(data){
 		deepEqual(data, {destroy: true}, "update");
 		start();
-	});
+	},logErrorAndStart);
 	
 });

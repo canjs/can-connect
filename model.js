@@ -14,7 +14,22 @@ var can = require("can/util/util"),
 	parseData = require("./parse-data");
 
 var callCanReadingOnIdRead = true;
-
+var getBaseValue = function(prop){
+	if(typeof prop === "function" && ("base" in prop)) {
+		return prop.base;
+	} else {
+		return prop;
+	}
+};
+var resolveSingleExport = function(originalPromise){
+	var promise = originalPromise.then(function(first){
+		return first;
+	});
+	promise.abort = function () {
+		originalPromise.abort();
+	};
+	return promise;
+};
 
 var mapBehavior = connect.behavior(function(baseConnect, options){
 	var behavior = {
@@ -29,36 +44,34 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 				return inst[options.constructor.id];
 			}
 		},
+		idProp: options.constructor.id,
 		serializeInstance: function(instance){
 			return instance.serialize();
 		},
 		findAll: function(params, success, error) {
-			
-			var base = baseConnect.findAll(params);
-			// adds .then for compat
-			var promise = base.then(function(first){
-				return first;
-			});
+			var promise = resolveSingleExport( baseConnect.findAll.call(this, params) );
 			promise.then(success, error);
-			// add abort
-			promise.abort = function () {
-				base.abort();
-			};
 			return promise;
 		},
 		findOne: function(params, success, error) {
 			// adds .then for compat
-			var base = baseConnect.findOne(params);
-			// adds .then for compat
-			var promise = base.then(function(first){
-				return first;
-			});
+			var promise = resolveSingleExport( baseConnect.findOne.call(this, params) );
 			promise.then(success, error);
-			// add abort
-			promise.abort = function () {
-				base.abort();
-			};
 			return promise;
+		},
+		parseInstanceData: function(props){
+			if(typeof options.parseModel === "function") {
+				return options.parseModel.apply(options.constructor, arguments);
+			} else {
+				return baseConnect.parseInstanceData.apply(baseConnect, arguments);
+			}
+		},
+		parseListData: function(props){
+			if(typeof options.parseModels === "function") {
+				return options.parseModels.apply(options.constructor, arguments);
+			} else {
+				return baseConnect.parseListData.apply(baseConnect, arguments);
+			}
 		}
 		
 	};
@@ -74,7 +87,7 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 
 			// Update attributes if attributes have been passed
 			if(attrs && typeof attrs === 'object') {
-				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs);
+				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, options.constructor.removeAttr || false);
 			}
 
 			// triggers change event that bubble's like
@@ -91,6 +104,7 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 			can.dispatch.call(constructor, funcName, [instance]);
 		};
 	});
+	
 	
 	return behavior;
 	
@@ -120,10 +134,18 @@ can.Model = can.Map.extend({
 		this.store = {};
 
 		can.Map.setup.apply(this, arguments);
+		
+		// 
+		
+		
+		
 		if (!can.Model) {
 			return;
 		}
+		
+		// save everything that's not on base can.Model
 
+		
 		// `List` is just a regular can.Model.List that knows what kind of Model it's hooked up to.
 		if(staticProps && staticProps.List) {
 			this.List = staticProps.List;
@@ -136,47 +158,84 @@ can.Model = can.Map.extend({
 		var self = this;
 		
 		var staticMethods = ["findAll","findOne","create","update","destroy"];
+		var parseMethods = {
+			parseModel: "parseInstanceData",
+			parseModels: "parseListData"
+		};
+		
+		
+		
 		
 		// setup persistance
 		var persistConnection = persist({},{
-			findAll: this.findAll,
-			findOne: this.findOne,
-			create: this.create,
-			update: this.update,
-			destroy: this.destroy
+			findAll: getBaseValue(this.findAll),
+			findOne: getBaseValue(this.findOne),
+			create: getBaseValue(this.create),
+			update: getBaseValue(this.update),
+			destroy: getBaseValue(this.destroy),
+			resource: this.resource,
+			idProp: this.id
 		});
 		
 		var parseDataConnection = parseData(persistConnection,{
-			parseInstanceData: typeof this.parseModel === "string" ? this.parseModel : undefined,
-			parseListProp: typeof this.parseModels === "string" ? this.parseModels : undefined,
+			parseInstanceProp: typeof getBaseValue(this.parseModel) === "string" ? getBaseValue(this.parseModel) : undefined,
+			parseListProp: typeof getBaseValue(this.parseModels) === "string" ? getBaseValue(this.parseModels) : undefined,
 		});
 		
 		var constructorConnection = constructor( parseDataConnection, { 
 			instance: function(values){
 				return new self(values);
 			}, 
-			list: function(arr){
-				return new self.List(arr);
+			list: function(listData){
+				var list = new self.List(listData.data);
+				can.each(listData, function (val, prop) {
+					if (prop !== 'data') {
+						list.attr(prop, val);
+					}
+				});
+				return list;
 			} 
 		});
 		
 		var instanceStoreConnection = instanceStore( constructorConnection );
 		
 		var mapConnection = mapBehavior(instanceStoreConnection,{
-			constructor: this
+			constructor: this,
+			parseModel: getBaseValue(this.parseModel),
+			parseModels: getBaseValue(this.parseModels)
 		});
 		
 		// 
 		this.connection = mapConnection;
 		
 		this.store = this.connection.instanceStore;
-		// map static stuff to crud:
+		// map static stuff to crud .. but we don't want this inherited by the next thing'
 		can.each(staticMethods, function(name){
-			self[name] = can.proxy(self.connection[name], self.connection);
+			var fn = can.proxy(self.connection[name], self.connection);
+			fn.base = self[name];
+			can.Construct._overwrite(self, base, name, fn);
+		});
+		can.each(parseMethods, function(connectionName, name){
+			var fn = can.proxy(self.connection[connectionName], self.connection);
+			fn.base = self[name];
+			can.Construct._overwrite(self, base, name,  fn);
 		});
 	},
-	models: function(raw){
-		return this.connection.makeInstances.apply(this.connection, arguments);
+	models: function(raw, oldList){
+		var args = can.makeArray(arguments);
+		args[0] = this.connection.parseListData.apply(this.connection, arguments);
+		var list = this.connection.makeInstances.apply(this.connection, args);
+		if( oldList instanceof can.List ) {
+			return oldList.replace(list);
+		} else {
+			return list;
+		}
+	},
+	model: function(raw){
+		var args = can.makeArray(arguments);
+		args[0] = this.connection.parseInstanceData.apply(this.connection, arguments);
+		var instance = this.connection.makeInstance.apply(this.connection, arguments);
+		return instance;
 	}
 },{
 	isNew: function () {
@@ -186,12 +245,21 @@ can.Model = can.Map.extend({
 		return !(id || id === 0); // If `null` or `undefined`
 	},
 	save: function(success, error){
-		var promise = this.constructor.connection.save(this);
+		// return only one item for compatability
+		var promise = resolveSingleExport( this.constructor.connection.save(this) );
 		promise.then(success,error);
 		return promise;
 	},
 	destroy: function(success, error){
-		var promise = this.constructor.connection.destroy(this);
+		var promise;
+		if (this.isNew()) {
+			
+			promise = can.Deferred().resolve(this);
+			this.constructor.connection.destroyedInstance(this, {});
+		} else {
+			promise = this.constructor.connection.destroy(this);
+		}
+		
 		promise.then(success,error);
 		return promise;
 	},

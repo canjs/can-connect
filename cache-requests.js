@@ -1,7 +1,7 @@
 
 var connect = require("can-connect");
 var can = require("can/util/util");
-
+var getItems = require("./helpers/get-items");
 var canSet = require("can-set");
 
 
@@ -152,7 +152,7 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 					return self.getListCachedData(diff.cached);
 				} else if(!diff.cached) {
 					return base.getListData(diff.needed).then(function(data){
-						return self.addListCachedData(diff.needed, data, options).then(function(){
+						return self.addListCachedData(diff.needed, getItems(data), options).then(function(){
 							return data;
 						});
 						
@@ -162,7 +162,7 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 					var needsPromise = base.getListData(diff.needed);
 					
 					var savedPromise = needsPromise.then(function(data){
-						return self.addListCachedData(diff.needed, data, options).then(function(){
+						return self.addListCachedData(diff.needed, getItems(data), options).then(function(){
 							return data;
 						});
 					});

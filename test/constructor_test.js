@@ -4,7 +4,11 @@ var fixture = require("can/util/fixture/fixture");
 var persist = require("../persist");
 
 var constructor = require("../constructor");
-
+var logErrorAndStart = function(e){
+	debugger;
+	ok(false,"Error "+e);
+	start();
+};
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
@@ -55,7 +59,7 @@ QUnit.test("basics", function(){
 			return new Person(values);
 		}, 
 		list: function(arr){
-			return new PersonList(arr);
+			return new PersonList(arr.data);
 		} 
 	});
 	
@@ -65,14 +69,14 @@ QUnit.test("basics", function(){
 		equal(people.length, 1, "got a list");
 		ok(people[0] instanceof Person);
 		start();
-	}); //-> instances
+	}, logErrorAndStart); //-> instances
 	
 	stop();
 	peopleConnection.findOne({id: 5}).then(function(person){
 		equal(person.id, 5, "got a list");
 		ok(person instanceof Person);
 		start();
-	});
+	}, logErrorAndStart);
 	
 	var p = new Person({name: "justin"});
 	stop();
@@ -88,7 +92,7 @@ QUnit.test("basics", function(){
 		equal(p2, updatedP, "same instances");
 		equal(p2.update, true);
 		start();
-	});
+	}, logErrorAndStart);
 	
 	var p3 = new Person({name: "justin", id: 3});
 	stop();
@@ -96,6 +100,6 @@ QUnit.test("basics", function(){
 		equal(p3, updatedP, "same instances");
 		equal(p3.destroy, true);
 		start();
-	});
+	}, logErrorAndStart);
 	
 });

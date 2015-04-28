@@ -2,6 +2,7 @@
 var connect = require("can-connect");
 var canSet = require("can-set");
 var can = require("can/util/util");
+var getItems = require("./helpers/get-items");
 
 // TODO: rename combine-requests
 /**
@@ -90,7 +91,7 @@ module.exports = connect.behavior("combined-requests",function(base, options){
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									combined.pendingRequests.forEach(function(pending){
-										pending.deferred.resolve( self.getSubset(pending.params, combined.params, data, options) );
+										pending.deferred.resolve( self.getSubset(pending.params, combined.params, getItems(data), options) );
 									});
 								}
 								

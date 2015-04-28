@@ -57,7 +57,7 @@ QUnit.test("observed is matched and then discarded after unobserved", function()
 			return new Person(values);
 		}, 
 		list: function(arr){
-			return new PersonList(arr);
+			return new PersonList(arr.data);
 		} 
 	}) );
 	

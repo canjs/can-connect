@@ -3,6 +3,12 @@ var can = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
 require("../model");
 
+var logErrorAndStart = function(e){
+	debugger;
+	ok(false,"Error "+e);
+	start();
+};
+
 
 (function () {
 	QUnit.module('can/model', {
@@ -922,8 +928,7 @@ require("../model");
 		m.isNew();
 		can.__reading = old;
 	});
-	// STOP HERE
-	return;
+	
 	test('extends defaults by calling base method', function () {
 		var M1 = can.Model.extend({
 			defaults: {
@@ -934,7 +939,8 @@ require("../model");
 		equal(M2.defaults.foo, 'bar');
 	});
 	test('.models updates existing list if passed', 4, function () {
-		var Model = can.Model.extend({});
+		var Model = can.Model.extend({},{});
+		
 		var list = Model.models([{
 			id: 1,
 			name: 'first'
@@ -942,9 +948,11 @@ require("../model");
 			id: 2,
 			name: 'second'
 		}]);
+		
 		list.bind('add', function (ev, newData) {
 			equal(newData.length, 3, 'Got all new items at once');
 		});
+		
 		var newList = Model.models([{
 			id: 3,
 			name: 'third'
@@ -955,10 +963,12 @@ require("../model");
 			id: 5,
 			name: 'fifth'
 		}], list);
+		
 		equal(list, newList, 'Lists are the same');
 		equal(newList.attr('length'), 3, 'List has new items');
 		equal(list[0].name, 'third', 'New item is the first one');
 	});
+	
 	test('calling destroy with unsaved model triggers destroyed event (#181)', function () {
 		var MyModel = can.Model.extend({}, {}),
 			newModel = new MyModel(),
@@ -978,13 +988,15 @@ require("../model");
 	test('model removeAttr (#245)', function () {
 		var MyModel = can.Model.extend({}),
 			model;
-		can.Model._reqs++;
+		
 		// pretend it is live bound
 		model = MyModel.model({
 			id: 0,
 			index: 2,
 			name: 'test'
 		});
+		MyModel.connection.observedInstance(model);
+		
 		model = MyModel.model({
 			id: 0,
 			name: 'text updated'
@@ -994,13 +1006,14 @@ require("../model");
 		MyModel = can.Model.extend({
 			removeAttr: true
 		}, {});
-		can.Model._reqs++;
+		
 		// pretend it is live bound
 		model = MyModel.model({
 			id: 0,
 			index: 2,
 			name: 'test'
 		});
+		MyModel.connection.observedInstance(model);
 		model = MyModel.model({
 			id: 0,
 			name: 'text updated'
@@ -1011,16 +1024,17 @@ require("../model");
 			name: 'text updated'
 		}, 'Index attribute got removed');
 	});
-	test('.model on create and update (#301)', function () {
+	test('.parseModel on create and update (#301)', function () {
 		var MyModel = can.Model.extend({
 			create: 'POST /todo',
 			update: 'PUT /todo',
-			model: function (data) {
-				return can.Model.model.call(this, data.item);
+			parseModel: function (data) {
+				return data.item;
 			}
 		}, {}),
 			id = 0,
 			updateTime;
+			
 		can.fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
@@ -1029,6 +1043,7 @@ require("../model");
 				})
 			};
 		});
+		
 		can.fixture('PUT /todo', function (original, respondWith, settings) {
 			updateTime = new Date()
 				.getTime();
@@ -1055,6 +1070,7 @@ require("../model");
 					updatedAt: updateTime
 				}, '.model works for update');
 			});
+			
 		var instance = new MyModel({
 			name: 'Dishes'
 		}),
@@ -1062,9 +1078,12 @@ require("../model");
 		stop();
 		saveD.then(function () {
 			instance.attr('name', 'Laundry')
-				.save();
-		});
+				.save(undefined, logErrorAndStart);
+		}, logErrorAndStart);
+		
 	});
+	
+	
 	test('List params uses findAll', function () {
 		stop();
 		can.fixture('/things', function (request) {
@@ -1084,44 +1103,6 @@ require("../model");
 			equal(items[0].name, 'Thing One', 'items added');
 			start();
 		});
-	});
-	test('Creating nested models adds them to the store (#357)', function () {
-		// Raw data. Nested object is there twice
-		var employees = [{
-			id: 1,
-			name: 'David',
-			company: {
-				id: 2,
-				name: 'Google'
-			}
-		}, {
-			id: 2,
-			name: 'Tom',
-			company: {
-				id: 3,
-				name: 'Amazon'
-			}
-		}, {
-			id: 3,
-			name: 'John',
-			company: {
-				id: 2,
-				name: 'Google'
-			}
-		}];
-		// Company model
-		Company = can.Model.extend({}, {});
-		// Person model with nested Company
-		Person = can.Model.extend({
-			attributes: {
-				company: 'Company.model'
-			}
-		}, {});
-		// Initialize raw data as Model instances
-		var people = Person.models(employees);
-		// Suddenly Google was bought by Bitovi! and we need to change name.
-		people[0].company.attr('name', 'Bitovi');
-		ok(people[0].company === people[2].company, 'found the same company instance');
 	});
 
 	test('destroy not calling callback for new instances (#403)', function () {
@@ -1152,9 +1133,10 @@ require("../model");
 
 	test('string configurable model and models functions (#128)', function () {
 		var StrangeProp = can.Model.extend({
-			model: 'foo',
-			models: 'bar'
+			parseModel: 'foo',
+			parseModels: 'bar'
 		}, {});
+		
 		var strangers = StrangeProp.models({
 			bar: [{
 				foo: {
@@ -1192,12 +1174,13 @@ require("../model");
 			name: 'Justin'
 		});
 		t.bind('name', handler);
+		
 		var def = t.save();
 		stop();
 		def.then(function (todo) {
 			ok(todo === t, 'same instance');
 			start();
-			ok(Todo.store[5] === t, 'instance put in store');
+			ok(Todo.store[5].instance === t, 'instance put in store');
 			t.unbind('name', handler);
 		});
 	});
@@ -1372,7 +1355,6 @@ require("../model");
 		var MyModel = can.Model.extend({
 			findAll: "/mymodels",
 			parseModels: function (raw, xhr) {
-
 				// only check this if jQuery because its deferreds can resolve with multiple args
 				if (window.jQuery) {
 					ok(xhr, "xhr object provided");
@@ -1488,7 +1470,7 @@ require("../model");
 		ClothingModel.findOne({id: 1}, function(item) {
 			equal(item[0].name, "pants", "findOne returned the correct model");
 			start();
-		});
+		}, logErrorAndStart);
 	});
 
 	test("#501 - resource definition - remove trailing slash(es)", function() {
@@ -1510,9 +1492,11 @@ require("../model");
 
 	test("model list destroy after calling replace", function(){
 		expect(2);
-		var map = new can.Model({name: "map1"});
-		var map2 = new can.Model({name: "map2"});
-		var list = new can.Model.List([map, map2]);
+		var MyModel = can.Model.extend({},{});
+		var map = new MyModel({name: "map1"});
+		var map2 = new MyModel({name: "map2"});
+		var list = new MyModel.List([map, map2]);
+		
 		list.bind('destroyed', function(ev){
 			ok(true, 'trigger destroyed');
 		});
@@ -1593,9 +1577,9 @@ require("../model");
 			}
 		}, {});
 
-		var alldfd = Thing.findAll(),
-		onedfd = Thing.findOne({ id: 0 }),
-		postdfd = new Thing().save();
+		var alldfd = Thing.findAll();
+		var onedfd = Thing.findOne({ id: 0 });
+		var postdfd = new Thing().save();
 
 		stop();
 		can.when(alldfd, onedfd, postdfd)
@@ -1603,12 +1587,12 @@ require("../model");
 			equal(things.length, 1, 'findAll override called');
 			equal(thing.name, 'foo', 'resource findOne called');
 			equal(newthing.id, 1, 'post override called with function');
-
+			
 			newthing.save(function(res) {
 				ok(res.updated, 'put override called with object');
 				start();
 			});
-		})
+		},logErrorAndStart)
 		.fail(function() {
 			ok(false, 'override request failed');
 			start();
@@ -1730,7 +1714,7 @@ require("../model");
 		var t1 = new Task({id: 1, name: "MyTask"});
 
 		t1.bind('change', function(){});
-		ok(Task.store[t1.id].name === "MyTask", "Model should be in store");
+		ok(Task.store[t1.id].instance.name === "MyTask", "Model should be in store");
 
 		t1.removeAttr("id");
 		ok(typeof Task.store[t1.id] === "undefined", "Model should be removed from store when `id` is removed");
