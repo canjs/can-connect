@@ -1,4 +1,6 @@
 //require("./set-helpers_test");
+require("./localstorage-cache_test");
+require("./fall-through-cache_test")
 require("./combine-requests_test");
 require("./cache-requests_test");
 require("./persist_test");

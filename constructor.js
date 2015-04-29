@@ -48,7 +48,12 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 				arr.push( this.makeInstance(instanceData.data[i]) );
 			}
 			instanceData.data = arr;
-			return options.list(instanceData);
+			if(options.list) {
+				return options.list(instanceData);
+			} else {
+				return instanceData.data.slice(0);
+			}
+			
 		},
 		makeInstance: function(props){
 			return options.instance(props);

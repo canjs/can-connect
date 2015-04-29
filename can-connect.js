@@ -1,21 +1,49 @@
 var can = require("can/util/util");
 
-// whatever order they are given ... add them all in order
+/**
+ * 
+ * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
+ * The order of named execution gets run in order.  
+ * @param {Object} options
+ */
 var connect = function(behaviors, options){
-	behaviors = behaviors.slice(0);
-	var behavior = {};
-	can.each(connect.order, function(name){
-		if(behaviors.indexOf(name) >= 0) {
-			var behave = behaviorsMap[name];
-			if(behave) {
-				behavior = behave(behavior, options);
-			}
+	behaviors = behaviors.map(function(behavior, index){
+		var sortedIndex;
+		if(typeof behavior === "string") {
+			sortedIndex = connect.order.indexOf(behavior);
+			behavior = behaviorsMap[behavior];
+		} else if(behavior.isBehavior) {
+			
+		} else {
+			behavior = connect.behavior(behavior);
 		}
+		
+		return {
+			originalIndex: index,
+			sortedIndex: sortedIndex,
+			behavior: behavior
+		};
+	})
+		.sort(function(b1, b2){
+			// if both have a sorted index
+			if(b1.sortedIndex != null && b2.sortedIndex != null) {
+				return b1.sortedIndex - b2.sortedIndex;
+			}
+			return b1.originalIndex - b2.originalIndex;
+		}).map(function(b){
+			return b.behavior;
+		});
+	
+	var behavior = core({},options);
+	
+	behaviors.forEach(function(behave){
+		behavior = behave(behavior, options);
 	});
+	
 	return behavior;
 };
 
-connect.order = ["rest","persist","parse-data","cache-requests","combine-requests","constructor","instance-store"];
+connect.order = ["localstorage-cache","rest","persist","parse-data","cache-requests","combine-requests","constructor","instance-store","fall-through-cache"];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {
@@ -35,9 +63,17 @@ connect.behavior = function(name, behavior){
 		behaviorMixin.name = name;
 		behaviorsMap[name] = behaviorMixin;
 	}
-	
+	behaviorMixin.isBehavior = true;
 	return behaviorMixin;
 };
+var core = connect.behavior(function(base, options){
+	return {
+		id: function(instance){
+			return instance[options.id || this.idProp || "id"];
+		},
+		idProp: "id"
+	};
+});
 
 var behaviorsMap = {};
 

@@ -130,24 +130,27 @@ The methods that people using an implemented connection should use.
 
 ### Internal Persisted CRUD methods
 
-The raw-data connection methods.  These are used internally by the "External Persisted CRUD methods".
+The raw-data connection methods.  These are used by the "External Persisted CRUD methods".  These should
+be implemented by behaviors.  Examples include `persist` or `localstorage-cache`.
 
--  `getListData(set) -> Promise<{data:Array<Object>}>` - Retrieves list data for a particular set.
--  `getInstanceData(set) -> Promise<Object>` - Retrieves data for a particular item.
--  `createInstanceData( props ) -> Promise<Object>` - Creates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
--  `updateInstanceData( props ) -> Promise<Object>` - Updates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
--  `destroyInstanceData( props ) -> Promise<Object>` - Destroys an instance given the seralized form of the data.  Returns any additional properties that should be added to the instance.
+- `getListData(set) -> Promise<{data:Array<Object>}>` - Retrieves list data for a particular set.
+- `updateListData(set, {data: Array<Object>}) -> Promise` - Called when a set of data is updated with the raw data to be saved. This is normally used for caching.
 - `parseListData(*) -> {data:Array<Object>}` - Given the response of getListData, return the right object format.
+
+- `getInstanceData(set) -> Promise<Object>` - Retrieves data for a particular item.
+- `createInstanceData( props ) -> Promise<Object>` - Creates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
+- `updateInstanceData( props ) -> Promise<Object>` - Updates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
+- `destroyInstanceData( props ) -> Promise<Object>` - Destroys an instance given the seralized form of the data.  Returns any additional properties that should be added to the instance.
 - `parseInstanceData(*) -> Object` - Given a single items response data, return the right object format.  This is called by parseListData as well as all other internal CRUD methods.
 
 ### Instance and Instances
 
 - `makeInstance( props )` - Creates an instance in memory given data for that instance.
-- `makeInstances({data: Array<Object})` - Creates a container for instances and all the instances within that container.
+- `makeInstances({data: Array<Object>})` - Creates a container for instances and all the instances within that container.
 - `createdInstance(instance, props)` - Called whenever an instance is created in the persisted state.
 - `updatedInstance(instance, props)` - Called whenever an instance is updated in the persisted state.
 - `destroyedInstance(instance, props)` - Called whenever an instance is destroyed in the persisted state.
-
+- `updatedList(list, updatedList)` - Called whenever a list has been updated. `updatedList` should be merged into `list`.
 
 ### Identifiers
 
