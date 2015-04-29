@@ -1,4 +1,5 @@
 //require("./set-helpers_test");
+require("./service-worker-cache_test");
 require("./localstorage-cache_test");
 require("./fall-through-cache_test")
 require("./combine-requests_test");
