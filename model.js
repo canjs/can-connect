@@ -10,7 +10,7 @@ var can = require("can/util/util"),
 	
 	persist = require("./persist"),
 	constructor = require("./constructor"),
-	instanceStore = require("./instance-store"),
+	instanceStore = require("./store"),
 	parseData = require("./parse-data");
 
 var callCanReadingOnIdRead = true;
@@ -34,6 +34,7 @@ var resolveSingleExport = function(originalPromise){
 var mapBehavior = connect.behavior(function(baseConnect, options){
 	var behavior = {
 		id: function(inst) {
+			
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
 					can.__reading(inst, inst.constructor.id);
@@ -43,6 +44,9 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 			} else {
 				return inst[options.constructor.id];
 			}
+		},
+		listSet: function(){
+			return undefined;
 		},
 		idProp: options.constructor.id,
 		serializeInstance: function(instance){
@@ -224,7 +228,7 @@ can.Model = can.Map.extend({
 	models: function(raw, oldList){
 		var args = can.makeArray(arguments);
 		args[0] = this.connection.parseListData.apply(this.connection, arguments);
-		var list = this.connection.makeInstances.apply(this.connection, args);
+		var list = this.connection.makeList.apply(this.connection, args);
 		if( oldList instanceof can.List ) {
 			return oldList.replace(list);
 		} else {
@@ -268,13 +272,13 @@ can.Model = can.Map.extend({
 	_bindsetup: function () {
 		// this should not call reading
 		callCanReadingOnIdRead = false;
-		this.constructor.connection.observedInstance(this);
+		this.constructor.connection.addInstanceReference(this);
 		callCanReadingOnIdRead = true;
 		return can.Map.prototype._bindsetup.apply(this, arguments);
 	},
 	_bindteardown: function () {
 		callCanReadingOnIdRead = false;
-		this.constructor.connection.unobservedInstance(this);
+		this.constructor.connection.deleteInstanceReference(this);
 		callCanReadingOnIdRead = true;
 		return can.Map.prototype._bindteardown.apply(this, arguments);
 	},
@@ -284,7 +288,7 @@ can.Model = can.Map.extend({
 		// If we add or change the ID, update the store accordingly.
 		// TODO: shouldn't this also delete the record from the old ID in the store?
 		if ( prop === this.constructor.id && this._bindings ) {
-			this.constructor.connection.observedInstance(this);
+			this.constructor.connection.addInstanceReference(this);
 		}
 	}
 });

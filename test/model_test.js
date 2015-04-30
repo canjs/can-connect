@@ -201,7 +201,7 @@ var logErrorAndStart = function(e){
 			equal(person.name, 'Justin', 'Got a name back');
 			ok(person instanceof Person, 'Person got a class back');
 			start();
-		});
+		},logErrorAndStart);
 	});
 	
 	test('save deferred', function () {
@@ -434,7 +434,7 @@ var logErrorAndStart = function(e){
 			.bind('destroyed', function () {
 				ok(true, 'destroyed');
 			});
-		item.save();
+		item.save().then(undefined, logErrorAndStart);
 	});
 
 	test('removeAttr test', function () {
@@ -592,15 +592,15 @@ var logErrorAndStart = function(e){
 		
 		var func = function () {};
 		s.bind('foo', func);
-		ok(Storage.store[1], 'stored');
+		ok(Storage.store.has(1), 'stored');
 		s.unbind('foo', func);
-		ok(!Storage.store[1], 'not stored');
+		ok(!Storage.store.has(1), 'not stored');
 		var s2 = new Storage({});
 		s2.bind('foo', func);
 		s2.attr('id', 5);
-		ok(Storage.store[5], 'stored');
+		ok(Storage.store.has(5), 'stored');
 		s2.unbind('foo', func);
-		ok(!Storage.store[5], 'not stored');
+		ok(!Storage.store.has(5), 'not stored');
 	});
 	test('store ajax binding', function () {
 		var Guy = can.Model.extend({
@@ -630,7 +630,7 @@ var logErrorAndStart = function(e){
 				setTimeout(function () {
 					var id;
 					start();
-					for (id in Guy.store) {
+					for (id in Guy.store.set) {
 						ok(false, 'there should be nothing in the store');
 					}
 				}, 1);
@@ -658,13 +658,13 @@ var logErrorAndStart = function(e){
 		Guy.findAll({}, function (guys) {
 			start();
 			guys[0].bind('updated', function () {});
-			ok(Guy.store[1], 'instance stored');
-			equal(Guy.store[1].instance.updateCount, 0, 'updateCount is 0');
-			equal(Guy.store[1].instance.nested.count, 0, 'nested.count is 0');
+			ok(Guy.store.has(1), 'instance stored');
+			equal(Guy.store.get(1).updateCount, 0, 'updateCount is 0');
+			equal(Guy.store.get(1).nested.count, 0, 'nested.count is 0');
 		});
 		Guy.findAll({}, function (guys) {
-			equal(Guy.store[1].instance.updateCount, 1, 'updateCount is 1');
-			equal(Guy.store[1].instance.nested.count, 1, 'nested.count is 1');
+			equal(Guy.store.get(1).updateCount, 1, 'updateCount is 1');
+			equal(Guy.store.get(1).nested.count, 1, 'nested.count is 1');
 		});
 	});
 	
@@ -995,7 +995,7 @@ var logErrorAndStart = function(e){
 			index: 2,
 			name: 'test'
 		});
-		MyModel.connection.observedInstance(model);
+		MyModel.connection.addInstanceReference(model);
 		
 		model = MyModel.model({
 			id: 0,
@@ -1013,7 +1013,7 @@ var logErrorAndStart = function(e){
 			index: 2,
 			name: 'test'
 		});
-		MyModel.connection.observedInstance(model);
+		MyModel.connection.addInstanceReference(model);
 		model = MyModel.model({
 			id: 0,
 			name: 'text updated'
@@ -1180,7 +1180,7 @@ var logErrorAndStart = function(e){
 		def.then(function (todo) {
 			ok(todo === t, 'same instance');
 			start();
-			ok(Todo.store[5].instance === t, 'instance put in store');
+			ok(Todo.store.get(5) === t, 'instance put in store');
 			t.unbind('name', handler);
 		});
 	});
@@ -1714,10 +1714,10 @@ var logErrorAndStart = function(e){
 		var t1 = new Task({id: 1, name: "MyTask"});
 
 		t1.bind('change', function(){});
-		ok(Task.store[t1.id].instance.name === "MyTask", "Model should be in store");
+		ok(Task.store.get(t1.id).name === "MyTask", "Model should be in store");
 
 		t1.removeAttr("id");
-		ok(typeof Task.store[t1.id] === "undefined", "Model should be removed from store when `id` is removed");
+		ok(typeof Task.store.get(t1.id) === "undefined", "Model should be removed from store when `id` is removed");
 
 	});
 

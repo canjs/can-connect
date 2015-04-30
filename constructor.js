@@ -27,18 +27,18 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 	
 	var behavior = {
 		findAll: function(params) {
-			return pipe(baseConnect.getListData.call(this, params), this, function(data){
-				return this.makeInstances(data);
+			return pipe(this.getListData( params), this, function(data){
+				return this.makeList(data, params);
 			});
 		},
 		findOne: function(params) {
-			return pipe(baseConnect.getInstanceData.call(this, params), this, function(data){
+			return pipe(this.getInstanceData(params), this, function(data){
 				return this.makeInstance(data, options);
 			});
 		},
 		
 		// given raw data, makes the instances
-		makeInstances: function(instanceData){
+		makeList: function(instanceData, params){
 			if(can.isArray(instanceData)) {
 				instanceData = {data: instanceData};
 			}
@@ -49,14 +49,20 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			}
 			instanceData.data = arr;
 			if(options.list) {
-				return options.list(instanceData);
+				return options.list(instanceData, params);
 			} else {
-				return instanceData.data.slice(0);
+				var list = instanceData.data.slice(0);
+				list.__set = params;
+				return list;
 			}
 			
 		},
 		makeInstance: function(props){
-			return options.instance(props);
+			if(options.instance) {
+				return options.instance(props);
+			} else {
+				return can.simpleExtend({}, props);
+			}
 		},
 		save: function(instance){
 			var serialized = this.serializeInstance(instance);

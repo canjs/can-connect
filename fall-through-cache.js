@@ -3,6 +3,7 @@ var can = require("can/util/util");
 var connect = require("can-connect");
 var canSet = require("can-set");
 
+var sortedSetJSON = require("./helpers/sorted-set-json");
 
 /**
  * @module can-connect/fall-through-cache
@@ -13,36 +14,62 @@ var canSet = require("can-set");
 module.exports = connect.behavior("fall-through-cache",function(baseConnect, options){
 
 	var behavior = {
-		findAll: function(params){
+		// overwrite makeList calls
+		// so we can know the list that was made
+		makeList: function(listData, set){
+			set = set || this.listSet(listData);
+			var id = sortedSetJSON( set );
+			var list = baseConnect.makeList.call(this, listData, set);
+			
+			if(this._getMakeListCallbacks[id]) {
+				this._getMakeListCallbacks[id].shift()(list);
+				if(!this._getMakeListCallbacks[id].length){
+					delete this._getMakeListCallbacks[id]
+				}
+			}
+			return list;
+		},
+		_getMakeListCallbacks: {},
+		_getMakeList: function(set, callback){
+			var id = sortedSetJSON( set );
+			if(!this._getMakeListCallbacks[id]) {
+				this._getMakeListCallbacks[id]= []
+			}
+			this._getMakeListCallbacks[id].push(callback);
+		},
+		// if we do findAll, the cacheConnection runs on
+		// if we do getListData, ... we need to register the list that is going to be created
+		// so that when the data is returned, it updates this
+		getListData: function(params){
 			// first, always check the cache connection
 			var self = this;
 			return options.cacheConnection.getListData(params).then(function(data){
-				// if the cache returned, get it to the user right away
-				var list = self.makeInstances(data);
 				
-				// in the back ground, try to update it
-				setTimeout(function(){
-					self.getListData(params).then(function(listData){
-						options.cacheConnection.updateListData(params, listData);
-						self.updatedList(list, listData.data);
-					}, function(){
-						// what do we do here?  self.rejectedUpdatedList ?
-						console.log("REJECTED", e);
-					});
-				},1);
+				// get the list that is going to be made
+				// it might be possible that this never gets called, but not right now
+				self._getMakeList(params, function(list){
+					setTimeout(function(){
+						baseConnect.getListData.call(self, params).then(function(listData){
+							
+							options.cacheConnection.updateListData(params, listData);
+							self.updatedList(list, listData.data, params);
+							self.deleteListReference(list, params);
+							
+						}, function(){
+							// what do we do here?  self.rejectedUpdatedList ?
+							console.log("REJECTED", e);
+						});
+					},1);
+				});
 				
-				
-				return list;
+				return data;
 			}, function(){
-				var listData = self.getListData(params);
+				var listData = baseConnect.getListData.call(this, params);
 				listData.then(function(listData){
 					options.cacheConnection.updateListData(params, listData);
 				});
-				var list = listData.then(function(listData){
-					return self.makeInstances(listData);
-				});
 				
-				return list;
+				return listData;
 			});
 		}
 		

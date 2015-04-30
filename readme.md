@@ -146,26 +146,31 @@ be implemented by behaviors.  Examples include `persist` or `localstorage-cache`
 ### Instance and Instances
 
 - `makeInstance( props )` - Creates an instance in memory given data for that instance.
-- `makeInstances({data: Array<Object>})` - Creates a container for instances and all the instances within that container.
+- `makeList({data: Array<Object>}, set)` - Creates a container for instances and all the instances within that container.
+
 - `createdInstance(instance, props)` - Called whenever an instance is created in the persisted state.
 - `updatedInstance(instance, props)` - Called whenever an instance is updated in the persisted state.
 - `destroyedInstance(instance, props)` - Called whenever an instance is destroyed in the persisted state.
-- `updatedList(list, updatedList)` - Called whenever a list has been updated. `updatedList` should be merged into `list`.
+- `updatedList(list, updatedList, set)` - Called whenever a list has been updated. `updatedList` should be merged into `list`.
 
 ### Identifiers
 
-- `id( props | instance )` - Given the raw data for an instance, or the instance, returns a unique identifier for the instance.
+- `id( props | instance ) -> STRING` - Given the raw data for an instance, or the instance, returns a unique identifier for the instance.
 - `idProp {String="id"}` - The name of the unique identifier property.
+- `listSet(list) -> set` - Returns the set this set represents.
+- `listSetProp {String="__set"}` - The property on a List that contains its set.
 
 ## External Hooks
 
 Hooks that your library and code should be calling.
 
 - `madeInstance(instance)` - Called whenever an isntance is created in memory.
-- `observeInstance(instance)` - Called whenver an instance is observed. This serves as a signal that memory-unsafe actions can be performed.
-- `unobserveInstance(instance)` - Called whenever an instance is no longer observed. This serves as a signal that memory-unsafe should be removed.
-- `observedList(list)` - Called whenever a a list is observed.
-- `unobservedList(list)` - Called whenever a a list is unobserved.
+- `madeInstance(list, set)` - Called whenever a list is created in memory.
+
+- `addInstanceReference(instance)` - Called whenver an instance is observed. This serves as a signal that memory-unsafe actions can be performed.
+- `deleteInstanceReference(instance)` - Called whenever an instance is no longer observed. This serves as a signal that memory-unsafe should be removed.
+- `addListReference(list)` - Called whenever a a list is observed.
+- `deleteListReference(list)` - Called whenever a a list is unobserved.
 
 
 ## Creating Behaviors

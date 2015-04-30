@@ -28,7 +28,7 @@ var hooks = {
 	},
 	idProp: "id",
 	// given array data, returns instances
-	makeInstances: function(){},
+	makeList: function(){},
 	// given instance data, returns instance
 	makeInstance: function(){},
 	

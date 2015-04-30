@@ -43,7 +43,7 @@ var connect = function(behaviors, options){
 	return behavior;
 };
 
-connect.order = ["localstorage-cache","rest","persist","parse-data","cache-requests","combine-requests","constructor","instance-store","fall-through-cache"];
+connect.order = ["localstorage-cache","rest","persist","parse-data","cache-requests","combine-requests","constructor","store","fall-through-cache"];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {
@@ -71,7 +71,11 @@ var core = connect.behavior(function(base, options){
 		id: function(instance){
 			return instance[options.id || this.idProp || "id"];
 		},
-		idProp: "id"
+		idProp: "id",
+		listSet: function(list){
+			return list[this.listSetProp];
+		},
+		listSetProp: "__set"
 	};
 });
 

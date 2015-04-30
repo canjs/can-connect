@@ -1,19 +1,20 @@
 var QUnit = require("steal-qunit");
 var fallThroughCache = require("../fall-through-cache");
 var constructor = require("../constructor");
+var store = require("../store");
 var connect = require("can-connect");
 var canSet = require("can-set");
 
 var getId = function(d){ return d.id};
 
-asyncResolve = function(data) {
+var asyncResolve = function(data) {
 	var def = new can.Deferred();
 	setTimeout(function(){
 		def.resolve(data);
 	},1);
 	return def;
 };
-asyncReject = function(data) {
+var asyncReject = function(data) {
 	var def = new can.Deferred();
 	setTimeout(function(){
 		def.reject(data);
@@ -41,7 +42,7 @@ QUnit.test("basics", function(){
 		
 	var checkState = function(value){
 		var state = names.shift();
-		equal( state, value, "state check" );
+		equal( state, value, "state check "+state );
 		if(state !== value) {
 			start();
 		}
@@ -109,7 +110,7 @@ QUnit.test("basics", function(){
 		canSet.helpers.extend(this, values);
 	};
 	
-	var connection = connect([base, "constructor","fall-through-cache", updater],{
+	var connection = connect([base, "constructor","fall-through-cache","store", updater],{
 		instance: function(values){
 			return new Person(values);
 		},
