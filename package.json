@@ -5,10 +5,10 @@
   "main": "can-connect.js",
   "dependencies": {
     "can": "2.2.X",
-    "can-set": "^0.1.1"
+    "can-set": "^0.1.2"
   },
   "devDependencies": {
-  	"steal": "^0.10.0",
+  	"steal": "^0.10.1",
     "steal-qunit": "0.0.2"
   },
   "scripts": {
