@@ -25,7 +25,7 @@ var setAdd = function(set, items, item, compare){
  * A very rough and slow version of localstorage caching.
  * 
  */
-module.exports = connect.behavior("localstorage-cache",function(baseConnect, options){
+module.exports = connect.behavior("data-localstorage-cache",function(baseConnect, options){
 
 	var behavior = {
 		_sets: null,

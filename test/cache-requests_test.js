@@ -1,6 +1,6 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("../persist");
+var persist = require("../data-url");
 var cacheRequests = require("../cache-requests");
 var set = require("can-set");
 

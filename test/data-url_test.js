@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
-var persist = require("../persist");
+var persist = require("../data-url");
 
 QUnit.module("can-connect/persist",{
 	setup: function(){

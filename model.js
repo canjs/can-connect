@@ -8,10 +8,10 @@ var can = require("can/util/util"),
 	List = require("can/list/list"),
 	connect = require("can-connect"),
 	
-	persist = require("./persist"),
+	persist = require("./data-url"),
 	constructor = require("./constructor"),
-	instanceStore = require("./store"),
-	parseData = require("./parse-data");
+	instanceStore = require("./constructor-store"),
+	parseData = require("./data-parse");
 
 var callCanReadingOnIdRead = true;
 var getBaseValue = function(prop){

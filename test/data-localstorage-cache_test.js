@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var localStorage = require("../localstorage-cache");
+var localStorage = require("../data-localstorage-cache");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){
@@ -11,7 +11,7 @@ var logErrorAndStart = function(e){
 var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 
-QUnit.module("can-connect/localstorage-cache",{
+QUnit.module("can-connect/data-localstorage-cache",{
 	setup: function(){
 		this.connection = connect([localStorage],{
 			name: "todos"

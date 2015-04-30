@@ -1,10 +1,10 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can-set");
 var fixture = require("can/util/fixture/fixture");
-var persist = require("../persist");
+var persist = require("../data-url");
 
 var constructor = require("../constructor");
-var instanceStore = require("../store");
+var instanceStore = require("../constructor-store");
 var connect = require("../can-connect");
 
 var logErrorAndStart = function(e){
@@ -29,7 +29,7 @@ var asyncReject = function(data) {
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
-QUnit.module("can-connect/store",{
+QUnit.module("can-connect/constructor-store",{
 	setup: function(){
 		this.persistConnection = persist({},{
 			findAll: "/constructor/people",
@@ -138,7 +138,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 				list.splice.apply(list, [0, list.length].concat( updatedList.data ) );
 			}
 		};
-	},"store","constructor"],{
+	},"constructor-store","constructor"],{
 		instance: function(values){
 			return new Person(values);
 		}, 

@@ -1,11 +1,11 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
-var persist = require("../persist");
-var parseData = require("../parse-data");
+var persist = require("../data-url");
+var parseData = require("../data-parse");
 var connect = require("can-connect");
 
-QUnit.module("can-connect/parse-data",{
+QUnit.module("can-connect/data-parse",{
 	setup: function(){
 		fixture.delay = 1;
 	}
@@ -18,7 +18,7 @@ var logErrorAndStart = function(e){
 QUnit.test("basics", function(assert){
 	
 	
-	var connection = connect(["persist","parse-data"],{
+	var connection = connect(["data-url","data-parse"],{
 		findAll: "POST /findAll",
 		findOne: "DELETE /findOne",
 		create: "GET /create",

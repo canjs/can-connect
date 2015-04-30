@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var fallThroughCache = require("../fall-through-cache");
 var constructor = require("../constructor");
-var store = require("../store");
+var store = require("../constructor-store");
 var connect = require("can-connect");
 var canSet = require("can-set");
 
@@ -110,7 +110,7 @@ QUnit.test("basics", function(){
 		canSet.helpers.extend(this, values);
 	};
 	
-	var connection = connect([base, "constructor","fall-through-cache","store", updater],{
+	var connection = connect([base, "constructor","fall-through-cache","constructor-store", updater],{
 		instance: function(values){
 			return new Person(values);
 		},

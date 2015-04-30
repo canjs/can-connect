@@ -27,7 +27,7 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 	
 	var behavior = {
 		findAll: function(params) {
-			return pipe(this.getListData( params), this, function(data){
+			return pipe(this.getListData( params ), this, function(data){
 				return this.makeList(data, params);
 			});
 		},

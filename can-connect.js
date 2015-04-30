@@ -43,7 +43,7 @@ var connect = function(behaviors, options){
 	return behavior;
 };
 
-connect.order = ["localstorage-cache","rest","persist","parse-data","cache-requests","combine-requests","constructor","store","fall-through-cache"];
+connect.order = ["data-localstorage-cache","rest","data-url","data-parse","cache-requests","combine-requests","constructor","constructor-store","fall-through-cache"];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {

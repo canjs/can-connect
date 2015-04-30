@@ -51,12 +51,12 @@ var pairs = {
 };
 
 /**
- * @module can-connect/persist-url
+ * @module can-connect/data-url
  * 
  * Provides getListData, getInstanceData, etc, and
  * hooks them up to parse
  */
-module.exports = connect.behavior("persist",function(baseConnect, options){
+module.exports = connect.behavior("data-url",function(baseConnect, options){
 	
 	var behavior = {};
 	can.each(pairs, function(reqOptions, name){
@@ -69,7 +69,7 @@ module.exports = connect.behavior("persist",function(baseConnect, options){
 			} else if( options.resource && options.idProp ) {
 				return ajax( createURLFromResource(options, reqOptions.prop ),  params, reqOptions.type  );
 			} else {
-				return baseConnect.getListData.call(this, params);
+				return baseConnect[name].call(this, params);
 			}
 		};
 	});

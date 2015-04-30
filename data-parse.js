@@ -13,7 +13,7 @@ var pairs = {
 };
 
 /**
- * @module can-connect/parse-data
+ * @module can-connect/data-parse
  * 
  * hooks getListData, getInstanceData, etc, to parse functions. Should be called 
  * after those core things are all decided.
@@ -26,7 +26,7 @@ var pairs = {
  *   @option {String} parseListProp
  *   @option {String} parseInstanceData
  */
-module.exports = connect.behavior("parse-data",function(baseConnect, options){
+module.exports = connect.behavior("data-parse",function(baseConnect, options){
 	
 	var behavior = {
 		// The ONLY job of this is to get this into the {data: items} format
