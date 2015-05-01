@@ -64,7 +64,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 				
 				return data;
 			}, function(){
-				var listData = baseConnect.getListData.call(this, params);
+				var listData = baseConnect.getListData.call(self, params);
 				listData.then(function(listData){
 					options.cacheConnection.updateListData(params, listData);
 				});

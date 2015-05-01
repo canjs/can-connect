@@ -23,5 +23,17 @@ module.exports = {
 		
 		
 		
+	},
+	later: function(fn){
+		return function(){
+			setTimeout(fn, 1);
+		};
+	},
+	logErrorAndStart: function(e){
+		debugger;
+		ok(false,"Error "+e);
+		start();
 	}
+
+
 };

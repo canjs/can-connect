@@ -19,7 +19,7 @@ var getItems = require("./helpers/get-items");
  * 
  *   @option {can.Object.compare} compare 
  */
-module.exports = connect.behavior("combined-requests",function(base, options){
+module.exports = connect.behavior("data-combine-requests",function(base, options){
 	options = options || {};
 	var pendingRequests; //[{params, deferred}]
 	

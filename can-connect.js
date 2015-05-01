@@ -39,13 +39,17 @@ var connect = function(behaviors, options){
 	behaviors.forEach(function(behave){
 		behavior = behave(behavior, options);
 	});
-	
+	if(behavior.init) {
+		behavior.init();
+	}
 	return behavior;
 };
 
-connect.order = ["data-localstorage-cache","data-url","data-parse","cache-requests","combine-requests",
-	"data-callbacks",
-	"constructor","constructor-store","fall-through-cache"];
+connect.order = ["data-localstorage-cache","data-url","data-parse","cache-requests","data-combine-requests",
+	
+	"constructor","constructor-store","constructor-map",
+	"fall-through-cache","data-callbacks",
+	];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {
@@ -59,6 +63,7 @@ connect.behavior = function(name, behavior){
 		var newBehavior = new Behavior;
 		var res = behavior.apply(newBehavior, arguments);
 		can.simpleExtend(newBehavior, res);
+		newBehavior.__name = name;
 		return newBehavior;
 	};
 	if(name) {
@@ -68,7 +73,10 @@ connect.behavior = function(name, behavior){
 	behaviorMixin.isBehavior = true;
 	return behaviorMixin;
 };
-var core = connect.behavior(function(base, options){
+
+var behaviorsMap = {};
+
+var core = connect.behavior("base",function(base, options){
 	return {
 		id: function(instance){
 			return instance[options.id || this.idProp || "id"];
@@ -83,12 +91,13 @@ var core = connect.behavior(function(base, options){
 			// update and assume the instance is already updated
 			// this could be overwritten so that if the ids match, then a merge of properties takes place
 			idMerge(list, listData.data, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
-		}
+		},
+		init: function(){}
 	};
 });
 
 connect.base = core;
 
-var behaviorsMap = {};
+
 
 module.exports = connect;

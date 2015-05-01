@@ -32,13 +32,13 @@ var ajax = function (ajaxOb, data, type, dataType) {
 	}, params));
 };
 
-var createURLFromResource = function(options, name) {
+var createURLFromResource = function(resource, idProp, name) {
 
-	var url = options.resource.replace(/\/+$/, "");
+	var url = resource.replace(/\/+$/, "");
 	if (name === "findAll" || name === "create") {
 		return url;
 	} else {
-		return url + "/{" + options.idProp + "}";
+		return url + "/{" + idProp + "}";
 	}
 };
 
@@ -66,8 +66,8 @@ module.exports = connect.behavior("data-url",function(baseConnect, options){
 			} 
 			else if(options[reqOptions.prop]) {
 				return ajax(options[reqOptions.prop], params, reqOptions.type);
-			} else if( options.resource && options.idProp ) {
-				return ajax( createURLFromResource(options, reqOptions.prop ),  params, reqOptions.type  );
+			} else if( options.resource && (options.idProp || this.idProp) ) {
+				return ajax( createURLFromResource(options.resource, options.idProp || this.idProp, reqOptions.prop ),  params, reqOptions.type  );
 			} else {
 				return baseConnect[name].call(this, params);
 			}

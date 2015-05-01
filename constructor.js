@@ -53,7 +53,9 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 				arr.push( this.makeInstance(instanceData.data[i]) );
 			}
 			instanceData.data = arr;
-			if(options.list) {
+			if(this.list) {
+				return this.list(instanceData, params);
+			} else if(options.list) {
 				return options.list(instanceData, params);
 			} else {
 				var list = instanceData.data.slice(0);
@@ -63,7 +65,9 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			
 		},
 		makeInstance: function(props){
-			if(options.instance) {
+			if(this.instance) {
+				return this.instance(props);
+			} else if(options.instance) {
 				return options.instance(props);
 			} else {
 				return can.simpleExtend({}, props);
@@ -128,14 +132,3 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 	
 });
 
-
-var pairs = {
-	findAll: "getListData",
-	findOne: "getInstanceData",
-	
-	getListData: {prop: "findAll", type: "GET"},
-	getInstanceData: {prop: "findOne", type: "GET"},
-	createInstanceData: {prop: "create", type: "POST"},
-	updateInstanceData: {prop: "update", type: "PUT"},
-	destroyInstanceData: {prop: "destroy", type: "DELETE"}
-};

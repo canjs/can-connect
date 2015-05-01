@@ -4,6 +4,7 @@ var constructor = require("../constructor");
 var store = require("../constructor-store");
 var connect = require("can-connect");
 var canSet = require("can-set");
+var helpers = require("./test-helpers");
 
 var getId = function(d){ return d.id};
 
@@ -21,6 +22,8 @@ var asyncReject = function(data) {
 	},1);
 	return def;
 };
+
+QUnit.module("can-connect/fall-through-cache");
 
 QUnit.test("basics", function(){
 	stop();
@@ -122,14 +125,14 @@ QUnit.test("basics", function(){
 		checkState("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
-	});
+	}, helpers.logErrorAndStart);
 	
 	function secondCall() {
 		checkState("connection-findAll-2");
 		connection.findAll({}).then(function(list){
 			checkState("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
-		});
+		}, helpers.logErrorAndStart);
 	}
 	
 	// second time, it should return the original list from localStorage
