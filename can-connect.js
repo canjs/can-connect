@@ -79,6 +79,9 @@ var core = connect.behavior(function(base, options){
 		},
 		listSetProp: "__set",
 		updatedList: function(list, listData, set) {
+			// This only works with "referenced" instances because it will not
+			// update and assume the instance is already updated
+			// this could be overwritten so that if the ids match, then a merge of properties takes place
 			idMerge(list, listData.data, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
 		}
 	};

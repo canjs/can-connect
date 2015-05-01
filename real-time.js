@@ -71,6 +71,26 @@ var update = function(props, options) {
 	});
 };
 
+
+var destroy = function(props, options) {
+	var self = this;
+	this.listStore.forEach(function(list, id){
+		var set = JSON.parse(id);
+		// ideally there should be speed up ... but this is fine for now.
+		
+		var index = indexOf(self, props, list);
+		
+		if(index != -1){
+			// otherwise remove it
+			var items = self.serializeList(list);
+			items.splice(index,1);
+			self.updatedList(list,  { data: items }, set);
+		}
+		
+	});
+};
+
+
 module.exports = connect.behavior("real-time",function(baseConnect, options){
 	return {
 		createInstance: function(props){
@@ -104,30 +124,49 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			update.call(this, this.serializeInstance(instance), options);
 			return undefined;
 		},
-		destroyedInstanceData: function(props){
+		updateInstance: function(props){
+			var id = this.id(props);
+			var instance = this.instanceStore.get(id);
+			if( !instance ) {
+				instance = this.makeInstance(props);
+			} else {
+				this.updatedInstance(instance, props);
+			}
+			// we can pre-register it so everything else finds it
+			this.addInstanceReference(instance);
+			update.call(this, this.serializeInstance(instance), options);
+			this.deleteInstanceReference(instance);
+			return instance;
+		},
+		destroyedInstanceData: function(props, params){
 			// Go through each list in the listStore and see if there are lists that should have this,
 			// or a list that shouldn't.
-			
-		
-			// this will update the instance if it already exists in the store
-			var instance = this.makeInstance(props);
-			var self = this;
-			// go through each list
-			this.listStore.forEach(function(list, id){
-				var set = JSON.parse(id);
-				// ideally there should be speed up ... but this is fine for now.
-				
-				
-				var index = indexOf(self, props, list);
-				
-				if(index != -1){
-					// otherwise remove it
-					var items = self.serializeList(list);
-					items.splice(index,1);
-					self.updatedList(list,  { data: setAdd(self, set,  items, props, options.compare) }, set);
-				}
-			});
-			return props;
+			var id = this.id(params);
+			var instance = this.instanceStore.get(id);
+			if( !instance ) {
+				instance = this.makeInstance(props);
+			} else {
+				this.destroyedInstance(instance, props);
+			}
+			// we can pre-register it so everything else finds it
+			this.addInstanceReference(instance);
+			destroy.call(this, this.serializeInstance(instance), options);
+			this.deleteInstanceReference(instance);
+			return instance;
+		},
+		destroyInstance: function(props){
+			var id = this.id(props);
+			var instance = this.instanceStore.get(id);
+			if( !instance ) {
+				instance = this.makeInstance(props);
+			} else {
+				this.destroyedInstance(instance, props);
+			}
+			// we can pre-register it so everything else finds it
+			this.addInstanceReference(instance);
+			destroy.call(this, this.serializeInstance(instance), options);
+			this.deleteInstanceReference(instance);
+			return instance;
 		}
 	};
 });

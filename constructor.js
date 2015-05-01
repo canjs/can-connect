@@ -3,6 +3,7 @@ var can = require("can/util/util");
 var connect = require("can-connect");
 var pipe = require("./helpers/pipe");
 var WeakReferenceMap = require("./helpers/weak-reference-map");
+var overwrite = require("./helpers/overwrite");
 
 /**
  * @module can-connect/constructor
@@ -103,15 +104,10 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			can.simpleExtend(instance, data);
 		},
 		updatedInstance: function(instance, data){
-			for(var prop in instance) {
-				if( prop !== this.idProp && !(prop in instance)) {
-					delete instance[prop];
-				}
-			}
-			can.simpleExtend(instance, data);
+			overwrite(instance, data, this.idProp);
 		},
 		destroyedInstance: function(instance, data){
-			can.simpleExtend(instance, data);
+			overwrite(instance, data, this.idProp);
 		},
 		serializeInstance: function(instance){
 			return can.simpleExtend({}, instance);

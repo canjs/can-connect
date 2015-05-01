@@ -150,9 +150,9 @@ be implemented by behaviors.  Examples include `persist` or `localstorage-cache`
 
 These methods are used to update data from the outside, usually by a real time connection.
 
-- `updatedInstanceData( props ) -> Promise`
-- `createdInstanceData( props [, params][, cid] ) -> Promise` 
-- `destroyedInstanceData(props) -> Promise` 
+- `createInstance( props ) -> instance`
+- `updateInstance( props ) -> instance` 
+- `destroyInstance( props ) -> instance` 
 
 ### Instance and Instances
 
