@@ -31,7 +31,7 @@ var asyncReject = function(data) {
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor-store",{
 	setup: function(){
-		this.persistConnection = persist({},{
+		this.persistConnection = persist(connect.base({},{}),{
 			findAll: "/constructor/people",
 			findOne: "/constructor/people/{id}",
 			create: "/constructor/people",

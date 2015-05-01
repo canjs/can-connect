@@ -2,7 +2,7 @@
 var can = require("can/util/util");
 var connect = require("can-connect");
 var pipe = require("./helpers/pipe");
-
+var WeakReferenceMap = require("./helpers/weak-reference-map");
 
 /**
  * @module can-connect/constructor
@@ -26,6 +26,10 @@ var pipe = require("./helpers/pipe");
 module.exports = connect.behavior("constructor",function(baseConnect, options){
 	
 	var behavior = {
+		// stores references to instances
+		// for now, only during create
+		cidStore: new WeakReferenceMap(),
+		_cid: 0,
 		findAll: function(params) {
 			return pipe(this.getListData( params ), this, function(data){
 				return this.makeList(data, params);
@@ -69,8 +73,15 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			var id = this.id(instance);
 			
 			if(id === undefined) {
-				return pipe(this.createInstanceData(serialized), this, function(data){
-					this.createdInstance(instance, data);
+				var cid = this._cid++;
+				this.cidStore.addReference(cid, instance);
+				
+				return pipe(this.createInstanceData(serialized, cid), this, function(data){
+					// if undefined is returned, this can't be created, or someone has taken care of it
+					if(data !== undefined) {
+						this.createdInstance(instance, data);
+					}
+					this.cidStore.deleteReference(cid, instance);
 					return instance;
 				});
 			} else {
@@ -88,13 +99,15 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 				return instance;
 			});
 		},
-		id: function(instance){
-			return instance[options.id || "id"];
-		},
 		createdInstance: function(instance, data){
 			can.simpleExtend(instance, data);
 		},
 		updatedInstance: function(instance, data){
+			for(var prop in instance) {
+				if( prop !== this.idProp && !(prop in instance)) {
+					delete instance[prop];
+				}
+			}
 			can.simpleExtend(instance, data);
 		},
 		destroyedInstance: function(instance, data){
@@ -102,6 +115,16 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 		},
 		serializeInstance: function(instance){
 			return can.simpleExtend({}, instance);
+		},
+		serializeList: function(list){
+			var self = this;
+			return list.map(function(instance){
+				return self.serializeInstance(instance);
+			});
+		},
+		isNew: function(instance){
+			var id = this.id(instance);
+			return !(id || id === 0);
 		}
 	};
 	

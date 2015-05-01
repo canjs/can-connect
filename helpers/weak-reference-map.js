@@ -36,6 +36,11 @@ can.simpleExtend(WeakReferenceMap.prototype,{
 		if(data) {
 			return data.item;
 		}
+	},
+	forEach: function(cb){
+		for(var id in this.set) {
+			cb(this.set[id].item, id);
+		}
 	}
 });
 

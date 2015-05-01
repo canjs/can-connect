@@ -1,5 +1,5 @@
 var can = require("can/util/util");
-
+var idMerge = require("./helpers/id-merge");
 /**
  * 
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -43,7 +43,9 @@ var connect = function(behaviors, options){
 	return behavior;
 };
 
-connect.order = ["data-localstorage-cache","rest","data-url","data-parse","cache-requests","combine-requests","constructor","constructor-store","fall-through-cache"];
+connect.order = ["data-localstorage-cache","data-url","data-parse","cache-requests","combine-requests",
+	"data-callbacks",
+	"constructor","constructor-store","fall-through-cache"];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {
@@ -75,9 +77,14 @@ var core = connect.behavior(function(base, options){
 		listSet: function(list){
 			return list[this.listSetProp];
 		},
-		listSetProp: "__set"
+		listSetProp: "__set",
+		updatedList: function(list, listData, set) {
+			idMerge(list, listData.data, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
+		}
 	};
 });
+
+connect.base = core;
 
 var behaviorsMap = {};
 

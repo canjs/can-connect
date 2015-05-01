@@ -2,7 +2,7 @@ var QUnit = require("steal-qunit");
 var canSet = require("can-set");
 var fixture = require("can/util/fixture/fixture");
 var persist = require("../data-url");
-
+var connect = require("../can-connect");
 var constructor = require("../constructor");
 var logErrorAndStart = function(e){
 	debugger;
@@ -13,7 +13,7 @@ var logErrorAndStart = function(e){
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
 	setup: function(){
-		this.persistConnection = persist({},{
+		this.persistConnection = persist(connect.base({},{}),{
 			findAll: "/constructor/people",
 			findOne: "/constructor/people/{id}",
 			create: "/constructor/people",

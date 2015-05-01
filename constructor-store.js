@@ -37,7 +37,6 @@ module.exports = connect.behavior("constructor-store",function(baseConnect, opti
 	var behavior = {
 		instanceStore: new WeakReferenceMap(),
 		listStore: new WeakReferenceMap(),
-		
 		_requestInstances: {},
 		_requestLists: {},
 		_pendingRequests: 0,
@@ -86,6 +85,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect, opti
 			var id = this.id(props);
 			if((id || id === 0) && this.instanceStore.has(id) ) {
 				var storeInstance = this.instanceStore.get(id);
+				// TODO: find a way to prevent this from being called so many times.
 				this.updatedInstance(storeInstance, props);
 				return storeInstance;
 			}
@@ -137,6 +137,40 @@ module.exports = connect.behavior("constructor-store",function(baseConnect, opti
 			var self = this;
 			self._pendingRequests++;
 			var promise = baseConnect.findOne.call(this, params);
+			
+			promise.then(function(instance){
+				self._finishedRequest();
+			}, function(){
+				self._finishedRequest();
+			});
+			return promise;
+			
+		},
+		save: function(instance) {
+			var self = this;
+			self._pendingRequests++;
+			
+			var updating = !this.isNew(instance);
+			if(updating) {
+				this.addInstanceReference(instance);
+			}
+			
+			var promise = baseConnect.save.call(this, instance);
+			
+			promise.then(function(instances){
+				if(updating) {
+					self.deleteInstanceReference(instance);
+				}
+				self._finishedRequest();
+			}, function(){
+				self._finishedRequest();
+			});
+			return promise;
+		},
+		destroy: function(instance) {
+			var self = this;
+			self._pendingRequests++;
+			var promise = baseConnect.destroy.call(this, instance);
 			
 			promise.then(function(instance){
 				self._finishedRequest();
