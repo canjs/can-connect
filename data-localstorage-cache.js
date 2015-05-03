@@ -108,7 +108,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			this.updateSets();
 		},
 		// creates the set in localstorage
-		updateListData: function(set, data){
+		updateListData: function(data, set){
 			var items = getItems(data);
 			var sets = this.getSets();
 			var self = this;

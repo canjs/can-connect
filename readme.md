@@ -134,7 +134,7 @@ The raw-data connection methods.  These are used by the "External Persisted CRUD
 be implemented by behaviors.  Examples include `persist` or `localstorage-cache`.
 
 - `getListData(set) -> Promise<{data:Array<Object>}>` - Retrieves list data for a particular set.
-- `updateListData(set, {data: Array<Object>}) -> Promise` - Called when a set of data is updated with the raw data to be 
+- `updateListData({data: Array<Object>}, set) -> Promise` - Called when a set of data is updated with the raw data to be 
   saved. This is normally used for caching connection layers.
   
 - `parseListData(*) -> {data:Array<Object>}` - Given the response of getListData, return the right object format.

@@ -232,10 +232,4 @@ QUnit.test("real-time super model", function(){
 		equal( todayList.indexOf(created) , -1, "removed from today");
 		start();
 	}
-	
-	
-
-	
-	
-	
 });

@@ -51,8 +51,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 					setTimeout(function(){
 						baseConnect.getListData.call(self, params).then(function(listData){
 							
-							options.cacheConnection.updateListData(params, listData);
-							self.updatedList(list, listData.data, params);
+							options.cacheConnection.updateListData(listData, params);
+							self.updatedList(list, listData, params);
 							self.deleteListReference(list, params);
 							
 						}, function(){
@@ -66,7 +66,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 			}, function(){
 				var listData = baseConnect.getListData.call(self, params);
 				listData.then(function(listData){
-					options.cacheConnection.updateListData(params, listData);
+					options.cacheConnection.updateListData(listData, params);
 				});
 				
 				return listData;

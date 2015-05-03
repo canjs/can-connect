@@ -30,7 +30,7 @@ QUnit.test("basics", function(){
 	var firstItems = [ {id: 0, foo: "bar"}, {id: 1, foo: "bar"} ];
 	var secondItems = [ {id: 1, foo: "BAZ"}, {id: 2, foo: "bar"} ];
 	
-	var names = ["cache-getListData-empty",
+	var state = helpers.makeStateChecker(QUnit,["cache-getListData-empty",
 		"base-getListData",
 		"cache-updateListData",
 		"connection-foundAll",
@@ -41,44 +41,31 @@ QUnit.test("basics", function(){
 		"connection-foundAll-2",
 		"base-getListData-2",
 		"cache-updateListData-2",
-		"updatedList"];
+		"updatedList"] );
 		
-	var checkState = function(value){
-		var state = names.shift();
-		equal( state, value, "state check "+state );
-		if(state !== value) {
-			start();
-		}
-		return state;
-	};
-	var state = function(){
-		return names[0];
-	};
-	var nextState = function(){
-		return names.shift();
-	};
+
 	var cacheConnection = connect([function(){
 		var calls = 0;
 		return {
 			getListData: function(){
 				// nothing here first time
-				if(state() === "cache-getListData-empty") {
-					nextState();
+				if(state.get() === "cache-getListData-empty") {
+					state.next();
 					return asyncReject();
 				} else {
-					checkState("cache-getListData-items");
+					state.check("cache-getListData-items");
 					return asyncResolve({data: firstItems.slice(0) });
 				}
 			},
-			updateListData: function(set, data) {
-				if(state() === "cache-updateListData") {
-					nextState();
+			updateListData: function(data, set) {
+				if(state.get() === "cache-updateListData") {
+					state.next();
 					deepEqual(set,{},"got the right set");
 					deepEqual(data.data,firstItems, "updateListData items are right");
 					return asyncResolve();
 				} else {
 					deepEqual(data.data,secondItems, "updateListData 2 items are right");
-					checkState("cache-updateListData-2");
+					state.check("cache-updateListData-2");
 					return asyncResolve();
 				}
 			}
@@ -89,11 +76,11 @@ QUnit.test("basics", function(){
 		var calls = 0;
 		return {
 			getListData: function(){
-				if(state() === "base-getListData") {
-					nextState();
+				if(state.get() === "base-getListData") {
+					state.next();
 					return asyncResolve({data: firstItems.slice(0) });
 				} else {
-					checkState("base-getListData-2");
+					state.check("base-getListData-2");
 					return asyncResolve({data: secondItems.slice(0) });
 				}
 			}
@@ -102,38 +89,34 @@ QUnit.test("basics", function(){
 	var updater = function(){
 		return {
 			updatedList: function(list, updated){
-				checkState("updatedList");
-				deepEqual( updated.map(getId), secondItems.map(getId) );
+				state.check("updatedList");
+				deepEqual( updated.data.map(getId), secondItems.map(getId) );
 				start();
 			}
 		};
 	};
 	
-	var Person = function(values){
-		canSet.helpers.extend(this, values);
-	};
-	
-	var connection = connect([base, "constructor","fall-through-cache","constructor-store", updater],{
-		instance: function(values){
-			return new Person(values);
-		},
+	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
+
 		cacheConnection: cacheConnection
 	});
 	
 	// first time, it takes the whole time
 	connection.findAll({}).then(function( list ){
-		checkState("connection-foundAll");
+		state.check("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
 	}, helpers.logErrorAndStart);
 	
 	function secondCall() {
-		checkState("connection-findAll-2");
+		state.check("connection-findAll-2");
 		connection.findAll({}).then(function(list){
-			checkState("connection-foundAll-2");
+			state.check("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
 		}, helpers.logErrorAndStart);
 	}
+	
+	
 	
 	// second time, it should return the original list from localStorage
 	

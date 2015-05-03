@@ -32,7 +32,7 @@ QUnit.test("updateListData", function(){
 			start();
 		}, function(){
 			
-			connection.updateListData({foo: "bar"}, { data: items.slice(0) })
+			connection.updateListData({ data: items.slice(0) }, {foo: "bar"})
 				.then(function(){
 					
 					connection.getListData({foo: "bar"}).then(function(listData){
@@ -58,9 +58,9 @@ QUnit.test("updateInstanceData", function(){
 	stop();
 
 			
-	var a1 = connection.updateListData({foo: "bar"}, { data: items.slice(0) });
+	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
 		
-	var a2 = connection.updateListData({name: "A"}, { data: aItems.slice(0) });
+	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 		
 	can.when(a1, a2).then(updateItem,logErrorAndStart );
 	function updateItem(){
@@ -105,9 +105,9 @@ QUnit.test("createInstanceData", function(){
 	stop();
 
 			
-	var a1 = connection.updateListData({foo: "bar"}, { data: items.slice(0) });
+	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
 		
-	var a2 = connection.updateListData({name: "A"}, { data: aItems.slice(0) });
+	var a2 = connection.updateListData( { data: aItems.slice(0) }, {name: "A"});
 		
 	can.when(a1, a2).then(createItem,logErrorAndStart );
 	function createItem(){
@@ -152,9 +152,9 @@ QUnit.test("destroyInstanceData", function(){
 	stop();
 
 			
-	var a1 = connection.updateListData({foo: "bar"}, { data: items.slice(0) });
+	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
 		
-	var a2 = connection.updateListData({name: "A"}, { data: aItems.slice(0) });
+	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 		
 	can.when(a1, a2).then(destroyItem,logErrorAndStart );
 	function destroyItem(){
