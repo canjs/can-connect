@@ -41,7 +41,37 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 			}
 		};
 	},
-	
+	isNew: function (base, connection) {
+		return function () {
+			var id = connection.id(this);
+			// 0 is a valid ID.
+			// TODO: Why not `return id === null || id === undefined;`?
+			return !(id || id === 0); // If `null` or `undefined`
+		};
+	},
+	save: function (base, connection) {
+		return function(success, error){
+			// return only one item for compatability
+			var promise = connection.save(this);
+			promise.then(success,error);
+			return promise;
+		};
+	},
+	destroy: function (base, connection) {
+		return function(success, error){
+			var promise;
+			if (this.isNew()) {
+				
+				promise = can.Deferred().resolve(this);
+				connection.destroyedInstance(this, {});
+			} else {
+				promise = connection.destroy(this);
+			}
+			
+			promise.then(success,error);
+			return promise;
+		};
+	}
 };
 
 var listPrototypeOverwrites = {	
@@ -82,38 +112,6 @@ var listPrototypeOverwrites = {
 		return function(){
 			connection.deleteListReference(this);
 			return base.apply(this, arguments);
-		};
-	},
-	
-	isNew: function (base, connection) {
-		return function () {
-			var id = connection.id(this);
-			// 0 is a valid ID.
-			// TODO: Why not `return id === null || id === undefined;`?
-			return !(id || id === 0); // If `null` or `undefined`
-		};
-	},
-	save: function (base, connection) {
-		return function(success, error){
-			// return only one item for compatability
-			var promise = connection.save(this);
-			promise.then(success,error);
-			return promise;
-		};
-	},
-	destroy: function (base, connection) {
-		return function(success, error){
-			var promise;
-			if (this.isNew()) {
-				
-				promise = can.Deferred().resolve(this);
-				connection.destroyedInstance(this, {});
-			} else {
-				promise = connection.destroy(this);
-			}
-			
-			promise.then(success,error);
-			return promise;
 		};
 	}
 };
