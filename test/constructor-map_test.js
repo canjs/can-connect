@@ -83,7 +83,8 @@ QUnit.test("real-time super model", function(){
 		"createInstanceData-today+important",
 		"updateInstanceData-important",
 		"updateInstanceData-today",
-		"destroyInstanceData-important-1"
+		"destroyInstanceData-important-1",
+		"getListData-today-2"
 	]);
 	
 	stop();
@@ -93,9 +94,12 @@ QUnit.test("real-time super model", function(){
 			if(state.get() === "getListData-important") {
 				state.next();
 				return {data: firstItems.slice(0) };
-			} else {
-				state.check("getListData-today");
+			} else if(state.get() === "getListData-today"){
+				state.next();
 				return {data: secondItems.slice(0) };
+			} else {
+				state.check("getListData-today-2");
+				return { data: secondItems.slice(1) };
 			}
 		},
 		"POST /services/todos": function(request){
@@ -259,19 +263,42 @@ QUnit.test("real-time super model", function(){
 	}
 	
 	function serverSideDestroy(){
-		var instance = connection.destroyInstance({
+		connection.destroyInstance({
 			type: "important",
 			due: "today",
 			createId: 1,
 			id: 10
+		}).then(function(instance){
+			equal(instance, created, "got back deleted instance");
+			equal( importantList.indexOf(created), -1, "still in important");
+			equal( todayList.indexOf(created) , -1, "removed from today");
+			
+			checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
+				checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), findAllDueTodayAgainstCache);
+			} );
 		});
-		equal( importantList.indexOf(created), -1, "still in important");
-		equal( todayList.indexOf(created) , -1, "removed from today");
 		
-		checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
-			checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), start);
-		} );
 	}
+	
+	function findAllDueTodayAgainstCache(){
+		connection.findAll({due: "today"}).then(function(updatedTodayList){
+			var added = serverCreatedInstance.serialize();
+			equal(todayList, updatedTodayList, "same todo list returned");
+			
+			deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
+			
+			var batchNum;
+			todayList.bind("length", function(ev){
+				if(!ev.batchNum || ev.batchNum !== batchNum) {
+					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
+					start();
+					batchNum = ev.batchNum;
+				}
+				
+			});
+		});
+	}
+	
 });
 
 

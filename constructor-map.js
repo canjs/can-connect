@@ -149,6 +149,12 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			});
 			list.__set = set;
 			return list;
+		},
+		updatedList: function(){
+			can.batch.start();
+			var res = baseConnect.updatedList.apply(this, arguments);
+			can.batch.stop();
+			return res;
 		}
 	};
 	

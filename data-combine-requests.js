@@ -24,7 +24,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 	var pendingRequests; //[{params, deferred}]
 	
 	return {
-		combinePendingRequests: function(pendingParams){
+		combinePendingRequests: function(){
 			// this should try to merge existing param requests, into an array of 
 			// others to send out
 			// but this data structure keeps the original promises.
@@ -65,7 +65,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 					}
 				}
 			});
-			
+			pendingRequests = null;
 			return new can.Deferred().resolve(combineData);
 		},
 		getSubset: function(params, combinedParams, data, options){
@@ -79,8 +79,8 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 				pendingRequests = [];
 				
 				setTimeout(function(){
-					var combineDataPromise = self.combinePendingRequests(params);
 					
+					var combineDataPromise = self.combinePendingRequests();
 					combineDataPromise.then(function(combinedData){
 						// farm out requests
 						combinedData.forEach(function(combined){
