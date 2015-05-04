@@ -48,6 +48,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
 				self._getMakeList(params, function(list){
+					self.addListReference(list, params);
+					
 					setTimeout(function(){
 						baseConnect.getListData.call(self, params).then(function(listData){
 							

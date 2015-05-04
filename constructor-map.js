@@ -166,15 +166,15 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			baseConnect.init.apply(this, arguments);
 		},
 		id: function(inst) {
-			
+			var idProp = options.idProp || this.idProp;
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
-					can.__reading(inst, this.idProp);
+					can.__reading(inst, idProp);
 				}
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
-				return inst.__get(this.idProp);
+				return inst.__get(idProp);
 			} else {
-				return inst[this.idProp];
+				return inst[idProp];
 			}
 		},
 		serializeInstance: function(instance){
