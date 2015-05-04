@@ -4,7 +4,7 @@
   "description": "Data connection utilities",
   "main": "can-connect.js",
   "dependencies": {
-    "can": "2.2.X",
+    "can": "git://github.com/bitovi/canjs#place-my-order2",
     "can-set": "^0.1.2"
   },
   "devDependencies": {
