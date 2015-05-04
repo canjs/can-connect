@@ -59,6 +59,7 @@ connect.behavior = function(name, behavior){
 	var behaviorMixin = function(base){
 		// basically Object.create
 		var Behavior = function(){};
+		Behavior.name = name;
 		Behavior.prototype = base;
 		var newBehavior = new Behavior;
 		var res = behavior.apply(newBehavior, arguments);

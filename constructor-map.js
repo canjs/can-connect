@@ -40,7 +40,8 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 				connection.addInstanceReference(this);
 			}
 		};
-	}
+	},
+	
 };
 
 var listPrototypeOverwrites = {	
@@ -83,7 +84,54 @@ var listPrototypeOverwrites = {
 			return base.apply(this, arguments);
 		};
 	},
+	
+	isNew: function (base, connection) {
+		return function () {
+			var id = connection.id(this);
+			// 0 is a valid ID.
+			// TODO: Why not `return id === null || id === undefined;`?
+			return !(id || id === 0); // If `null` or `undefined`
+		};
+	},
+	save: function (base, connection) {
+		return function(success, error){
+			// return only one item for compatability
+			var promise = connection.save(this);
+			promise.then(success,error);
+			return promise;
+		};
+	},
+	destroy: function (base, connection) {
+		return function(success, error){
+			var promise;
+			if (this.isNew()) {
+				
+				promise = can.Deferred().resolve(this);
+				connection.destroyedInstance(this, {});
+			} else {
+				promise = connection.destroy(this);
+			}
+			
+			promise.then(success,error);
+			return promise;
+		};
+	}
 };
+
+var mapStaticOverwrites = {
+	findAll: function (base, connection) {
+		return function(params) {
+			return connection.findAll(params);
+		};
+	},
+	findOne: function (base, connection) {
+		return function(params) {
+			// adds .then for compat
+			return connection.findOne(params);
+		};
+	}
+};
+
 var listStaticOverwrites = {
 	_bubbleRule: function(base, connection) {
 		return function(eventName, list) {
@@ -115,7 +163,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 	
 	var behavior = {
 		init: function(){
-			overwrite(this, options.Map, mapOverwrites);
+			overwrite(this, options.Map, mapOverwrites, mapStaticOverwrites);
 			overwrite(this, options.List, listPrototypeOverwrites, listStaticOverwrites);
 			baseConnect.init.apply(this, arguments);
 		},
