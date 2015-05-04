@@ -4,6 +4,7 @@ require("../constructor");
 require("../constructor-map");
 require("../constructor-store");
 require("../data-callbacks");
+require("../data-callbacks-cache");
 require("../data-combine-requests");
 require("../data-localstorage-cache");
 require("../data-parse");
@@ -45,6 +46,7 @@ QUnit.module("can-connect/constructor-map",{
 			name: "todos"
 		});
 		cacheConnection.reset();
+		this.cacheConnection = cacheConnection;
 		
 		this.Todo = Todo;
 		
@@ -53,6 +55,7 @@ QUnit.module("can-connect/constructor-map",{
 			"constructor-map",
 			"constructor-store",
 			"data-callbacks",
+			"data-callbacks-cache",
 			"data-combine-requests",
 			"data-parse",
 			"data-url",
@@ -95,11 +98,11 @@ QUnit.test("real-time super model", function(){
 				return {data: secondItems.slice(0) };
 			}
 		},
-		"POST /services/todos": function(){
+		"POST /services/todos": function(request){
 			if( state.get() === "createInstanceData-today+important" ) {
 				state.next();
 				// todo change to all props
-				return {id: 10};
+				return can.simpleExtend({id: 10}, request.data);
 			} 
 		},
 		"PUT /services/todos/{id}": function(request){
@@ -122,7 +125,15 @@ QUnit.test("real-time super model", function(){
 		}
 	});
 	
+	function checkCache(name, set, expectData, next) {
+		cacheConnection.getListData(set).then(function(data){
+			deepEqual(data.data.map(testHelpers.getId), expectData.map(testHelpers.getId), name);
+			setTimeout(next, 1);
+		});
+	}
+	
 	var connection = this.todoConnection,
+		cacheConnection = this.cacheConnection,
 		Todo = this.Todo,
 		TodoList = this.TodoList;
 	
@@ -159,19 +170,36 @@ QUnit.test("real-time super model", function(){
 	function checkLists() {
 		ok( importantList.indexOf(created) >= 0, "in important");
 		ok( todayList.indexOf(created) >= 0, "in today");
-		setTimeout(serverSideDuplicateCreate, 1);
+		
+		checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),serverSideDuplicateCreate );
+	}
+	
+
+	
+	function serverSideDuplicateCreate(){
+		connection.createInstance({id: 10, due: "today",createdId: 1, type: "important"}).then(function(createdInstance){
+			equal(createdInstance, created);
+			
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
+			
+			equal(importantList.length, 3, "items stays the same");
+			
+			checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),serverSideCreate );
+		});
 		
 	}
 	
-	function serverSideDuplicateCreate(){
-		var createdInstance = connection.createInstance({id: 10, due: "today", id: 10, type: "important"});
-		equal(createdInstance, created);
+	var serverCreatedInstance;
+	function serverSideCreate(){
+		connection.createInstance({id: 11, due: "today", createdId: 2, type: "important"}).then(function(createdInstance){
+			serverCreatedInstance = createdInstance;
 		
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf(created) >= 0, "in today");
-		
-		equal(importantList.length, 3, "items stays the same");
-		setTimeout(update1, 1);
+			ok( importantList.indexOf(createdInstance) >= 0, "in important");
+			ok( todayList.indexOf(createdInstance) >= 0, "in today");
+			
+			checkCache( "cache looks right afer SS create", {type: "important"}, firstItems.concat(created.serialize(), serverCreatedInstance.serialize()), update1 );
+		});
 	}
 	
 	function update1() {
@@ -192,22 +220,31 @@ QUnit.test("real-time super model", function(){
 	function checkLists3() {
 		equal( importantList.indexOf(created),  -1, "removed from important");
 		ok( todayList.indexOf(created) >= 1, "added to today");
+		
+		checkCache("cache looks right after update2", {type: "important"}, firstItems.concat(serverCreatedInstance.serialize()),serverSideUpdate );
+		
 		serverSideUpdate();
 	}
 	
 	function serverSideUpdate(){
 
-		var instance = connection.updateInstance({
+		connection.updateInstance({
 			type: "important",
 			due: "today",
 			createId: 1,
 			id: 10
+		}).then(function(instance){
+			equal(created, instance);
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
+			
+			
+			checkCache( "cache looks right afer SS update", {type: "important"}, importantList.serialize(), destroyItem );
 		});
-		equal(created, instance);
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf(created) >= 0, "in today");
-		destroyItem();
+		
 	}
+	
+	
 	var firstImportant;
 	function destroyItem(){
 		firstImportant = importantList[0];
@@ -218,7 +255,7 @@ QUnit.test("real-time super model", function(){
 	
 	function checkLists4(){
 		equal( importantList.indexOf(firstImportant), -1, "in important");
-		serverSideDestroy();
+		checkCache( "cache looks right afer destroy", {type: "important"}, importantList.serialize(), serverSideDestroy );
 	}
 	
 	function serverSideDestroy(){
@@ -230,6 +267,11 @@ QUnit.test("real-time super model", function(){
 		});
 		equal( importantList.indexOf(created), -1, "still in important");
 		equal( todayList.indexOf(created) , -1, "removed from today");
-		start();
+		
+		checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
+			checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), start);
+		} );
 	}
 });
+
+

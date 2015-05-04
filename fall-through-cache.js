@@ -61,7 +61,9 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 						});
 					},1);
 				});
-				
+				// TODO: if we wired up all responses to updateListData, this one should not
+				// updateListData with itself.
+				// But, how would we do a bypass?
 				return data;
 			}, function(){
 				var listData = baseConnect.getListData.call(self, params);

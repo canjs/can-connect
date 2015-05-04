@@ -4,7 +4,7 @@ var pipe = require("./helpers/pipe");
 
 // wires up the following methods
 var pairs = {
-	//getListData: "gotListData",
+	getListData: "gotListData",
 	//getInstanceData: "gotInstanceData",
 	createInstanceData: "createdInstanceData",
 	updateInstanceData: "updatedInstanceData",
@@ -17,16 +17,21 @@ var returnArg = function(item){
 module.exports = connect.behavior("data-callbacks",function(baseConnect, options){
 	
 	var behavior = {
-		//gotListData: returnArg,
-		//gotInstanceData: returnArg,
 	};
 	
-	can.each(pairs, function(parseFunction, name){
+	// overwrites createInstanceData to createdInstanceData
+	can.each(pairs, function(callbackName, name){
+		
 		behavior[name] = function(params, cid){
 			return pipe(baseConnect[name].call(this, params), this, function(data){
-				return this[parseFunction].call(this,data, params, cid );
+				if(this[callbackName]) {
+					return this[callbackName].call(this,data, params, cid );
+				} else {
+					return data;
+				}
 			});
 		};
+		
 	});
 	return behavior;
 });

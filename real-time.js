@@ -1,4 +1,4 @@
-
+var can = require("can/util/util");
 var connect = require("../can-connect");
 var canSet = require("can-set");
 
@@ -93,18 +93,39 @@ var destroy = function(props, options) {
 
 module.exports = connect.behavior("real-time",function(baseConnect, options){
 	return {
+		
 		createInstance: function(props){
 			var id = this.id(props);
 			var instance = this.instanceStore.get(id);
+			var promise;
+			var serialized;
+			
 			if( instance ) {
 				// already created
 				this.updatedInstance(instance, {});
+				promise = new can.Deferred().resolve(instance);
+				serialized = this.serializeInstance(instance);
 			} else {
 				instance = this.makeInstance(props);
 				this.createdInstance(instance, {});
+				serialized = this.serializeInstance(instance);
+				if(options.cacheConnection) {
+					promise = options.cacheConnection.createInstanceData(serialized).then(function(){
+						return instance;
+					});
+				} else {
+					promise = new can.Deferred().resolve(instance);
+				}
+				
+				
 			}
-			create.call(this, props, options);
-			return instance;
+			this.addInstanceReference(instance);
+			
+			create.call(this, serialized, options);
+			this.addInstanceReference(instance);
+			
+			// TODO: ideally this could hook into the same callback mechanism as `createdInstanceData`.
+			return promise;
 		},
 		createdInstanceData: function(props, params, cid){
 			var instance = this.cidStore.get(cid);
@@ -132,11 +153,20 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			} else {
 				this.updatedInstance(instance, props);
 			}
+			var serialized = this.serializeInstance(instance);
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
-			update.call(this, this.serializeInstance(instance), options);
+			update.call(this, serialized, options);
 			this.deleteInstanceReference(instance);
-			return instance;
+			
+			
+			if(options.cacheConnection) {
+				return options.cacheConnection.updateInstanceData(serialized).then(function(){
+					return instance;
+				});
+			} else {
+				return  new can.Deferred().resolve(instance);
+			}
 		},
 		destroyedInstanceData: function(props, params){
 			// Go through each list in the listStore and see if there are lists that should have this,
@@ -157,6 +187,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 		destroyInstance: function(props){
 			var id = this.id(props);
 			var instance = this.instanceStore.get(id);
+			
 			if( !instance ) {
 				instance = this.makeInstance(props);
 			} else {
@@ -164,9 +195,16 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			}
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
-			destroy.call(this, this.serializeInstance(instance), options);
+			var serialized = this.serializeInstance(instance);
+			destroy.call(this, serialized, options);
 			this.deleteInstanceReference(instance);
-			return instance;
+			if(options.cacheConnection) {
+				return options.cacheConnection.destroyInstanceData(serialized).then(function(){
+					return instance;
+				});
+			} else {
+				return  new can.Deferred().resolve(instance);
+			}
 		}
 	};
 });

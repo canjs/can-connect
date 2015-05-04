@@ -8,7 +8,7 @@ var canSet = require("can-set");
 var indexOf = function(connection, props, items){
 	var id = connection.id(props);
 	for(var i = 0; i < items.length; i++) {
-		if( id === connection.id(items[i]) ) {
+		if( id == connection.id(items[i]) ) {
 			return i;
 		}
 	}

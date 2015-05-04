@@ -151,14 +151,15 @@ QUnit.test("basics", function(){
 	}
 	
 	function serverSideDuplicateCreate(){
-		var createdInstance = connection.createInstance({id: 10, due: "today", id: 10, type: "important"});
-		equal(createdInstance, created);
+		connection.createInstance({id: 10, due: "today", id: 10, type: "important"}).then(function(createdInstance){
+			equal(createdInstance, created);
 		
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf(created) >= 0, "in today");
-		
-		equal(importantList.length, 3, "items stays the same");
-		setTimeout(update1, 1);
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
+			
+			equal(importantList.length, 3, "items stays the same");
+			setTimeout(update1, 1);
+		});
 	}
 	
 	function update1() {
@@ -184,16 +185,18 @@ QUnit.test("basics", function(){
 	
 	function serverSideUpdate(){
 
-		var instance = connection.updateInstance({
+		connection.updateInstance({
 			type: "important",
 			due: "today",
 			createId: 1,
 			id: 10
+		}).then(function(instance){
+			equal(created, instance);
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
+			destroyItem();
 		});
-		equal(created, instance);
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf(created) >= 0, "in today");
-		destroyItem();
+		
 	}
 	var firstImportant;
 	function destroyItem(){
@@ -210,15 +213,17 @@ QUnit.test("basics", function(){
 	}
 	
 	function serverSideDestroy(){
-		var instance = connection.destroyInstance({
+		connection.destroyInstance({
 			type: "important",
 			due: "today",
 			createId: 1,
 			id: 10
+		}).then(function(instance){
+			equal( importantList.indexOf(created), -1, "still in important");
+			equal( todayList.indexOf(created) , -1, "removed from today");
+			start();
 		});
-		equal( importantList.indexOf(created), -1, "still in important");
-		equal( todayList.indexOf(created) , -1, "removed from today");
-		start();
+		
 	}
 	
 	

@@ -33,6 +33,9 @@ module.exports = {
 		debugger;
 		ok(false,"Error "+e);
 		start();
+	},
+	getId: function(o){
+		return o.id;
 	}
 
 
