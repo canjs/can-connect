@@ -6,6 +6,7 @@ require("../constructor-store");
 require("../data-callbacks");
 require("../data-callbacks-cache");
 require("../data-combine-requests");
+require("../data-inline-cache");
 require("../data-localstorage-cache");
 require("../data-parse");
 require("../data-url");
@@ -24,6 +25,7 @@ connect.superMap = function(options){
 		"data-callbacks",
 		"data-callbacks-cache",
 		"data-combine-requests",
+		"data-inline-cache",
 		"data-parse",
 		"data-url",
 		"real-time"];

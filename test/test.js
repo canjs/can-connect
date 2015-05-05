@@ -8,6 +8,7 @@ require("./fall-through-cache_test");
 require("./service-worker-cache_test");
 require("./data-localstorage-cache_test");
 require("./data-combine-requests_test");
+require("./data-inline-cache_test");
 require("./cache-requests_test");
 require("./data-url_test");
 require("./constructor_test");
