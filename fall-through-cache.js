@@ -37,6 +37,30 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 			}
 			this._getMakeListCallbacks[id].push(callback);
 		},
+		_ignoreUpdateObjects: {},
+		ignoreNextUpdatedWith: function(instance, data){
+			var id = this.id(instance);
+			if(!this._ignoreUpdateObjects[id]) {
+				this._ignoreUpdateObjects[id] = [];
+			}
+			this._ignoreUpdateObjects[id].push(data);
+		},
+		updatedInstance: function(instance, data){
+			var id = this.id(instance);
+			var updateObjects = this._ignoreUpdateObjects[id];
+			if(updateObjects) {
+				var index = updateObjects.indexOf(data);
+				if(index >= 0) {
+					updateObjects.splice(index, 1);
+					if(!updateObjects.length) {
+						delete this._ignoreUpdateObjects[id];
+					}
+					// DO NOTHING!
+					return;
+				}
+			}
+			return baseConnect.updatedInstance.apply(this, arguments);
+		},
 		// if we do findAll, the cacheConnection runs on
 		// if we do getListData, ... we need to register the list that is going to be created
 		// so that when the data is returned, it updates this
@@ -47,6 +71,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 				
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
+				
+				
 				self._getMakeList(params, function(list){
 					self.addListReference(list, params);
 					
@@ -71,6 +97,60 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 				var listData = baseConnect.getListData.call(self, params);
 				listData.then(function(listData){
 					options.cacheConnection.updateListData(listData, params);
+				});
+				
+				return listData;
+			});
+		},
+		makeInstance: function(props){
+
+			var id = this.id( props );
+			var instance = baseConnect.makeInstance.apply(this, arguments);
+			
+			if(this._getMakeInstanceCallbacks[id]) {
+				this._getMakeInstanceCallbacks[id].shift()(instance);
+				if(!this._getMakeInstanceCallbacks[id].length){
+					delete this._getMakeInstanceCallbacks[id]
+				}
+			}
+			return instance;
+		},
+		_getMakeInstanceCallbacks: {},
+		_getMakeInstance: function(id, callback){
+			if(!this._getMakeInstanceCallbacks[id]) {
+				this._getMakeInstanceCallbacks[id]= [];
+			}
+			this._getMakeInstanceCallbacks[id].push(callback);
+		},
+		getInstanceData: function(params){
+			// first, always check the cache connection
+			var self = this;
+			return options.cacheConnection.getInstanceData(params).then(function(instanceData){
+				
+				// get the list that is going to be made
+				// it might be possible that this never gets called, but not right now
+				self._getMakeInstance(self.id(instanceData) || self.id(params), function(instance){
+					self.addInstanceReference(instance);
+				
+					setTimeout(function(){
+						baseConnect.getInstanceData.call(self, params).then(function(instanceData2){
+							
+							options.cacheConnection.updateInstanceData(instanceData2);
+							self.updatedInstance(instance, instanceData2);
+							self.deleteInstanceReference(instance);
+							
+						}, function(){
+							// what do we do here?  self.rejectedUpdatedList ?
+							console.log("REJECTED", e);
+						});
+					},1);
+				});
+
+				return instanceData;
+			}, function(){
+				var listData = baseConnect.getInstanceData.call(self, params);
+				listData.then(function(instanceData){
+					options.cacheConnection.updateInstanceData(instanceData);
 				});
 				
 				return listData;

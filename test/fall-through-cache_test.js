@@ -5,6 +5,7 @@ var store = require("../constructor-store");
 var connect = require("can-connect");
 var canSet = require("can-set");
 var helpers = require("./test-helpers");
+require("../data-callbacks");
 
 var getId = function(d){ return d.id};
 
@@ -97,7 +98,6 @@ QUnit.test("basics", function(){
 	};
 	
 	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
-
 		cacheConnection: cacheConnection
 	});
 	
@@ -121,5 +121,98 @@ QUnit.test("basics", function(){
 	// second time, it should return the original list from localStorage
 	
 	// but then update the list as the request goes out
+	
+});
+
+
+QUnit.test("findOne and getInstanceData", function(){
+	stop();
+	var firstData =  {id: 0, foo: "bar"};
+	var secondData = {id: 0, foo: "BAR"};
+	
+	var state = helpers.makeStateChecker(QUnit,["cache-getInstanceData-empty",
+		"base-getInstanceData",
+		"cache-updateInstanceData",
+		"connection-foundOne",
+		"connection-findOne-2",
+		"cache-getInstanceData-item",
+		
+		"connection-foundOne-2",
+		"base-getInstanceData-2",
+		"cache-updateInstanceData-2",
+		"updatedInstance"] );
+		
+
+	var cacheConnection = connect([function(){
+		var calls = 0;
+		return {
+			getInstanceData: function(){
+				// nothing here first time
+				if(state.get() === "cache-getInstanceData-empty") {
+					state.next();
+					return asyncReject();
+				} else {
+					state.check("cache-getInstanceData-item");
+					return asyncResolve(firstData);
+				}
+			},
+			updateInstanceData: function(data) {
+				if(state.get() === "cache-updateInstanceData") {
+					state.next();
+					deepEqual(data,firstData, "updateInstanceData items are right");
+					return asyncResolve();
+				} else {
+					//debugger;
+					deepEqual(data,secondData, "updateInstanceData 2 items are right");
+					state.check("cache-updateInstanceData-2");
+					return asyncResolve();
+				}
+			}
+		};
+	}],{});
+	
+	var base = function(base, options){
+		var calls = 0;
+		return {
+			getInstanceData: function(){
+				if(state.get() === "base-getInstanceData") {
+					state.next();
+					return asyncResolve({id: 0, foo: "bar"});
+				} else {
+					//debugger;
+					state.check("base-getInstanceData-2");
+					return asyncResolve({id: 0, foo: "BAR"});
+				}
+			}
+		};
+	};
+	var updater = function(){
+		return {
+			updatedInstance: function(instance, data){
+				state.check("updatedInstance");
+				deepEqual( data,secondData );
+				start();
+			}
+		};
+	};
+	
+	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
+		cacheConnection: cacheConnection
+	});
+	
+	// first time, it takes the whole time
+	connection.findOne({id: 0}).then(function( instance ){
+		state.check("connection-foundOne");
+		deepEqual( instance, {id: 0, foo: "bar"} );
+		setTimeout(secondCall, 1);
+	}, helpers.logErrorAndStart);
+	
+	function secondCall() {
+		state.check("connection-findOne-2");
+		connection.findOne({id: 0}).then(function(instance){
+			state.check("connection-foundOne-2");
+			deepEqual( instance, {id: 0, foo: "bar"}  );
+		}, helpers.logErrorAndStart);
+	}
 	
 });

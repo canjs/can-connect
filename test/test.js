@@ -2,7 +2,6 @@
 
 
 require("./constructor-map_test");
-
 require("./helpers_test");
 require("./constructor-store_test");
 require("./fall-through-cache_test");
@@ -15,6 +14,4 @@ require("./constructor_test");
 
 require("./data-parse_test");
 require("./real-time_test");
-
-
 require("./model_test");
