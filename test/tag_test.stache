@@ -1,0 +1,4 @@
+<person-model findAll='{type=type}'>
+	{{#isPending}}<span class='pending' can-inserted="{pending}"></span>{{/isPending}}
+	{{#isResolved}}<span class='resolved' can-inserted="{resolved}">{{#each value}}<span>{{id}}</span>{{/each}}</span>{{/isResolved}}
+</person-model>

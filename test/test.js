@@ -16,3 +16,5 @@ require("./constructor_test");
 require("./data-parse_test");
 require("./real-time_test");
 require("./model_test");
+
+require("./tag_test");
