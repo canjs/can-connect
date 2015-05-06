@@ -182,12 +182,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		_eachSet: function(cb){
 			var sets = this.getSets();
+			var self = this;
 			var loop = function(setDatum, setKey) {
 				return cb(setDatum, setKey, function(){
 					
 					if( !("items" in setDatum) ) {
 						var ids = JSON.parse( localStorage.getItem(options.name+"/set/"+setKey) );
-						setDatum.items = this.getInstances(ids);
+						setDatum.items = self.getInstances(ids);
 					}
 					return setDatum.items;
 
