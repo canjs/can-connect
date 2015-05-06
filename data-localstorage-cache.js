@@ -34,10 +34,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			if(!this._sets) {
 				var sets = this._sets = {};
 				(JSON.parse(localStorage.getItem(options.name+"-sets"))|| []).forEach(function(setKey){
-					sets[setKey] = {
-						set: JSON.parse(setKey),
-						setKey: setKey
-					};
+					// make sure we actually have set data
+					if( localStorage.getItem(options.name+"/set/"+setKey) ) {
+						sets[setKey] = {
+							set: JSON.parse(setKey),
+							setKey: setKey
+						};
+					}
 				});
 			}
 			return this._sets;
