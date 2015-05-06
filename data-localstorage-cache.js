@@ -77,9 +77,12 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			localStorage.removeItem(options.name+"-sets");
 			
 			// remove all instances
-			for(var i = 0 ; i < localStorage.length; i++) {
+			var i = 0;
+			while(i < localStorage.length) {
 				if(localStorage.key(i).indexOf(options.name+"/instance/") === 0) {
 					localStorage.removeItem( localStorage.key(i) );
+				} else {
+					i++;
 				}
 			}
 			this._instances = {};

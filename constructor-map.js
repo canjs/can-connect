@@ -225,7 +225,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			can.dispatch.call(instance, {type:"change", target: instance}, [funcName]);
 
 			//!steal-remove-start
-			can.dev.log("Model.js - " + constructor.shortName + " " + funcName);
+			can.dev.log("Model.js - " + (constructor.shortName || options.name) + ""+this.id(instance)+" " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class

@@ -6,9 +6,23 @@ var mustacheCore = require( "can/view/stache/mustache_core");
 
 
 /**
- * Makes a findAll
- * @param {Object} tagName
+ * Makes either findAll or findOne
+ * @param {String} tagName
  * @param {Object} connection
+ * 
+ * ```
+ * connect.tag("order-model", connection);
+ * ```
+ * 
+ * ```
+ * <order-model findAll="{type=orderType}">
+ *   {{#isPending}}Loading{{/isPending}}
+ *   {{#isResolved}}
+ *     Data: {{value}}
+ *   {{/isResolved}}
+ * </order-model>
+ * ```
+ * 
  */
 connect.tag = function(tagName, connection){
 	
@@ -24,12 +38,18 @@ connect.tag = function(tagName, connection){
 
 
 	can.view.tag(tagName, function(el, tagData){
+		var findAll = el.getAttribute("findAll") || el.getAttribute("find-all");
+		var findOne = el.getAttribute("findOne") || el.getAttribute("find-one");
+		
+		var attrValue = findAll || findOne;
+		var method = findAll ? "findAll" : "findOne";
 		
 		
-		var attrInfo = mustacheCore.expressionData('tmp ' + removeBrackets(el.getAttribute("findAll")));
+		var attrInfo = mustacheCore.expressionData('tmp ' + removeBrackets(attrValue));
 		// -> {hash: {foo: 'bar', zed: 5, abc: {get: 'myValue'}}}
 
 		var request = can.compute(function(){
+			
 			var hash = {};
 			can.each(attrInfo.hash, function(val, key) {
 				if (val && val.hasOwnProperty("get")) {
@@ -38,7 +58,7 @@ connect.tag = function(tagName, connection){
 					hash[key] = val;
 				}
 			});
-			return connection.findAll(hash);
+			return connection[method](hash);
 		});
 		
 		can.data(can.$(el), "viewModel", request);
