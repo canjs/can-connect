@@ -43,13 +43,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			return this._sets;
 		},
 		getInstance: function(id){
-			if(!this._instances[id]) {
+			//if(!this._instances[id]) {
 				var res = localStorage.getItem(options.name+"/instance/"+id);
 				if(res) {
-					this._instances[id] = JSON.parse( res );
+					return JSON.parse( res );
 				}
-			}
-			return this._instances[id];
+			//}
+			//return this._instances[id];
 		},
 		getInstances: function(ids){
 			var self = this;
@@ -94,13 +94,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var setDatum = this.getSets()[setKey];
 			if(setDatum) {
-				if( !("items" in setDatum) ) {
-					setDatum.items = this.getInstances( JSON.parse( localStorage.getItem(options.name+"/set/"+setKey) ) );
+				var localData = localStorage.getItem(options.name+"/set/"+setKey);
+				if(localData) {
+					return new can.Deferred().resolve( {data: this.getInstances( JSON.parse( localData ) )} );
 				}
-				return new can.Deferred().resolve( {data: setDatum.items} );
-			} else {
-				return new can.Deferred().reject({message: "no data", error: 404});
-			}
+			} 
+			return new can.Deferred().reject({message: "no data", error: 404});
+			
 		},
 		// TODO: Ideally, this should be able to go straight to the instance and not have to do
 		// much else
@@ -114,8 +114,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 		},
 		updateSet: function(setDatum, items, newSet) {
+			var newSetKey = newSet ? sortedSetJSON(newSet) : setDatum.setKey;
 			if(newSet) {
-				var newSetKey = sortedSetJSON(newSet);
 				// if the setKey is changing
 				if(newSetKey !== setDatum.setKey) {
 					// add the new one

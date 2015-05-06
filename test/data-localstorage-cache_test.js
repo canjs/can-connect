@@ -90,7 +90,7 @@ QUnit.test("updateInstanceData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 						
-			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]));
+			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]), "id 4 should now have name A");
 			
 			start();
 			
