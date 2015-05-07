@@ -91,7 +91,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									combined.pendingRequests.forEach(function(pending){
-										pending.deferred.resolve( self.getSubset(pending.params, combined.params, getItems(data), options) );
+										pending.deferred.resolve( {data: self.getSubset(pending.params, combined.params, getItems(data), options)} );
 									});
 								}
 								
