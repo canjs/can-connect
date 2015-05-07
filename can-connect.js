@@ -42,6 +42,7 @@ var connect = function(behaviors, options){
 	if(behavior.init) {
 		behavior.init();
 	}
+	behavior.options = options;
 	return behavior;
 };
 
