@@ -215,9 +215,11 @@ can.Model = can.Map.extend({
 		this.store = this.connection.instanceStore;
 		// map static stuff to crud .. but we don't want this inherited by the next thing'
 		can.each(staticMethods, function(name){
-			var fn = can.proxy(self.connection[name], self.connection);
-			fn.base = self[name];
-			can.Construct._overwrite(self, base, name, fn);
+			if( self.connection[name] ) {
+				var fn = can.proxy(self.connection[name], self.connection);
+				fn.base = self[name];
+				can.Construct._overwrite(self, base, name, fn);
+			}
 		});
 		can.each(parseMethods, function(connectionName, name){
 			var fn = can.proxy(self.connection[connectionName], self.connection);

@@ -47,7 +47,22 @@ connect.tag = function(tagName, connection){
 		
 		var attrInfo = mustacheCore.expressionData('tmp ' + removeBrackets(attrValue));
 		// -> {hash: {foo: 'bar', zed: 5, abc: {get: 'myValue'}}}
-
+	
+		
+		var addedToPageData = false;
+		var addToPageData = can.__notObserve(function(set, promise){
+			if(!addedToPageData) {
+				var root = tagData.scope.attr("@root");
+				if( root && root.pageData ) {
+					if(method === "findOne"){
+						set = connection.id(set);
+					}
+					root.pageData(connection.name, set, promise);
+				} 
+			}
+			addedToPageData = true;
+		});
+	
 		var request = can.compute(function(){
 			
 			var hash = {};
@@ -58,7 +73,9 @@ connect.tag = function(tagName, connection){
 					hash[key] = val;
 				}
 			});
-			return connection[method](hash);
+			var promise = connection[method](hash);
+			addToPageData(hash, promise);
+			return promise;
 		});
 		
 		can.data(can.$(el), "viewModel", request);
@@ -75,6 +92,7 @@ connect.tag = function(tagName, connection){
 		// update the nodeList with the new children so the mapping gets applied
 		can.view.nodeLists.update(nodeList, el.childNodes);
 		
+		// add to pageData
 		
 		can.one.call(el, 'removed', function() {
 			can.view.nodeLists.unregister(nodeList);
