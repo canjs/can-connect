@@ -90,7 +90,7 @@ QUnit.test("updateInstanceData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 						
-			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]));
+			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]), "id 4 should now have name A");
 			
 			start();
 			
@@ -191,3 +191,59 @@ QUnit.test("destroyInstanceData", function(){
 		},logErrorAndStart);
 	}
 });
+
+QUnit.test("getInstanceData can pull from updateListData", function(){
+	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
+	
+	var connection = this.connection;
+	
+	stop();
+	connection.getInstanceData({id: 1})
+		.then(function(){
+			ok(false, "should have rejected, nothing there");
+			start();
+		}, updateListData);
+		
+	function updateListData(){
+		connection.updateListData({ data: items.slice(0) }, {foo: "bar"})
+			.then(function(){
+				connection.getInstanceData({id: 1}).then(function(instanceData){
+					
+					deepEqual(instanceData, items[0]);
+					
+					updateInstanceData();
+					
+				},logErrorAndStart);
+				
+			}, logErrorAndStart);
+	}
+	
+	function updateInstanceData(){
+		connection.updateInstanceData({id: 1, foo:"BAR"}).then(function(){
+			
+			connection.getInstanceData({id: 1}).then(function(instanceData){
+					
+				deepEqual(instanceData, {id: 1, foo:"BAR"});
+					
+				setTimeout(destroyInstanceData, 1);
+				
+			},logErrorAndStart);
+			
+		}, logErrorAndStart);
+	}
+	
+	function destroyInstanceData(){
+		connection.destroyInstanceData({id: 1, foo:"BAR"}).then(function(){
+			
+			connection.getInstanceData({id: 1}).then(logErrorAndStart,function(){
+				ok(true, "nothing there!");
+				start();
+			});
+			
+		}, logErrorAndStart);
+	}
+	
+});
+
+
+

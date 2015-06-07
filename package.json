@@ -4,8 +4,8 @@
   "description": "Data connection utilities",
   "main": "can-connect.js",
   "dependencies": {
-    "can": "2.2.X",
-    "can-set": "^0.1.2"
+    "can": "^2.3.0-pre.1",
+    "can-set": "^0.2.0"
   },
   "devDependencies": {
   	"steal": "^0.10.1",

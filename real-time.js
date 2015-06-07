@@ -182,7 +182,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			this.addInstanceReference(instance);
 			destroy.call(this, this.serializeInstance(instance), options);
 			this.deleteInstanceReference(instance);
-			return instance;
+			return undefined;
 		},
 		destroyInstance: function(props){
 			var id = this.id(props);

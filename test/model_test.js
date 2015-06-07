@@ -409,17 +409,17 @@ var logErrorAndStart = function(e){
 		Event.bind('created', function (ev, passedItem) {
 			ok(this === Event, 'got model');
 			ok(passedItem === item, 'got instance');
-			equal(++order, 1, 'order');
+			equal(++order, 1, 'order created');
 			passedItem.save();
 		})
 			.bind('updated', function (ev, passedItem) {
-				equal(++order, 2, 'order');
+				equal(++order, 2, 'order updated');
 				ok(this === Event, 'got model');
 				ok(passedItem === item, 'got instance');
 				passedItem.destroy();
 			})
 			.bind('destroyed', function (ev, passedItem) {
-				equal(++order, 3, 'order');
+				equal(++order, 3, 'order destroyed');
 				ok(this === Event, 'got model');
 				ok(passedItem === item, 'got instance');
 				start();

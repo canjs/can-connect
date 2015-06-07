@@ -11,6 +11,8 @@ require("../data-parse");
 require("../data-url");
 require("../fall-through-cache");
 require("../real-time");
+require("../data-inline-cache");
+
 var Map = require("can/map/map");
 var List = require("can/list/list");
 
@@ -57,10 +59,12 @@ QUnit.module("can-connect/constructor-map",{
 			"data-callbacks",
 			"data-callbacks-cache",
 			"data-combine-requests",
+			"data-inline-cache",
 			"data-parse",
 			"data-url",
 			"fall-through-cache",
-			"real-time"],{
+			"real-time"],
+			{
 				resource: "/services/todos",
 				cacheConnection: cacheConnection,
 				Map: Map,

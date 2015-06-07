@@ -91,7 +91,9 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 				});
 			} else {
 				return pipe(this.updateInstanceData(serialized), this, function(data){
-					this.updatedInstance(instance, data);
+					if(data !== undefined) {
+						this.updatedInstance(instance, data);
+					}
 					return instance;
 				});
 			}
@@ -100,7 +102,9 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			var serialized = this.serializeInstance(instance);
 			
 			return pipe( this.destroyInstanceData(serialized), this, function(data){
-				this.destroyedInstance(instance, data);
+				if(data !== undefined) {
+					this.destroyedInstance(instance, data);
+				}
 				return instance;
 			});
 		},

@@ -40,6 +40,37 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 				connection.addInstanceReference(this);
 			}
 		};
+	},
+	isNew: function (base, connection) {
+		return function () {
+			var id = connection.id(this);
+			// 0 is a valid ID.
+			// TODO: Why not `return id === null || id === undefined;`?
+			return !(id || id === 0); // If `null` or `undefined`
+		};
+	},
+	save: function (base, connection) {
+		return function(success, error){
+			// return only one item for compatability
+			var promise = connection.save(this);
+			promise.then(success,error);
+			return promise;
+		};
+	},
+	destroy: function (base, connection) {
+		return function(success, error){
+			var promise;
+			if (this.isNew()) {
+				
+				promise = can.Deferred().resolve(this);
+				connection.destroyedInstance(this, {});
+			} else {
+				promise = connection.destroy(this);
+			}
+			
+			promise.then(success,error);
+			return promise;
+		};
 	}
 };
 
@@ -82,8 +113,23 @@ var listPrototypeOverwrites = {
 			connection.deleteListReference(this);
 			return base.apply(this, arguments);
 		};
-	},
+	}
 };
+
+var mapStaticOverwrites = {
+	findAll: function (base, connection) {
+		return function(params) {
+			return connection.findAll(params);
+		};
+	},
+	findOne: function (base, connection) {
+		return function(params) {
+			// adds .then for compat
+			return connection.findOne(params);
+		};
+	}
+};
+
 var listStaticOverwrites = {
 	_bubbleRule: function(base, connection) {
 		return function(eventName, list) {
@@ -115,20 +161,20 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 	
 	var behavior = {
 		init: function(){
-			overwrite(this, options.Map, mapOverwrites);
+			overwrite(this, options.Map, mapOverwrites, mapStaticOverwrites);
 			overwrite(this, options.List, listPrototypeOverwrites, listStaticOverwrites);
 			baseConnect.init.apply(this, arguments);
 		},
 		id: function(inst) {
-			
+			var idProp = options.idProp || this.idProp;
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
-					can.__reading(inst, this.idProp);
+					can.__reading(inst, idProp);
 				}
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
-				return inst.__get(this.idProp);
+				return inst.__get(idProp);
 			} else {
-				return inst[this.idProp];
+				return inst[idProp];
 			}
 		},
 		serializeInstance: function(instance){
@@ -179,7 +225,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			can.dispatch.call(instance, {type:"change", target: instance}, [funcName]);
 
 			//!steal-remove-start
-			can.dev.log("Model.js - " + constructor.shortName + " " + funcName);
+			can.dev.log("Model.js - " + (constructor.shortName || options.name) + ""+this.id(instance)+" " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class

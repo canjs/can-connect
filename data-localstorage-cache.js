@@ -4,7 +4,7 @@ var connect = require("can-connect");
 var sortedSetJSON = require("./helpers/sorted-set-json");
 var canSet = require("can-set");
 
-
+// 
 var indexOf = function(connection, props, items){
 	var id = connection.id(props);
 	for(var i = 0; i < items.length; i++) {
@@ -22,28 +22,47 @@ var setAdd = function(set, items, item, compare){
 /**
  * @module can-connect/localstorage-cache
  * 
- * A very rough and slow version of localstorage caching.
- * 
  */
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect, options){
 
 	var behavior = {
+		// an array of each set to the ids it contains
 		_sets: null,
+		// a map of each id to an instance
+		_instances: {},
 		getSets: function(){
 			if(!this._sets) {
 				var sets = this._sets = {};
 				(JSON.parse(localStorage.getItem(options.name+"-sets"))|| []).forEach(function(setKey){
-					sets[setKey] = {
-						set: JSON.parse(setKey),
-						setKey: setKey
-					};
+					// make sure we actually have set data
+					if( localStorage.getItem(options.name+"/set/"+setKey) ) {
+						sets[setKey] = {
+							set: JSON.parse(setKey),
+							setKey: setKey
+						};
+					}
 				});
 			}
 			return this._sets;
 		},
+		getInstance: function(id){
+			//if(!this._instances[id]) {
+				var res = localStorage.getItem(options.name+"/instance/"+id);
+				if(res) {
+					return JSON.parse( res );
+				}
+			//}
+			//return this._instances[id];
+		},
+		getInstances: function(ids){
+			var self = this;
+			return ids.map(function(id){
+				return self.getInstance(id);
+			});
+		},
 		removeSet: function(setKey, noUpdate) {
 			var sets = this.getSets();
-			localStorage.removeItem(options.name+"/"+setKey);
+			localStorage.removeItem(options.name+"/set/"+setKey);
 			delete sets[setKey];
 			if(noUpdate !== true) {
 				this.updateSets();
@@ -56,29 +75,50 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		reset: function(){
 			var sets = this.getSets();
 			for(var setKey in sets) {
-				localStorage.removeItem(options.name+"/"+setKey);
+				localStorage.removeItem(options.name+"/set/"+setKey);
 			}
 			localStorage.removeItem(options.name+"-sets");
+			
+			// remove all instances
+			var i = 0;
+			while(i < localStorage.length) {
+				if(localStorage.key(i).indexOf(options.name+"/instance/") === 0) {
+					localStorage.removeItem( localStorage.key(i) );
+				} else {
+					i++;
+				}
+			}
+			this._instances = {};
 			this._sets = null;
 		},
 		// gets the set from localstorage
 		getListData: function(set){
 			var setKey = sortedSetJSON(set);
 			
-			
 			var setDatum = this.getSets()[setKey];
 			if(setDatum) {
-				if( !("items" in setDatum) ) {
-					setDatum.items = JSON.parse( localStorage.getItem(options.name+"/"+setKey) );
+				var localData = localStorage.getItem(options.name+"/set/"+setKey);
+				if(localData) {
+					return new can.Deferred().resolve( {data: this.getInstances( JSON.parse( localData ) )} );
 				}
-				return new can.Deferred().resolve( {data: setDatum.items} );
+			} 
+			return new can.Deferred().reject({message: "no data", error: 404});
+			
+		},
+		// TODO: Ideally, this should be able to go straight to the instance and not have to do
+		// much else
+		getInstanceData: function(params){
+			var id = this.id(params);
+			var res = localStorage.getItem(options.name+"/instance/"+id);
+			if(res){
+				return new can.Deferred().resolve( JSON.parse(res) );
 			} else {
 				return new can.Deferred().reject({message: "no data", error: 404});
 			}
 		},
 		updateSet: function(setDatum, items, newSet) {
+			var newSetKey = newSet ? sortedSetJSON(newSet) : setDatum.setKey;
 			if(newSet) {
-				var newSetKey = sortedSetJSON(newSet);
 				// if the setKey is changing
 				if(newSetKey !== setDatum.setKey) {
 					// add the new one
@@ -92,8 +132,17 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 
 			setDatum.items = items;
+			// save objects and ids
+			var self = this;
 			
-			localStorage.setItem(options.name+"/"+newSetKey, JSON.stringify(setDatum.items) );
+			var ids = items.map(function(item){
+				var id = self.id(item);
+				//localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(item) );
+				
+				return id;
+			});
+			
+			localStorage.setItem(options.name+"/set/"+newSetKey, JSON.stringify(ids) );
 		},
 		addSet: function(set, data) {
 			var items = getItems(data);
@@ -104,7 +153,16 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				items: items,
 				set: set
 			};
-			localStorage.setItem(options.name+"/"+setKey, JSON.stringify(items) );
+			
+			var self = this;
+			
+			var ids = items.map(function(item){
+				var id = self.id(item);
+				localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(item));				
+				return id;
+			});
+			
+			localStorage.setItem(options.name+"/set/"+setKey, JSON.stringify(ids) );
 			this.updateSets();
 		},
 		// creates the set in localstorage
@@ -130,11 +188,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		_eachSet: function(cb){
 			var sets = this.getSets();
+			var self = this;
 			var loop = function(setDatum, setKey) {
 				return cb(setDatum, setKey, function(){
 					
 					if( !("items" in setDatum) ) {
-						setDatum.items = JSON.parse( localStorage.getItem(options.name+"/"+setKey) );
+						var ids = JSON.parse( localStorage.getItem(options.name+"/set/"+setKey) );
+						setDatum.items = self.getInstances(ids);
 					}
 					return setDatum.items;
 
@@ -157,6 +217,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, options.compare), setDatum.set);
 				}
 			});
+			var id = this.id(props);
+			localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(props));
 			return new can.Deferred().resolve({});
 		},
 		updateInstanceData: function(props){
@@ -186,6 +248,10 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 					self.updateSet(setDatum, items);
 				}
 			});
+			var id = this.id(props);
+			
+			localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(props));
+				
 			return new can.Deferred().resolve({});
 		},
 		destroyInstanceData: function(props){
@@ -202,6 +268,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 					self.updateSet(setDatum, items);
 				}
 			});
+			var id = this.id(props);
+			localStorage.removeItem(options.name+"/instance/"+id);
 			return new can.Deferred().resolve({});
 		}
 	};
