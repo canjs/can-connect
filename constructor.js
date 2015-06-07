@@ -24,7 +24,7 @@ var overwrite = require("./helpers/overwrite");
  *   @option {function} list
  *   @option {String} id
  */
-module.exports = connect.behavior("constructor",function(baseConnect, options){
+module.exports = connect.behavior("constructor",function(baseConnect){
 	
 	var behavior = {
 		// stores references to instances
@@ -38,7 +38,7 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 		},
 		findOne: function(params) {
 			return pipe(this.getInstanceData(params), this, function(data){
-				return this.makeInstance(data, options);
+				return this.makeInstance(data);
 			});
 		},
 		
@@ -55,8 +55,6 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 			instanceData.data = arr;
 			if(this.list) {
 				return this.list(instanceData, params);
-			} else if(options.list) {
-				return options.list(instanceData, params);
 			} else {
 				var list = instanceData.data.slice(0);
 				list.__set = params;
@@ -67,9 +65,7 @@ module.exports = connect.behavior("constructor",function(baseConnect, options){
 		makeInstance: function(props){
 			if(this.instance) {
 				return this.instance(props);
-			} else if(options.instance) {
-				return options.instance(props);
-			} else {
+			}  else {
 				return can.simpleExtend({}, props);
 			}
 		},

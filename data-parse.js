@@ -26,7 +26,7 @@ var pairs = {
  *   @option {String} parseListProp
  *   @option {String} parseInstanceData
  */
-module.exports = connect.behavior("data-parse",function(baseConnect, options){
+module.exports = connect.behavior("data-parse",function(baseConnect){
 	
 	var behavior = {
 		// The ONLY job of this is to get this into the {data: items} format
@@ -35,7 +35,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect, options){
 			if( can.isArray(items) ) {
 				result = {data: items};
 			} else {
-				var prop = options.parseListProp || 'data';
+				var prop = this.parseListProp || 'data';
 
 				items.data = can.getObject(prop, items);
 				result = items;
@@ -55,7 +55,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect, options){
 			return result;
 		},
 		parseInstanceData: function( props ) {
-			return options.parseInstanceProp ? can.getObject(options.parseInstanceProp, props) || props : props;
+			return this.parseInstanceProp ? can.getObject(this.parseInstanceProp, props) || props : props;
 		}
 	};
 	

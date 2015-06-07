@@ -18,9 +18,9 @@ var getItems = require("./helpers/get-items");
  * @param {{}} options
  * 
  *   @option {can.Object.compare} compare 
+ *   @option {number} time
  */
-module.exports = connect.behavior("data-combine-requests",function(base, options){
-	options = options || {};
+module.exports = connect.behavior("data-combine-requests",function(base){
 	var pendingRequests; //[{params, deferred}]
 	
 	return {
@@ -34,9 +34,9 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 			// O(n log n)
 			pendingRequests.sort(function(pReq1, pReq2){
 				
-				if(canSet.subset(pReq1.params, pReq2.params, options.compare)) {
+				if(canSet.subset(pReq1.params, pReq2.params, this.compare)) {
 					return 1;
-				} else if( canSet.subset(pReq2.params, pReq1.params, options.compare) ) {
+				} else if( canSet.subset(pReq2.params, pReq1.params, this.compare) ) {
 					return -1;
 				} 
 				
@@ -55,7 +55,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = canSet.union(current.params, pendingRequest.params, options.compare);
+					var combined = canSet.union(current.params, pendingRequest.params, this.compare);
 					if(combined) {
 						// add next 
 						current.params = combined;
@@ -68,8 +68,8 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 			pendingRequests = null;
 			return new can.Deferred().resolve(combineData);
 		},
-		getSubset: function(params, combinedParams, data, options){
-			return canSet.getSubset(params, combinedParams, data, options.compare);
+		getSubset: function(params, combinedParams, data){
+			return canSet.getSubset(params, combinedParams, data, this.compare);
 		},
 		getListData: function(params){
 			var self = this;
@@ -91,7 +91,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									combined.pendingRequests.forEach(function(pending){
-										pending.deferred.resolve( {data: self.getSubset(pending.params, combined.params, getItems(data), options)} );
+										pending.deferred.resolve( {data: self.getSubset(pending.params, combined.params, getItems(data) )} );
 									});
 								}
 								
@@ -100,7 +100,7 @@ module.exports = connect.behavior("data-combine-requests",function(base, options
 					});
 					
 					
-				}, options.time || 1);
+				}, this.time || 1);
 			}
 			
 			var deferred = new can.Deferred();

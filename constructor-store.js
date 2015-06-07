@@ -22,7 +22,7 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
  *   @option {function} list
  *   @option {String} id
  */
-module.exports = connect.behavior("constructor-store",function(baseConnect, options){
+module.exports = connect.behavior("constructor-store",function(baseConnect){
 	// - when an instance is created, and there are requests, add to the store
 	// - this might need to be done by the framework
 	// - need a hook for when an instance is created outside 
@@ -81,7 +81,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect, opti
 			}
 		},
 		// Overwrites makeInstance so it looks in the store and calls madeInstance.
-		makeInstance: function(props, options){
+		makeInstance: function(props){
 			var id = this.id(props);
 			if((id || id === 0) && this.instanceStore.has(id) ) {
 				var storeInstance = this.instanceStore.get(id);
@@ -89,7 +89,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect, opti
 				this.updatedInstance(storeInstance, props);
 				return storeInstance;
 			}
-			var instance = baseConnect.makeInstance.call(this, props, options);
+			var instance = baseConnect.makeInstance.call(this, props);
 			this.madeInstance(instance);
 			return instance;
 		},

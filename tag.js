@@ -57,7 +57,7 @@ connect.tag = function(tagName, connection){
 					if(method === "findOne"){
 						set = connection.id(set);
 					}
-					root.pageData(connection.options.name, set, promise);
+					root.pageData(connection.name, set, promise);
 				} 
 			}
 			addedToPageData = true;

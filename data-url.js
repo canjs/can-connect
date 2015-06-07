@@ -35,7 +35,7 @@ var ajax = function (ajaxOb, data, type, dataType) {
 var createURLFromResource = function(resource, idProp, name) {
 
 	var url = resource.replace(/\/+$/, "");
-	if (name === "findAll" || name === "create") {
+	if (name === "findAllURL" || name === "createURL") {
 		return url;
 	} else {
 		return url + "/{" + idProp + "}";
@@ -43,11 +43,11 @@ var createURLFromResource = function(resource, idProp, name) {
 };
 
 var pairs = {
-	getListData: {prop: "findAll", type: "GET"},
-	getInstanceData: {prop: "findOne", type: "GET"},
-	createInstanceData: {prop: "create", type: "POST"},
-	updateInstanceData: {prop: "update", type: "PUT"},
-	destroyInstanceData: {prop: "destroy", type: "DELETE"}
+	getListData: {prop: "findAllURL", type: "GET"},
+	getInstanceData: {prop: "findOneURL", type: "GET"},
+	createInstanceData: {prop: "createURL", type: "POST"},
+	updateInstanceData: {prop: "updateURL", type: "PUT"},
+	destroyInstanceData: {prop: "destroyURL", type: "DELETE"}
 };
 
 /**
@@ -56,18 +56,18 @@ var pairs = {
  * Provides getListData, getInstanceData, etc, and
  * hooks them up to parse
  */
-module.exports = connect.behavior("data-url",function(baseConnect, options){
+module.exports = connect.behavior("data-url",function(baseConnect){
 	
 	var behavior = {};
 	can.each(pairs, function(reqOptions, name){
 		behavior[name] = function(params){
-			if(typeof options[reqOptions.prop] === "function"){
-				return options[reqOptions.prop](params);
+			if(typeof this[reqOptions.prop] === "function"){
+				return this[reqOptions.prop](params);
 			} 
-			else if(options[reqOptions.prop]) {
-				return ajax(options[reqOptions.prop], params, reqOptions.type);
-			} else if( options.resource && (options.idProp || this.idProp) ) {
-				return ajax( createURLFromResource(options.resource, options.idProp || this.idProp, reqOptions.prop ),  params, reqOptions.type  );
+			else if(this[reqOptions.prop]) {
+				return ajax(this[reqOptions.prop], params, reqOptions.type);
+			} else if( this.resource && (this.idProp || this.idProp) ) {
+				return ajax( createURLFromResource(this.resource, this.idProp || this.idProp, reqOptions.prop ),  params, reqOptions.type  );
 			} else {
 				return baseConnect[name].call(this, params);
 			}

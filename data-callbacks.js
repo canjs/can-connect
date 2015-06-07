@@ -14,7 +14,7 @@ var returnArg = function(item){
 	return item;
 };
 
-module.exports = connect.behavior("data-callbacks",function(baseConnect, options){
+module.exports = connect.behavior("data-callbacks",function(baseConnect){
 	
 	var behavior = {
 	};

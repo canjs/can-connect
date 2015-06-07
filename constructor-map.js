@@ -154,19 +154,19 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 };
 
 
-module.exports = connect.behavior("constructor-map",function(baseConnect, options){
+module.exports = connect.behavior("constructor-map",function(baseConnect){
 	
 	// overwrite 
 	
 	
 	var behavior = {
 		init: function(){
-			overwrite(this, options.Map, mapOverwrites, mapStaticOverwrites);
-			overwrite(this, options.List, listPrototypeOverwrites, listStaticOverwrites);
+			overwrite(this, this.Map, mapOverwrites, mapStaticOverwrites);
+			overwrite(this, this.List, listPrototypeOverwrites, listStaticOverwrites);
 			baseConnect.init.apply(this, arguments);
 		},
 		id: function(inst) {
-			var idProp = options.idProp || this.idProp;
+			var idProp = this.idProp;
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
 					can.__reading(inst, idProp);
@@ -184,10 +184,10 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			return list.serialize();
 		},
 		instance: function(values){
-			return new options.Map(values);
+			return new this.Map(values);
 		}, 
 		list: function(listData, set){
-			var list = new options.List(listData.data);
+			var list = new this.List(listData.data);
 			can.each(listData, function (val, prop) {
 				if (prop !== 'data') {
 					list.attr(prop, val);
@@ -215,7 +215,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 
 			// Update attributes if attributes have been passed
 			if(attrs && typeof attrs === 'object') {
-				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, options.constructor.removeAttr || false);
+				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, this.constructor.removeAttr || false);
 			}
 
 			// triggers change event that bubble's like
@@ -225,7 +225,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect, option
 			can.dispatch.call(instance, {type:"change", target: instance}, [funcName]);
 
 			//!steal-remove-start
-			can.dev.log("Model.js - " + (constructor.shortName || options.name) + ""+this.id(instance)+" " + funcName);
+			can.dev.log("Model.js - " + (constructor.shortName || this.name) + ""+this.id(instance)+" " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class
