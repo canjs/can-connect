@@ -11,7 +11,7 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
  * A fall through cache that checks another `cacheConnection`.
  * 
  */
-module.exports = connect.behavior("fall-through-cache",function(baseConnect, options){
+module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {
 		// overwrite makeList calls
@@ -67,7 +67,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 		getListData: function(params){
 			// first, always check the cache connection
 			var self = this;
-			return options.cacheConnection.getListData(params).then(function(data){
+			return this.cacheConnection.getListData(params).then(function(data){
 				
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
@@ -79,7 +79,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 					setTimeout(function(){
 						baseConnect.getListData.call(self, params).then(function(listData){
 							
-							options.cacheConnection.updateListData(listData, params);
+							this.cacheConnection.updateListData(listData, params);
 							self.updatedList(list, listData, params);
 							self.deleteListReference(list, params);
 							
@@ -96,7 +96,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 			}, function(){
 				var listData = baseConnect.getListData.call(self, params);
 				listData.then(function(listData){
-					options.cacheConnection.updateListData(listData, params);
+					this.cacheConnection.updateListData(listData, params);
 				});
 				
 				return listData;
@@ -125,7 +125,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 		getInstanceData: function(params){
 			// first, always check the cache connection
 			var self = this;
-			return options.cacheConnection.getInstanceData(params).then(function(instanceData){
+			return this.cacheConnection.getInstanceData(params).then(function(instanceData){
 				
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
@@ -135,7 +135,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 					setTimeout(function(){
 						baseConnect.getInstanceData.call(self, params).then(function(instanceData2){
 							
-							options.cacheConnection.updateInstanceData(instanceData2);
+							this.cacheConnection.updateInstanceData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
 							self.deleteInstanceReference(instance);
 							
@@ -150,7 +150,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect, opt
 			}, function(){
 				var listData = baseConnect.getInstanceData.call(self, params);
 				listData.then(function(instanceData){
-					options.cacheConnection.updateInstanceData(instanceData);
+					this.cacheConnection.updateInstanceData(instanceData);
 				});
 				
 				return listData;

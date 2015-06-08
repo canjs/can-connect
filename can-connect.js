@@ -7,6 +7,8 @@ var idMerge = require("./helpers/id-merge");
  * @param {Object} options
  */
 var connect = function(behaviors, options){
+	
+	
 	behaviors = behaviors.map(function(behavior, index){
 		var sortedIndex;
 		if(typeof behavior === "string") {
@@ -34,15 +36,14 @@ var connect = function(behaviors, options){
 			return b.behavior;
 		});
 
-	var behavior = core({},options);
+	var behavior = core( connect.behavior(function(){return options; })() );
 
 	behaviors.forEach(function(behave){
-		behavior = behave(behavior, options);
+		behavior = behave(behavior);
 	});
 	if(behavior.init) {
 		behavior.init();
 	}
-	behavior.options = options;
 	return behavior;
 };
 
@@ -78,10 +79,10 @@ connect.behavior = function(name, behavior){
 
 var behaviorsMap = {};
 
-var core = connect.behavior("base",function(base, options){
+var core = connect.behavior("base",function(base){
 	return {
 		id: function(instance){
-			return instance[options.id || this.idProp || "id"];
+			return instance[this.idProp || "id"];
 		},
 		idProp: "id",
 		listSet: function(list){

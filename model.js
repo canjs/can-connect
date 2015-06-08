@@ -31,7 +31,7 @@ var resolveSingleExport = function(originalPromise){
 	return promise;
 };
 
-var mapBehavior = connect.behavior(function(baseConnect, options){
+var mapBehavior = connect.behavior(function(baseConnect){
 	var behavior = {
 		id: function(inst) {
 			
@@ -42,13 +42,13 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
 				return inst.__get(inst.constructor.id);
 			} else {
-				return inst[options.constructor.id];
+				return inst[this.constructor.id];
 			}
 		},
 		listSet: function(){
 			return undefined;
 		},
-		idProp: options.constructor.id,
+		idProp: baseConnect.constructor.id,
 		serializeInstance: function(instance){
 			return instance.serialize();
 		},
@@ -64,15 +64,15 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 			return promise;
 		},
 		parseInstanceData: function(props){
-			if(typeof options.parseModel === "function") {
-				return options.parseModel.apply(options.constructor, arguments);
+			if(typeof this.parseModel === "function") {
+				return this.parseModel.apply(this.constructor, arguments);
 			} else {
 				return baseConnect.parseInstanceData.apply(baseConnect, arguments);
 			}
 		},
 		parseListData: function(props){
-			if(typeof options.parseModels === "function") {
-				return options.parseModels.apply(options.constructor, arguments);
+			if(typeof this.parseModels === "function") {
+				return this.parseModels.apply(this.constructor, arguments);
 			} else {
 				return baseConnect.parseListData.apply(baseConnect, arguments);
 			}
@@ -91,7 +91,7 @@ var mapBehavior = connect.behavior(function(baseConnect, options){
 
 			// Update attributes if attributes have been passed
 			if(attrs && typeof attrs === 'object') {
-				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, options.constructor.removeAttr || false);
+				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, this.constructor.removeAttr || false);
 			}
 
 			// triggers change event that bubble's like

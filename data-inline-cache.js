@@ -28,7 +28,7 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
  *   @option {String} name The name is used to identify which property in INLINE_CACHE this connection
  *   should look for IDs in.
  */
-module.exports = connect.behavior("data-inline-cache",function(baseConnect, options){
+module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 
 	if(typeof INLINE_CACHE === "undefined") {
 		// do nothing if no INLINE_CACHE when this module loads.  INLINE_CACHE has to be before steal.
@@ -36,7 +36,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect, opti
 	}
 	
 	var getData = function(id){
-		var type = INLINE_CACHE[options.name];
+		var type = INLINE_CACHE[this.name];
 		if(type) {
 			var data = type[id];
 			if( data ) {
@@ -52,8 +52,8 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect, opti
 			var id = sortedSetJSON(set);
 			var data = getData(id);
 			if(data !== undefined) {
-				if(options.cacheConnection) {
-					options.cacheConnection.updateListData(data, set);
+				if(this.cacheConnection) {
+					this.cacheConnection.updateListData(data, set);
 				}
 				return new can.Deferred().resolve(data);
 			} else {
@@ -64,8 +64,8 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect, opti
 			var id = this.id(params);
 			var data = getData(id);
 			if(data !== undefined) {
-				if(options.cacheConnection) {
-					options.cacheConnection.updateInstanceData(data);
+				if(this.cacheConnection) {
+					this.cacheConnection.updateInstanceData(data);
 				}
 				return new can.Deferred().resolve(data);
 			} else {

@@ -4,9 +4,9 @@ var can = require("can/util/util");
 var getItems = require("./helpers/get-items");
 var canSet = require("can-set");
 
-module.exports = connect.behavior("service-worker",function(base, options){
+module.exports = connect.behavior("service-worker",function(base){
 	
-	var worker = new Worker(options.workerURL);
+	var worker = new Worker(this.workerURL);
 	var requestId = 0;
 	var requestDeferreds = {};
 	var isReady = new can.Deferred();

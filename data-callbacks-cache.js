@@ -14,7 +14,7 @@ var returnArg = function(item){
 	return item;
 };
 
-module.exports = connect.behavior("data-callbacks-cache",function(baseConnect, options){
+module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 	
 	var behavior = {
 		//gotListData: returnArg,
@@ -25,7 +25,7 @@ module.exports = connect.behavior("data-callbacks-cache",function(baseConnect, o
 		behavior[dataCallbackName] = function(data, set, cid){
 
 			// update the data in the cache
-			options.cacheConnection[cacheCallback]( can.simpleExtend({}, data) );
+			this.cacheConnection[cacheCallback]( can.simpleExtend({}, data) );
 			
 			return baseConnect[dataCallbackName].call(this,  data, set, cid);
 		};

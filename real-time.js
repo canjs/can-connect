@@ -16,7 +16,7 @@ var setAdd = function(connection, set, items, item, compare){
 	return items.concat([item]);
 };
 
-var create = function(props, options){
+var create = function(props){
 	var self = this;
 	// go through each list
 	this.listStore.forEach(function(list, id){
@@ -26,13 +26,13 @@ var create = function(props, options){
 		
 		var index = indexOf(self, props, list);
 		
-		if(canSet.subset(props, set, options.compare)) {
+		if(canSet.subset(props, set, self.compare)) {
 			
 			// if it's not in the list, update the list with this and the lists data merged
 			if(index == -1) {
 				// get back the list items
 				var items = self.serializeList(list);
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, options.compare) }, set);
+				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.compare) }, set);
 			} else {
 				// if the index
 			}
@@ -42,7 +42,7 @@ var create = function(props, options){
 	});
 };
 
-var update = function(props, options) {
+var update = function(props) {
 	var self = this;
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
@@ -51,14 +51,14 @@ var update = function(props, options) {
 		
 		var index = indexOf(self, props, list);
 		
-		if(canSet.subset(props, set, options.compare)) {
+		if(canSet.subset(props, set, self.compare)) {
 			
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
 			if(index == -1) {
 				// get back the list items
 				var items = self.serializeList(list);
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, options.compare) }, set);
+				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.compare) }, set);
 			} 
 			
 		}  else if(index != -1){
@@ -72,7 +72,7 @@ var update = function(props, options) {
 };
 
 
-var destroy = function(props, options) {
+var destroy = function(props) {
 	var self = this;
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
@@ -91,7 +91,7 @@ var destroy = function(props, options) {
 };
 
 
-module.exports = connect.behavior("real-time",function(baseConnect, options){
+module.exports = connect.behavior("real-time",function(baseConnect){
 	return {
 		
 		createInstance: function(props){
@@ -109,8 +109,8 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 				instance = this.makeInstance(props);
 				this.createdInstance(instance, {});
 				serialized = this.serializeInstance(instance);
-				if(options.cacheConnection) {
-					promise = options.cacheConnection.createInstanceData(serialized).then(function(){
+				if(this.cacheConnection) {
+					promise = this.cacheConnection.createInstanceData(serialized).then(function(){
 						return instance;
 					});
 				} else {
@@ -121,7 +121,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			}
 			this.addInstanceReference(instance);
 			
-			create.call(this, serialized, options);
+			create.call(this, serialized);
 			this.addInstanceReference(instance);
 			
 			// TODO: ideally this could hook into the same callback mechanism as `createdInstanceData`.
@@ -133,7 +133,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
 			
-			create.call(this, this.serializeInstance(instance), options);
+			create.call(this, this.serializeInstance(instance));
 			this.deleteInstanceReference(instance);
 			return undefined;
 		},
@@ -142,7 +142,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			// or a list that shouldn't.
 			var instance = this.instanceStore.get( this.id(params) );
 			this.updatedInstance(instance, props);
-			update.call(this, this.serializeInstance(instance), options);
+			update.call(this, this.serializeInstance(instance));
 			return undefined;
 		},
 		updateInstance: function(props){
@@ -156,12 +156,12 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			var serialized = this.serializeInstance(instance);
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
-			update.call(this, serialized, options);
+			update.call(this, serialized);
 			this.deleteInstanceReference(instance);
 			
 			
-			if(options.cacheConnection) {
-				return options.cacheConnection.updateInstanceData(serialized).then(function(){
+			if(this.cacheConnection) {
+				return this.cacheConnection.updateInstanceData(serialized).then(function(){
 					return instance;
 				});
 			} else {
@@ -180,7 +180,7 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			}
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
-			destroy.call(this, this.serializeInstance(instance), options);
+			destroy.call(this, this.serializeInstance(instance));
 			this.deleteInstanceReference(instance);
 			return undefined;
 		},
@@ -196,10 +196,10 @@ module.exports = connect.behavior("real-time",function(baseConnect, options){
 			// we can pre-register it so everything else finds it
 			this.addInstanceReference(instance);
 			var serialized = this.serializeInstance(instance);
-			destroy.call(this, serialized, options);
+			destroy.call(this, serialized);
 			this.deleteInstanceReference(instance);
-			if(options.cacheConnection) {
-				return options.cacheConnection.destroyInstanceData(serialized).then(function(){
+			if(this.cacheConnection) {
+				return this.cacheConnection.destroyInstanceData(serialized).then(function(){
 					return instance;
 				});
 			} else {

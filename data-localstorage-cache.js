@@ -23,7 +23,7 @@ var setAdd = function(set, items, item, compare){
  * @module can-connect/localstorage-cache
  * 
  */
-module.exports = connect.behavior("data-localstorage-cache",function(baseConnect, options){
+module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
 
 	var behavior = {
 		// an array of each set to the ids it contains
@@ -33,9 +33,9 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		getSets: function(){
 			if(!this._sets) {
 				var sets = this._sets = {};
-				(JSON.parse(localStorage.getItem(options.name+"-sets"))|| []).forEach(function(setKey){
+				(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(setKey){
 					// make sure we actually have set data
-					if( localStorage.getItem(options.name+"/set/"+setKey) ) {
+					if( localStorage.getItem(this.name+"/set/"+setKey) ) {
 						sets[setKey] = {
 							set: JSON.parse(setKey),
 							setKey: setKey
@@ -47,7 +47,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		getInstance: function(id){
 			//if(!this._instances[id]) {
-				var res = localStorage.getItem(options.name+"/instance/"+id);
+				var res = localStorage.getItem(this.name+"/instance/"+id);
 				if(res) {
 					return JSON.parse( res );
 				}
@@ -62,7 +62,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		removeSet: function(setKey, noUpdate) {
 			var sets = this.getSets();
-			localStorage.removeItem(options.name+"/set/"+setKey);
+			localStorage.removeItem(this.name+"/set/"+setKey);
 			delete sets[setKey];
 			if(noUpdate !== true) {
 				this.updateSets();
@@ -70,19 +70,19 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		updateSets: function(){
 			var sets = this.getSets();
-			localStorage.setItem(options.name+"-sets", JSON.stringify( Object.keys(sets) ) );
+			localStorage.setItem(this.name+"-sets", JSON.stringify( Object.keys(sets) ) );
 		},
 		reset: function(){
 			var sets = this.getSets();
 			for(var setKey in sets) {
-				localStorage.removeItem(options.name+"/set/"+setKey);
+				localStorage.removeItem(this.name+"/set/"+setKey);
 			}
-			localStorage.removeItem(options.name+"-sets");
+			localStorage.removeItem(this.name+"-sets");
 			
 			// remove all instances
 			var i = 0;
 			while(i < localStorage.length) {
-				if(localStorage.key(i).indexOf(options.name+"/instance/") === 0) {
+				if(localStorage.key(i).indexOf(this.name+"/instance/") === 0) {
 					localStorage.removeItem( localStorage.key(i) );
 				} else {
 					i++;
@@ -97,7 +97,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var setDatum = this.getSets()[setKey];
 			if(setDatum) {
-				var localData = localStorage.getItem(options.name+"/set/"+setKey);
+				var localData = localStorage.getItem(this.name+"/set/"+setKey);
 				if(localData) {
 					return new can.Deferred().resolve( {data: this.getInstances( JSON.parse( localData ) )} );
 				}
@@ -109,7 +109,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		// much else
 		getInstanceData: function(params){
 			var id = this.id(params);
-			var res = localStorage.getItem(options.name+"/instance/"+id);
+			var res = localStorage.getItem(this.name+"/instance/"+id);
 			if(res){
 				return new can.Deferred().resolve( JSON.parse(res) );
 			} else {
@@ -137,12 +137,12 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var ids = items.map(function(item){
 				var id = self.id(item);
-				//localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(item) );
+				//localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(item) );
 				
 				return id;
 			});
 			
-			localStorage.setItem(options.name+"/set/"+newSetKey, JSON.stringify(ids) );
+			localStorage.setItem(this.name+"/set/"+newSetKey, JSON.stringify(ids) );
 		},
 		addSet: function(set, data) {
 			var items = getItems(data);
@@ -158,11 +158,11 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var ids = items.map(function(item){
 				var id = self.id(item);
-				localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(item));				
+				localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(item));				
 				return id;
 			});
 			
-			localStorage.setItem(options.name+"/set/"+setKey, JSON.stringify(ids) );
+			localStorage.setItem(this.name+"/set/"+setKey, JSON.stringify(ids) );
 			this.updateSets();
 		},
 		// creates the set in localstorage
@@ -173,11 +173,11 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
-				var union = canSet.union(setDatum.set, set, options.compare);
+				var union = canSet.union(setDatum.set, set, this.compare);
 				if(union) {
 					return this.getListData(setDatum.set).then(function(setData){
 						
-						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, options.compare), union);
+						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.compare), union);
 					});
 				}
 			}
@@ -193,7 +193,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				return cb(setDatum, setKey, function(){
 					
 					if( !("items" in setDatum) ) {
-						var ids = JSON.parse( localStorage.getItem(options.name+"/set/"+setKey) );
+						var ids = JSON.parse( localStorage.getItem(this.name+"/set/"+setKey) );
 						setDatum.items = self.getInstances(ids);
 					}
 					return setDatum.items;
@@ -213,12 +213,12 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var self = this;
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(props, setDatum.set, options.compare)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, options.compare), setDatum.set);
+				if(canSet.subset(props, setDatum.set, this.compare)) {
+					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.compare), setDatum.set);
 				}
 			});
 			var id = this.id(props);
-			localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(props));
+			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
 			return new can.Deferred().resolve({});
 		},
 		updateInstanceData: function(props){
@@ -229,13 +229,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, props, items);
 				
-				if(canSet.subset(props, setDatum.set, options.compare)) {
+				if(canSet.subset(props, setDatum.set, this.compare)) {
 					
 					// if it's not in, add it
 					if(index == -1) {
 						// how to insert things together?
 						
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, options.compare) );
+						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.compare) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, props);
@@ -250,7 +250,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			});
 			var id = this.id(props);
 			
-			localStorage.setItem(options.name+"/instance/"+id, JSON.stringify(props));
+			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
 				
 			return new can.Deferred().resolve({});
 		},
@@ -269,7 +269,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			});
 			var id = this.id(props);
-			localStorage.removeItem(options.name+"/instance/"+id);
+			localStorage.removeItem(this.name+"/instance/"+id);
 			return new can.Deferred().resolve({});
 		}
 	};
