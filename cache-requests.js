@@ -24,8 +24,7 @@ var canSet = require("can-set");
  * 
  *   @option {can.Object.compare} compare 
  */
-module.exports = connect.behavior("cache-requests",function(base, options){
-	options = options || {};
+module.exports = connect.behavior("cache-requests",function(base){
 	
 	// This keeps data 3 different ways
 	// 1. A list of items for ranged sets
@@ -38,9 +37,6 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 	var cachedDataMap = {};
 	
 	return {
-		id: function(){
-			return (options && options.id) || "id";
-		},
 		// pure memory implementation
 		getAvailableSets: function(){
 			return new can.Deferred().resolve(setData.map(function(setData){
@@ -62,18 +58,19 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 		 */
 		diffSet: function( params, availableSets ){
 			
-			var minSets;
+			var minSets,
+				self = this;
 			
 			availableSets.forEach(function(set){
 				var curSets;
-				var difference = canSet.difference(params, set, options.compare);
+				var difference = canSet.difference(params, set, self.compare);
 				if(typeof difference === "object") {
 					curSets = {
 						needed: difference,
-						cached: canSet.intersection(params, set, options.compare),
-						count: canSet.count(difference, options.compare)
+						cached: canSet.intersection(params, set, self.compare),
+						count: canSet.count(difference, self.compare)
 					};
-				} else if( canSet.subset(params, set, options.compare) ){
+				} else if( canSet.subset(params, set, self.compare) ){
 					curSets = {
 						cached: params,
 						count: 0
@@ -107,8 +104,8 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 			for(var i = 0; i < setData.length; i++) {
 				setDatum = setData[i];
 				
-				if( canSet.subset(set, setDatum.set, options.compare) ) {
-					var items = canSet.getSubset(set, setDatum.set, setDatum.items, options.compare);
+				if( canSet.subset(set, setDatum.set, this.compare) ) {
+					var items = canSet.getSubset(set, setDatum.set, setDatum.items, this.compare);
 					return new can.Deferred().resolve(items);
 				}
 			}
@@ -119,15 +116,15 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 		 * @param {Object} data - the data for the set
 		 * @param {Object} options - current options
 		 */
-		addListCachedData: function(set, data, options){
+		addListCachedData: function( set, data ){
 			// when a union can be made ... make it
 			console.log("addListCachedData", set);
 			
 			for(var i = 0 ; i < setData.length; i++) {
 				var setDatum = setData[i];
-				var union = canSet.union(setDatum.set, set, options.compare);
+				var union = canSet.union(setDatum.set, set, this.compare);
 				if(union) {
-					setDatum.items = canSet.getUnion(setDatum.set, set, setDatum.items, data, options.compare);
+					setDatum.items = canSet.getUnion(setDatum.set, set, setDatum.items, data, this.compare);
 					setDatum.set = union;
 					return new can.Deferred().resolve();
 				}
@@ -136,9 +133,9 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 			
 			return new can.Deferred().resolve();
 		},
-		mergeData: function(params, diff, neededItems, cachedItems, options){
+		mergeData: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
-			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, options.compare);
+			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, this.compare);
 		},
 		getListData: function(params){
 			
@@ -152,7 +149,7 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 					return self.getListCachedData(diff.cached);
 				} else if(!diff.cached) {
 					return base.getListData(diff.needed).then(function(data){
-						return self.addListCachedData(diff.needed, getItems(data), options).then(function(){
+						return self.addListCachedData(diff.needed, getItems(data) ).then(function(){
 							return data;
 						});
 						
@@ -162,7 +159,7 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 					var needsPromise = base.getListData(diff.needed);
 					
 					var savedPromise = needsPromise.then(function(data){
-						return self.addListCachedData(diff.needed, getItems(data), options).then(function(){
+						return self.addListCachedData( diff.needed, getItems(data) ).then(function(){
 							return data;
 						});
 					});
@@ -171,7 +168,7 @@ module.exports = connect.behavior("cache-requests",function(base, options){
 						cachedPromise,
 						needsPromise
 					).then(function(cached, needed){
-						return self.mergeData( params, diff, needed, cached, options);
+						return self.mergeData( params, diff, needed, cached);
 					});
 					
 					return can.when(combinedPromise, savedPromise).then(function(data){

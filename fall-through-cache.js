@@ -79,7 +79,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					setTimeout(function(){
 						baseConnect.getListData.call(self, params).then(function(listData){
 							
-							this.cacheConnection.updateListData(listData, params);
+							self.cacheConnection.updateListData(listData, params);
 							self.updatedList(list, listData, params);
 							self.deleteListReference(list, params);
 							
@@ -96,7 +96,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			}, function(){
 				var listData = baseConnect.getListData.call(self, params);
 				listData.then(function(listData){
-					this.cacheConnection.updateListData(listData, params);
+					self.cacheConnection.updateListData(listData, params);
 				});
 				
 				return listData;
@@ -135,7 +135,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					setTimeout(function(){
 						baseConnect.getInstanceData.call(self, params).then(function(instanceData2){
 							
-							this.cacheConnection.updateInstanceData(instanceData2);
+							self.cacheConnection.updateInstanceData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
 							self.deleteInstanceReference(instance);
 							
@@ -150,7 +150,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			}, function(){
 				var listData = baseConnect.getInstanceData.call(self, params);
 				listData.then(function(instanceData){
-					this.cacheConnection.updateInstanceData(instanceData);
+					self.cacheConnection.updateInstanceData(instanceData);
 				});
 				
 				return listData;

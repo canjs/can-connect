@@ -50,7 +50,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 	return {
 		getListData: function(set){
 			var id = sortedSetJSON(set);
-			var data = getData(id);
+			var data = getData.call(this, id);
 			if(data !== undefined) {
 				if(this.cacheConnection) {
 					this.cacheConnection.updateListData(data, set);
@@ -62,7 +62,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 		},
 		getInstanceData: function(params){
 			var id = this.id(params);
-			var data = getData(id);
+			var data = getData.call(this, id);
 			if(data !== undefined) {
 				if(this.cacheConnection) {
 					this.cacheConnection.updateInstanceData(data);

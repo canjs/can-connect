@@ -32,11 +32,13 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 			
 			// we need the "biggest" sets first so they can swallow up everything else
 			// O(n log n)
+			var self = this;
+			
 			pendingRequests.sort(function(pReq1, pReq2){
 				
-				if(canSet.subset(pReq1.params, pReq2.params, this.compare)) {
+				if(canSet.subset(pReq1.params, pReq2.params, self.compare)) {
 					return 1;
-				} else if( canSet.subset(pReq2.params, pReq1.params, this.compare) ) {
+				} else if( canSet.subset(pReq2.params, pReq1.params, self.compare) ) {
 					return -1;
 				} 
 				
@@ -55,7 +57,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = canSet.union(current.params, pendingRequest.params, this.compare);
+					var combined = canSet.union(current.params, pendingRequest.params, self.compare);
 					if(combined) {
 						// add next 
 						current.params = combined;

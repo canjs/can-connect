@@ -31,7 +31,6 @@ QUnit.test("updateListData", function(){
 			ok(false, "should have rejected, nothing there");
 			start();
 		}, function(){
-			
 			connection.updateListData({ data: items.slice(0) }, {foo: "bar"})
 				.then(function(){
 					

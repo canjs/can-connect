@@ -168,25 +168,19 @@ can.Model = can.Map.extend({
 		};
 		
 		
-		
-		
-		// setup persistance
-		var persistConnection = persist({},{
-			findAll: getBaseValue(this.findAll),
-			findOne: getBaseValue(this.findOne),
-			create: getBaseValue(this.create),
-			update: getBaseValue(this.update),
-			destroy: getBaseValue(this.destroy),
+		var connectionOptions = {
+			// persist options
+			findAllURL: getBaseValue(this.findAll),
+			findOneURL: getBaseValue(this.findOne),
+			createURL: getBaseValue(this.create),
+			updateURL: getBaseValue(this.update),
+			destroyURL: getBaseValue(this.destroy),
 			resource: this.resource,
-			idProp: this.id
-		});
-		
-		var parseDataConnection = parseData(persistConnection,{
+			idProp: this.id,
+			// parseData 
 			parseInstanceProp: typeof getBaseValue(this.parseModel) === "string" ? getBaseValue(this.parseModel) : undefined,
 			parseListProp: typeof getBaseValue(this.parseModels) === "string" ? getBaseValue(this.parseModels) : undefined,
-		});
-		
-		var constructorConnection = constructor( parseDataConnection, { 
+			// constructor options
 			instance: function(values){
 				return new self(values);
 			}, 
@@ -198,19 +192,22 @@ can.Model = can.Map.extend({
 					}
 				});
 				return list;
-			} 
-		});
-		
-		var instanceStoreConnection = instanceStore( constructorConnection );
-		
-		var mapConnection = mapBehavior(instanceStoreConnection,{
+			},
+			// mapBehavior options
 			constructor: this,
 			parseModel: getBaseValue(this.parseModel),
 			parseModels: getBaseValue(this.parseModels)
-		});
+		};
 		
-		// 
-		this.connection = mapConnection;
+		this.connection = mapBehavior(
+			instanceStore(
+				constructor(
+					parseData(
+						persist(connectionOptions)
+					)
+				)
+			)
+		);
 		
 		this.store = this.connection.instanceStore;
 		// map static stuff to crud .. but we don't want this inherited by the next thing'

@@ -36,7 +36,7 @@ var connect = function(behaviors, options){
 			return b.behavior;
 		});
 
-	var behavior = core( connect.behavior(function(){return options; })() );
+	var behavior = core( connect.behavior("options",function(){return options; })() );
 
 	behaviors.forEach(function(behave){
 		behavior = behave(behavior);
@@ -66,7 +66,7 @@ connect.behavior = function(name, behavior){
 		var newBehavior = new Behavior;
 		var res = behavior.apply(newBehavior, arguments);
 		can.simpleExtend(newBehavior, res);
-		newBehavior.__name = name;
+		newBehavior.__behaviorName = name;
 		return newBehavior;
 	};
 	if(name) {

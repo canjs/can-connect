@@ -33,9 +33,10 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		getSets: function(){
 			if(!this._sets) {
 				var sets = this._sets = {};
+				var self = this;
 				(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(setKey){
 					// make sure we actually have set data
-					if( localStorage.getItem(this.name+"/set/"+setKey) ) {
+					if( localStorage.getItem(self.name+"/set/"+setKey) ) {
 						sets[setKey] = {
 							set: JSON.parse(setKey),
 							setKey: setKey
@@ -158,7 +159,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var ids = items.map(function(item){
 				var id = self.id(item);
-				localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(item));				
+				localStorage.setItem(self.name+"/instance/"+id, JSON.stringify(item));				
 				return id;
 			});
 			
@@ -193,7 +194,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				return cb(setDatum, setKey, function(){
 					
 					if( !("items" in setDatum) ) {
-						var ids = JSON.parse( localStorage.getItem(this.name+"/set/"+setKey) );
+						var ids = JSON.parse( localStorage.getItem(self.name+"/set/"+setKey) );
 						setDatum.items = self.getInstances(ids);
 					}
 					return setDatum.items;

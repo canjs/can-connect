@@ -5,16 +5,10 @@ var cacheRequests = require("../cache-requests");
 var set = require("can-set");
 
 var getId = function(d){ return d.id};
-var compareOptions = {compare: set.comparators.rangeInclusive("start","end")};
 
 QUnit.module("can-connect/cache-requests",{
 	setup: function(){
-		
-		this.persistOptions = {
-			findAll: function(){ }
-		};
-		
-		this.base = persist({},this.persistOptions);
+
 	}
 });
 
@@ -22,21 +16,22 @@ QUnit.module("can-connect/cache-requests",{
 QUnit.test("Get everything and all future requests should hit cache", function(){
 	stop();
 	var count = 0;
-	this.persistOptions.findAll = function(params){
-		deepEqual(params,{},"called for everything");
-		count++;
-		equal(count,1,"only called once");
-		return new can.Deferred().resolve([
-			{id: 1, type: "critical", due: "today"},
-			{id: 2, type: "notcritical", due: "today"},
-			{id: 3, type: "critical", due: "yesterday"},
-			{id: 4},
-			{id: 5, type: "critical"},
-			{id: 6, due: "yesterday"}
-		]);
-	};
-	
-	var res = cacheRequests(this.base);
+
+	var res = cacheRequests( persist({
+		findAllURL: function(params){
+			deepEqual(params,{},"called for everything");
+			count++;
+			equal(count,1,"only called once");
+			return new can.Deferred().resolve([
+				{id: 1, type: "critical", due: "today"},
+				{id: 2, type: "notcritical", due: "today"},
+				{id: 3, type: "critical", due: "yesterday"},
+				{id: 4},
+				{id: 5, type: "critical"},
+				{id: 6, due: "yesterday"}
+			]);
+		}
+	}) );
 	
 	res.getListData({}).then(function(list){
 		
@@ -62,27 +57,28 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 	
-	this.persistOptions.findAll = function(params){
-		
-		equal(params.start, count * 10 + 1, "start is right "+params.start);
-		count++;
-		equal(params.end, count * 10, "end is right "+params.end);
-		
-		
-		var items = [];
-		for(var i= (+params.start); i <= (+params.end); i++) {
-			items.push({
-				id: i
-			});
-		}
-		var def = new can.Deferred();
-		//setTimeout(function(){
-			def.resolve(items);
-		//},50);
-		return def;
-	};
+	var behavior = cacheRequests( persist({
+		findAllURL: function(params){
+			equal(params.start, count * 10 + 1, "start is right "+params.start);
+			count++;
+			equal(params.end, count * 10, "end is right "+params.end);
+			
+			
+			var items = [];
+			for(var i= (+params.start); i <= (+params.end); i++) {
+				items.push({
+					id: i
+				});
+			}
+			var def = new can.Deferred();
+			//setTimeout(function(){
+				def.resolve(items);
+			//},50);
+			return def;
+		},
+		compare: set.comparators.rangeInclusive("start","end")
+	}) );
 	
-	var behavior = cacheRequests(this.base, compareOptions);
 	
 	behavior.getListData({
 		start: 1,

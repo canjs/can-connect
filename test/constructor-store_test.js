@@ -31,38 +31,33 @@ var asyncReject = function(data) {
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor-store",{
 	setup: function(){
-		this.persistConnection = persist(connect.base({},{}),{
-			findAll: "/constructor/people",
-			findOne: "/constructor/people/{id}",
-			create: "/constructor/people",
-			update: "/constructor/people/{id}",
-			destroy: "/constructor/people/{id}"
-		});
-		fixture({
-			"GET /constructor/people": function(){
-				return [{id: 1, age: 32}];
-			},
-			"GET /constructor/people/{id}": function(request){
-				return {id: +request.data.id };
-			},
-			"POST /constructor/people": function(){
-				return {id: 3};
-			},
-			"PUT /constructor/people/{id}": function(request){
-				equal(request.data.id, 3, "update id!");
-				return {update: true};
-			},
-			"DELETE /constructor/people/{id}": function(request){
-				equal(request.data.id, 3, "update id");
-				return {destroy: true};
-			}
-		});
-		fixture.delay = 1;
+		
 	}
 });
 
 
 QUnit.test("instance reference is updated and then discarded after reference is deleted", function(){
+	
+	fixture({
+		"GET /constructor/people": function(){
+			return [{id: 1, age: 32}];
+		},
+		"GET /constructor/people/{id}": function(request){
+			return {id: +request.data.id };
+		},
+		"POST /constructor/people": function(){
+			return {id: 3};
+		},
+		"PUT /constructor/people/{id}": function(request){
+			equal(request.data.id, 3, "update id!");
+			return {update: true};
+		},
+		"DELETE /constructor/people/{id}": function(request){
+			equal(request.data.id, 3, "update id");
+			return {destroy: true};
+		}
+	});
+	fixture.delay = 1;
 	
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
@@ -72,8 +67,12 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		listed.isList = true;
 		return listed;
 	};
-	
-	var peopleConnection = instanceStore( constructor( this.persistConnection, { 
+	var peopleConnection = connect( [persist, constructor, instanceStore], {
+		findAllURL: "/constructor/people",
+		findOneURL: "/constructor/people/{id}",
+		createURL: "/constructor/people",
+		updateURL: "/constructor/people/{id}",
+		destroyURL: "/constructor/people/{id}",
 		instance: function(values){
 			return new Person(values);
 		}, 
@@ -83,7 +82,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		updatedList: function(list, updatedList, set){
 			list.splice(0, list.length, updatedList.data);
 		}
-	}) );
+	});
 	
 	var person = new Person({id: 1, name: "Justin"});
 	

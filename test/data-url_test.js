@@ -11,12 +11,12 @@ QUnit.module("can-connect/persist",{
 
 QUnit.test("basics", function(assert){
 	
-	var connection = persist({},{
-		findAll: "POST /findAll",
-		findOne: "DELETE /findOne",
-		create: "GET /create",
-		update: "GET /update/{id}",
-		destroy: "GET /delete/{id}",
+	var connection = persist({
+		findAllURL: "POST /findAll",
+		findOneURL: "DELETE /findOne",
+		createURL: "GET /create",
+		updateURL: "GET /update/{id}",
+		destroyURL: "GET /delete/{id}"
 	});
 	
 	fixture({

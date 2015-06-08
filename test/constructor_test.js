@@ -13,13 +13,7 @@ var logErrorAndStart = function(e){
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
 	setup: function(){
-		this.persistConnection = persist(connect.base({},{}),{
-			findAll: "/constructor/people",
-			findOne: "/constructor/people/{id}",
-			create: "/constructor/people",
-			update: "/constructor/people/{id}",
-			destroy: "/constructor/people/{id}"
-		});
+
 		fixture({
 			"GET /constructor/people": function(){
 				return [{id: 1}];
@@ -54,14 +48,19 @@ QUnit.test("basics", function(){
 		return listed;
 	};
 	
-	var peopleConnection = constructor( this.persistConnection, { 
+	var peopleConnection = constructor( persist( connect.base({ 
 		instance: function(values){
 			return new Person(values);
 		}, 
 		list: function(arr){
 			return new PersonList(arr.data);
-		} 
-	});
+		},
+		findAllURL: "/constructor/people",
+		findOneURL: "/constructor/people/{id}",
+		createURL: "/constructor/people",
+		updateURL: "/constructor/people/{id}",
+		destroyURL: "/constructor/people/{id}"
+	}) ));
 	
 	stop();
 	peopleConnection.findAll({}).then(function(people){

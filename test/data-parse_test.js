@@ -19,11 +19,11 @@ QUnit.test("basics", function(assert){
 	
 	
 	var connection = connect(["data-url","data-parse"],{
-		findAll: "POST /findAll",
-		findOne: "DELETE /findOne",
-		create: "GET /create",
-		update: "GET /update/{id}",
-		destroy: "GET /delete/{id}",
+		findAllURL: "POST /findAll",
+		findOneURL: "DELETE /findOne",
+		createURL: "GET /create",
+		updateURL: "GET /update/{id}",
+		destroyURL: "GET /delete/{id}",
 		parseListProp: "items",
 		parseInstanceProp: "datas"
 	});
