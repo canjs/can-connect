@@ -1,22 +1,22 @@
 // load connections
 
-require("../constructor");
-require("../constructor-map");
-require("../constructor-store");
-require("../data-callbacks");
-require("../data-callbacks-cache");
-require("../data-combine-requests");
-require("../data-localstorage-cache");
-require("../data-parse");
-require("../data-url");
-require("../fall-through-cache");
-require("../real-time");
-require("../data-inline-cache");
+require("can-connect/constructor");
+require("can-connect/constructor-map");
+require("can-connect/constructor-store");
+require("can-connect/data-callbacks");
+require("can-connect/data-callbacks-cache");
+require("can-connect/data-combine-requests");
+require("can-connect/data-localstorage-cache");
+require("can-connect/data-parse");
+require("can-connect/data-url");
+require("can-connect/fall-through-cache");
+require("can-connect/real-time");
+require("can-connect/data-inline-cache");
 
 var Map = require("can/map/map");
 var List = require("can/list/list");
 
-var connect=  require("../can-connect");
+var connect=  require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
 

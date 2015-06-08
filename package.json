@@ -14,7 +14,10 @@
   },
   "system": {
     "npmIgnore": ["devDependencies"],
-    "npmDependencies": ["steal-qunit"]
+    "npmDependencies": ["steal-qunit"],
+    "directories" : {
+      "lib" : "src"
+    }
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,7 +1,7 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("../data-url");
-var cacheRequests = require("../cache-requests");
+var persist = require("can-connect/data-url");
+var cacheRequests = require("can-connect/cache-requests");
 var set = require("can-set");
 
 var getId = function(d){ return d.id};

@@ -1,11 +1,11 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can-set");
 var fixture = require("can/util/fixture/fixture");
-var persist = require("../data-url");
+var persist = require("can-connect/data-url");
 
-var constructor = require("../constructor");
-var instanceStore = require("../constructor-store");
-var connect = require("../can-connect");
+var constructor = require("can-connect/constructor");
+var instanceStore = require("can-connect/constructor-store");
+var connect = require("can-connect/can-connect");
 
 var logErrorAndStart = function(e){
 	debugger;

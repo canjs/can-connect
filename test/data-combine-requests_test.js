@@ -1,7 +1,7 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("../data-url");
-var combineRequests = require("../data-combine-requests");
+var persist = require("can-connect/data-url");
+var combineRequests = require("can-connect/data-combine-requests");
 var set = require("can-set");
 
 

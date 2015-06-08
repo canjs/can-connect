@@ -1,8 +1,8 @@
-var connect = require("../can-connect");
-require("../real-time");
-require("../constructor");
-require("../constructor-store");
-require("../data-callbacks");
+var connect = require("can-connect/can-connect");
+require("can-connect/real-time");
+require("can-connect/constructor");
+require("can-connect/constructor-store");
+require("can-connect/data-callbacks");
 var can = require("can/util/util");
 var testHelpers = require("./test-helpers");
 var QUnit = require("steal-qunit");

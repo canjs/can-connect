@@ -1,4 +1,4 @@
-var idMerge = require("../helpers/id-merge");
+var idMerge = require("can-connect/helpers/id-merge");
 
 var QUnit = require("steal-qunit");
 

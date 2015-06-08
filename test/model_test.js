@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var can = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
-require("../model");
+require("can-connect/model");
 
 var logErrorAndStart = function(e){
 	debugger;

@@ -1,12 +1,12 @@
 var QUnit = require("steal-qunit");
-var fallThroughCache = require("../fall-through-cache");
-var dataInlineCache = require("../data-inline-cache");
-var constructor = require("../constructor");
-var store = require("../constructor-store");
+var fallThroughCache = require("can-connect/fall-through-cache");
+var dataInlineCache = require("can-connect/data-inline-cache");
+var constructor = require("can-connect/constructor");
+var store = require("can-connect/constructor-store");
 var connect = require("can-connect");
 var canSet = require("can-set");
 var helpers = require("./test-helpers");
-require("../data-callbacks");
+require("can-connect/data-callbacks");
 
 var getId = function(d){ return d.id};
 

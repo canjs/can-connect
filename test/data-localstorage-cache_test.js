@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var localStorage = require("../data-localstorage-cache");
+var localStorage = require("can-connect/data-localstorage-cache");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){

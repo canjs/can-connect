@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var serviceWorkerCache = require("../service-worker-cache");
+var serviceWorkerCache = require("can-connect/service-worker-cache");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){
@@ -15,7 +15,7 @@ QUnit.module("can-connect/service-worker-cache",{
 	setup: function(){
 		this.connection = connect([serviceWorkerCache],{
 			name: "todos",
-			workerURL: System.stealURL+"?main=can-connect/test/service-worker-main_test"
+			workerURL: System.stealURL+"?main=test/service-worker-main_test"
 		});
 	}
 });

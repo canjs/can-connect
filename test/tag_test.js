@@ -5,8 +5,8 @@ require("can/map/map");
 require("can/list/list");
 
 var stache = require("can/view/stache/stache");
-var superMap = require("../super-map");
-var tag = require("../tag");
+var superMap = require("can-connect/super-map");
+var tag = require("can-connect/tag");
 var fixture = require("can/util/fixture/fixture");
 var findAllTemplate = require("./tag_find_all_test.stache!");
 var findOneTemplate = require("./tag_find_one_test.stache!");
