@@ -90,7 +90,10 @@ var destroy = function(props) {
 	});
 };
 
-
+/**
+ * @module can-connect/real-time real-time
+ * @parent can-connect.modules
+ */
 module.exports = connect.behavior("real-time",function(baseConnect){
 	return {
 		

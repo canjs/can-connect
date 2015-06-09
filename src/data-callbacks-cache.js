@@ -14,6 +14,12 @@ var returnArg = function(item){
 	return item;
 };
 
+/**
+ * @module can-connect/data-callbacks-cache data-callbacks-cache
+ * @parent can-connect.modules
+ * 
+ * Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
+ */
 module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 	
 	var behavior = {

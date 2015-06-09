@@ -4,7 +4,8 @@ var connect = require("can-connect");
 var WeakReferenceMap = require("./helpers/weak-reference-map");
 var sortedSetJSON = require("./helpers/sorted-set-json");
 /**
- * @module can-connect/constructor
+ * @module can-connect/constructor-store constructor-store
+ * @parent can-connect.modules
  * 
  * Connect CRUD methods to a constructor function.
  * 

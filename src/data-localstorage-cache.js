@@ -20,8 +20,8 @@ var setAdd = function(set, items, item, compare){
 };
 
 /**
- * @module can-connect/localstorage-cache
- * 
+ * @module can-connect/localstorage-cache localstorage-cache
+ * @parent can-connect.modules
  */
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
 

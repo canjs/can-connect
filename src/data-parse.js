@@ -13,7 +13,8 @@ var pairs = {
 };
 
 /**
- * @module can-connect/data-parse
+ * @module can-connect/data-parse data-parse
+ * @parent can-connect.modules
  * 
  * hooks getListData, getInstanceData, etc, to parse functions. Should be called 
  * after those core things are all decided.

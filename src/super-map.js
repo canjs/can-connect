@@ -40,7 +40,10 @@ connect.superMap = function(options){
 
 	return connect(behaviors,options);
 };
-
+/**
+ * @module can-connect/super-map super-map
+ * @parent can-connect.modules
+ */
 module.exports = connect.superMap;
 
 

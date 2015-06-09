@@ -51,10 +51,21 @@ var pairs = {
 };
 
 /**
- * @module can-connect/data-url
+ * @module can-connect/data-url data-url
+ * @parent can-connect.modules
  * 
  * Provides getListData, getInstanceData, etc, and
  * hooks them up to parse
+ * 
+ * @body
+ * 
+ * ```js
+ * var persistBehavior = persist({
+ *   findAll: "GET /todos"
+ * });
+ * 
+ * persistBehavior.getListData({}) //-> promise(Array<items>)
+ * ```
  */
 module.exports = connect.behavior("data-url",function(baseConnect){
 	

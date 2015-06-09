@@ -4,7 +4,8 @@ var pipe = require("./helpers/pipe");
 var sortedSetJSON = require("./helpers/sorted-set-json");
 
 /**
- * @module can-connect/data-inline-cache
+ * @module can-connect/data-inline-cache data-inline-cache
+ * @parent can-connect.modules
  * 
  * Makes requests use a global `INLINE_CACHE` object for data a "single time".
  * 

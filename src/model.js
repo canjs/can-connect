@@ -1,4 +1,6 @@
 /**
+ * @module can-connect/model model
+ * @parent can-connect.modules
  * Makes a constructor function work just like can.Model
  */
 

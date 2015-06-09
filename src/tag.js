@@ -6,6 +6,9 @@ var mustacheCore = require( "can/view/stache/mustache_core");
 
 
 /**
+ * @module can-connect/tag tag
+ * @parent can-connect.modules
+ * 
  * Makes either findAll or findOne
  * @param {String} tagName
  * @param {Object} connection

@@ -4,6 +4,10 @@ var can = require("can/util/util");
 var getItems = require("./helpers/get-items");
 var canSet = require("can-set");
 
+/**
+ * @module can-connect/service-worker
+ * @parent can-connect.modules
+ */
 module.exports = connect.behavior("service-worker",function(base){
 	
 	var worker = new Worker(this.workerURL);

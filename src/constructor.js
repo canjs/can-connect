@@ -6,7 +6,8 @@ var WeakReferenceMap = require("./helpers/weak-reference-map");
 var overwrite = require("./helpers/overwrite");
 
 /**
- * @module can-connect/constructor
+ * @module can-connect/constructor constructor
+ * @parent can-connect.modules
  * 
  * Connect CRUD methods to a constructor function.
  * 
@@ -31,18 +32,33 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		// for now, only during create
 		cidStore: new WeakReferenceMap(),
 		_cid: 0,
+		/**
+		 * @function findAll
+		 * 
+		 * @param {Set} params
+		 * 
+		 * @return {Promise<List<Instance>>}
+		 */
 		findAll: function(params) {
 			return pipe(this.getListData( params ), this, function(data){
 				return this.makeList(data, params);
 			});
 		},
+		/**
+		 * @function findOne
+		 * @param {Object} params
+		 */
 		findOne: function(params) {
 			return pipe(this.getInstanceData(params), this, function(data){
 				return this.makeInstance(data);
 			});
 		},
 		
-		// given raw data, makes the instances
+		/**
+		 * @function makeList
+		 * @param {Object} instanceData
+		 * @param {Object} params
+		 */
 		makeList: function(instanceData, params){
 			if(can.isArray(instanceData)) {
 				instanceData = {data: instanceData};

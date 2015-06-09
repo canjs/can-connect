@@ -14,6 +14,12 @@ var returnArg = function(item){
 	return item;
 };
 
+/**
+ * @module can-connect/data-callbacks data-callbacks
+ * @parent can-connect.modules
+ * 
+ * Glues the result of the raw `CRUD Methods` to callbacks.
+ */
 module.exports = connect.behavior("data-callbacks",function(baseConnect){
 	
 	var behavior = {

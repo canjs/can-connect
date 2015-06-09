@@ -1,36 +1,71 @@
+@page can-connect
+@group can-connect.externalCRUD 1 External CRUD Methods
+@group can-connect.options 2 Options
+@group can-connect.modules 3 Modules
+
+
 # can-connect
 
-`can-connect` provides persisted data middleware.  It's designed to be useful to any JavaScript framework, not just CanJS. Use it to assemble powerful model layers. It currently can:
+`can-connect` provides persisted data middleware.  It's designed to be useful to 
+any JavaScript framework, not just CanJS. Use it to assemble powerful model layers. It currently can:
 
- - Save response data and using it for future requests - [cache-requests](#cache-requests)
- - Combine overlapping or reduntant requests - [combine-requests](#combine-requests)
- - Create instances of a constructor function or a special list type - [constructor](#constructor)
- - Create only a single instance for a given id - [instance-store](#instance-store)
- - Persist data to restful or other types of services - [persist](#persist)
- - Extract response data into a format needed for other plugins - [parse-data](#parse-data)
- - Inherit from a highly compatable [can.Model] implementation - [model](#model)
+Load data:
+
+ - [can-connect/data-url] - Persist data to restful or other types of services.
+ - [can-connect/data-parse] - Extract response data into a format needed for other extensions.
+
+Convert data into special types:
+
+ - [can-connect/constructor] - Create instances of a constructor function or list type.
+ - [can-connect/constructor-store] - Create only a single instance for a given id or a single list for a set.
+
+Real time:
+
+ - [can-connect/real-time] - Update lists and instances with server side events.
  
-The following features are also planned
+Caching strategies:
 
- - List store with automatic item removal and insertion.
- - Backup
- - Fall-through cache
- - Real-time update
+ - [can-connect/fall-through-cache] - Respond with data from the [connection.cacheConnection] and 
+   then update the response with data from the `raw CRUD Methods`.
+ - [can-connect/data-inline-cache] - Use an inline cache for initial ajax requests.
+ - [can-connect/cache-requests] - Save response data and use it for future requests.
+ - [can-connect/data-combine-requests] - Combine overlapping or reduntant requests.
+
+Caching layers:
+
+ - [can-connect/localstorage-cache] - LocalStorage caching connection.
+
+The following modules glue certain methods together:
+
+ - [can-connect/data-callbacks] - Glues the result of the `raw CRUD Methods` to callbacks.
+ - [can-connect/data-callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called. 
+
+
+The following modules are useful to CanJS specifically:
+
+ - [can-connect/constructor-map] - Create instances of a special can.Map or can.List type. 
+ - [can-connect/super-map] - Create a connection for a can.Map or can.List that uses almost all the plugins.
+ - [can-connect/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
+ - [can-connect/tag] - Create a custom element that can load data into a template.
 
 ## Use
 
-Use `can.connect` to create a `connection` object by passing it behavior names and options:
+Use `connect` to create a `connection` object by passing it behavior names and options:
 
 ```js
-var todoConnection = can.connect(
-  ["cache-requests","constructor","instance-store","comibine-requests"],
+import connect from "can-connect";
+import "can-connect/constructor";
+import "can-connect/data-url";
+
+var todoConnection = connect(
+  ["constructor","data-url"],
   {
     instance: function(data){ new Todo(data) },
     resource: "/services/todos"
-  })
+  });
 ```
 
-Then, use that `todoConnection` to load data:
+Then, use that `todoConnection`'s `External CRUD Methods` to load data:
 
 ```js
 todoConnection.findAll({completed: true}).then(function(todos){
@@ -56,63 +91,6 @@ The API is broken up into:
 - A full list of options that behaviors consume.
 - [The core list of hooks that behaviors can call or implement](#core-hooks)
 - How to create a behavior.
-
-
-## persist
-
-Supplies a `getListData` object that makes ajax requests.  Eventually, 
-it will supply other crud methods similar to can.Model.
-
-```js
-var persistBehavior = persist({
-  findAll: "GET /todos"
-});
-
-persistBehavior.getListData({}) //-> promise(Array<items>)
-```
-
-## combine-requests
-
-Combines requests made within a certain time if the
-sets of data they load overlap.
-
-```js
-combineBehavior = combineRequests( persistBehavior, {time: 100} );
-
-// the following makes a single request
-combineBehavior.getListData({}) //-> promise(Array<items>)
-combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
-combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
-```
-
-
-## cache-requests
-
-Supports caching data for requests that are made for sets of data that
-overlap.  By default caching is done in-memory only.
-
-
-```js
-combineBehavior = cacheRequests( persistBehavior );
-
-combineBehavior.getListData({}) //-> promise(Array<items>)
-
-// this will use the previous data if done later
-combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
-
-// this will use the previous loaded data if done later
-combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
-```
-
- - `getAvailableSets()` -> `promise(Array<sets>)` - Gets a list of the sets that have been stored.
- - `addAvailableSet(set)` -> `promise()` - Adds a set that should be stored.
- - `getListCachedData(set)` -> `promise(Array<data>)` - Gets data for a given set from the local storage.
- - `addListCachedData(set)` -> `promise()` - Adds data to the cache.
- - `diffSet(set, sets)` -> `promise(Diff<{needs: set, cached: set}>)` - Given the set that needs to be loaded and the 
-   sets that have been loaded, return an object that:
-    - specifies the set that __needs__ to be loaded by base `getListData`
-    - specifies the set that should be loaded from `getListCachedData`
- - `mergeData(params, diff, requestedData, cachedData)` -> `Array<items>` return merged cached and requested data.
 
 
 ## Core Hooks

@@ -6,7 +6,8 @@ var canSet = require("can-set");
 
 
 /**
- * @module can-connect/cache-requests
+ * @module can-connect/cache-requests cache-requests
+ * @parent can-connect.modules
  * 
  * Caches reponse data and uses it to prevent future requests or make future requests smaller.
  * 
@@ -16,13 +17,31 @@ var canSet = require("can-set");
  * By default, this uses an in-memory cache of data. However, it can be made to use cookies, localStorage, indexDb
  * or some other persisted storage.
  * 
- * @param {Behavior} A base behavior with the following implemented:
+ * @param {{}} A base behavior with the following implemented:
  * 
- *   @option {function} getListData
+ *   @option {function} getListData abc
  * 
  * @param {{}} options
  * 
  *   @option {can.Object.compare} compare 
+ * 
+ * @body
+ * 
+ * Supports caching data for requests that are made for sets of data that
+ * overlap.  By default caching is done in-memory only.
+ * 
+ * 
+ * ```js
+ * combineBehavior = cacheRequests( persistBehavior );
+ * 
+ * combineBehavior.getListData({}) //-> promise(Array<items>)
+ * 
+ * // this will use the previous data if done later
+ * combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
+ * 
+ * // this will use the previous loaded data if done later
+ * combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
+ * ```
  */
 module.exports = connect.behavior("cache-requests",function(base){
 	
@@ -37,7 +56,10 @@ module.exports = connect.behavior("cache-requests",function(base){
 	var cachedDataMap = {};
 	
 	return {
-		// pure memory implementation
+		/**
+		 * Gets a list of the sets that have been stored.
+		 * @return {Promise<Array<Set>>}
+		 */
 		getAvailableSets: function(){
 			return new can.Deferred().resolve(setData.map(function(setData){
 				return setData.set;
@@ -45,6 +67,15 @@ module.exports = connect.behavior("cache-requests",function(base){
 		},
 		/**
 		 * Compares the available set data to the requested data.
+		 * 
+		 * 
+		 * @return {Promise<{needs: Set, cached: Set}>}
+		 * 
+		 * Return a Promise that:
+		 * - specifies the set that __needs__ to be loaded by base `getListData`
+		 * - specifies the set that should be loaded from `getListCachedData`
+		 * 
+		 * @body
 		 * 
 		 * Ideally, this will not have to compare every set ever loaded.
 		 * 
@@ -95,9 +126,9 @@ module.exports = connect.behavior("cache-requests",function(base){
 			}
 		},
 		/**
-		 * 
+		 * Gets data for a given set from storage.
 		 * @param {Object} params
-		 * @return {Array<>} Array of cached data for these params
+		 * @return {Promise<Array<InstanceData>>} Array of cached data for these params.
 		 */
 		getListCachedData: function(set){
 			var setDatum;
@@ -115,6 +146,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 * @param {Object} set - the set to load
 		 * @param {Object} data - the data for the set
 		 * @param {Object} options - current options
+		 * @return {Promise}
 		 */
 		addListCachedData: function( set, data ){
 			// when a union can be made ... make it
@@ -133,6 +165,14 @@ module.exports = connect.behavior("cache-requests",function(base){
 			
 			return new can.Deferred().resolve();
 		},
+		/**
+		 * 
+		 * @param {Object} params
+		 * @param {Object} diff
+		 * @param {Object} neededItems
+		 * @param {Object} cachedItems
+		 * @return {Array<{data: items}>} Return merged cached and requested data.
+		 */
 		mergeData: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
 			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, this.compare);

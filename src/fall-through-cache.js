@@ -6,7 +6,8 @@ var canSet = require("can-set");
 var sortedSetJSON = require("./helpers/sorted-set-json");
 
 /**
- * @module can-connect/fall-through-cache
+ * @module can-connect/fall-through-cache fall-through-cache
+ * @parent can-connect.modules
  * 
  * A fall through cache that checks another `cacheConnection`.
  * 

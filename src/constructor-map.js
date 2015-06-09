@@ -8,7 +8,8 @@ var can = require("can/util/util");
 var connect = require("can-connect");
 
 /**
- * @module can-connect/constructor-map
+ * @module can-connect/constructor-map constructor-map
+ * @parent can-connect.modules
  */
 
 

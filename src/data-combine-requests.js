@@ -4,15 +4,28 @@ var canSet = require("can-set");
 var can = require("can/util/util");
 var getItems = require("./helpers/get-items");
 
-// TODO: rename combine-requests
 /**
- * @module can-connect/combine-set
+ * @module can-connect/data-combine-requests data-combine-requests
+ * @parent can-connect.modules
  * 
  * Combines multiple incoming requests into one if possible.
  * 
+ * @body 
  * ```
  * {from: 1000, to: 2000},{from: 2001: to: 3000} => {from: 1000, to: 3000}
  * {},{type: "directories"},{type: "files"} => {}
+ * ```
+ * 
+ * Combines requests made within a certain time if the
+ * sets of data they load overlap.
+ * 
+ * ```js
+ * combineBehavior = combineRequests( persistBehavior, {time: 100} );
+ * 
+ * // the following makes a single request
+ * combineBehavior.getListData({}) //-> promise(Array<items>)
+ * combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
+ * combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
  * ```
  * 
  * @param {{}} options
