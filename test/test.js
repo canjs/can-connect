@@ -18,3 +18,4 @@ require("./real-time_test");
 require("./model_test");
 
 require("./tag_test");
+require("./super-map_test");
