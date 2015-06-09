@@ -7,8 +7,8 @@ var idMerge = require("./helpers/id-merge");
  * @param {Object} options
  */
 var connect = function(behaviors, options){
-	
-	
+
+
 	behaviors = behaviors.map(function(behavior, index){
 		var sortedIndex;
 		if(typeof behavior === "string") {
@@ -84,7 +84,7 @@ var core = connect.behavior("base",function(base){
 		id: function(instance){
 			return instance[this.idProp || "id"];
 		},
-		idProp: "id",
+		idProp: base.idProp || "id",
 		listSet: function(list){
 			return list[this.listSetProp];
 		},
