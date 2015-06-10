@@ -20,8 +20,8 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
  * }
  * ```
  * 
- * This would use this inline cache for the data for a `.findOne({id: 1})`
- * and a `.findAll({completed: true})` request for a connection named "todos".
+ * This would use this inline cache for the data for a `.get({id: 1})`
+ * and a `.getList({completed: true})` request for a connection named "todos".
  * 
  * 
  * @param {{}} options
@@ -61,16 +61,16 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 				return baseConnect.getListData.apply(this, arguments);
 			}
 		},
-		getInstanceData: function(params){
+		getData: function(params){
 			var id = this.id(params);
 			var data = getData.call(this, id);
 			if(data !== undefined) {
 				if(this.cacheConnection) {
-					this.cacheConnection.updateInstanceData(data);
+					this.cacheConnection.updateData(data);
 				}
 				return new can.Deferred().resolve(data);
 			} else {
-				return baseConnect.getInstanceData.apply(this, arguments);
+				return baseConnect.getData.apply(this, arguments);
 			}
 		}
 	};

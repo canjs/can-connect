@@ -44,7 +44,7 @@ QUnit.test("basics", function(){
 	var state = helpers.makeStateChecker(QUnit,[
 		"cache-updateListData",
 		"connection-foundAll",
-		"connection-findAll-2",
+		"connection-getList-2",
 		"cache-getListData-items",
 		"connection-foundAll-2",
 		"base-getListData-2",
@@ -106,15 +106,15 @@ QUnit.test("basics", function(){
 	});
 	
 	// first time, it takes the whole time
-	connection.findAll({}).then(function( list ){
+	connection.getList({}).then(function( list ){
 		state.check("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
 	}, helpers.logErrorAndStart);
 	
 	function secondCall() {
-		state.check("connection-findAll-2");
-		connection.findAll({}).then(function(list){
+		state.check("connection-getList-2");
+		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
 		}, helpers.logErrorAndStart);

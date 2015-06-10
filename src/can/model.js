@@ -1,5 +1,5 @@
 /**
- * @module can-connect/model model
+ * @module can-connect/can/model can/model
  * @parent can-connect.modules
  * Makes a constructor function work just like can.Model
  */
@@ -10,10 +10,10 @@ var can = require("can/util/util"),
 	List = require("can/list/list"),
 	connect = require("can-connect"),
 	
-	persist = require("./data-url"),
-	constructor = require("./constructor"),
-	instanceStore = require("./constructor-store"),
-	parseData = require("./data-parse");
+	persist = require("../data-url"),
+	constructor = require("../constructor"),
+	instanceStore = require("../constructor-store"),
+	parseData = require("../data-parse");
 
 var callCanReadingOnIdRead = true;
 var getBaseValue = function(prop){
@@ -39,7 +39,7 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
-					can.__reading(inst, inst.constructor.id);
+					can.__observe(inst, inst.constructor.id);
 				}
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
 				return inst.__get(inst.constructor.id);
@@ -55,13 +55,13 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			return instance.serialize();
 		},
 		findAll: function(params, success, error) {
-			var promise = resolveSingleExport( baseConnect.findAll.call(this, params) );
+			var promise = resolveSingleExport( baseConnect.getList.call(this, params) );
 			promise.then(success, error);
 			return promise;
 		},
 		findOne: function(params, success, error) {
 			// adds .then for compat
-			var promise = resolveSingleExport( baseConnect.findOne.call(this, params) );
+			var promise = resolveSingleExport( baseConnect.get.call(this, params) );
 			promise.then(success, error);
 			return promise;
 		},
@@ -172,12 +172,14 @@ can.Model = can.Map.extend({
 		
 		var connectionOptions = {
 			// persist options
-			findAllURL: getBaseValue(this.findAll),
-			findOneURL: getBaseValue(this.findOne),
-			createURL: getBaseValue(this.create),
-			updateURL: getBaseValue(this.update),
-			destroyURL: getBaseValue(this.destroy),
-			resource: this.resource,
+			url: {
+				getListData: getBaseValue(this.findAll),
+				getData: getBaseValue(this.findOne),
+				createData: getBaseValue(this.create),
+				updateData: getBaseValue(this.update),
+				destroyData: getBaseValue(this.destroy),
+				resource: this.resource
+			},
 			idProp: this.id,
 			// parseData 
 			parseInstanceProp: typeof getBaseValue(this.parseModel) === "string" ? getBaseValue(this.parseModel) : undefined,

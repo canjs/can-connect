@@ -12,18 +12,20 @@ QUnit.module("can-connect/persist",{
 QUnit.test("basics", function(assert){
 	
 	var connection = persist({
-		findAllURL: "POST /findAll",
-		findOneURL: "DELETE /findOne",
-		createURL: "GET /create",
-		updateURL: "GET /update/{id}",
-		destroyURL: "GET /delete/{id}"
+		url: {
+			getListData: "POST /getList",
+			getData: "DELETE /getInstance",
+			createData: "GET /create",
+			updateData: "GET /update/{id}",
+			destroyData: "GET /delete/{id}"
+		}
 	});
 	
 	fixture({
-		"POST /findAll": function(){
+		"POST /getList": function(){
 			return [{id: 1}];
 		},
-		"DELETE /findOne": function(){
+		"DELETE /getInstance": function(){
 			return {id: 2};
 		},
 		"GET /create": function(){
@@ -41,24 +43,24 @@ QUnit.test("basics", function(assert){
 	
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, [{id: 1}], "findAll");
+		deepEqual(items, [{id: 1}], "getList");
 		start();
 	});
 	
 	stop();
-	connection.getInstanceData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 2}, "findOne");
+	connection.getData({foo: "bar"}).then(function(data){
+		deepEqual(data, {id: 2}, "getInstance");
 		start();
 	});
 	
 	stop();
-	connection.createInstanceData({foo: "bar"}).then(function(data){
+	connection.createData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 3}, "create");
 		start();
 	});
 	
 	stop();
-	connection.destroyInstanceData({foo: "bar", id: 3}).then(function(data){
+	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		deepEqual(data, {destroy: true}, "update");
 		start();
 	});

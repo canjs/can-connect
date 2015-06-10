@@ -13,11 +13,11 @@ var overwrite = require("./helpers/overwrite");
  * 
  * Consumes:
  * 
- * - getListData, getInstanceData, createInstanceData, updateInstanceData, destroyInstanceData
+ * - getListData, getData, createData, updateData, destroyData
  * 
  * Produces:
  * 
- * - findAll, findOne, save, destroy, id, createdInstance, updatedInstance
+ * - getList, getInstance, save, destroy, id, createdInstance, updatedInstance
  * 
  * @param {{}} options
  * 
@@ -33,23 +33,23 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		cidStore: new WeakReferenceMap(),
 		_cid: 0,
 		/**
-		 * @function findAll
+		 * @function getList
 		 * 
 		 * @param {Set} params
 		 * 
 		 * @return {Promise<List<Instance>>}
 		 */
-		findAll: function(params) {
+		getList: function(params) {
 			return pipe(this.getListData( params ), this, function(data){
 				return this.makeList(data, params);
 			});
 		},
 		/**
-		 * @function findOne
+		 * @function get
 		 * @param {Object} params
 		 */
-		findOne: function(params) {
-			return pipe(this.getInstanceData(params), this, function(data){
+		get: function(params) {
+			return pipe(this.getData(params), this, function(data){
 				return this.makeInstance(data);
 			});
 		},
@@ -59,7 +59,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @param {Object} instanceData
 		 * @param {Object} params
 		 */
-		makeList: function(instanceData, params){
+		makeList: function(instanceData, set){
 			if(can.isArray(instanceData)) {
 				instanceData = {data: instanceData};
 			}
@@ -70,10 +70,10 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			}
 			instanceData.data = arr;
 			if(this.list) {
-				return this.list(instanceData, params);
+				return this.list(instanceData, set);
 			} else {
 				var list = instanceData.data.slice(0);
-				list.__set = params;
+				list.__set = set;
 				return list;
 			}
 			
@@ -93,7 +93,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 				var cid = this._cid++;
 				this.cidStore.addReference(cid, instance);
 				
-				return pipe(this.createInstanceData(serialized, cid), this, function(data){
+				return pipe(this.createData(serialized, cid), this, function(data){
 					// if undefined is returned, this can't be created, or someone has taken care of it
 					if(data !== undefined) {
 						this.createdInstance(instance, data);
@@ -102,7 +102,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 					return instance;
 				});
 			} else {
-				return pipe(this.updateInstanceData(serialized), this, function(data){
+				return pipe(this.updateData(serialized), this, function(data){
 					if(data !== undefined) {
 						this.updatedInstance(instance, data);
 					}
@@ -113,7 +113,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		destroy: function(instance){
 			var serialized = this.serializeInstance(instance);
 			
-			return pipe( this.destroyInstanceData(serialized), this, function(data){
+			return pipe( this.destroyData(serialized), this, function(data){
 				if(data !== undefined) {
 					this.destroyedInstance(instance, data);
 				}

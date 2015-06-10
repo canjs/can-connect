@@ -1,6 +1,5 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("can-connect/data-url");
 var cacheRequests = require("can-connect/cache-requests");
 var set = require("can-set");
 
@@ -17,8 +16,8 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 	stop();
 	var count = 0;
 
-	var res = cacheRequests( persist({
-		findAllURL: function(params){
+	var res = cacheRequests( {
+		getListData: function(params){
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -31,7 +30,7 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 				{id: 6, due: "yesterday"}
 			]);
 		}
-	}) );
+	} );
 	
 	res.getListData({}).then(function(list){
 		
@@ -57,8 +56,8 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 	
-	var behavior = cacheRequests( persist({
-		findAllURL: function(params){
+	var behavior = cacheRequests( {
+		getListData: function(params){
 			equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
 			equal(params.end, count * 10, "end is right "+params.end);
@@ -77,7 +76,7 @@ QUnit.test("Incrementally load data", function(){
 			return def;
 		},
 		compare: set.comparators.rangeInclusive("start","end")
-	}) );
+	} );
 	
 	
 	behavior.getListData({

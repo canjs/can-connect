@@ -1,6 +1,139 @@
-
+/**
+ * @module {connect.Behavior} can-connect/data-url data-url
+ * @parent can-connect.modules
+ * 
+ * @option {connect.Behavior}
+ * 
+ * Uses the [connection.url] option to implement the behavior of 
+ * [connection.getListData], 
+ * [connection.getData],
+ * [connection.createData],
+ * [connection.updateData], and 
+ * [connection.destroyData] to make an AJAX request
+ * to urls.
+ * 
+ * @body
+ * 
+ * ## Use
+ * 
+ * The `data-url` behavior implements many of the `data interface`
+ * methods to send instance data to a URL.
+ * 
+ * For example, the following `todoConnection`:
+ * 
+ * ```js
+ * var todoConnection = can.connect(["data-url"],{
+ *   url: {
+ *     getListData: "GET /todos",
+ *     getData: "GET /todos/{id}",
+ *     createData: "POST /todos",
+ *     updateData: "PUT /todos/{id}",
+ *     destroyData: "DELETE /todos/{id}"
+ *   }
+ * });
+ * ```
+ * 
+ * Will make the following request when the following
+ * methods are called:
+ * 
+ * ```
+ * // GET /todos?due=today
+ * todoConnection.getListData({due: "today"});
+ * 
+ * // GET /todos/5
+ * todosConnection.getData({id: 5})
+ * 
+ * // POST /todos \
+ * // name=take out trash
+ * todosConnection.createData({
+ *   name: "take out trash"	
+ * });
+ * 
+ * // PUT /todos/5 \
+ * // name=do the dishes
+ * todosConnection.updateData({
+ *   name: "do the dishes",
+ *   id: 5
+ * });
+ * 
+ * // DELETE /todos/5 
+ * todosConnection.destroyData({
+ *   id: 5
+ * });
+ * ```
+ * 
+ * There's a few things to notice:
+ * 
+ * 1. URL values can include simple templates like `{id}` 
+ *    that replace that part of the URL with values in the data
+ *    passed to the method.
+ * 2. GET and DELETE request data is put in the URL using [jQuery.param](http://api.jquery.com/jquery.param/).
+ * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
+ *    as form encoded data.
+ * 4. If a provided URL doesn't include the method, the following default methods are provided:
+ *    - `getListData` - `GET`
+ *    - `getData` - `GET`
+ *    - `createData` - `POST`
+ *    - `updateData` - `PUT`
+ *    - `destroyData` - `DELETE`
+ * 
+ * If [connection.url] is provided as a string like:
+ * 
+ * ```js
+ * var todoConnection = can.connect(["data-url"],{
+ *   url: "/todos"
+ * });
+ * ```
+ * 
+ * This does the same thing as the first `todoConnection` example.
+ */
 var can = require("can/util/util");
 var connect = require("can-connect");
+
+// # can-connect/data-url
+// For each pair, create a function that checks the url object
+// and creates an ajax request.
+module.exports = connect.behavior("data-url",function(baseConnect){
+	
+
+	var behavior = {};
+	can.each(pairs, function(reqOptions, name){
+		behavior[name] = function(params){
+			
+			if(typeof this.url === "object") {
+			
+				if(typeof this.url[reqOptions.prop] === "function"){
+					return this.url[reqOptions.prop](params);
+				} 
+				else if(this.url[reqOptions.prop]) {
+					return ajax(this.url[reqOptions.prop], params, reqOptions.type);
+				}
+			}
+			var resource = typeof this.url === "string" ? this.url : this.url.resource;
+			if( resource && this.idProp ) {
+				
+				return ajax( createURLFromResource(resource, this.idProp , reqOptions.prop ),  params, reqOptions.type  );
+			} 
+			
+			return baseConnect[name].call(this, params);
+			
+		};
+	});
+	
+	return behavior;
+});
+
+// ## pairs
+// The functions that will be created mapped to an object with:
+// - prop - the property to look for in connection.url for a url
+// - type - the default http method if one is not provided in the url
+var pairs = {
+	getListData: {prop: "getListData", type: "GET"},
+	getData: {prop: "getData", type: "GET"},
+	createData: {prop: "createData", type: "POST"},
+	updateData: {prop: "updateData", type: "PUT"},
+	destroyData: {prop: "destroyData", type: "DELETE"}
+};
 
 var ajax = function (ajaxOb, data, type, dataType) {
 
@@ -35,56 +168,14 @@ var ajax = function (ajaxOb, data, type, dataType) {
 var createURLFromResource = function(resource, idProp, name) {
 
 	var url = resource.replace(/\/+$/, "");
-	if (name === "findAllURL" || name === "createURL") {
+	if (name === "getListData" || name === "createData") {
 		return url;
 	} else {
 		return url + "/{" + idProp + "}";
 	}
 };
 
-var pairs = {
-	getListData: {prop: "findAllURL", type: "GET"},
-	getInstanceData: {prop: "findOneURL", type: "GET"},
-	createInstanceData: {prop: "createURL", type: "POST"},
-	updateInstanceData: {prop: "updateURL", type: "PUT"},
-	destroyInstanceData: {prop: "destroyURL", type: "DELETE"}
-};
 
-/**
- * @module can-connect/data-url data-url
- * @parent can-connect.modules
- * 
- * Provides getListData, getInstanceData, etc, and
- * hooks them up to parse
- * 
- * @body
- * 
- * ```js
- * var persistBehavior = persist({
- *   findAll: "GET /todos"
- * });
- * 
- * persistBehavior.getListData({}) //-> promise(Array<items>)
- * ```
- */
-module.exports = connect.behavior("data-url",function(baseConnect){
-	
-	var behavior = {};
-	can.each(pairs, function(reqOptions, name){
-		behavior[name] = function(params){
-			if(typeof this[reqOptions.prop] === "function"){
-				return this[reqOptions.prop](params);
-			} 
-			else if(this[reqOptions.prop]) {
-				return ajax(this[reqOptions.prop], params, reqOptions.type);
-			} else if( this.resource && (this.idProp || this.idProp) ) {
-				return ajax( createURLFromResource(this.resource, this.idProp || this.idProp, reqOptions.prop ),  params, reqOptions.type  );
-			} else {
-				return baseConnect[name].call(this, params);
-			}
-		};
-	});
-	
-	return behavior;
-	
-});
+
+
+

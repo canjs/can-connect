@@ -1,4 +1,4 @@
-@function connection.findAll findAll
+@function connection.getList getList
 @parent can-connect.externalCRUD
 
 @signature `connection.findAll(set)`

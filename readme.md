@@ -1,13 +1,14 @@
 @page can-connect
-@group can-connect.externalCRUD 1 External CRUD Methods
+@group can-connect.externalCRUD 1 Instance Interface
 @group can-connect.options 2 Options
 @group can-connect.modules 3 Modules
-
+@group can-connect.data_interface 4 Data Interface
+@group can-connect.types 5 Data Types
 
 # can-connect
 
-`can-connect` provides persisted data middleware.  It's designed to be useful to 
-any JavaScript framework, not just CanJS. Use it to assemble powerful model layers. It currently can:
+`can-connect` provides persisted data middleware. Use it to assemble powerful model layers for 
+any JavaScript framework, not just CanJS.  It currently can:
 
 Load data:
 
@@ -43,14 +44,16 @@ The following modules glue certain methods together:
 
 The following modules are useful to CanJS specifically:
 
- - [can-connect/constructor-map] - Create instances of a special can.Map or can.List type. 
- - [can-connect/super-map] - Create a connection for a can.Map or can.List that uses almost all the plugins.
- - [can-connect/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
- - [can-connect/tag] - Create a custom element that can load data into a template.
+ - [can-connect/can/map] - Create instances of a special can.Map or can.List type. 
+ - [can-connect/can/super-map] - Create a connection for a can.Map or can.List that uses almost all the plugins.
+ - [can-connect/can/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
+ - [can-connect/can/tag] - Create a custom element that can load data into a template.
 
 ## Use
 
-Use `connect` to create a `connection` object by passing it behavior names and options:
+Use `can-connect`, its extensions, and an options object to configure a `connection` object.  The following
+uses [can-connect/constructor] and [can-connect/data-url] to create a `todoConnection` 
+that can create, read, update and destroy `Todo` instances at the `"service/todos"` endpoint:
 
 ```js
 import connect from "can-connect";
@@ -64,6 +67,18 @@ var todoConnection = connect(
     resource: "/services/todos"
   });
 ```
+
+Next, use the `External CRUD` methods to create, read, update, and destroy `Todo` instances.
+The following gets all todos from the server by making an ajax request to "/services/todos":
+
+```
+todoConnection.findAll({}).then(function(todos){});
+```
+
+`todos` is an array of `Todo` instances.
+
+
+
 
 Then, use that `todoConnection`'s `External CRUD Methods` to load data:
 
@@ -106,22 +121,20 @@ The methods that people using an implemented connection should use.
 - `save(instance) -> Promise<INSTANCE>` - creates or updates an instance
 - `destroy(instance)` -> Promise<INSTANCE>` - destroys an instance
 
-### Internal Persisted CRUD methods
+### Data Interface 
 
-The raw-data connection methods.  These are used by the "External Persisted CRUD methods".  These should
-be implemented by behaviors.  Examples include `persist` or `localstorage-cache`.
+The raw-data connection methods.  These are used by "Instance Interface".  These should
+be implemented by behaviors. 
 
-- `getListData(set) -> Promise<{data:Array<Object>}>` - Retrieves list data for a particular set.
-- `updateListData({data: Array<Object>}, set) -> Promise` - Called when a set of data is updated with the raw data to be 
+- [connection.getListData] - Retrieves list data for a particular set.
+- [connection.updateListData] - Called when a set of data is updated with the raw data to be 
   saved. This is normally used for caching connection layers.
-  
-- `parseListData(*) -> {data:Array<Object>}` - Given the response of getListData, return the right object format.
-
-- `getInstanceData(set) -> Promise<Object>` - Retrieves data for a particular item.
-- `createInstanceData( props, [cid] ) -> Promise<Object>` - Creates instance data given the serialized form of the data. 
+- [connection.createData] - Creates instance data given the serialized form of the data. 
   Returns any additional properties that should be added to the instance. A client ID is passed of the instance that is being created.
-- `updateInstanceData( props ) -> Promise<Object>` - Updates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
-- `destroyInstanceData( props ) -> Promise<Object>` - Destroys an instance given the seralized form of the data.  Returns any additional properties that should be added to the instance.
+- [connection.updateData] - Updates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
+- [connection.destroyData] - Destroys an instance given the seralized form of the data.  Returns any additional properties that should be added to the instance.
+- `parseListData(*) -> {data:Array<Object>}` - Given the response of getListData, return the right object format.
+- `getData(set) -> Promise<Object>` - Retrieves data for a particular item.
 - `parseInstanceData(*) -> Object` - Given a single items response data, return the right object format.  This is called by parseListData as well as all other internal CRUD methods.
 
 ## Hooks to update raw data
@@ -181,14 +194,14 @@ For example, localStorage might looks like:
 ```js
 connect.behavior("localstorage", function(baseBehavior, options){
   return {
-    getInstanceData: function(params){
+    getData: function(params){
       var id = this.idProp;
       return new Promise(function(resolve){
         var data = localStorage.getItem(options.name+"/"+params[id]);
         resolve( JSON.parse(data) )
       });
     },
-    createInstanceData: function(props){
+    createData: function(props){
       var nextId = ++JSON.parse( localStorage.getItem(options.name+"-ID") || "0");
       localStorage.setItem(options.name+"-ID"), nextId);
       var id = this.idProp;
@@ -198,8 +211,8 @@ connect.behavior("localstorage", function(baseBehavior, options){
         resolve( props )
       });
     },
-    updateInstanceData: function(){ ... },
-    destroyInstanceData: function(){ ...}
+    updateData: function(){ ... },
+    destroyData: function(){ ...}
   };
 })
 ```

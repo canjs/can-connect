@@ -8,7 +8,7 @@ var can = require("can/util/util");
 var connect = require("can-connect");
 
 /**
- * @module can-connect/constructor-map constructor-map
+ * @module can-connect/can/map can/map
  * @parent can-connect.modules
  */
 
@@ -79,10 +79,10 @@ var listPrototypeOverwrites = {
 	setup: function(base, connection){
 		return function (params) {
 			// If there was a plain object passed to the List constructor,
-			// we use those as parameters for an initial findAll.
+			// we use those as parameters for an initial getList.
 			if (can.isPlainObject(params) && !can.isArray(params)) {
 				base.apply(this);
-				this.replace(can.isDeferred(params) ? params : connection.findAll(params));
+				this.replace(can.isDeferred(params) ? params : connection.getList(params));
 			} else {
 				// Otherwise, set up the list like normal.
 				base.apply(this, arguments);
@@ -118,15 +118,15 @@ var listPrototypeOverwrites = {
 };
 
 var mapStaticOverwrites = {
-	findAll: function (base, connection) {
+	getList: function (base, connection) {
 		return function(params) {
-			return connection.findAll(params);
+			return connection.getList(params);
 		};
 	},
-	findOne: function (base, connection) {
+	get: function (base, connection) {
 		return function(params) {
 			// adds .then for compat
-			return connection.findOne(params);
+			return connection.get(params);
 		};
 	}
 };
@@ -155,7 +155,7 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 };
 
 
-module.exports = connect.behavior("constructor-map",function(baseConnect){
+module.exports = connect.behavior("can-map",function(baseConnect){
 	
 	// overwrite 
 	
@@ -170,7 +170,7 @@ module.exports = connect.behavior("constructor-map",function(baseConnect){
 			var idProp = this.idProp;
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
-					can.__reading(inst, idProp);
+					can.__observe(inst, idProp);
 				}
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
 				return inst.__get(idProp);

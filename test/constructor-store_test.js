@@ -68,11 +68,13 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		return listed;
 	};
 	var peopleConnection = connect( [persist, constructor, instanceStore], {
-		findAllURL: "/constructor/people",
-		findOneURL: "/constructor/people/{id}",
-		createURL: "/constructor/people",
-		updateURL: "/constructor/people/{id}",
-		destroyURL: "/constructor/people/{id}",
+		url: {
+			getListData: "/constructor/people",
+			getData: "/constructor/people/{id}",
+			createData: "/constructor/people",
+			updateData: "/constructor/people/{id}",
+			destroyData: "/constructor/people/{id}"
+		},
 		instance: function(values){
 			return new Person(values);
 		}, 
@@ -89,7 +91,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 	peopleConnection.addInstanceReference(person);
 	
 	stop();
-	peopleConnection.findAll({}).then(function(people){
+	peopleConnection.getList({}).then(function(people){
 		equal(people[0], person, "same instances");
 		equal(person.age, 32, "age property added");
 		
@@ -97,7 +99,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		setTimeout(function(){
 			peopleConnection.deleteInstanceReference(person);
 		
-			peopleConnection.findAll({}).then(function(people){
+			peopleConnection.getList({}).then(function(people){
 				ok(people[0] != person, "not the same instances");
 				equal(people[0].age, 32, "age property from data");
 				ok(!people[0].name, "does not have name");
@@ -147,7 +149,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	});
 	
 	var resolvedList;
-	connection.findAll({}).then(function(list){
+	connection.getList({}).then(function(list){
 		resolvedList =  list;
 		// put in store
 		connection.addListReference(list);
@@ -157,7 +159,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	stop();
 	
 	function checkStore(){
-		connection.findAll({}).then(function(list){
+		connection.getList({}).then(function(list){
 			equal(list, resolvedList);
 			equal(list.length, 2);
 			equal(list[0].id, 1);
@@ -168,7 +170,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	}
 
 	function checkEmpty() {
-		connection.findAll({}).then(function(list){
+		connection.getList({}).then(function(list){
 			
 			ok(list !== resolvedList);
 			start();

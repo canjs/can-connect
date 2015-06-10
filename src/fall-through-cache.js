@@ -62,7 +62,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			}
 			return baseConnect.updatedInstance.apply(this, arguments);
 		},
-		// if we do findAll, the cacheConnection runs on
+		// if we do getList, the cacheConnection runs on
 		// if we do getListData, ... we need to register the list that is going to be created
 		// so that when the data is returned, it updates this
 		getListData: function(params){
@@ -123,10 +123,10 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			}
 			this._getMakeInstanceCallbacks[id].push(callback);
 		},
-		getInstanceData: function(params){
+		getData: function(params){
 			// first, always check the cache connection
 			var self = this;
-			return this.cacheConnection.getInstanceData(params).then(function(instanceData){
+			return this.cacheConnection.getData(params).then(function(instanceData){
 				
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
@@ -134,9 +134,9 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					self.addInstanceReference(instance);
 				
 					setTimeout(function(){
-						baseConnect.getInstanceData.call(self, params).then(function(instanceData2){
+						baseConnect.getData.call(self, params).then(function(instanceData2){
 							
-							self.cacheConnection.updateInstanceData(instanceData2);
+							self.cacheConnection.updateData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
 							self.deleteInstanceReference(instance);
 							
@@ -149,9 +149,9 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 				return instanceData;
 			}, function(){
-				var listData = baseConnect.getInstanceData.call(self, params);
+				var listData = baseConnect.getData.call(self, params);
 				listData.then(function(instanceData){
-					self.cacheConnection.updateInstanceData(instanceData);
+					self.cacheConnection.updateData(instanceData);
 				});
 				
 				return listData;

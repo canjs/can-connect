@@ -1,7 +1,12 @@
-var connect = require("./can-connect");
+
+/**
+ * @module can-connect/can/super-map can/super-map
+ * @parent can-connect.modules
+ */
+var connect = require("../can-connect");
 
 require("../constructor");
-require("../constructor-map");
+require("./map");
 require("../constructor-store");
 require("../data-callbacks");
 require("../data-callbacks-cache");
@@ -20,7 +25,7 @@ connect.superMap = function(options){
 
 	var behaviors = [
 		"constructor",
-		"constructor-map",
+		"can-map",
 		"constructor-store",
 		"data-callbacks",
 		"data-callbacks-cache",
@@ -40,10 +45,7 @@ connect.superMap = function(options){
 
 	return connect(behaviors,options);
 };
-/**
- * @module can-connect/super-map super-map
- * @parent can-connect.modules
- */
+
 module.exports = connect.superMap;
 
 

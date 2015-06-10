@@ -11,16 +11,16 @@ var hooks = {
 	 * Get an instance
 	 * @return {Promise<Object>}
 	 */
-	getInstanceData: function(params){
+	getData: function(params){
 	
 	},
-	createInstanceData: function(props) {
+	createData: function(props) {
 		
 	},
-	updateInstanceData: function(props){
+	updateData: function(props){
 		
 	},
-	destroyInstanceData: function(props) {
+	destroyData: function(props) {
 		
 	},
 	id: function(props){

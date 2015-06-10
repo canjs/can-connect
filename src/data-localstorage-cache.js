@@ -108,7 +108,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		// TODO: Ideally, this should be able to go straight to the instance and not have to do
 		// much else
-		getInstanceData: function(params){
+		getData: function(params){
 			var id = this.id(params);
 			var res = localStorage.getItem(this.name+"/instance/"+id);
 			if(res){
@@ -210,7 +210,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			}
 		},
-		createInstanceData: function(props){
+		createData: function(props){
 			var self = this;
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
@@ -222,7 +222,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
 			return new can.Deferred().resolve({});
 		},
-		updateInstanceData: function(props){
+		updateData: function(props){
 			var self = this;
 			// for now go through every set, if this belongs, add it or update it, otherwise remove it
 			this._eachSet(function(setDatum, setKey, getItems){
@@ -255,7 +255,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				
 			return new can.Deferred().resolve({});
 		},
-		destroyInstanceData: function(props){
+		destroyData: function(props){
 			var self = this;
 			// for now go through every set, if this belongs, add it or update it, otherwise remove it
 			this._eachSet(function(setDatum, setKey, getItems){

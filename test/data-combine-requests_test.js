@@ -19,8 +19,8 @@ QUnit.test("basics", function(){
 	var count = 0;
 
 	
-	var res = combineRequests( persist( {
-		findAllURL: function(params){
+	var res = combineRequests( {
+		getListData: function(params){
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -33,7 +33,7 @@ QUnit.test("basics", function(){
 				{id: 6, due: "yesterday"}
 			]);
 		}
-	}));
+	});
 
 	var p1 = res.getListData({type: "critical"});
 	var p2 = res.getListData({due: "today"});
@@ -54,8 +54,8 @@ QUnit.test("ranges", function(){
 	stop();
 	var count = 0;
 	
-	var res = combineRequests( persist( {
-		findAllURL: function(params){
+	var res = combineRequests(  {
+		getListData: function(params){
 			deepEqual(params,{start: 0, end: 5},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -69,7 +69,7 @@ QUnit.test("ranges", function(){
 			]);
 		},
 		compare: set.comparators.rangeInclusive("start","end")
-	}));
+	});
 
 	
 	var p1 = res.getListData({start: 0, end: 3});

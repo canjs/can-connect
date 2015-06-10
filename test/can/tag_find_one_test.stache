@@ -1,4 +1,4 @@
-<person-model findOne='{id=personId}'>
+<person-model get='{id=personId}'>
 	{{#isPending}}<span class='pending' can-inserted="{pending}"></span>{{/isPending}}
 	{{#isResolved}}<span class='resolved' can-inserted="{resolved}">{{value.type}}</span>{{/isResolved}}
 </person-model>

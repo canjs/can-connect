@@ -1,15 +1,8 @@
-var connect = require("./can-connect");
-var can = require('can/util/util');
-require('can/compute/compute');
-require('can/view/bindings/bindings');
-var mustacheCore = require( "can/view/stache/mustache_core");
-
-
 /**
- * @module can-connect/tag tag
+ * @module can-connect/can/tag can/tag
  * @parent can-connect.modules
  * 
- * Makes either findAll or findOne
+ * Makes either getList or getInstance
  * @param {String} tagName
  * @param {Object} connection
  * 
@@ -18,7 +11,7 @@ var mustacheCore = require( "can/view/stache/mustache_core");
  * ```
  * 
  * ```
- * <order-model findAll="{type=orderType}">
+ * <order-model getList="{type=orderType}">
  *   {{#isPending}}Loading{{/isPending}}
  *   {{#isResolved}}
  *     Data: {{value}}
@@ -27,6 +20,13 @@ var mustacheCore = require( "can/view/stache/mustache_core");
  * ```
  * 
  */
+var connect = require("can-connect");
+
+var can = require('can/util/util');
+require('can/compute/compute');
+require('can/view/bindings/bindings');
+var mustacheCore = require( "can/view/stache/mustache_core");
+
 connect.tag = function(tagName, connection){
 	
 	var removeBrackets = function(value, open, close){
@@ -41,11 +41,11 @@ connect.tag = function(tagName, connection){
 
 
 	can.view.tag(tagName, function(el, tagData){
-		var findAll = el.getAttribute("findAll") || el.getAttribute("find-all");
-		var findOne = el.getAttribute("findOne") || el.getAttribute("find-one");
+		var getList = el.getAttribute("getList") || el.getAttribute("get-list");
+		var getInstance = el.getAttribute("get");
 		
-		var attrValue = findAll || findOne;
-		var method = findAll ? "findAll" : "findOne";
+		var attrValue = getList || getInstance;
+		var method = getList ? "getList" : "get";
 		
 		
 		var attrInfo = mustacheCore.expressionData('tmp ' + removeBrackets(attrValue));
@@ -57,7 +57,7 @@ connect.tag = function(tagName, connection){
 			if(!addedToPageData) {
 				var root = tagData.scope.attr("@root");
 				if( root && root.pageData ) {
-					if(method === "findOne"){
+					if(method === "get"){
 						set = connection.id(set);
 					}
 					root.pageData(connection.name, set, promise);

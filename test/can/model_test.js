@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var can = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
-require("can-connect/model");
+require("can-connect/can/model");
 
 var logErrorAndStart = function(e){
 	debugger;
@@ -915,8 +915,8 @@ var logErrorAndStart = function(e){
 	});
 	test('uses attr with isNew', function () {
 		// TODO this does not seem to be consistent expect(2);
-		var old = can.__reading;
-		can.__reading = function (object, attribute) {
+		var old = can.__observe;
+		can.__observe = function (object, attribute) {
 			if (attribute === 'id') {
 				ok(true, 'used attr');
 			}
@@ -926,7 +926,7 @@ var logErrorAndStart = function(e){
 			id: 4
 		});
 		m.isNew();
-		can.__reading = old;
+		can.__observe = old;
 	});
 	
 	test('extends defaults by calling base method', function () {

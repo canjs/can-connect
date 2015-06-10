@@ -55,15 +55,11 @@ QUnit.test("basics", function(){
 		list: function(arr){
 			return new PersonList(arr.data);
 		},
-		findAllURL: "/constructor/people",
-		findOneURL: "/constructor/people/{id}",
-		createURL: "/constructor/people",
-		updateURL: "/constructor/people/{id}",
-		destroyURL: "/constructor/people/{id}"
+		url: "/constructor/people"
 	}) ));
 	
 	stop();
-	peopleConnection.findAll({}).then(function(people){
+	peopleConnection.getList({}).then(function(people){
 		ok(people.isList, "is a list");
 		equal(people.length, 1, "got a list");
 		ok(people[0] instanceof Person);
@@ -71,7 +67,7 @@ QUnit.test("basics", function(){
 	}, logErrorAndStart); //-> instances
 	
 	stop();
-	peopleConnection.findOne({id: 5}).then(function(person){
+	peopleConnection.get({id: 5}).then(function(person){
 		equal(person.id, 5, "got a list");
 		ok(person instanceof Person);
 		start();

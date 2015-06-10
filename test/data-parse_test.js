@@ -19,20 +19,22 @@ QUnit.test("basics", function(assert){
 	
 	
 	var connection = connect(["data-url","data-parse"],{
-		findAllURL: "POST /findAll",
-		findOneURL: "DELETE /findOne",
-		createURL: "GET /create",
-		updateURL: "GET /update/{id}",
-		destroyURL: "GET /delete/{id}",
+		url: {
+			getListData: "POST /getList",
+			getData: "DELETE /getInstance",
+			createData: "GET /create",
+			updateData: "GET /update/{id}",
+			destroyData: "GET /delete/{id}"
+		},
 		parseListProp: "items",
 		parseInstanceProp: "datas"
 	});
 	
 	fixture({
-		"POST /findAll": function(){
+		"POST /getList": function(){
 			return {items: [{id: 1}]};
 		},
-		"DELETE /findOne": function(){
+		"DELETE /getInstance": function(){
 			return {datas: {id: 2}};
 		},
 		"GET /create": function(){
@@ -50,24 +52,24 @@ QUnit.test("basics", function(assert){
 	
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, {data: [{id: 1}]}, "findAll");
+		deepEqual(items, {data: [{id: 1}]}, "getList");
 		start();
 	}, logErrorAndStart);
 	
 	stop();
-	connection.getInstanceData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 2}, "findOne");
+	connection.getData({foo: "bar"}).then(function(data){
+		deepEqual(data, {id: 2}, "getInstance");
 		start();
 	},logErrorAndStart);
 	
 	stop();
-	connection.createInstanceData({foo: "bar"}).then(function(data){
+	connection.createData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 3}, "create");
 		start();
 	},logErrorAndStart);
 	
 	stop();
-	connection.destroyInstanceData({foo: "bar", id: 3}).then(function(data){
+	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		deepEqual(data, {destroy: true}, "update");
 		start();
 	},logErrorAndStart);

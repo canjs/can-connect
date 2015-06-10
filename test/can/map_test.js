@@ -1,7 +1,7 @@
 // load connections
 
 require("can-connect/constructor");
-require("can-connect/constructor-map");
+require("can-connect/can/map");
 require("can-connect/constructor-store");
 require("can-connect/data-callbacks");
 require("can-connect/data-callbacks-cache");
@@ -22,7 +22,7 @@ var QUnit = require("steal-qunit");
 
 var can = require("can/util/util");
 var fixture = require("can/util/fixture/fixture");
-var testHelpers = require("./test-helpers");
+var testHelpers = require("../test-helpers");
 
 var later = testHelpers.later;
 
@@ -32,7 +32,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-QUnit.module("can-connect/constructor-map",{
+QUnit.module("can-connect/can/map",{
 	setup: function(){
 		
 		var Todo = Map.extend({
@@ -54,7 +54,7 @@ QUnit.module("can-connect/constructor-map",{
 		
 		this.todoConnection = connect([
 			"constructor",
-			"constructor-map",
+			"can-map",
 			"constructor-store",
 			"data-callbacks",
 			"data-callbacks-cache",
@@ -65,7 +65,7 @@ QUnit.module("can-connect/constructor-map",{
 			"fall-through-cache",
 			"real-time"],
 			{
-				resource: "/services/todos",
+				url: "/services/todos",
 				cacheConnection: cacheConnection,
 				Map: Map,
 				List: TodoList
@@ -84,10 +84,10 @@ QUnit.test("real-time super model", function(){
 	var state = testHelpers.makeStateChecker(QUnit, [
 		"getListData-important",
 		"getListData-today",
-		"createInstanceData-today+important",
-		"updateInstanceData-important",
-		"updateInstanceData-today",
-		"destroyInstanceData-important-1",
+		"createData-today+important",
+		"updateData-important",
+		"updateData-today",
+		"destroyData-important-1",
 		"getListData-today-2"
 	]);
 	
@@ -107,14 +107,14 @@ QUnit.test("real-time super model", function(){
 			}
 		},
 		"POST /services/todos": function(request){
-			if( state.get() === "createInstanceData-today+important" ) {
+			if( state.get() === "createData-today+important" ) {
 				state.next();
 				// todo change to all props
 				return can.simpleExtend({id: 10}, request.data);
 			} 
 		},
 		"PUT /services/todos/{id}": function(request){
-			if( state.get() === "updateInstanceData-important" || state.get() === "updateInstanceData-today" ) {
+			if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 				state.next();
 				// todo change to all props
 				return can.simpleExtend({},request.data);
@@ -125,7 +125,7 @@ QUnit.test("real-time super model", function(){
 			}
 		},
 		"DELETE /services/todos/{id}": function(request){
-			if(state.get() === "destroyInstanceData-important-1") {
+			if(state.get() === "destroyData-important-1") {
 				state.next();
 				// todo change to all props
 				return can.simpleExtend({destroyed:  1},request.data);
@@ -150,7 +150,7 @@ QUnit.test("real-time super model", function(){
 		bindFunc = function(){
 			console.log("length changing");
 		};
-	can.when(connection.findAll({type: "important"}), connection.findAll({due: "today"})).then(function(important, dueToday){
+	can.when(connection.getList({type: "important"}), connection.getList({due: "today"})).then(function(important, dueToday){
 		
 		importantList = important;
 		todayList = dueToday;
@@ -278,14 +278,14 @@ QUnit.test("real-time super model", function(){
 			equal( todayList.indexOf(created) , -1, "removed from today");
 			
 			checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
-				checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), findAllDueTodayAgainstCache);
+				checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), getListDueTodayAgainstCache);
 			} );
 		});
 		
 	}
 	
-	function findAllDueTodayAgainstCache(){
-		connection.findAll({due: "today"}).then(function(updatedTodayList){
+	function getListDueTodayAgainstCache(){
+		connection.getList({due: "today"}).then(function(updatedTodayList){
 			var added = serverCreatedInstance.serialize();
 			equal(todayList, updatedTodayList, "same todo list returned");
 			

@@ -5,9 +5,9 @@ var idMerge = require("./helpers/id-merge");
 
 // wires up the following methods
 var pairs = {
-	createdInstanceData: "createInstanceData",
-	updatedInstanceData: "updateInstanceData",
-	destroyedInstanceData: "destroyInstanceData",
+	createdInstanceData: "createData",
+	updatedInstanceData: "updateData",
+	destroyedInstanceData: "destroyData",
 	//gotInstanceData: "updateListData"
 };
 var returnArg = function(item){

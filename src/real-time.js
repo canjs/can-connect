@@ -113,7 +113,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 				this.createdInstance(instance, {});
 				serialized = this.serializeInstance(instance);
 				if(this.cacheConnection) {
-					promise = this.cacheConnection.createInstanceData(serialized).then(function(){
+					promise = this.cacheConnection.createData(serialized).then(function(){
 						return instance;
 					});
 				} else {
@@ -164,7 +164,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 			
 			
 			if(this.cacheConnection) {
-				return this.cacheConnection.updateInstanceData(serialized).then(function(){
+				return this.cacheConnection.updateData(serialized).then(function(){
 					return instance;
 				});
 			} else {
@@ -202,7 +202,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 			destroy.call(this, serialized);
 			this.deleteInstanceReference(instance);
 			if(this.cacheConnection) {
-				return this.cacheConnection.destroyInstanceData(serialized).then(function(){
+				return this.cacheConnection.destroyData(serialized).then(function(){
 					return instance;
 				});
 			} else {

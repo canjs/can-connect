@@ -5,22 +5,24 @@ require("can/map/map");
 require("can/list/list");
 
 var stache = require("can/view/stache/stache");
-var superMap = require("can-connect/super-map");
-var tag = require("can-connect/tag");
+var superMap = require("can-connect/can/super-map");
+var tag = require("can-connect/can/tag");
 var fixture = require("can/util/fixture/fixture");
 var findAllTemplate = require("./tag_find_all_test.stache!");
 var findOneTemplate = require("./tag_find_one_test.stache!");
-QUnit.module("can-connect/tag");
 
 
-QUnit.test("findAll", function(){
+QUnit.module("can-connect/can/tag");
+
+
+QUnit.test("getList", function(){
 	
 	
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
 	
 	var options = {
-			resource: "/api/people",
+			url: "/api/people",
 			Map: Person,
 			List: Person.List,
 			name: "person"
@@ -77,14 +79,14 @@ QUnit.test("findAll", function(){
 });
 
 
-QUnit.test("findOne", function(){
+QUnit.test("get", function(){
 	
 	
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
 	
 	var options = {
-			resource: "/api/people",
+			url: "/api/people",
 			Map: Person,
 			List: Person.List,
 			name: "person"
@@ -145,14 +147,14 @@ QUnit.test("findOne", function(){
 	
 });
 
-QUnit.test("findOne fullCache", function(){
+QUnit.test("get fullCache", function(){
 	
 	
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
 	
 	var options = {
-			resource: "/api/people",
+			url: "/api/people",
 			Map: Person,
 			List: Person.List,
 			name: "person"
@@ -177,7 +179,7 @@ QUnit.test("findOne fullCache", function(){
 	});
 	stop();
 	
-	connection.findAll({}).then(function(){
+	connection.getList({}).then(function(){
 
 		var personId = can.compute(1);
 	

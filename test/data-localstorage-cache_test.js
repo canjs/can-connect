@@ -50,7 +50,7 @@ QUnit.test("updateListData", function(){
 
 
 
-QUnit.test("updateInstanceData", function(){
+QUnit.test("updateData", function(){
 
 	var connection = this.connection;
 	
@@ -63,19 +63,19 @@ QUnit.test("updateInstanceData", function(){
 		
 	can.when(a1, a2).then(updateItem,logErrorAndStart );
 	function updateItem(){
-		connection.updateInstanceData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.updateData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 						
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateInstanceData added item 4");
+			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
 			
 			updateItem2();
 			
 		},logErrorAndStart);
 	}
 	function updateItem2(){
-		connection.updateInstanceData({id: 4, name:"A"}).then(checkItems2, logErrorAndStart);
+		connection.updateData({id: 4, name:"A"}).then(checkItems2, logErrorAndStart);
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -97,7 +97,7 @@ QUnit.test("updateInstanceData", function(){
 	}
 });
 
-QUnit.test("createInstanceData", function(){
+QUnit.test("createData", function(){
 
 	var connection = this.connection;
 	
@@ -110,19 +110,19 @@ QUnit.test("createInstanceData", function(){
 		
 	can.when(a1, a2).then(createItem,logErrorAndStart );
 	function createItem(){
-		connection.createInstanceData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.createData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 						
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateInstanceData added item 4");
+			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
 			
 			createItem2();
 			
 		},logErrorAndStart);
 	}
 	function createItem2(){
-		connection.updateInstanceData({id: 5, name:"A"}).then(checkItems2, logErrorAndStart);
+		connection.updateData({id: 5, name:"A"}).then(checkItems2, logErrorAndStart);
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -144,7 +144,7 @@ QUnit.test("createInstanceData", function(){
 	}
 });
 
-QUnit.test("destroyInstanceData", function(){
+QUnit.test("destroyData", function(){
 
 	var connection = this.connection;
 	
@@ -157,19 +157,19 @@ QUnit.test("destroyInstanceData", function(){
 		
 	can.when(a1, a2).then(destroyItem,logErrorAndStart );
 	function destroyItem(){
-		connection.destroyInstanceData({id: 1, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.destroyData({id: 1, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 						
-			deepEqual(listData.data, items.slice(1), "updateInstanceData removed 1st item");
+			deepEqual(listData.data, items.slice(1), "updateData removed 1st item");
 			
 			destroyItem2();
 			
 		},logErrorAndStart);
 	}
 	function destroyItem2(){
-		connection.destroyInstanceData({id: 10, name: "A"}).then(checkItems2, logErrorAndStart);
+		connection.destroyData({id: 10, name: "A"}).then(checkItems2, logErrorAndStart);
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -191,13 +191,13 @@ QUnit.test("destroyInstanceData", function(){
 	}
 });
 
-QUnit.test("getInstanceData can pull from updateListData", function(){
+QUnit.test("getData can pull from updateListData", function(){
 	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 	
 	var connection = this.connection;
 	
 	stop();
-	connection.getInstanceData({id: 1})
+	connection.getData({id: 1})
 		.then(function(){
 			ok(false, "should have rejected, nothing there");
 			start();
@@ -206,35 +206,35 @@ QUnit.test("getInstanceData can pull from updateListData", function(){
 	function updateListData(){
 		connection.updateListData({ data: items.slice(0) }, {foo: "bar"})
 			.then(function(){
-				connection.getInstanceData({id: 1}).then(function(instanceData){
+				connection.getData({id: 1}).then(function(instanceData){
 					
 					deepEqual(instanceData, items[0]);
 					
-					updateInstanceData();
+					updateData();
 					
 				},logErrorAndStart);
 				
 			}, logErrorAndStart);
 	}
 	
-	function updateInstanceData(){
-		connection.updateInstanceData({id: 1, foo:"BAR"}).then(function(){
+	function updateData(){
+		connection.updateData({id: 1, foo:"BAR"}).then(function(){
 			
-			connection.getInstanceData({id: 1}).then(function(instanceData){
+			connection.getData({id: 1}).then(function(instanceData){
 					
 				deepEqual(instanceData, {id: 1, foo:"BAR"});
 					
-				setTimeout(destroyInstanceData, 1);
+				setTimeout(destroyData, 1);
 				
 			},logErrorAndStart);
 			
 		}, logErrorAndStart);
 	}
 	
-	function destroyInstanceData(){
-		connection.destroyInstanceData({id: 1, foo:"BAR"}).then(function(){
+	function destroyData(){
+		connection.destroyData({id: 1, foo:"BAR"}).then(function(){
 			
-			connection.getInstanceData({id: 1}).then(logErrorAndStart,function(){
+			connection.getData({id: 1}).then(logErrorAndStart,function(){
 				ok(true, "nothing there!");
 				start();
 			});

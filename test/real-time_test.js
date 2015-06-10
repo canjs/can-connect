@@ -41,11 +41,11 @@ QUnit.test("basics", function(){
 	var state = testHelpers.makeStateChecker(QUnit, [
 		"getListData-important",
 		"getListData-today",
-		"createInstanceData-today+important",
+		"createData-today+important",
 		"createdInstance-1",
-		"updateInstanceData-important",
-		"updateInstanceData-today",
-		"destroyInstanceData-important-1"
+		"updateData-important",
+		"updateData-today",
+		"destroyData-important-1"
 	]);
 	
 	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
@@ -81,9 +81,9 @@ QUnit.test("basics", function(){
 					return asyncResolve({data: secondItems.slice(0) });
 				}
 			},
-			createInstanceData: function(props){
+			createData: function(props){
 				
-				if( state.get() === "createInstanceData-today+important" ) {
+				if( state.get() === "createData-today+important" ) {
 					state.next();
 					// todo change to all props
 					return asyncResolve({id: 10});
@@ -91,9 +91,9 @@ QUnit.test("basics", function(){
 				
 				
 			},
-			updateInstanceData: function(props){
+			updateData: function(props){
 				
-				if( state.get() === "updateInstanceData-important" || state.get() === "updateInstanceData-today" ) {
+				if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 					state.next();
 					// todo change to all props
 					return asyncResolve(can.simpleExtend({},props));
@@ -103,8 +103,8 @@ QUnit.test("basics", function(){
 					start();
 				}
 			},
-			destroyInstanceData: function(props){
-				if(state.get() === "destroyInstanceData-important-1") {
+			destroyData: function(props){
+				if(state.get() === "destroyData-important-1") {
 					state.next();
 					// todo change to all props
 					return asyncResolve(can.simpleExtend({destroyed:  1},props));
@@ -119,7 +119,7 @@ QUnit.test("basics", function(){
 	
 	var importantList,
 		todayList;
-	can.when(connection.findAll({type: "important"}), connection.findAll({due: "today"})).then(function(important, dueToday){
+	can.when(connection.getList({type: "important"}), connection.getList({due: "today"})).then(function(important, dueToday){
 		importantList = important;
 		todayList = dueToday;
 		

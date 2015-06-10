@@ -11,11 +11,11 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
  * 
  * Consumes:
  * 
- * - getListData, getInstanceData, createInstanceData, updateInstanceData, destroyInstanceData
+ * - getListData, getData, createData, updateData, destroyData
  * 
  * Produces:
  * 
- * - findAll, findOne, save, destroy, id, createdInstance, updatedInstance
+ * - getList, getInstance, save, destroy, id, createdInstance, updatedInstance
  * 
  * @param {{}} options
  * 
@@ -122,10 +122,10 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return list;
 		},
 		
-		findAll: function(params) {
+		getList: function(params) {
 			var self = this;
 			self._pendingRequests++;
-			var promise = baseConnect.findAll.call(this, params);
+			var promise = baseConnect.getList.call(this, params);
 			
 			promise.then(function(instances){
 				self._finishedRequest();
@@ -134,10 +134,10 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			});
 			return promise;
 		},
-		findOne: function(params) {
+		get: function(params) {
 			var self = this;
 			self._pendingRequests++;
-			var promise = baseConnect.findOne.call(this, params);
+			var promise = baseConnect.get.call(this, params);
 			
 			promise.then(function(instance){
 				self._finishedRequest();

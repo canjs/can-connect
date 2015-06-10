@@ -37,7 +37,7 @@ QUnit.test("basics", function(){
 		"connection-foundAll",
 		
 		
-		"connection-findAll-2",
+		"connection-getList-2",
 		"cache-getListData-items",
 		"connection-foundAll-2",
 		"base-getListData-2",
@@ -102,15 +102,15 @@ QUnit.test("basics", function(){
 	});
 	
 	// first time, it takes the whole time
-	connection.findAll({}).then(function( list ){
+	connection.getList({}).then(function( list ){
 		state.check("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
 	}, helpers.logErrorAndStart);
 	
 	function secondCall() {
-		state.check("connection-findAll-2");
-		connection.findAll({}).then(function(list){
+		state.check("connection-getList-2");
+		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
 		}, helpers.logErrorAndStart);
@@ -125,46 +125,46 @@ QUnit.test("basics", function(){
 });
 
 
-QUnit.test("findOne and getInstanceData", function(){
+QUnit.test("getInstance and getData", function(){
 	stop();
 	var firstData =  {id: 0, foo: "bar"};
 	var secondData = {id: 0, foo: "BAR"};
 	
-	var state = helpers.makeStateChecker(QUnit,["cache-getInstanceData-empty",
-		"base-getInstanceData",
-		"cache-updateInstanceData",
+	var state = helpers.makeStateChecker(QUnit,["cache-getData-empty",
+		"base-getData",
+		"cache-updateData",
 		"connection-foundOne",
-		"connection-findOne-2",
-		"cache-getInstanceData-item",
+		"connection-getInstance-2",
+		"cache-getData-item",
 		
 		"connection-foundOne-2",
-		"base-getInstanceData-2",
-		"cache-updateInstanceData-2",
+		"base-getData-2",
+		"cache-updateData-2",
 		"updatedInstance"] );
 		
 
 	var cacheConnection = connect([function(){
 		var calls = 0;
 		return {
-			getInstanceData: function(){
+			getData: function(){
 				// nothing here first time
-				if(state.get() === "cache-getInstanceData-empty") {
+				if(state.get() === "cache-getData-empty") {
 					state.next();
 					return asyncReject();
 				} else {
-					state.check("cache-getInstanceData-item");
+					state.check("cache-getData-item");
 					return asyncResolve(firstData);
 				}
 			},
-			updateInstanceData: function(data) {
-				if(state.get() === "cache-updateInstanceData") {
+			updateData: function(data) {
+				if(state.get() === "cache-updateData") {
 					state.next();
-					deepEqual(data,firstData, "updateInstanceData items are right");
+					deepEqual(data,firstData, "updateData items are right");
 					return asyncResolve();
 				} else {
 					//debugger;
-					deepEqual(data,secondData, "updateInstanceData 2 items are right");
-					state.check("cache-updateInstanceData-2");
+					deepEqual(data,secondData, "updateData 2 items are right");
+					state.check("cache-updateData-2");
 					return asyncResolve();
 				}
 			}
@@ -174,13 +174,13 @@ QUnit.test("findOne and getInstanceData", function(){
 	var base = function(base, options){
 		var calls = 0;
 		return {
-			getInstanceData: function(){
-				if(state.get() === "base-getInstanceData") {
+			getData: function(){
+				if(state.get() === "base-getData") {
 					state.next();
 					return asyncResolve({id: 0, foo: "bar"});
 				} else {
 					//debugger;
-					state.check("base-getInstanceData-2");
+					state.check("base-getData-2");
 					return asyncResolve({id: 0, foo: "BAR"});
 				}
 			}
@@ -201,15 +201,15 @@ QUnit.test("findOne and getInstanceData", function(){
 	});
 	
 	// first time, it takes the whole time
-	connection.findOne({id: 0}).then(function( instance ){
+	connection.get({id: 0}).then(function( instance ){
 		state.check("connection-foundOne");
 		deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
 	}, helpers.logErrorAndStart);
 	
 	function secondCall() {
-		state.check("connection-findOne-2");
-		connection.findOne({id: 0}).then(function(instance){
+		state.check("connection-getInstance-2");
+		connection.get({id: 0}).then(function(instance){
 			state.check("connection-foundOne-2");
 			deepEqual( instance, {id: 0, foo: "bar"}  );
 		}, helpers.logErrorAndStart);
