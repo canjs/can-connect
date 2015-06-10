@@ -17,5 +17,7 @@ require("./data-parse_test");
 require("./real-time_test");
 
 require("./can/map_test");
+require("./can/super-map_test");
 require("./can/model_test");
 require("./can/tag_test");
+
