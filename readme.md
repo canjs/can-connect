@@ -116,10 +116,10 @@ These are hooks that most plugins will use in some way.
 
 The methods that people using an implemented connection should use.
 
-- `findAll(set) -> Promise<INSTANCES<INSTANCE>>` - load instances
-- `findOne(set) -> Promise<INSTANCE>` - load a single instance
-- `save(instance) -> Promise<INSTANCE>` - creates or updates an instance
-- `destroy(instance)` -> Promise<INSTANCE>` - destroys an instance
+- [connection.getList] - load instances
+- [connection.get] - load a single instance
+- [connection.save] - creates or updates an instance
+- [connection.destroy] - destroys an instance
 
 ### Data Interface 
 
