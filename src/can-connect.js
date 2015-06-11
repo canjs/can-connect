@@ -1,5 +1,5 @@
 var can = require("can/util/util");
-var idMerge = require("./helpers/id-merge");
+
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -89,12 +89,6 @@ var core = connect.behavior("base",function(base){
 			return list[this.listSetProp];
 		},
 		listSetProp: "__set",
-		updatedList: function(list, listData, set) {
-			// This only works with "referenced" instances because it will not
-			// update and assume the instance is already updated
-			// this could be overwritten so that if the ids match, then a merge of properties takes place
-			idMerge(list, listData.data, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
-		},
 		init: function(){}
 	};
 });

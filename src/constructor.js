@@ -1,10 +1,3 @@
-
-var can = require("can/util/util");
-var connect = require("can-connect");
-var pipe = require("./helpers/pipe");
-var WeakReferenceMap = require("./helpers/weak-reference-map");
-var overwrite = require("./helpers/overwrite");
-
 /**
  * @module {function} can-connect/constructor constructor
  * @parent can-connect.modules
@@ -85,11 +78,24 @@ var overwrite = require("./helpers/overwrite");
  * 
  * 
  */
+var can = require("can/util/util");
+var connect = require("can-connect");
+var pipe = require("./helpers/pipe");
+var WeakReferenceMap = require("./helpers/weak-reference-map");
+var overwrite = require("./helpers/overwrite");
+var idMerge = require("./helpers/id-merge");
+
 module.exports = connect.behavior("constructor",function(baseConnect){
 	
 	var behavior = {
 		// stores references to instances
 		// for now, only during create
+		/**
+		 * @property {WeakReferenceMap} can.connect/constructor.cidStore cidStore
+		 * @parent can.connect/constructor.helpers
+		 * 
+		 * A WeakReferenceMap that contains instances being created by their `._cid` property.
+		 */
 		cidStore: new WeakReferenceMap(),
 		_cid: 0,
 		
@@ -466,6 +472,33 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		updatedInstance: function(instance, data){
 			overwrite(instance, data, this.idProp);
+		},
+		/**
+		 * @function can-connect/constructor.updatedList updatedList
+		 * @parent can.connect/constructor.callbacks
+		 * 
+		 * Updates a list with new data.
+		 * 
+		 * @signature `connection.updatedInstance( instance, props )`
+		 * 
+		 *   Creates instances with `listData` and attempts to merge them into
+		 *   `list`
+		 * 
+		 *   @param {Instance} list The instance to update.
+		 * 
+		 *   @param {can-connect.listData} listData The raw data usd to update `list`.
+		 * 
+		 *   @param {Set} set The set of data `listData` represents.
+		 */
+		updatedList: function(list, listData, set) {
+			var instanceList = [];
+			for(var i = 0; i < listData.data.length; i++) {
+				instanceList.push( this.makeInstance(listData.data[i]) );
+			}
+			// This only works with "referenced" instances because it will not
+			// update and assume the instance is already updated
+			// this could be overwritten so that if the ids match, then a merge of properties takes place
+			idMerge(list, instanceList, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
 		},
 		/**
 		 * @function can-connect/constructor.destroyedInstance destroyedInstance
