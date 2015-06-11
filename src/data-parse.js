@@ -10,12 +10,6 @@
  * 
  *   @param {{}} baseConnection
  * 
- *     The baseConnection should have the "data interface" methods implemented and the following
- *     optional values:
- * 
- *     @option {String} [parseListProp] The [connection.parseListProp] property.
- *     @option {String} [parseInstanceData] The [connection.parseInstanceProp] property.
- * 
  * @body
  * 
  * ## Use
@@ -111,12 +105,12 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 * @function connection.parseInstanceData parseInstanceData
 		 * @parent can-connect/data-parse
 		 * 
-		 * @description Returns the properties that should be used to [connection.makeInstance make an instance] 
+		 * @description Returns the properties that should be used to [connection.hydrateInstance make an instance] 
 		 * given the results of [connection.getData], [connection.createData], [connection.updateData],
 		 * and [connection.destroyData].
 		 * 
 		 * @param {Object} responseData
-		 * @return {Object} The data that should be passed to [connection.makeInstance].
+		 * @return {Object} The data that should be passed to [connection.hydrateInstance].
 		 */
 		parseInstanceData: function( props ) {
 			return this.parseInstanceProp ? can.getObject(this.parseInstanceProp, props) || props : props;
@@ -161,14 +155,14 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 * The property to find the data that represents an instance item.  
 		 * 
 		 * @option {String} [connection.parseInstanceData] uses this property's value to
-		 * [connection.makeInstance make an instance].  
+		 * [connection.hydrateInstance make an instance].  
 		 * 
 		 * @body 
 		 * 
 		 * ## Use
 		 * 
 		 * Set `parseInstanceData` if your response data does not directly contain the data you would like to pass to
-		 * [connection.makeInstance].
+		 * [connection.hydrateInstance].
 		 * 
 		 * For example, if [connection.getData] returns data like:
 		 * 

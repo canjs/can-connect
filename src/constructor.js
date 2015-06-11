@@ -1,9 +1,9 @@
 /**
- * @module {function} can-connect/constructor constructor
+ * @module {connect.Behavior} can-connect/constructor constructor
  * @parent can-connect.modules
  * @group can.connect/constructor.crud 0 CRUD Methods
  * @group can.connect/constructor.callbacks 1 CRUD Callbacks
- * @group can.connect/constructor.instantiators 2 Instantiators
+ * @group can.connect/constructor.hydrators 2 Hydrators
  * @group can.connect/constructor.serializers 3 Serializers
  * @group can.connect/constructor.helpers 4 Helpers
  * 
@@ -15,7 +15,7 @@
  * 
  * ## Use
  * 
- * The `constructor` behavior allows you to convert the raw, serialized representation of
+ * The `constructor` behavior allows you to hydrate the raw, serialized representation of
  * your application's data into a typed representation with additional methods and behaviors.
  * 
  * For example, you might want to be able to load data as a particular JavaScript Constructor
@@ -108,7 +108,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @signature `connection.get(set)`
 		 * 
 		 *   Gets an instance from [connection.getData] and runs the resulting data
-		 *   through [can-connect/constructor.makeInstance].
+		 *   through [can-connect/constructor.hydrateInstance].
 		 * 
 		 *   @param {Object} params Data specifying the instance to retrieve.  Normally, this
 		 *   looks like: `{id: 5}`.
@@ -130,7 +130,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		get: function(params) {
 			return pipe(this.getData(params), this, function(data){
-				return this.makeInstance(data);
+				return this.hydrateInstance(data);
 			});
 		},
 		
@@ -143,7 +143,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @signature `connection.getList(set)`
 		 * 
 		 *   Gets an instance from [connection.getListData] and runs the resulting data
-		 *   through [can-connect/constructor.makeList].
+		 *   through [can-connect/constructor.hydrateList].
 		 * 
 		 *   @param {Set} set Data specifying the instance to retrieve.  Normally, this
 		 *   looks like: `{id: 5}`.
@@ -165,20 +165,20 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		getList: function(set) {
 			return pipe(this.getListData( set ), this, function(data){
-				return this.makeList(data, set);
+				return this.hydrateList(data, set);
 			});
 		},
 		
 		
 		/**
-		 * @function can-connect/constructor.makeList makeList
-		 * @parent can.connect/constructor.instantiators
+		 * @function can-connect/constructor.hydrateList hydrateList
+		 * @parent can.connect/constructor.hydrators
 		 * 
 		 * Makes a list type object given raw data.
 		 * 
-		 * @signature `connection.makeList(listData, set)`
+		 * @signature `connection.hydrateList(listData, set)`
 		 * 
-		 *   Calls [can-connect/constructor.makeInstance] with each raw instance data item and then
+		 *   Calls [can-connect/constructor.hydrateInstance] with each raw instance data item and then
 		 *   calls [can-connect/constructor.list] with an array of the instances.  If [can-connect/constructor.list]
 		 *   is not provided, a normal array is used.
 		 * 
@@ -187,14 +187,14 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 *   @return {List} The data type used to represent the list.
 		 */
-		makeList: function(listData, set){
+		hydrateList: function(listData, set){
 			if(can.isArray(listData)) {
 				listData = {data: listData};
 			}
 			
 			var arr = [];
 			for(var i = 0; i < listData.data.length; i++) {
-				arr.push( this.makeInstance(listData.data[i]) );
+				arr.push( this.hydrateInstance(listData.data[i]) );
 			}
 			listData.data = arr;
 			if(this.list) {
@@ -207,12 +207,12 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		},
 		
 		/**
-		 * @function can-connect/constructor.makeInstance makeInstance
-		 * @parent can.connect/constructor.instantiators
+		 * @function can-connect/constructor.hydrateInstance hydrateInstance
+		 * @parent can.connect/constructor.hydrators
 		 * 
 		 * Makes a type object given raw data.
 		 * 
-		 * @signature `connection.makeInstance(listData)`
+		 * @signature `connection.hydrateInstance(listData)`
 		 * 
 		 *   If [can-connect/constructor.instance] is available passes `props` to that
 		 *   and returns that value.  Otherwise, returns a clone of `props`.
@@ -221,7 +221,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 *   @return {Instance} The data type used to represent the list.
 		 */
-		makeInstance: function(props){
+		hydrateInstance: function(props){
 			if(this.instance) {
 				return this.instance(props);
 			}  else {
@@ -493,12 +493,12 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		updatedList: function(list, listData, set) {
 			var instanceList = [];
 			for(var i = 0; i < listData.data.length; i++) {
-				instanceList.push( this.makeInstance(listData.data[i]) );
+				instanceList.push( this.hydrateInstance(listData.data[i]) );
 			}
 			// This only works with "referenced" instances because it will not
 			// update and assume the instance is already updated
 			// this could be overwritten so that if the ids match, then a merge of properties takes place
-			idMerge(list, instanceList, can.proxy(this.id, this), can.proxy(this.makeInstance, this));
+			idMerge(list, instanceList, can.proxy(this.id, this), can.proxy(this.hydrateInstance, this));
 		},
 		/**
 		 * @function can-connect/constructor.destroyedInstance destroyedInstance
@@ -574,14 +574,14 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		
 		/**
 		 * @property can-connect/constructor.list list
-		 * @parent can.connect/constructor.instantiators
+		 * @parent can.connect/constructor.hydrators
 		 * 
 		 * Returns the appropraite form of list.
 		 * 
 		 * @signature `connection.list( listInstanceData, set )`
 		 *   
 		 *   Takes an object with a data property that is an array of instances returned by
-		 *   [can-connect/constructor.makeInstance] and should return the right type of list.
+		 *   [can-connect/constructor.hydrateInstance] and should return the right type of list.
 		 * 
 		 *   @param {{data: Array<Instance>}} listInstanceData
 		 * 
@@ -632,14 +632,14 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		
 		/**
 		 * @property can-connect/constructor.instance instance
-		 * @parent can.connect/constructor.instantiators
+		 * @parent can.connect/constructor.hydrators
 		 * 
 		 * Returns the typed form of the serialized data.
 		 * 
 		 * @signature `connection.instance( props )`
 		 *   
 		 *   Takes an object with a data property that is an array of instances returned by
-		 *   [can-connect/constructor.makeInstance] and should return the right type of list.
+		 *   [can-connect/constructor.hydrateInstance] and should return the right type of list.
 		 * 
 		 *   @param {Object} props
 		 * 

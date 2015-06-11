@@ -147,8 +147,8 @@ These methods are used to update data from the outside, usually by a real time c
 
 ### Instance and Instances
 
-- `makeInstance( props )` - Creates an instance in memory given data for that instance.
-- `makeList({data: Array<Object>}, set)` - Creates a container for instances and all the instances within that container.
+- `hydrateInstance( props )` - Creates an instance in memory given data for that instance.
+- `hydrateList({data: Array<Object>}, set)` - Creates a container for instances and all the instances within that container.
 - `createdInstance(instance, props)` - Called whenever an instance is created in the persisted state.
 - `updatedInstance(instance, props)` - Called whenever an instance is updated in the persisted state.
 - `destroyedInstance(instance, props)` - Called whenever an instance is destroyed in the persisted state.
@@ -167,8 +167,8 @@ These methods are used to update data from the outside, usually by a real time c
 
 Hooks that your library and code should be calling.
 
-- `madeInstance(instance)` - Called whenever an isntance is created in memory.
-- `madeInstance(list, set)` - Called whenever a list is created in memory.
+- `hydratedInstance(instance)` - Called whenever an isntance is created in memory.
+- `hydratedInstance(list, set)` - Called whenever a list is created in memory.
 
 - `addInstanceReference(instance)` - Called whenver an instance is observed. This serves as a signal that memory-unsafe actions can be performed.
 - `deleteInstanceReference(instance)` - Called whenever an instance is no longer observed. This serves as a signal that memory-unsafe should be removed.

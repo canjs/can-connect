@@ -1,25 +1,58 @@
 /**
- * @module can-connect/constructor-store constructor-store
+ * @module {connect.Behavior} can-connect/constructor-store constructor-store
  * @parent can-connect.modules
  * @group can.connect/constructor-store.stores 0 Stores
  * @group can.connect/constructor-store.crud 1 CRUD Methods
- * @group can.connect/constructor-store.instantiators 2 Instantiators
+ * @group can.connect/constructor-store.hydrators 2 Hydrators
  * 
- * Connect CRUD methods to a constructor function.
+ * Supports saving and retrieving lists and instances in a store.
  * 
- * Consumes:
+ * @signature `constructorStore(baseConnection)`
  * 
- * - getListData, getData, createData, updateData, destroyData
+ *   Overwrites baseConnection so it contains a store for 
+ *   instances and lists.  It traps calls to the
+ *   [can.connect/constructor-store.hydrateInstance] and
+ *   [can.connect/constructor-store.hydrateList] methods to
+ *   use instances or lists in the store if available. It 
+ *   overwrites "CRUD METHODS" to make sure that while any request
+ *   is pending, all lists and instances are added to the store.
+ *   Finally, it provides methods to add and remove items in the
+ *   store via reference counting.
  * 
- * Produces:
+ * @body
  * 
- * - getList, getInstance, save, destroy, id, createdInstance, updatedInstance
+ * ## Use
  * 
- * @param {{}} options
+ * The `constructor-store` extension is used to:
+ *  - provide a store of instances and lists used by the client.
+ *  - prevent multiple instances from being hydrated for the same [connection.id] or multiple
+ *    lists for the same [connection.listSet].
  * 
- *   @option {function} instance
- *   @option {function} list
- *   @option {String} id
+ * The stores provide access to an instance
+ * by its [connection.id] or a list by its [connection.listSet]. These stores are
+ * used by other extensions like [can-connect/real-time] and [can-connect/fall-through-cache].
+ * 
+ * Lets see how `constructor-store`'s behavior be used to prevent multiple 
+ * instances from being hydrated.  This example uses two widgets that load
+ * data independently.  However, each widget be provided the same instance 
+ * in memory.
+ * 
+ * First, create a connection that uses `constructor-store`:
+ * 
+ * ```
+ * var todosConnection = connect(["constructor-store","constructor","data-url"],{
+ *  url: "/todos"
+ * });
+ * ```
+ * 
+ * The following defines a widget with 
+ * 
+ * ```
+ * Widget = function(){
+ *   
+ * }
+ * ```
+ * 
  */
 var can = require("can/util/util");
 var connect = require("can-connect");
@@ -27,28 +60,19 @@ var WeakReferenceMap = require("./helpers/weak-reference-map");
 var sortedSetJSON = require("./helpers/sorted-set-json");
 
 module.exports = connect.behavior("constructor-store",function(baseConnect){
-	// - when an instance is created, and there are requests, add to the store
-	// - this might need to be done by the framework
-	// - need a hook for when an instance is created outside 
-	// - of this loop ... or possibly if an ID is added
-	// 
-	// - add b/c a request might be going ... all instances should go through this
-	// - add b/c it is observed
-	//
-	// - when an id property is added and we are binding
-	// - looked up by `makeInstance`
 
 	var behavior = {
 		/**
 		 * @property {WeakReferenceMap} can.connect/constructor-store.instanceStore instanceStore
 		 * @parent can.connect/constructor-store.stores
 		 * 
+		 * A store of instances mapped by [connection.id].
 		 */
 		instanceStore: new WeakReferenceMap(),
 		/**
 		 * @property {WeakReferenceMap} can.connect/constructor-store.listStore listStore
 		 * @parent can.connect/constructor-store.stores
-		 * 
+		 * A store of lists mapped by [connection.listSet].
 		 */
 		listStore: new WeakReferenceMap(),
 		_requestInstances: {},
@@ -273,12 +297,20 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			this.listStore.deleteReference( id, list );
 		},
 		/**
-		 * @function can.connect/constructor-store.madeInstance madeInstance
-		 * @parent can.connect/constructor-store.instantiators
-		 * @param {Object} instance
+		 * @function can.connect/constructor-store.hydratedInstance hydratedInstance
+		 * @parent can.connect/constructor-store.hydrators
+		 * 
+		 * Called whenever [can.connect/constructor-store.hydrateInstance] is called with the hydration result.
+		 * 
+		 * @signature `hydratedInstance(instance)`
+		 * 
+		 *   If there are pending requests, the instance is kept in the [can.connect/constructor-store.instanceStore].
+		 * 
+		 *   @param {Instance} instance The hydrated instance.
+		 * 
 		 */
-		// Called whenever an instance is made.
-		madeInstance: function(instance){
+		// ## hydratedInstance
+		hydratedInstance: function(instance){
 			if( this._pendingRequests > 0) {
 				var id = this.id(instance);
 				if(! this._requestInstances[id] ) {
@@ -289,12 +321,22 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.makeInstance makeInstance
-		 * @parent can.connect/constructor-store.instantiators
-		 * @param {Object} props
+		 * @function can.connect/constructor-store.hydrateInstance hydrateInstance
+		 * @parent can.connect/constructor-store.hydrators
+		 * 
+		 * Returns a instance given raw data.
+		 * 
+		 * @signature `connection.hydrateInstance(props)`
+		 * 
+		 *   Overwrites the base `hydratedInstance` so that if a matching instance is
+		 *   in the [can.connect/constructor-store.instanceStore], that instance will 
+		 *   be [can-connect/constructor.updatedInstance updated] with `props` and returned.  
+		 *   If there isn't a matching instance, the base `hydrateInstance` will be called.
+		 * 
+		 *   No matter what, [can.connect/constructor-store.hydratedInstance] is called.
 		 */
-		// Overwrites makeInstance so it looks in the store and calls madeInstance.
-		makeInstance: function(props){
+		// Overwrites hydrateInstance so it looks in the store and calls hydratedInstance.
+		hydrateInstance: function(props){
 			var id = this.id(props);
 			if((id || id === 0) && this.instanceStore.has(id) ) {
 				var storeInstance = this.instanceStore.get(id);
@@ -302,16 +344,25 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 				this.updatedInstance(storeInstance, props);
 				return storeInstance;
 			}
-			var instance = baseConnect.makeInstance.call(this, props);
-			this.madeInstance(instance);
+			var instance = baseConnect.hydrateInstance.call(this, props);
+			this.hydratedInstance(instance);
 			return instance;
 		},
 		/**
-		 * @function can.connect/constructor-store.madeList madeList
-		 * @parent can.connect/constructor-store.instantiators
-		 * @param {Object} props
+		 * @function can.connect/constructor-store.hydratedList hydratedList
+		 * @parent can.connect/constructor-store.hydrators
+		 * 
+		 * Called whenever [can.connect/constructor-store.hydrateList] is called with the hydration result.
+		 * 
+		 * @signature `hydratedList(list)`
+		 * 
+		 *   If there are pending requests, the list is kept in the [can.connect/constructor-store.listStore].
+		 * 
+		 *   @param {List} list The hydrated list.
+		 * 
+		 * 
 		 */
-		madeList: function(list, set){
+		hydratedList: function(list, set){
 			if( this._pendingRequests > 0) {
 				var id = sortedSetJSON( set || this.listSet(list) );
 				if(id) {
@@ -325,11 +376,21 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.makeList makeList
-		 * @parent can.connect/constructor-store.instantiators
-		 * @param {Object} props
+		 * @function can.connect/constructor-store.hydrateList hydrateList
+		 * @parent can.connect/constructor-store.hydrators
+		 * 
+		 * Returns a list given raw data.
+		 * 
+		 * @signature `connection.hydrateList(props)`
+		 * 
+		 *   Overwrites the base `hydrateList` so that if a matching list is
+		 *   in the [can.connect/constructor-store.listStore], that list will 
+		 *   be [can-connect/constructor.updatedList updated] with `listData` and returned.  
+		 *   If there isn't a matching list, the base `hydrateList` will be called.
+		 * 
+		 *   No matter what, [can.connect/constructor-store.hydratedList] is called.
 		 */
-		makeList: function(listData, set){
+		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
 			var id = sortedSetJSON( set );
 			
@@ -338,8 +399,8 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 				this.updatedList(storeList, listData, set);
 				return storeList;
 			}
-			var list = baseConnect.makeList.call(this, listData, set);
-			this.madeList(list, set);
+			var list = baseConnect.hydrateList.call(this, listData, set);
+			this.hydratedList(list, set);
 			return list;
 		},
 		/**
@@ -347,8 +408,9 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @parent can.connect/constructor-store.crud
 		 * 
 		 * Overwrites [connection.getList] so any 
-		 * [can.connect/constructor-store.makeInstance hydrated instances] or [can.connect/constructor-store.makeList hydrated instances] 
+		 * [can.connect/constructor-store.hydrateInstance hydrated instances] or [can.connect/constructor-store.hydrateList hydrated lists] 
 		 * are kept in the store until the response resolves.
+		 * 
 		 */
 		getList: function(params) {
 			var self = this;
@@ -367,7 +429,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @parent can.connect/constructor-store.crud
 		 * 
 		 * Overwrites [connection.get] so any 
-		 * [can.connect/constructor-store.makeInstance hydrated instances] are kept in the 
+		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the 
 		 * store until the response resolves.
 		 */
 		get: function(params) {
@@ -388,7 +450,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @parent can.connect/constructor-store.crud
 		 * 
 		 * Overwrites [connection.save] so any 
-		 * [can.connect/constructor-store.makeInstance hydrated instances] are kept in the 
+		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the 
 		 * store until the response resolves.
 		 * 
 		 */
@@ -418,7 +480,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @parent can.connect/constructor-store.crud
 		 * 
 		 * Overwrites [connection.destroy] so any 
-		 * [can.connect/constructor-store.makeInstance hydrated instances] are kept in the 
+		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the 
 		 * store until the response resolves.
 		 */
 		destroy: function(instance) {

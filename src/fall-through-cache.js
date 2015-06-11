@@ -15,12 +15,12 @@ var sortedSetJSON = require("./helpers/sorted-set-json");
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {
-		// overwrite makeList calls
+		// overwrite hydrateList calls
 		// so we can know the list that was made
-		makeList: function(listData, set){
+		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
 			var id = sortedSetJSON( set );
-			var list = baseConnect.makeList.call(this, listData, set);
+			var list = baseConnect.hydrateList.call(this, listData, set);
 			
 			if(this._getMakeListCallbacks[id]) {
 				this._getMakeListCallbacks[id].shift()(list);
@@ -103,10 +103,10 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				return listData;
 			});
 		},
-		makeInstance: function(props){
+		hydrateInstance: function(props){
 
 			var id = this.id( props );
-			var instance = baseConnect.makeInstance.apply(this, arguments);
+			var instance = baseConnect.hydrateInstance.apply(this, arguments);
 			
 			if(this._getMakeInstanceCallbacks[id]) {
 				this._getMakeInstanceCallbacks[id].shift()(instance);

@@ -231,7 +231,7 @@ can.Model = can.Map.extend({
 	models: function(raw, oldList){
 		var args = can.makeArray(arguments);
 		args[0] = this.connection.parseListData.apply(this.connection, arguments);
-		var list = this.connection.makeList.apply(this.connection, args);
+		var list = this.connection.hydrateList.apply(this.connection, args);
 		if( oldList instanceof can.List ) {
 			return oldList.replace(list);
 		} else {
@@ -241,7 +241,7 @@ can.Model = can.Map.extend({
 	model: function(raw){
 		var args = can.makeArray(arguments);
 		args[0] = this.connection.parseInstanceData.apply(this.connection, arguments);
-		var instance = this.connection.makeInstance.apply(this.connection, arguments);
+		var instance = this.connection.hydrateInstance.apply(this.connection, arguments);
 		return instance;
 	}
 },{

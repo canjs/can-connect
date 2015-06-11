@@ -28,12 +28,12 @@ var hooks = {
 	},
 	idProp: "id",
 	// given array data, returns instances
-	makeList: function(){},
+	hydrateList: function(){},
 	// given instance data, returns instance
-	makeInstance: function(){},
+	hydrateInstance: function(){},
 	
 	// whever an instance is created, no matter how it is created
-	madeInstance: function(){},
+	hydratedInstance: function(){},
 	
 	// given an instance, serializes it to plain JS object
 	serializeInstance: function(){},
