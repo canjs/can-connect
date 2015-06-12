@@ -68,7 +68,7 @@ QUnit.test("ranges", function(){
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		compare: set.comparators.rangeInclusive("start","end")
+		algebra: set.comparators.rangeInclusive("start","end")
 	});
 
 	

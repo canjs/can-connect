@@ -1,3 +1,12 @@
+/**
+ * @module can-connect/data/callbacks-cache data-callbacks-cache
+ * @parent can-connect.modules
+ * 
+ * Calls [connection.cacheConnection] methods whenever 
+ * the [can-connect/data/callbacks data interface callbacks] are called. This is
+ * useful for making sure a [connection.cacheConnection] is updated whenever data is updated.
+ */
+
 var can = require("can/util/util");
 var connect = require("can-connect");
 var pipe = require("can-connect/helpers/pipe");
@@ -5,27 +14,38 @@ var idMerge = require("can-connect/helpers/id-merge");
 
 // wires up the following methods
 var pairs = {
-	createdInstanceData: "createData",
-	updatedInstanceData: "updateData",
-	destroyedInstanceData: "destroyData",
+	/**
+	 * @function can-connect/data/callbacks-cache.createdData createdData
+	 * @parent can-connect/data/callbacks-cache
+	 * 
+	 * Called with the resolved response data 
+	 * of [connection.createData]. Calls `createData` on the [connection.cacheConnection].
+	 */
+	createdData: "createData",
+	/**
+	 * @function can-connect/data/callbacks-cache.updatedData updatedData
+	 * @parent can-connect/data/callbacks-cache
+	 * 
+	 * Called with the resolved response data 
+	 * of [connection.updateData]. Calls `updateData` on the [connection.cacheConnection].
+	 */
+	updatedData: "updateData",
+	/**
+	 * @function can-connect/data/callbacks-cache.destroyedData destroyedData
+	 * @parent can-connect/data/callbacks-cache
+	 * 
+	 * Called with the resolved response data 
+	 * of [connection.destroyData]. Calls `destroyData` on the [connection.cacheConnection].
+	 */
+	destroyedData: "destroyData"
 	//gotInstanceData: "updateListData"
 };
-var returnArg = function(item){
-	return item;
-};
 
-/**
- * @module can-connect/data-callbacks-cache data-callbacks-cache
- * @parent can-connect.modules
- * 
- * Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
- */
+
+
 module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 	
-	var behavior = {
-		//gotListData: returnArg,
-		//gotInstanceData: returnArg,
-	};
+	var behavior = {};
 	
 	can.each(pairs, function(cacheCallback, dataCallbackName){
 		behavior[dataCallbackName] = function(data, set, cid){

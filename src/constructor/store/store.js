@@ -1,5 +1,5 @@
 /**
- * @module {connect.Behavior} can-connect/constructor-store constructor-store
+ * @module {connect.Behavior} can-connect/constructor/store constructor-store
  * @parent can-connect.modules
  * @group can.connect/constructor-store.stores 0 Stores
  * @group can.connect/constructor-store.crud 1 CRUD Methods
@@ -33,25 +33,49 @@
  * used by other extensions like [can-connect/real-time] and [can-connect/fall-through-cache].
  * 
  * Lets see how `constructor-store`'s behavior be used to prevent multiple 
- * instances from being hydrated.  This example uses two widgets that load
- * data independently.  However, each widget be provided the same instance 
- * in memory.
+ * instances from being hydrated.  This example allows you to create multiple instances of a `todoEditor` that loads
+ * and edits a todo instance.
  * 
- * First, create a connection that uses `constructor-store`:
+ * @demo src/constructor/store/store.html
  * 
- * ```
- * var todosConnection = connect(["constructor-store","constructor","data-url"],{
- *  url: "/todos"
- * });
- * ```
- * 
- * The following defines a widget with 
+ * You'll notice that you can edit one todo's name and the other
+ * todo editors update.  This is because each `todoEditor` gets the same instance in memory.  So that when it
+ * updates the todo's name ...
  * 
  * ```
- * Widget = function(){
- *   
- * }
+ * element.firstChild.onchange = function(){
+ *   todo.name = this.value;
+ * };
  * ```
+ * 
+ * ... the other widgets update because they have bound on the same instance:
+ * 
+ * ```
+ * Object.observe(todo, update, ["update"] );
+ * todosConnection.addInstanceReference(todo);
+ * ```
+ * 
+ * Each `todoEditor` gets the same instance because they called [can.connect/constructor-store.addListReference]
+ * which makes it so anytime a todo with `id=5` is requested, the same instance is returned.
+ * 
+ * Notice that if you change an input element, and click "Create Todo Editor", all the `todoEditor`
+ * widgets are set back to the old text.  This is because whenever data is loaded from the server,
+ * it is passed to [can-connect/constructor.updatedInstance] which defaults to overwriting any current 
+ * properties with those from the server.
+ * 
+ * To make sure the server has the latest, you can save a todo by hitting "ENTER".
+ * 
+ * Finally, this widget cleans itself up nicely when it is removed by unobserving the
+ * `todo` instance and 
+ * [can.connect/constructor-store.deleteInstanceReference deleting the instance reference]. Doing this
+ * prevents memory leaks.
+ * 
+ * ``` 
+ * Object.unobserve(todo, update, ["update"] );
+ * todosConnection.deleteInstanceReference(todo);
+ * ```
+ * 
+ * 
  * 
  */
 var can = require("can/util/util");

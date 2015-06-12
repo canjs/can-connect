@@ -5,39 +5,120 @@ var can = require("can/util/util");
 var getItems = require("can-connect/helpers/get-items");
 
 /**
- * @module can-connect/data-combine-requests data-combine-requests
+ * @module can-connect/data/combine-requests data-combine-requests
  * @parent can-connect.modules
+ * @group can-connect/data/combine-requests.data-methods Data Methods
+ * @group can-connect/data/combine-requests.options Options
+ * @group can-connect/data/combine-requests.algebra Algebra Methods
+ * @group can-connect/data/combine-requests.types Types
  * 
  * Combines multiple incoming requests into one if possible.
  * 
+ * @signature `dataCombineRequests(baseConnection)`
+ * 
+ *   Overwrites [can-connect/data/combine-requests.getListData] to collect the requested
+ *   sets for
+ *   some [can-connect/data/combine-requests.time].  Once that time has expired, it tries
+ *   to take the [can-connect/data/combine-requests.unionPendingRequests union] of those sets. It
+ *   makes requests with those unioned sets. Once the unioned set data has returned,
+ *   the original requests re satisified by getting
+ *   [can-connect/data/combine-requests.getSubset subsets] of the unioned set data.
+ * 
  * @body 
+ * 
+ * ## Use
+ * 
+ * Create a connection with the `data-combine-requests` plugin like:
+ * 
  * ```
- * {from: 1000, to: 2000},{from: 2001: to: 3000} => {from: 1000, to: 3000}
- * {},{type: "directories"},{type: "files"} => {}
- * ```
- * 
- * Combines requests made within a certain time if the
- * sets of data they load overlap.
- * 
- * ```js
- * combineBehavior = combineRequests( persistBehavior, {time: 100} );
- * 
- * // the following makes a single request
- * combineBehavior.getListData({}) //-> promise(Array<items>)
- * combineBehavior.getListData({type: "critical"}) //-> promise(Array<items>)
- * combineBehavior.getListData({due: "today"}) //-> promise(Array<items>)
+ * var todosConnection = connect(["data-combine-requests","data-url"],{
+ *   url: "/todos"
+ * });
  * ```
  * 
- * @param {{}} options
+ * By default, the following will only make a single request if made at the same time:
  * 
- *   @option {can.Object.compare} compare 
- *   @option {number} time
+ * ```
+ * todosConnection.getListData({})
+ * todosConnection.getListData({userId: 5});
+ * todosConnection.getListData({userId: 5, type: "critical"});
+ * ```
+ * 
+ * This is because [can-set](https://github.com/canjs/can-set) knows that
+ * `{userId: 5, type: "critical"}` and `{userId: 5}` are subsets of `{}`.
+ * 
+ * For more advanced combining, use set algebra.  The following supports
+ * combining ranges:
+ * 
+ * ```
+ * var todosConnection = connect(["data-combine-requests","data-url"],{
+ *   url: "/todos",
+ *   algebra: new Algebra(set.comparators.range("start","end"))
+ * });
+ * ```
+ * 
+ * Now the following will make single request:
+ * 
+ * ```
+ * todosConnection.getListData({start: 0, end: 49})
+ * todosConnection.getListData({start: 0, end: 5});
+ * todosConnection.getListData({start: 50, end: 99});
+ * ```
+ * 
  */
 module.exports = connect.behavior("data-combine-requests",function(base){
-	var pendingRequests; //[{params, deferred}]
+	var pendingRequests; //[{set, deferred}]
 	
 	return {
-		combinePendingRequests: function(){
+		/**
+		 * @function can-connect/data/combine-requests.unionPendingRequests unionPendingRequests
+		 * @parent can-connect/data/combine-requests.algebra
+		 * 
+		 * @signature `connection.unionPendingRequests( pendingRequests )`
+		 * 
+		 *   @param {Array<can-connect/data/combine-requests.PendingRequest>}
+		 *   
+		 *   An array of objects, each containing:
+		 *     
+		 *   - `set` - the requested set
+		 *   - `deferred` - a deferred that will be resolved with this sets data
+		 * 
+		 *   @return {Array<{set: Set, pendingRequests: can-connect/data/combine-requests.PendingRequest}>}
+		 *   
+		 *   Returns an array of each of the unioned requests to be made.  Each unionized request should have:
+		 *   
+		 *   - `set` - the set to request
+		 *   - `pendingRequests` - the array of [can-connect/data/combine-requests.PendingRequest pending requests] the set satisfies.
+		 * 
+		 * @body
+		 * 
+		 * ## Use
+		 * 
+		 * This function gets called automatically.  However, it converts something like:
+		 * 
+		 * ```
+		 * [ 
+		 *   {set: {completed: false}, deferred: def1},
+		 *   {set: {completed: true}, deferred: def2}
+		 * ]
+		 * ```
+		 * 
+		 * to
+		 * 
+		 * ```
+		 * [ 
+		 *   {
+		 *    set: {},
+		 *    pendingRequests: [ 
+		 *      {set: {completed: false}, deferred: def1},
+		 *      {set: {completed: true}, deferred: def2}
+		 *    ] 
+		 *   }
+		 * ]
+		 * ```
+		 * 
+		 */
+		unionPendingRequests: function(pendingRequests){
 			// this should try to merge existing param requests, into an array of 
 			// others to send out
 			// but this data structure keeps the original promises.
@@ -49,9 +130,9 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 			
 			pendingRequests.sort(function(pReq1, pReq2){
 				
-				if(canSet.subset(pReq1.params, pReq2.params, self.compare)) {
+				if(canSet.subset(pReq1.set, pReq2.set, self.algebra)) {
 					return 1;
-				} else if( canSet.subset(pReq2.params, pReq1.params, self.compare) ) {
+				} else if( canSet.subset(pReq2.set, pReq1.set, self.algebra) ) {
 					return -1;
 				} 
 				
@@ -64,29 +145,71 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 			doubleLoop(pendingRequests, {
 				start: function(pendingRequest){
 					current = {
-						params: pendingRequest.params,
+						set: pendingRequest.set,
 						pendingRequests: [pendingRequest]
 					};
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = canSet.union(current.params, pendingRequest.params, self.compare);
+					var combined = canSet.union(current.set, pendingRequest.set, self.algebra);
 					if(combined) {
 						// add next 
-						current.params = combined;
+						current.set = combined;
 						current.pendingRequests.push(pendingRequest);
 						// removes this from iteration
 						return true;
 					}
 				}
 			});
-			pendingRequests = null;
+			
 			return new can.Deferred().resolve(combineData);
 		},
-		getSubset: function(params, combinedParams, data){
-			return canSet.getSubset(params, combinedParams, data, this.compare);
+		/**
+		 * @function can-connect/data/combine-requests.getSubset getSubset
+		 * @parent can-connect/data/combine-requests.algebra
+		 * 
+		 * Return the items that belong to an initial request.
+		 * 
+		 * @signature `connection.getSubset( set, unionSet, data )`
+		 * 
+		 *   This implementation uses [can-set's getSubset](https://github.com/canjs/can-set#setgetsubset) with [connection.algebra].
+		 * 
+		 *   @param {Set} set the subset initially requested
+		 *   @param {Set} unionSet the combined set that was actually requested
+		 *   @param {can-connect.listData} data the data from the combined set
+		 *   @return {can-connect.listData} the data that belongs to `set`
+		 */
+		getSubset: function(set, unionSet, data){
+			return canSet.getSubset(set, unionSet, data, this.algebra);
 		},
-		getListData: function(params){
+		/**
+		 * @property {Number} can-connect/data/combine-requests.time time
+		 * @parent can-connect/data/combine-requests.options
+		 * 
+		 * Specifies the amount of time to wait to combine requests.
+		 * 
+		 * @option {Number} Defaults to `1` which means that only requests made within the same 
+		 * "thread of execution" will be combined.
+		 */
+		time:1,
+		/**
+		 * @function can-connect/data/combine-requests.getListData getListData
+		 * @parent can-connect/data/combine-requests.data-methods
+		 * 
+		 * Tries to combine requests using set logic.
+		 * 
+		 * @signature `connection.getListData( set )`
+		 * 
+		 *   Collects the sets for calls to `getListData` for 
+		 *   some [can-connect/data/combine-requests.time].  Once that time has expired, it tries
+		 *   to take the [union](https://github.com/canjs/can-set#setunion) of those sets. It
+		 *   makes requests with those unioned sets. Once the unioned set data has returned,
+		 *   the original requests re satisified by taking
+		 *   [subsets](https://github.com/canjs/can-set#setgetSubset) of the unioned set data.
+		 * 
+		 *   @param {Object} set
+		 */
+		getListData: function(set){
 			var self = this;
 			
 			if(!pendingRequests) {
@@ -95,18 +218,19 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 				
 				setTimeout(function(){
 					
-					var combineDataPromise = self.combinePendingRequests();
+					var combineDataPromise = self.unionPendingRequests(pendingRequests);
+					pendingRequests = null;
 					combineDataPromise.then(function(combinedData){
 						// farm out requests
 						combinedData.forEach(function(combined){
 							
-							base.getListData(combined.params).then(function(data){
+							base.getListData(combined.set).then(function(data){
 								
 								if(combined.pendingRequests.length === 1) {
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									combined.pendingRequests.forEach(function(pending){
-										pending.deferred.resolve( {data: self.getSubset(pending.params, combined.params, getItems(data) )} );
+										pending.deferred.resolve( {data: self.getSubset(pending.set, combined.set, getItems(data) )} );
 									});
 								}
 								
@@ -119,14 +243,21 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 			}
 			
 			var deferred = new can.Deferred();
-			pendingRequests.push({deferred: deferred, params: params});
+			pendingRequests.push({deferred: deferred, set: set});
 			
 			return deferred;	
 		}
 	};
 });	
-	
 
+/**
+ * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest
+ * @parent can-connect/data/combine-requests.types
+ * 
+ * @option {Set} set A [can-set](https://github.com/canjs/can-set) set object.
+ * @option {Deferred} deferred A defferred that can be used to resolve or reject a promise.
+ */
+// ### doubleLoop
 var doubleLoop = function(arr, callbacks){
 	var i = 0;
 	while(i < arr.length) {

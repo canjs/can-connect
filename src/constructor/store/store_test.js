@@ -29,7 +29,7 @@ var asyncReject = function(data) {
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
-QUnit.module("can-connect/constructor-store",{
+QUnit.module("can-connect/constructor/store",{
 	setup: function(){
 		
 	}

@@ -23,7 +23,7 @@ var canSet = require("can-set");
  * 
  * @param {{}} options
  * 
- *   @option {can.Object.compare} compare 
+ *   @option {can.Object.algebra} algebra 
  * 
  * @body
  * 
@@ -77,7 +77,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 * 
 		 * @body
 		 * 
-		 * Ideally, this will not have to compare every set ever loaded.
+		 * Ideally, this will not have to algebra every set ever loaded.
 		 * 
 		 * We could prevent that by "collapsing" sets similar to the combine-set
 		 * method.  Then the sets loaded should be unique and easier to 
@@ -94,14 +94,14 @@ module.exports = connect.behavior("cache-requests",function(base){
 			
 			availableSets.forEach(function(set){
 				var curSets;
-				var difference = canSet.difference(params, set, self.compare);
+				var difference = canSet.difference(params, set, self.algebra);
 				if(typeof difference === "object") {
 					curSets = {
 						needed: difference,
-						cached: canSet.intersection(params, set, self.compare),
-						count: canSet.count(difference, self.compare)
+						cached: canSet.intersection(params, set, self.algebra),
+						count: canSet.count(difference, self.algebra)
 					};
-				} else if( canSet.subset(params, set, self.compare) ){
+				} else if( canSet.subset(params, set, self.algebra) ){
 					curSets = {
 						cached: params,
 						count: 0
@@ -135,8 +135,8 @@ module.exports = connect.behavior("cache-requests",function(base){
 			for(var i = 0; i < setData.length; i++) {
 				setDatum = setData[i];
 				
-				if( canSet.subset(set, setDatum.set, this.compare) ) {
-					var items = canSet.getSubset(set, setDatum.set, setDatum.items, this.compare);
+				if( canSet.subset(set, setDatum.set, this.algebra) ) {
+					var items = canSet.getSubset(set, setDatum.set, setDatum.items, this.algebra);
 					return new can.Deferred().resolve(items);
 				}
 			}
@@ -154,9 +154,9 @@ module.exports = connect.behavior("cache-requests",function(base){
 			
 			for(var i = 0 ; i < setData.length; i++) {
 				var setDatum = setData[i];
-				var union = canSet.union(setDatum.set, set, this.compare);
+				var union = canSet.union(setDatum.set, set, this.algebra);
 				if(union) {
-					setDatum.items = canSet.getUnion(setDatum.set, set, setDatum.items, data, this.compare);
+					setDatum.items = canSet.getUnion(setDatum.set, set, setDatum.items, data, this.algebra);
 					setDatum.set = union;
 					return new can.Deferred().resolve();
 				}
@@ -175,7 +175,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 */
 		mergeData: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
-			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, this.compare);
+			return canSet.getUnion(diff.needed, diff.cached, neededItems, cachedItems, this.algebra);
 		},
 		getListData: function(params){
 			

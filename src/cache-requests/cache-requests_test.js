@@ -75,7 +75,7 @@ QUnit.test("Incrementally load data", function(){
 			//},50);
 			return def;
 		},
-		compare: set.comparators.rangeInclusive("start","end")
+		algebra: set.comparators.rangeInclusive("start","end")
 	} );
 	
 	

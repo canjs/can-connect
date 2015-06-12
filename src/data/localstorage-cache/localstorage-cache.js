@@ -15,7 +15,7 @@ var indexOf = function(connection, props, items){
 	return -1;
 };
 
-var setAdd = function(set, items, item, compare){
+var setAdd = function(set, items, item, algebra){
 	return items.concat([item]);
 };
 
@@ -174,11 +174,11 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
-				var union = canSet.union(setDatum.set, set, this.compare);
+				var union = canSet.union(setDatum.set, set, this.algebra);
 				if(union) {
 					return this.getListData(setDatum.set).then(function(setData){
 						
-						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.compare), union);
+						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.algebra), union);
 					});
 				}
 			}
@@ -214,8 +214,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var self = this;
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(props, setDatum.set, this.compare)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.compare), setDatum.set);
+				if(canSet.subset(props, setDatum.set, this.algebra)) {
+					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra), setDatum.set);
 				}
 			});
 			var id = this.id(props);
@@ -230,13 +230,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, props, items);
 				
-				if(canSet.subset(props, setDatum.set, this.compare)) {
+				if(canSet.subset(props, setDatum.set, this.algebra)) {
 					
 					// if it's not in, add it
 					if(index == -1) {
 						// how to insert things together?
 						
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.compare) );
+						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, props);

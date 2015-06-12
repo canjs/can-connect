@@ -18,7 +18,7 @@ Load data:
 Convert data into special types:
 
  - [can-connect/constructor] - Create instances of a constructor function or list type.
- - [can-connect/constructor-store] - Create only a single instance for a given id or a single list for a set.
+ - [can-connect/constructor/store] - Create only a single instance for a given id or a single list for a set.
 
 Real time:
 
@@ -30,7 +30,7 @@ Caching strategies:
    then update the response with data from the `raw CRUD Methods`.
  - [can-connect/data-inline-cache] - Use an inline cache for initial ajax requests.
  - [can-connect/cache-requests] - Save response data and use it for future requests.
- - [can-connect/data-combine-requests] - Combine overlapping or reduntant requests.
+ - [can-connect/data/combine-requests] - Combine overlapping or reduntant requests.
 
 Caching layers:
 

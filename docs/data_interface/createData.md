@@ -12,4 +12,4 @@ instance. A client ID is passed of the instance that is being created.
 
   @param {Number} [cid] A unique id that represents the instance that is being created. 
 
-  @return {Promise<Object>} A promise with the data that will be passed to [connection.createdInstanceData].
+  @return {Promise<Object>} A promise with the data that will be passed to [connection.createdData].
