@@ -1,6 +1,9 @@
 
 var QUnit = require("steal-qunit");
 var cacheRequests = require("can-connect/cache-requests/");
+var memCache = require("can-connect/data/memory-cache/");
+var connect = require("can-connect");
+
 var set = require("can-set");
 
 var getId = function(d){ return d.id};
@@ -29,7 +32,8 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 				{id: 5, type: "critical"},
 				{id: 6, due: "yesterday"}
 			]);
-		}
+		},
+		cacheConnection: memCache(connect.base({}))
 	} );
 	
 	res.getListData({}).then(function(list){
@@ -37,10 +41,10 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 		deepEqual(list.map(getId), [1,2,3,4,5,6]);
 		
 		res.getListData({type: "critical"}).then(function(list){
-			deepEqual(list.map(getId), [1,3,5]);
+			deepEqual(list.data.map(getId), [1,3,5]);
 			
 			res.getListData({due: "today"}).then(function(list){
-				deepEqual(list.map(getId), [1,2]);
+				deepEqual(list.data.map(getId), [1,2]);
 				start();
 			});
 			
@@ -55,6 +59,8 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
+	
+	var algebra = set.comparators.rangeInclusive("start","end");
 	
 	var behavior = cacheRequests( {
 		getListData: function(params){
@@ -71,18 +77,20 @@ QUnit.test("Incrementally load data", function(){
 			}
 			var def = new can.Deferred();
 			//setTimeout(function(){
-				def.resolve(items);
+				def.resolve({data: items});
 			//},50);
 			return def;
 		},
-		algebra: set.comparators.rangeInclusive("start","end")
+		algebra: algebra,
+		cacheConnection: memCache(connect.base({algebra: algebra}))
 	} );
 	
 	
 	behavior.getListData({
 		start: 1,
 		end: 10
-	}).then(function(list){
+	}).then(function(listData){
+		var list = listData.data;
 		equal(list.length, 10, "got 10 items");
 		equal(list[0].id, 1);
 		equal(list[9].id, 10);
@@ -90,13 +98,15 @@ QUnit.test("Incrementally load data", function(){
 		behavior.getListData({
 			start: 1,
 			end: 20
-		}).then(function(list){
+		}).then(function(listData){
+			var list = listData.data;
 			equal(list.length, 20, "got 20 items");
 			equal(list[0].id, 1, "0th object's id'");
 			equal(list[19].id, 20, "19th object's id");
 			
 			
-			behavior.getListData({start: 9, end: 12}).then(function(list){
+			behavior.getListData({start: 9, end: 12}).then(function(listData){
+				var list = listData.data;
 				equal(list.length, 4, "got 4 items");
 				equal(list[0].id, 9);
 				equal(list[3].id, 12);

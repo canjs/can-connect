@@ -105,7 +105,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 			
 			if( instance ) {
 				// already created
-				this.updatedInstance(instance, {});
+				this.updatedInstance(instance, props);
 				promise = new can.Deferred().resolve(instance);
 				serialized = this.serializeInstance(instance);
 			} else {

@@ -9,7 +9,7 @@ var QUnit = require("steal-qunit");
 
 
 
-
+QUnit.module("can-connect/real-time",{});
 
 var asyncResolve = function(data) {
 	var def = new can.Deferred();

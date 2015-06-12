@@ -20,7 +20,7 @@ var setAdd = function(set, items, item, algebra){
 };
 
 /**
- * @module can-connect/localstorage-cache localstorage-cache
+ * @module can-connect/data/localstorage-cache localstorage-cache
  * @parent can-connect.modules
  */
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
