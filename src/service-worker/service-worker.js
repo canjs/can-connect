@@ -1,8 +1,9 @@
 
 var connect = require("can-connect");
-var can = require("can/util/util");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
+var helpers = require("can-connect/helpers/");
+require("when/es6-shim/Promise");
 
 /**
  * @module can-connect/service-worker
@@ -13,21 +14,21 @@ module.exports = connect.behavior("service-worker",function(base){
 	var worker = new Worker(this.workerURL);
 	var requestId = 0;
 	var requestDeferreds = {};
-	var isReady = new can.Deferred();
+	var isReady = helpers.deferred();
 	
 	var makeRequest = function(data){
 		var reqId = requestId++;
-		var def = new can.Deferred();
+		var def = helpers.deferred();
 		requestDeferreds[reqId] = def;
 		
-		isReady.then(function(){
+		isReady.promise.then(function(){
 			worker.postMessage({
 				request: data,
 				requestId: reqId
 			});
 		});
 		
-		return def.promise();
+		return def.promise;
 	};
 	worker.onmessage = function(ev){
 		console.log("MAIN - got message", ev.data.type)

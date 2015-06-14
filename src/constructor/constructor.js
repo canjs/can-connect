@@ -78,12 +78,11 @@
  * 
  * 
  */
-var can = require("can/util/util");
 var connect = require("can-connect");
-var pipe = require("can-connect/helpers/pipe");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var overwrite = require("can-connect/helpers/overwrite");
 var idMerge = require("can-connect/helpers/id-merge");
+var helpers = require("can-connect/helpers/");
 
 module.exports = connect.behavior("constructor",function(baseConnect){
 	
@@ -129,8 +128,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 */
 		get: function(params) {
-			return pipe(this.getData(params), this, function(data){
-				return this.hydrateInstance(data);
+			var self = this;
+			return this.getData(params).then(function(data){
+				return self.hydrateInstance(data);
 			});
 		},
 		
@@ -164,8 +164,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 */
 		getList: function(set) {
-			return pipe(this.getListData( set ), this, function(data){
-				return this.hydrateList(data, set);
+			var self = this;
+			return this.getListData( set ).then(function(data){
+				return self.hydrateList(data, set);
 			});
 		},
 		
@@ -188,7 +189,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   @return {List} The data type used to represent the list.
 		 */
 		hydrateList: function(listData, set){
-			if(can.isArray(listData)) {
+			if(Array.isArray(listData)) {
 				listData = {data: listData};
 			}
 			
@@ -225,7 +226,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			if(this.instance) {
 				return this.instance(props);
 			}  else {
-				return can.simpleExtend({}, props);
+				return helpers.extend({}, props);
 			}
 		},
 		/**
@@ -319,7 +320,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		save: function(instance){
 			var serialized = this.serializeInstance(instance);
 			var id = this.id(instance);
-			
+			var self = this;
 			if(id === undefined) {
 				// If `id` is undefined, we are creating this instance.
 				// It should be given a local id and temporarily added to the cidStore
@@ -329,18 +330,18 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 				
 				// Call the data layer.
 				// If the data returned is undefined, don't call `createdInstance`
-				return pipe(this.createData(serialized, cid), this, function(data){
+				return this.createData(serialized, cid).then(function(data){
 					// if undefined is returned, this can't be created, or someone has taken care of it
 					if(data !== undefined) {
-						this.createdInstance(instance, data);
+						self.createdInstance(instance, data);
 					}
-					this.cidStore.deleteReference(cid, instance);
+					self.cidStore.deleteReference(cid, instance);
 					return instance;
 				});
 			} else {
-				return pipe(this.updateData(serialized), this, function(data){
+				return this.updateData(serialized).then(function(data){
 					if(data !== undefined) {
-						this.updatedInstance(instance, data);
+						self.updatedInstance(instance, data);
 					}
 					return instance;
 				});
@@ -429,11 +430,12 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		// Calls the data interface `destroyData` and as long as it
 		// returns something, uses that data to call `destroyedInstance`.
 		destroy: function(instance){
-			var serialized = this.serializeInstance(instance);
+			var serialized = this.serializeInstance(instance),
+				self = this;
 			
-			return pipe( this.destroyData(serialized), this, function(data){
+			return this.destroyData(serialized).then(function(data){
 				if(data !== undefined) {
-					this.destroyedInstance(instance, data);
+					self.destroyedInstance(instance, data);
 				}
 				return instance;
 			});
@@ -453,7 +455,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   @param {Object} props The data from [connection.createData].
 		 */
 		createdInstance: function(instance, props){
-			can.simpleExtend(instance, props);
+			helpers.extend(instance, props);
 		},
 		/**
 		 * @function can-connect/constructor.updatedInstance updatedInstance
@@ -498,7 +500,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			// This only works with "referenced" instances because it will not
 			// update and assume the instance is already updated
 			// this could be overwritten so that if the ids match, then a merge of properties takes place
-			idMerge(list, instanceList, can.proxy(this.id, this), can.proxy(this.hydrateInstance, this));
+			idMerge(list, instanceList, this.id.bind(this), this.hydrateInstance.bind(this));
 		},
 		/**
 		 * @function can-connect/constructor.destroyedInstance destroyedInstance
@@ -533,7 +535,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   @return {Object} A serialized representation of the instance.
 		 */
 		serializeInstance: function(instance){
-			return can.simpleExtend({}, instance);
+			return helpers.extend({}, instance);
 		},
 		/**
 		 * @function can-connect/constructor.serializeList serializeList

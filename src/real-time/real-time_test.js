@@ -3,21 +3,15 @@ require("can-connect/real-time/");
 require("can-connect/constructor/");
 require("can-connect/constructor/store/");
 require("can-connect/data/callbacks/");
-var can = require("can/util/util");
+require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
+var helpers = require("can-connect/helpers/");
 
+require("when/es6-shim/Promise");
 
 
 QUnit.module("can-connect/real-time",{});
-
-var asyncResolve = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.resolve(data);
-	},1);
-	return def;
-};
 
 var later = function(fn){
 	return function(){
@@ -75,19 +69,22 @@ QUnit.test("basics", function(){
 				// nothing here first time
 				if(state.get() === "getListData-important") {
 					state.next();
-					return asyncResolve({data: firstItems.slice(0) });
+					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				} else {
 					state.check("getListData-today");
-					return asyncResolve({data: secondItems.slice(0) });
+					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
 			},
 			createData: function(props){
-				
 				if( state.get() === "createData-today+important" ) {
 					state.next();
 					// todo change to all props
-					return asyncResolve({id: 10});
-				} 
+					return testHelpers.asyncResolve({id: 10});
+				} else {
+					ok(false, "bad state!");
+					debugger;
+					start();
+				}
 				
 				
 			},
@@ -96,7 +93,7 @@ QUnit.test("basics", function(){
 				if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 					state.next();
 					// todo change to all props
-					return asyncResolve(can.simpleExtend({},props));
+					return testHelpers.asyncResolve(helpers.extend({},props));
 				} else {
 					ok(false, "bad state!");
 					debugger;
@@ -107,21 +104,22 @@ QUnit.test("basics", function(){
 				if(state.get() === "destroyData-important-1") {
 					state.next();
 					// todo change to all props
-					return asyncResolve(can.simpleExtend({destroyed:  1},props));
+					return testHelpers.asyncResolve(helpers.extend({destroyed:  1},props));
 				}
 			}
 		};
 	};
 
-	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store","data-callbacks", callbackBehavior],{
+	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store","data-callbacks",callbackBehavior, "constructor-callbacks-once"],{
 		
 	});
 	
 	var importantList,
 		todayList;
-	can.when(connection.getList({type: "important"}), connection.getList({due: "today"})).then(function(important, dueToday){
-		importantList = important;
-		todayList = dueToday;
+	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})]).then(function(result){
+		
+		importantList = result[0];
+		todayList = result[1];
 		
 		connection.addListReference(importantList);
 		connection.addListReference(todayList);

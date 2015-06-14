@@ -14,6 +14,9 @@ var can = require("can/util/util"),
 	constructor = require("../../constructor/"),
 	instanceStore = require("../../constructor/store/"),
 	parseData = require("../../data/parse/");
+	
+	require("../can");
+	require("when/es6-shim/Promise");
 
 var callCanReadingOnIdRead = true;
 var getBaseValue = function(prop){
@@ -200,7 +203,14 @@ can.Model = can.Map.extend({
 			// mapBehavior options
 			constructor: this,
 			parseModel: getBaseValue(this.parseModel),
-			parseModels: getBaseValue(this.parseModels)
+			parseModels: getBaseValue(this.parseModels),
+			ajax: function(){
+				var promiseLike = $.ajax.apply($, arguments);
+				
+				return new Promise(function(resolve, reject){
+					promiseLike.then(resolve, reject);
+				});
+			}
 		};
 		
 		this.connection = mapBehavior(

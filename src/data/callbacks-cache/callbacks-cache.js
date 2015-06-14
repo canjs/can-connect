@@ -6,11 +6,9 @@
  * the [can-connect/data/callbacks data interface callbacks] are called. This is
  * useful for making sure a [connection.cacheConnection] is updated whenever data is updated.
  */
-
-var can = require("can/util/util");
 var connect = require("can-connect");
-var pipe = require("can-connect/helpers/pipe");
 var idMerge = require("can-connect/helpers/id-merge");
+var helpers = require("can-connect/helpers/");
 
 // wires up the following methods
 var pairs = {
@@ -47,11 +45,11 @@ module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 	
 	var behavior = {};
 	
-	can.each(pairs, function(cacheCallback, dataCallbackName){
+	helpers.each(pairs, function(cacheCallback, dataCallbackName){
 		behavior[dataCallbackName] = function(data, set, cid){
 
 			// update the data in the cache
-			this.cacheConnection[cacheCallback]( can.simpleExtend({}, data) );
+			this.cacheConnection[cacheCallback]( helpers.extend({}, data) );
 			
 			return baseConnect[dataCallbackName].call(this,  data, set, cid);
 		};

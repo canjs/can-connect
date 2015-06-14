@@ -3,6 +3,7 @@ var QUnit = require("steal-qunit");
 var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
+require("when/es6-shim/Promise");
 
 var set = require("can-set");
 
@@ -24,7 +25,7 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
-			return new can.Deferred().resolve([
+			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
 				{id: 3, type: "critical", due: "yesterday"},
@@ -75,11 +76,7 @@ QUnit.test("Incrementally load data", function(){
 					id: i
 				});
 			}
-			var def = new can.Deferred();
-			//setTimeout(function(){
-				def.resolve({data: items});
-			//},50);
-			return def;
+			return Promise.resolve({data: items});
 		},
 		algebra: algebra,
 		cacheConnection: memCache(connect.base({algebra: algebra}))

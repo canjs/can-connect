@@ -4,25 +4,13 @@ var constructor = require("can-connect/constructor/");
 var store = require("can-connect/constructor/store/");
 var connect = require("can-connect");
 var canSet = require("can-set");
-var helpers = require("can-connect/test-helpers");
+var testHelpers = require("can-connect/test-helpers");
+
+
 require("can-connect/data/callbacks/");
 
 var getId = function(d){ return d.id};
 
-var asyncResolve = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.resolve(data);
-	},1);
-	return def;
-};
-var asyncReject = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.reject(data);
-	},1);
-	return def;
-};
 
 QUnit.module("can-connect/fall-through-cache");
 
@@ -31,7 +19,7 @@ QUnit.test("basics", function(){
 	var firstItems = [ {id: 0, foo: "bar"}, {id: 1, foo: "bar"} ];
 	var secondItems = [ {id: 1, foo: "BAZ"}, {id: 2, foo: "bar"} ];
 	
-	var state = helpers.makeStateChecker(QUnit,["cache-getListData-empty",
+	var state = testHelpers.makeStateChecker(QUnit,["cache-getListData-empty",
 		"base-getListData",
 		"cache-updateListData",
 		"connection-foundAll",
@@ -52,10 +40,10 @@ QUnit.test("basics", function(){
 				// nothing here first time
 				if(state.get() === "cache-getListData-empty") {
 					state.next();
-					return asyncReject();
+					return testHelpers.asyncReject();
 				} else {
 					state.check("cache-getListData-items");
-					return asyncResolve({data: firstItems.slice(0) });
+					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				}
 			},
 			updateListData: function(data, set) {
@@ -63,11 +51,11 @@ QUnit.test("basics", function(){
 					state.next();
 					deepEqual(set,{},"got the right set");
 					deepEqual(data.data,firstItems, "updateListData items are right");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				} else {
 					deepEqual(data.data,secondItems, "updateListData 2 items are right");
 					state.check("cache-updateListData-2");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				}
 			}
 		};
@@ -79,10 +67,10 @@ QUnit.test("basics", function(){
 			getListData: function(){
 				if(state.get() === "base-getListData") {
 					state.next();
-					return asyncResolve({data: firstItems.slice(0) });
+					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				} else {
 					state.check("base-getListData-2");
-					return asyncResolve({data: secondItems.slice(0) });
+					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
 			}
 		};
@@ -106,14 +94,14 @@ QUnit.test("basics", function(){
 		state.check("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
-	}, helpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart);
 	
 	function secondCall() {
 		state.check("connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
-		}, helpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart);
 	}
 	
 	
@@ -130,7 +118,7 @@ QUnit.test("getInstance and getData", function(){
 	var firstData =  {id: 0, foo: "bar"};
 	var secondData = {id: 0, foo: "BAR"};
 	
-	var state = helpers.makeStateChecker(QUnit,["cache-getData-empty",
+	var state = testHelpers.makeStateChecker(QUnit,["cache-getData-empty",
 		"base-getData",
 		"cache-updateData",
 		"connection-foundOne",
@@ -150,22 +138,22 @@ QUnit.test("getInstance and getData", function(){
 				// nothing here first time
 				if(state.get() === "cache-getData-empty") {
 					state.next();
-					return asyncReject();
+					return testHelpers.asyncReject();
 				} else {
 					state.check("cache-getData-item");
-					return asyncResolve(firstData);
+					return testHelpers.asyncResolve(firstData);
 				}
 			},
 			updateData: function(data) {
 				if(state.get() === "cache-updateData") {
 					state.next();
 					deepEqual(data,firstData, "updateData items are right");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				} else {
 					//debugger;
 					deepEqual(data,secondData, "updateData 2 items are right");
 					state.check("cache-updateData-2");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				}
 			}
 		};
@@ -177,11 +165,11 @@ QUnit.test("getInstance and getData", function(){
 			getData: function(){
 				if(state.get() === "base-getData") {
 					state.next();
-					return asyncResolve({id: 0, foo: "bar"});
+					return testHelpers.asyncResolve({id: 0, foo: "bar"});
 				} else {
 					//debugger;
 					state.check("base-getData-2");
-					return asyncResolve({id: 0, foo: "BAR"});
+					return testHelpers.asyncResolve({id: 0, foo: "BAR"});
 				}
 			}
 		};
@@ -205,14 +193,14 @@ QUnit.test("getInstance and getData", function(){
 		state.check("connection-foundOne");
 		deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
-	}, helpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart);
 	
 	function secondCall() {
 		state.check("connection-getInstance-2");
 		connection.get({id: 0}).then(function(instance){
 			state.check("connection-foundOne-2");
 			deepEqual( instance, {id: 0, foo: "bar"}  );
-		}, helpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart);
 	}
 	
 });

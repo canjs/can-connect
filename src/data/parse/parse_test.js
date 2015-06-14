@@ -1,6 +1,5 @@
 var QUnit = require("steal-qunit");
-var canSet = require("can/util/util");
-var fixture = require("can/util/fixture/fixture");
+var fixture = require("can-connect/fixture/fixture");
 var persist = require("can-connect/data/url/");
 var parseData = require("can-connect/data/parse/");
 var connect = require("can-connect");

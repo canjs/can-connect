@@ -1,4 +1,4 @@
-var can = require("can/util/util");
+var helpers = require("can-connect/helpers/");
 
 var WeakReferenceMap = function(){
 	this.set = {};
@@ -7,7 +7,7 @@ var WeakReferenceMap = function(){
 // if weakmap, we can add and never worry ...
 // otherwise, we need to have a count ...
 
-can.simpleExtend(WeakReferenceMap.prototype,{
+helpers.extend(WeakReferenceMap.prototype,{
 	has: function(key){
 		return !!this.set[key];
 	},

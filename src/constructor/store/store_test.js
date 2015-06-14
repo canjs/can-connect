@@ -1,31 +1,15 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can-set");
-var fixture = require("can/util/fixture/fixture");
+var fixture = require("can-connect/fixture/fixture");
 var persist = require("can-connect/data/url/");
 
 var constructor = require("can-connect/constructor/");
 var instanceStore = require("can-connect/constructor/store/");
 var connect = require("can-connect/can-connect");
+var testHelpers = require("can-connect/test-helpers");
+require("when/es6-shim/Promise");
 
-var logErrorAndStart = function(e){
-	debugger;
-	ok(false,"Error "+e);
-	start();
-};
-var asyncResolve = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.resolve(data);
-	},1);
-	return def;
-};
-var asyncReject = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.reject(data);
-	},1);
-	return def;
-};
+
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -37,7 +21,6 @@ QUnit.module("can-connect/constructor/store",{
 
 
 QUnit.test("instance reference is updated and then discarded after reference is deleted", function(){
-	
 	fixture({
 		"GET /constructor/people": function(){
 			return [{id: 1, age: 32}];
@@ -93,6 +76,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 	stop();
 	peopleConnection.getList({}).then(function(people){
 		equal(people[0], person, "same instances");
+		
 		equal(person.age, 32, "age property added");
 		
 		// allows the request to finish
@@ -104,9 +88,9 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 				equal(people[0].age, 32, "age property from data");
 				ok(!people[0].name, "does not have name");
 				start();
-			}, logErrorAndStart);
+			}, testHelpers.logErrorAndStart);
 		},1);
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart);
 	
 });
 
@@ -128,11 +112,11 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 				// nothing here first time
 				calls++;
 				if(calls === 1) {
-					return asyncResolve({data: [{id: 0}, {id: 1}] });
+					return testHelpers.asyncResolve({data: [{id: 0}, {id: 1}] });
 				} else if(calls === 2){
-					return asyncResolve({data: [{id: 1}, {id: 2}] });
+					return testHelpers.asyncResolve({data: [{id: 1}, {id: 2}] });
 				} else {
-					return asyncResolve({data: [] });
+					return testHelpers.asyncResolve({data: [] });
 				}
 			},
 			updatedList: function(list, updatedList, set){
@@ -154,7 +138,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 		// put in store
 		connection.addListReference(list);
 		setTimeout(checkStore,1);
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart);
 	
 	stop();
 	
@@ -166,7 +150,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 			equal(list[1].id, 2);
 			connection.deleteListReference(list);
 			setTimeout(checkEmpty,1);
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart);
 	}
 
 	function checkEmpty() {
@@ -174,7 +158,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 			
 			ok(list !== resolvedList);
 			start();
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart);
 		
 	}
 	

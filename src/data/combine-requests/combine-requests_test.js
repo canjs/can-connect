@@ -3,7 +3,7 @@ var QUnit = require("steal-qunit");
 var persist = require("can-connect/data/url/");
 var combineRequests = require("can-connect/data/combine-requests/");
 var set = require("can-set");
-
+require("when/es6-shim/Promise");
 
 var getId = function(d){ return d.id};
 
@@ -24,7 +24,7 @@ QUnit.test("basics", function(){
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
-			return new can.Deferred().resolve([
+			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
 				{id: 3, type: "critical", due: "yesterday"},
@@ -39,7 +39,10 @@ QUnit.test("basics", function(){
 	var p2 = res.getListData({due: "today"});
 	var p3 = res.getListData({});
 	
-	can.when(p1,p2,p3).then(function(res1, res2, res3){
+	Promise.all([p1,p2,p3]).then(function(result){
+		var res1 = result[0], 
+			res2 = result[1], 
+			res3 = result[2];
 		
 		
 		deepEqual(res1.data.map(getId), [1,3,5]);
@@ -59,7 +62,7 @@ QUnit.test("ranges", function(){
 			deepEqual(params,{start: 0, end: 5},"called for everything");
 			count++;
 			equal(count,1,"only called once");
-			return new can.Deferred().resolve([
+			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
 				{id: 3, type: "critical", due: "yesterday"},
@@ -75,8 +78,8 @@ QUnit.test("ranges", function(){
 	var p1 = res.getListData({start: 0, end: 3});
 	var p2 = res.getListData({start: 2, end: 5});
 	
-	can.when(p1,p2).then(function(res1, res2){
-		
+	Promise.all([p1,p2]).then(function(result){
+		var res1 = result[0], res2 = result[1];
 		
 		deepEqual(res1.data.map(getId), [1,2,3,4]);
 		deepEqual(res2.data.map(getId), [3,4,5,6]);

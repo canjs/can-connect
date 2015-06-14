@@ -1,7 +1,6 @@
 
 var connect = require("can-connect");
 var canSet = require("can-set");
-var can = require("can/util/util");
 var getItems = require("can-connect/helpers/get-items");
 
 /**
@@ -162,7 +161,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 				}
 			});
 			
-			return new can.Deferred().resolve(combineData);
+			return Promise.resolve(combineData);
 		},
 		/**
 		 * @function can-connect/data/combine-requests.getSubset getSubset
@@ -241,11 +240,14 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 					
 				}, this.time || 1);
 			}
-			
-			var deferred = new can.Deferred();
+			var deferred = {};
+			var promise = new Promise(function(resolve, reject){
+				deferred.resolve = resolve;
+				deferred.reject = reject;
+			});
 			pendingRequests.push({deferred: deferred, set: set});
 			
-			return deferred;	
+			return promise;	
 		}
 	};
 });	

@@ -49,9 +49,8 @@
  * ```
  * 
  */
-var can = require("can/util/util");
 var connect = require("can-connect");
-var pipe = require("can-connect/helpers/pipe");
+var helpers = require("can-connect/helpers/");
 
 
 module.exports = connect.behavior("data-parse",function(baseConnect){
@@ -79,17 +78,17 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 */
 		parseListData: function( responseData, xhr, headers ) {
 			var result;
-			if( can.isArray(responseData) ) {
+			if( Array.isArray(responseData) ) {
 				result = {data: responseData};
 			} else {
 				var prop = this.parseListProp || 'data';
 
-				responseData.data = can.getObject(prop, responseData);
+				responseData.data = helpers.getObject(prop, responseData);
 				result = responseData;
 				if(prop !== "data") {
 					delete responseData[prop];
 				}
-				if(!can.isArray(result.data)) {
+				if(!Array.isArray(result.data)) {
 					throw new Error('Could not get any raw data while converting using .models');
 				}
 				
@@ -113,7 +112,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 * @return {Object} The data that should be passed to [connection.hydrateInstance].
 		 */
 		parseInstanceData: function( props ) {
-			return this.parseInstanceProp ? can.getObject(this.parseInstanceProp, props) || props : props;
+			return this.parseInstanceProp ? helpers.getObject(this.parseInstanceProp, props) || props : props;
 		}
 		/**
 		 * @property {String} connection.parseListProp parseListProp
@@ -187,10 +186,11 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		
 	};
 	
-	can.each(pairs, function(parseFunction, name){
+	helpers.each(pairs, function(parseFunction, name){
 		behavior[name] = function(params){
-			return pipe(baseConnect[name].call(this, params), this, function(){
-				return this[parseFunction].apply(this, arguments);
+			var self = this;
+			return baseConnect[name].call(this, params).then(function(){
+				return self[parseFunction].apply(self, arguments);
 			});
 		};
 	});

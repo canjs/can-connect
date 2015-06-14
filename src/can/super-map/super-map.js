@@ -7,6 +7,7 @@ var connect = require("can-connect");
 
 require("../../constructor/");
 require("../map/");
+require("../can");
 require("../../constructor/store/");
 require("../../data/callbacks/");
 require("../../data/callbacks-cache/");
@@ -42,6 +43,7 @@ connect.superMap = function(options){
 		});
 		behaviors.push("fall-through-cache");
 	}
+	options.ajax = $.ajax;
 
 	return connect(behaviors,options);
 };

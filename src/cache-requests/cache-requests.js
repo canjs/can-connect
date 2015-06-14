@@ -1,6 +1,6 @@
 
 var connect = require("can-connect");
-var can = require("can/util/util");
+require("when/es6-shim/Promise");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
 
@@ -236,15 +236,17 @@ module.exports = connect.behavior("cache-requests",function(base){
 						});
 					});
 					// start the combine while we might be saving param and adding to cache
-					var combinedPromise = can.when(
+					var combinedPromise = Promise.all([
 						cachedPromise,
 						needsPromise
-					).then(function(cached, needed){
+					]).then(function(result){
+						var cached = result[0], 
+							needed = result[1];
 						return self.getUnion( set, diff, needed, cached);
 					});
 					
-					return can.when(combinedPromise, savedPromise).then(function(data){
-						return data;
+					return Promise.all([combinedPromise, savedPromise]).then(function(data){
+						return data[0];
 					});
 				}
 

@@ -28,7 +28,7 @@ QUnit.test("getList", function(){
 			name: "person"
 	};
 	var connection = superMap(options);
-	options.cacheConnection.reset();
+	options.cacheConnection.clear();
 	
 	tag("person-model",connection);
 	
@@ -92,7 +92,7 @@ QUnit.test("get", function(){
 			name: "person"
 	};
 	var connection = superMap(options);
-	options.cacheConnection.reset();
+	options.cacheConnection.clear();
 	
 	tag("person-model",connection);
 	
@@ -148,7 +148,7 @@ QUnit.test("get", function(){
 });
 
 QUnit.test("get fullCache", function(){
-	
+	var resolvedCalls = 0;
 	
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
@@ -160,15 +160,21 @@ QUnit.test("get fullCache", function(){
 			name: "person"
 	};
 	var connection = superMap(options);
-	//options.cacheConnection.reset();
+	connection.cacheConnection.clear();
 	
 	tag("person-model",connection);
 	
 	fixture({
 		"GET /api/people/{id}": function(request){
+			
 			if(request.data.id === "1") {
+				ok(resolvedCalls >= 1, "got data we already resolved from cache");
 				return {id: 1, type: "first"};
 			} else {
+				ok(resolvedCalls >= 2, "got data we already resolved from cache");
+				setTimeout(function(){
+					start();
+				},10);
 				return {id: 2, type: "second"};
 			}
 			
@@ -182,9 +188,7 @@ QUnit.test("get fullCache", function(){
 	connection.getList({}).then(function(){
 
 		var personId = can.compute(1);
-	
-	
-		var resolvedCalls = 0;
+
 		
 		var frag = findOneTemplate({
 			pending: function(){
@@ -202,12 +206,11 @@ QUnit.test("get fullCache", function(){
 						setTimeout(function(){
 							equal($("person-model .resolved").text(), "second", "updated id");
 							$("#qunit-fixture").empty();
-							start();
 						},20);
 						
 					},1);
 				} else {
-					ok(false,"resolved immediately");
+					ok(true,"not called immediately, because .then cant be with Promises");
 				}
 				
 			},

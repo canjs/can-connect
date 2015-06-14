@@ -1,5 +1,5 @@
 /**
- * @module can-connect/data/callbacks data-callbacks
+ * @module can-connect/constructor/callbacks-once constructor-callbacks-once
  * @parent can-connect.modules
  * 
  * Glues the result of the raw `Data Interface` methods to callbacks. This is
@@ -9,20 +9,10 @@
  * 
  */
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
 // wires up the following methods
-var pairs = {
-	/**
-	 * @function can-connect/data/callbacks.gotListData gotListData
-	 * @parent can-connect/data/callbacks
-	 * 
-	 * Called with the resolved response data 
-	 * of [connection.getListData]. The result of this function will be used
-	 * as the new response data. 
-	 */
-	getListData: "gotListData",
-	//getData: "gotInstanceData",
+var callbacks = [
 	/**
 	 * @function can-connect/data/callbacks.createdData createdData
 	 * @parent can-connect/data/callbacks
@@ -31,7 +21,7 @@ var pairs = {
 	 * of [connection.createData]. The result of this function will be used
 	 * as the new response data. 
 	 */
-	createData: "createdData",
+	"createdInstance",
 	/**
 	 * @function can-connect/data/callbacks.updatedData updatedData
 	 * @parent can-connect/data/callbacks
@@ -40,7 +30,7 @@ var pairs = {
 	 * of [connection.updateData]. The result of this function will be used
 	 * as the new response data. 
 	 */
-	updateData: "updatedData",
+	"updatedInstance",
 	/**
 	 * @function can-connect/data/callbacks.destroyedData destroyedData
 	 * @parent can-connect/data/callbacks
@@ -49,33 +39,32 @@ var pairs = {
 	 * of [connection.destroyData]. The result of this function will be used
 	 * as the new response data. 
 	 */
-	destroyData: "destroyedData"
-};
-var returnArg = function(item){
-	return item;
-};
+	"destroyedInstance"
+];
 
 
-module.exports = connect.behavior("data-callbacks",function(baseConnect){
+
+module.exports = connect.behavior("constructor-callbacks-once",function(baseConnect){
 	
 	var behavior = {
 	};
 	
 	// overwrites createData to createdData
-	helpers.each(pairs, function(callbackName, name){
-		
-		behavior[name] = function(params, cid){
-			var self = this;
+	callbacks.forEach(function(name){
+		behavior[name] = function(instance, data ){
 			
-			return baseConnect[name].call(this, params).then(function(data){
-				if(self[callbackName]) {
-					return self[callbackName].call(self,data, params, cid );
-				} else {
-					return data;
-				}
-			});
+			var lastSerialized = this.getInstanceMetaData(instance, "last-data");
+			
+			var serialize = sortedSetJSON(data),
+				serialized = sortedSetJSON( this.serializeInstance( instance ) );
+			if(lastSerialized !== serialize && serialized !== serialize) {
+				var result =  baseConnect[name].apply(this, arguments);
+				this.addInstanceMetaData(instance, "last-data", serialize);
+				return result;
+			}
 		};
 		
 	});
+	
 	return behavior;
 });

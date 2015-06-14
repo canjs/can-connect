@@ -1,8 +1,8 @@
 var getItems = require("can-connect/helpers/get-items");
-var can = require("can/util/util");
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
+require("when/es6-shim/Promise");
 
 // 
 var indexOf = function(connection, props, items){
@@ -73,7 +73,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var sets = this.getSets();
 			localStorage.setItem(this.name+"-sets", JSON.stringify( Object.keys(sets) ) );
 		},
-		reset: function(){
+		clear: function(){
 			var sets = this.getSets();
 			for(var setKey in sets) {
 				localStorage.removeItem(this.name+"/set/"+setKey);
@@ -100,10 +100,10 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			if(setDatum) {
 				var localData = localStorage.getItem(this.name+"/set/"+setKey);
 				if(localData) {
-					return new can.Deferred().resolve( {data: this.getInstances( JSON.parse( localData ) )} );
+					return Promise.resolve( {data: this.getInstances( JSON.parse( localData ) )} );
 				}
 			} 
-			return new can.Deferred().reject({message: "no data", error: 404});
+			return Promise.reject({message: "no data", error: 404});
 			
 		},
 		// TODO: Ideally, this should be able to go straight to the instance and not have to do
@@ -112,9 +112,9 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var id = this.id(params);
 			var res = localStorage.getItem(this.name+"/instance/"+id);
 			if(res){
-				return new can.Deferred().resolve( JSON.parse(res) );
+				return Promise.resolve( JSON.parse(res) );
 			} else {
-				return new can.Deferred().reject({message: "no data", error: 404});
+				return new Promise.reject({message: "no data", error: 404});
 			}
 		},
 		updateSet: function(setDatum, items, newSet) {
@@ -185,7 +185,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 
 			this.addSet(set, data);
 			// setData.push({set: set, items: data});
-			return new can.Deferred().resolve();
+			return Promise.resolve();
 		},
 		_eachSet: function(cb){
 			var sets = this.getSets();
@@ -220,7 +220,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			});
 			var id = this.id(props);
 			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
-			return new can.Deferred().resolve({});
+			return Promise.resolve({});
 		},
 		updateData: function(props){
 			var self = this;
@@ -253,7 +253,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
 				
-			return new can.Deferred().resolve({});
+			return Promise.resolve({});
 		},
 		destroyData: function(props){
 			var self = this;
@@ -271,7 +271,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			});
 			var id = this.id(props);
 			localStorage.removeItem(this.name+"/instance/"+id);
-			return new can.Deferred().resolve({});
+			return Promise.resolve({});
 		}
 	};
 	
