@@ -179,8 +179,25 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * as an event binding, and `deleteInstanceReference` is called when interest is removed.
 		 * 
 		 */
-		addInstanceReference: function(instance) {
-			this.instanceStore.addReference( this.id(instance), instance );
+		addInstanceReference: function(instance, id) {
+			this.instanceStore.addReference( id || this.id(instance), instance );
+		},
+		addInstanceMetaData: function(instance, name, value){
+			var data = this.instanceStore.set[this.id(instance)];
+			if(data) {
+				data[name] = value;
+			}
+		},
+		getInstanceMetaData: function(instance, name){
+			var data = this.instanceStore.set[this.id(instance)];
+			if(data) {
+				return data[name];
+			}
+		},
+		deleteInstanceMetaData: function(instance, name){
+			var data = this.instanceStore.set[this.id(instance)];
+			
+			delete data[name];
 		},
 		/**
 		 * @function can.connect/constructor-store.deleteInstanceReference deleteInstanceReference

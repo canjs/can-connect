@@ -3,6 +3,7 @@ require("can-connect/real-time/");
 require("can-connect/constructor/");
 require("can-connect/constructor/store/");
 require("can-connect/data/callbacks/");
+require("can-connect/constructor/callbacks-once/");
 var can = require("can/util/util");
 var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
@@ -82,12 +83,15 @@ QUnit.test("basics", function(){
 				}
 			},
 			createData: function(props){
-				
 				if( state.get() === "createData-today+important" ) {
 					state.next();
 					// todo change to all props
 					return asyncResolve({id: 10});
-				} 
+				} else {
+					ok(false, "bad state!");
+					debugger;
+					start();
+				}
 				
 				
 			},
@@ -113,7 +117,7 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store","data-callbacks", callbackBehavior],{
+	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store","data-callbacks",callbackBehavior, "constructor-callbacks-once"],{
 		
 	});
 	

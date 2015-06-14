@@ -28,18 +28,19 @@ Caching strategies:
 
  - [can-connect/fall-through-cache] - Respond with data from the [connection.cacheConnection] and 
    then update the response with data from the `raw CRUD Methods`.
- - [can-connect/data-inline-cache] - Use an inline cache for initial ajax requests.
+ - [can-connect/data/inline-cache] - Use an inline cache for initial ajax requests.
  - [can-connect/cache-requests] - Save response data and use it for future requests.
  - [can-connect/data/combine-requests] - Combine overlapping or reduntant requests.
 
 Caching layers:
 
- - [can-connect/localstorage-cache] - LocalStorage caching connection.
+ - [can-connect/data/localstorage-cache] - LocalStorage caching connection.
+ - [can-connect/data/memory-cache] - LocalStorage caching connection.
 
 The following modules glue certain methods together:
 
- - [can-connect/data-callbacks] - Glues the result of the `raw CRUD Methods` to callbacks.
- - [can-connect/data-callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called. 
+ - [can-connect/data/callbacks] - Glues the result of the `raw CRUD Methods` to callbacks.
+ - [can-connect/data/callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called. 
 
 
 The following modules are useful to CanJS specifically:

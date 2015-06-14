@@ -50,7 +50,7 @@ var connect = function(behaviors, options){
 connect.order = ["data-localstorage-cache","data-url","data-parse","cache-requests","data-combine-requests",
 
 	"constructor","constructor-store","can-map",
-	"fall-through-cache","data-inline-cache","data-callbacks-cache","data-callbacks"
+	"fall-through-cache","data-inline-cache","data-callbacks-cache","data-callbacks","constructor-callbacks-once"
 	];
 
 connect.behavior = function(name, behavior){
