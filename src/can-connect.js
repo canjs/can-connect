@@ -1,5 +1,4 @@
-var can = require("can/util/util");
-
+var helpers = require("./helpers/");
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -65,7 +64,7 @@ connect.behavior = function(name, behavior){
 		Behavior.prototype = base;
 		var newBehavior = new Behavior;
 		var res = behavior.apply(newBehavior, arguments);
-		can.simpleExtend(newBehavior, res);
+		helpers.extend(newBehavior, res);
 		newBehavior.__behaviorName = name;
 		return newBehavior;
 	};

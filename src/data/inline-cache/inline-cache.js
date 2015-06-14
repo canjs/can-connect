@@ -1,6 +1,4 @@
-var can = require("can/util/util");
 var connect = require("can-connect");
-var pipe = require("can-connect/helpers/pipe");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
 /**
@@ -113,7 +111,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 				if(this.cacheConnection) {
 					this.cacheConnection.updateListData(data, set);
 				}
-				return new can.Deferred().resolve(data);
+				return Promise.resolve(data);
 			} else {
 				return baseConnect.getListData.apply(this, arguments);
 			}
@@ -143,7 +141,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 				if(this.cacheConnection) {
 					this.cacheConnection.updateData(data);
 				}
-				return new can.Deferred().resolve(data);
+				return Promise.resolve(data);
 			} else {
 				return baseConnect.getData.apply(this, arguments);
 			}

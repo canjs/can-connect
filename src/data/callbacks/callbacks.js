@@ -8,9 +8,8 @@
  * 
  * 
  */
-var can = require("can/util/util");
 var connect = require("can-connect");
-var pipe = require("can-connect/helpers/pipe");
+var helpers = require("can-connect/helpers/");
 
 // wires up the following methods
 var pairs = {
@@ -63,12 +62,14 @@ module.exports = connect.behavior("data-callbacks",function(baseConnect){
 	};
 	
 	// overwrites createData to createdData
-	can.each(pairs, function(callbackName, name){
+	helpers.each(pairs, function(callbackName, name){
 		
 		behavior[name] = function(params, cid){
-			return pipe(baseConnect[name].call(this, params), this, function(data){
-				if(this[callbackName]) {
-					return this[callbackName].call(this,data, params, cid );
+			var self = this;
+			
+			return baseConnect[name].call(this, params).then(function(data){
+				if(self[callbackName]) {
+					return self[callbackName].call(self,data, params, cid );
 				} else {
 					return data;
 				}

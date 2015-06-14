@@ -25,6 +25,7 @@ var connect = require("can-connect");
 var can = require('can/util/util');
 require('can/compute/compute');
 require('can/view/bindings/bindings');
+require("../can");
 var mustacheCore = require( "can/view/stache/mustache_core");
 
 connect.tag = function(tagName, connection){

@@ -1,5 +1,4 @@
 var getItems = require("../helpers/get-items");
-var can = require("can/util/util");
 var connect = require("can-connect");
 var canSet = require("can-set");
 

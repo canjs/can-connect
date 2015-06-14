@@ -36,7 +36,22 @@ module.exports = {
 	},
 	getId: function(o){
 		return o.id;
+	},
+	asyncResolve: function(data) {
+		var def = new Promise(function(resolve){
+			setTimeout(function(){
+				resolve(data);
+			},1);
+		});
+		return def;
+	},
+	asyncReject: function(data) {
+		var def = new Promise(function(resolve, reject){
+			setTimeout(function(){
+				reject(data);
+			},1);
+		});
+		return def;
 	}
-
 
 };

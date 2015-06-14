@@ -67,13 +67,13 @@ var logErrorAndStart = function(e){
 	test('findAll rejects non-array (#384)', function () {
 		var Person = can.Model.extend({
 			findAll: function (params, success, error) {
-				var dfd = can.Deferred();
-				setTimeout(function () {
-					dfd.resolve({
-						stuff: {}
-					});
-				}, 100);
-				return dfd;
+				return new Promise(function(resolve){
+					setTimeout(function () {
+						resolve({
+							stuff: {}
+						});
+					}, 10);
+				});
 			}
 		}, {});
 		stop();
@@ -142,7 +142,7 @@ var logErrorAndStart = function(e){
 	
 
 	
-	if (window.jQuery) {
+	/*if (window.jQuery) {
 		asyncTest('findAll abort', function () {
 			expect(4);
 			var df;
@@ -182,7 +182,7 @@ var logErrorAndStart = function(e){
 				start();
 			}, 200);
 		});
-	}
+	}*/
 		
 	
 	test('findOne deferred', function () {
@@ -524,7 +524,7 @@ var logErrorAndStart = function(e){
 			equal(data[0].myflag, undefined, 'my flag is undefined');
 		});*/
 	});
-	test('aborting create update and destroy', function () {
+	/*test('aborting create update and destroy', function () {
 		stop();
 		var delay = can.fixture.delay;
 		can.fixture.delay = 1000;
@@ -577,7 +577,7 @@ var logErrorAndStart = function(e){
 		setTimeout(function () {
 			deferred.abort();
 		}, 10);
-	});
+	});*/
 	test('store binding', function () {
 		var Storage = can.Model.extend({},{});
 		
@@ -618,11 +618,11 @@ var logErrorAndStart = function(e){
 			};
 		});
 		stop();
-		can.when(Guy.findOne({
+		Promise.all([Guy.findOne({
 			id: 1
-		}), Guy.findAll())
-			.then(function (guyRes, guysRes2) {
-				
+		}), Guy.findAll()])
+			.then(function (result) {
+				var guyRes = result[0], guysRes2 = result[1];
 				equal(guyRes.id, 1, 'got a guy id 1 back');
 				equal(guysRes2[0].id, 1, 'got guys w/ id 1 back');
 				ok(guyRes === guysRes2[0], 'guys are the same');
@@ -1102,6 +1102,7 @@ var logErrorAndStart = function(e){
 		var Model = can.Model.extend({
 			findAll: '/things'
 		}, {});
+		
 		var items = new Model.List({
 			param: 'value'
 		});
@@ -1362,9 +1363,7 @@ var logErrorAndStart = function(e){
 			findAll: "/mymodels",
 			parseModels: function (raw, xhr) {
 				// only check this if jQuery because its deferreds can resolve with multiple args
-				if (window.jQuery) {
-					ok(xhr, "xhr object provided");
-				}
+				
 				equal(array, raw, "got passed raw data");
 				return {
 					data: raw,
@@ -1588,8 +1587,11 @@ var logErrorAndStart = function(e){
 		var postdfd = new Thing().save();
 
 		stop();
-		can.when(alldfd, onedfd, postdfd)
-		.then(function(things, thing, newthing) {
+		Promise.all([alldfd, onedfd, postdfd])
+		.then(function(result) {
+			
+			var things = result[0], thing= result[1], newthing= result[2];
+			
 			equal(things.length, 1, 'findAll override called');
 			equal(thing.name, 'foo', 'resource findOne called');
 			equal(newthing.id, 1, 'post override called with function');
@@ -1599,7 +1601,7 @@ var logErrorAndStart = function(e){
 				start();
 			});
 		},logErrorAndStart)
-		.fail(function() {
+		["catch"](function() {
 			ok(false, 'override request failed');
 			start();
 		});

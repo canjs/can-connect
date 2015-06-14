@@ -3,6 +3,8 @@
  */
 
 
+require("when/es6-shim/Promise");
+require("../can");
 
 var can = require("can/util/util");
 var connect = require("can-connect");
@@ -63,7 +65,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 			var promise;
 			if (this.isNew()) {
 				
-				promise = can.Deferred().resolve(this);
+				promise = Promise.resolve(this);
 				connection.destroyedInstance(this, {});
 			} else {
 				promise = connection.destroy(this);

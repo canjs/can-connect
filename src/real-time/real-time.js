@@ -5,7 +5,6 @@
  * 
  * @parent can-connect.modules
  */
-var can = require("can/util/util");
 var connect = require("../can-connect");
 var canSet = require("can-set");
 
@@ -24,7 +23,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 			if( instance ) {
 				// already created
 				this.updatedInstance(instance, props);
-				promise = new can.Deferred().resolve(instance);
+				promise = Promise.resolve(instance);
 				serialized = this.serializeInstance(instance);
 			} else {
 				instance = this.hydrateInstance(props);
@@ -35,7 +34,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 						return instance;
 					});
 				} else {
-					promise = new can.Deferred().resolve(instance);
+					promise = Promise.resolve(instance);
 				}
 				
 				
@@ -108,7 +107,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 					return instance;
 				});
 			} else {
-				return  new can.Deferred().resolve(instance);
+				return  Promise.resolve(instance);
 			}
 		},
 		destroyedData: function(props, params){
@@ -132,7 +131,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 					return data.instance;
 				});
 			} else {
-				return  new can.Deferred().resolve(data.instance);
+				return  Promise.resolve(data.instance);
 			}
 		}
 	};

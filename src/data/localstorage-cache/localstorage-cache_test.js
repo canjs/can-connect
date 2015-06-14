@@ -1,6 +1,7 @@
 var QUnit = require("steal-qunit");
 var localStorage = require("can-connect/data/localstorage-cache/");
 var connect = require("can-connect");
+require("when/es6-shim/Promise");
 
 var logErrorAndStart = function(e){
 	debugger;
@@ -16,7 +17,7 @@ QUnit.module("can-connect/data-localstorage-cache",{
 		this.connection = connect([localStorage],{
 			name: "todos"
 		});
-		this.connection.reset();
+		this.connection.clear();
 	}
 });
 
@@ -61,7 +62,7 @@ QUnit.test("updateData", function(){
 		
 	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 		
-	can.when(a1, a2).then(updateItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(updateItem,logErrorAndStart );
 	function updateItem(){
 		connection.updateData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}
@@ -108,7 +109,7 @@ QUnit.test("createData", function(){
 		
 	var a2 = connection.updateListData( { data: aItems.slice(0) }, {name: "A"});
 		
-	can.when(a1, a2).then(createItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(createItem,logErrorAndStart );
 	function createItem(){
 		connection.createData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}
@@ -155,7 +156,7 @@ QUnit.test("destroyData", function(){
 		
 	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 		
-	can.when(a1, a2).then(destroyItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(destroyItem,logErrorAndStart );
 	function destroyItem(){
 		connection.destroyData({id: 1, foo:"bar"}).then(checkItems, logErrorAndStart);
 	}

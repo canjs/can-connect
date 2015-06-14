@@ -5,25 +5,10 @@ var constructor = require("can-connect/constructor/");
 var store = require("can-connect/constructor/store/");
 var connect = require("can-connect");
 var canSet = require("can-set");
-var helpers = require("can-connect/test-helpers");
+var testHelpers = require("can-connect/test-helpers");
 require("can-connect/data/callbacks/");
 
 var getId = function(d){ return d.id};
-
-var asyncResolve = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.resolve(data);
-	},1);
-	return def;
-};
-var asyncReject = function(data) {
-	var def = new can.Deferred();
-	setTimeout(function(){
-		def.reject(data);
-	},1);
-	return def;
-};
 
 QUnit.module("can-connect/data-inline-cache");
 
@@ -41,7 +26,7 @@ QUnit.test("basics", function(){
 	stop();
 	
 	
-	var state = helpers.makeStateChecker(QUnit,[
+	var state = testHelpers.makeStateChecker(QUnit,[
 		"cache-updateListData",
 		"connection-foundAll",
 		"connection-getList-2",
@@ -59,10 +44,10 @@ QUnit.test("basics", function(){
 				// nothing here first time
 				if(state.get() === "cache-getListData-empty") {
 					state.next();
-					return asyncReject();
+					return testHelpers.asyncReject();
 				} else {
 					state.check("cache-getListData-items");
-					return asyncResolve({data: firstItems.slice(0) });
+					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				}
 			},
 			updateListData: function(data, set) {
@@ -70,11 +55,11 @@ QUnit.test("basics", function(){
 					state.next();
 					deepEqual(set,{},"got the right set");
 					deepEqual(data.data,firstItems, "updateListData items are right");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				} else {
 					deepEqual(data.data,secondItems, "updateListData 2 items are right");
 					state.check("cache-updateListData-2");
-					return asyncResolve();
+					return testHelpers.asyncResolve();
 				}
 			}
 		};
@@ -85,7 +70,7 @@ QUnit.test("basics", function(){
 		return {
 			getListData: function(){
 				state.check("base-getListData-2");
-				return asyncResolve({data: secondItems.slice(0) });
+				return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				
 			}
 		};
@@ -110,14 +95,14 @@ QUnit.test("basics", function(){
 		state.check("connection-foundAll");
 		deepEqual( list.map(getId), firstItems.map(getId) );
 		setTimeout(secondCall, 1);
-	}, helpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart);
 	
 	function secondCall() {
 		state.check("connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
 			deepEqual( list.map(getId), firstItems.map(getId) );
-		}, helpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart);
 	}
 	
 	

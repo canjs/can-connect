@@ -87,8 +87,9 @@
  * 
  * This does the same thing as the first `todoConnection` example.
  */
-var can = require("can/util/util");
 var connect = require("can-connect");
+var helpers = require("can-connect/helpers/");
+var ajax = require("can-connect/helpers/ajax");
 
 // # can-connect/data-url
 // For each pair, create a function that checks the url object
@@ -97,7 +98,7 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 	
 
 	var behavior = {};
-	can.each(pairs, function(reqOptions, name){
+	helpers.each(pairs, function(reqOptions, name){
 		behavior[name] = function(params){
 			
 			if(typeof this.url === "object") {
@@ -106,13 +107,13 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 					return this.url[reqOptions.prop](params);
 				} 
 				else if(this.url[reqOptions.prop]) {
-					return ajax(this.url[reqOptions.prop], params, reqOptions.type);
+					return makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax);
 				}
 			}
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource && this.idProp ) {
 				
-				return ajax( createURLFromResource(resource, this.idProp , reqOptions.prop ),  params, reqOptions.type  );
+				return makeAjax( createURLFromResource(resource, this.idProp , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax  );
 			} 
 			
 			return baseConnect[name].call(this, params);
@@ -135,7 +136,7 @@ var pairs = {
 	destroyData: {prop: "destroyData", type: "DELETE"}
 };
 
-var ajax = function (ajaxOb, data, type, dataType) {
+var makeAjax = function ( ajaxOb, data, type, ajax ) {
 
 	var params = {};
 
@@ -149,19 +150,19 @@ var ajax = function (ajaxOb, data, type, dataType) {
 		}
 	} else {
 		// If the first argument is an object, just load it into `params`.
-		can.extend(params, ajaxOb);
+		helpers.extend(params, ajaxOb);
 	}
 
 	// If the `data` argument is a plain object, copy it into `params`.
-	params.data = typeof data === "object" && !can.isArray(data) ?
-		can.extend(params.data || {}, data) : data;
+	params.data = typeof data === "object" && !Array.isArray(data) ?
+		helpers.extend(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = can.sub(params.url, params.data, true);
+	params.url = helpers.sub(params.url, params.data, true);
 
-	return can.ajax(can.extend({
+	return ajax(helpers.extend({
 		type: type || 'post',
-		dataType: dataType || 'json'
+		dataType: 'json'
 	}, params));
 };
 
@@ -174,8 +175,6 @@ var createURLFromResource = function(resource, idProp, name) {
 		return url + "/{" + idProp + "}";
 	}
 };
-
-
 
 
 

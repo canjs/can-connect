@@ -8,7 +8,6 @@
  * 
  * 
  */
-var can = require("can/util/util");
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 

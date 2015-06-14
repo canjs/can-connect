@@ -12,6 +12,7 @@ require("can-connect/data/url/");
 require("can-connect/fall-through-cache/");
 require("can-connect/real-time/");
 require("can-connect/data/inline-cache/");
+require("when/es6-shim/Promise");
 
 var Map = require("can/map/map");
 var List = require("can/list/list");
@@ -47,7 +48,7 @@ QUnit.module("can-connect/can/map",{
 		var cacheConnection = connect(["data-localstorage-cache"],{
 			name: "todos"
 		});
-		cacheConnection.reset();
+		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
 		
 		this.Todo = Todo;
@@ -68,7 +69,8 @@ QUnit.module("can-connect/can/map",{
 				url: "/services/todos",
 				cacheConnection: cacheConnection,
 				Map: Map,
-				List: TodoList
+				List: TodoList,
+				ajax: $.ajax
 			});
 		
 		
@@ -150,13 +152,14 @@ QUnit.test("real-time super model", function(){
 		bindFunc = function(){
 			console.log("length changing");
 		};
-	can.when(connection.getList({type: "important"}), connection.getList({due: "today"})).then(function(important, dueToday){
+	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
+		.then(function(result){
 		
-		importantList = important;
-		todayList = dueToday;
+		importantList = result[0];
+		todayList = result[1];
 		
-		important.bind("length", bindFunc);
-		dueToday.bind("length",bindFunc);
+		importantList.bind("length", bindFunc);
+		todayList.bind("length",bindFunc);
 		
 		setTimeout(createImportantToday,1);
 		
