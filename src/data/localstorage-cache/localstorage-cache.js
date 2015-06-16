@@ -30,21 +30,34 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		_sets: null,
 		// a map of each id to an instance
 		_instances: {},
-		getSets: function(){
+		getSetData: function(){
 			if(!this._sets) {
 				var sets = this._sets = {};
 				var self = this;
-				(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(setKey){
+				(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(set){
 					// make sure we actually have set data
+					 var setKey = sortedSetJSON(set);
+					 
 					if( localStorage.getItem(self.name+"/set/"+setKey) ) {
 						sets[setKey] = {
-							set: JSON.parse(setKey),
+							set: set,
 							setKey: setKey
 						};
 					}
 				});
 			}
 			return this._sets;
+		},
+		_getSets: function(){
+			var sets = [];
+			var setData = this.getSetData();
+			for(var setKey in setData) {
+				sets.push(setData[setKey].set);
+			}
+			return sets;
+		},
+		getSets: function(){
+			return Promise.resolve( this._getSets() );
 		},
 		getInstance: function(id){
 			//if(!this._instances[id]) {
@@ -62,7 +75,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			});
 		},
 		removeSet: function(setKey, noUpdate) {
-			var sets = this.getSets();
+			var sets = this.getSetData();
 			localStorage.removeItem(this.name+"/set/"+setKey);
 			delete sets[setKey];
 			if(noUpdate !== true) {
@@ -70,11 +83,11 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 		},
 		updateSets: function(){
-			var sets = this.getSets();
-			localStorage.setItem(this.name+"-sets", JSON.stringify( Object.keys(sets) ) );
+			var sets = this._getSets();
+			localStorage.setItem(this.name+"-sets", JSON.stringify( sets ) );
 		},
 		clear: function(){
-			var sets = this.getSets();
+			var sets = this.getSetData();
 			for(var setKey in sets) {
 				localStorage.removeItem(this.name+"/set/"+setKey);
 			}
@@ -96,7 +109,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		getListData: function(set){
 			var setKey = sortedSetJSON(set);
 			
-			var setDatum = this.getSets()[setKey];
+			var setDatum = this.getSetData()[setKey];
 			if(setDatum) {
 				var localData = localStorage.getItem(this.name+"/set/"+setKey);
 				if(localData) {
@@ -118,12 +131,13 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 		},
 		updateSet: function(setDatum, items, newSet) {
+			
 			var newSetKey = newSet ? sortedSetJSON(newSet) : setDatum.setKey;
 			if(newSet) {
 				// if the setKey is changing
 				if(newSetKey !== setDatum.setKey) {
 					// add the new one
-					var sets = this.getSets();
+					var sets = this.getSetData();
 					var oldSetKey = setDatum.setKey;
 					sets[newSetKey] = setDatum;
 					setDatum.setKey = newSetKey;
@@ -138,8 +152,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			
 			var ids = items.map(function(item){
 				var id = self.id(item);
-				//localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(item) );
-				
+				localStorage.setItem(self.name+"/instance/"+id, JSON.stringify(item) );
 				return id;
 			});
 			
@@ -147,7 +160,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		addSet: function(set, data) {
 			var items = getItems(data);
-			var sets = this.getSets();
+			var sets = this.getSetData();
 			var setKey = sortedSetJSON(set);
 			sets[setKey] = {
 				setKey: setKey,
@@ -169,7 +182,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		// creates the set in localstorage
 		updateListData: function(data, set){
 			var items = getItems(data);
-			var sets = this.getSets();
+			var sets = this.getSetData();
 			var self = this;
 			
 			for(var setKey in sets) {
@@ -188,7 +201,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			return Promise.resolve();
 		},
 		_eachSet: function(cb){
-			var sets = this.getSets();
+			var sets = this.getSetData();
 			var self = this;
 			var loop = function(setDatum, setKey) {
 				return cb(setDatum, setKey, function(){
@@ -270,6 +283,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			});
 			var id = this.id(props);
+			debugger;
 			localStorage.removeItem(this.name+"/instance/"+id);
 			return Promise.resolve({});
 		}

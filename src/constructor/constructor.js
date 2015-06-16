@@ -483,8 +483,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 * @signature `connection.updatedInstance( instance, props )`
 		 * 
-		 *   Creates instances with `listData` and attempts to merge them into
-		 *   `list`
+		 *   [can-connect/constructor.hydrateInstance Hydrates] instances with `listData`'s data
+		 *   and attempts to merge them into `list`.  The merge is able to identify simple insertions
+		 *   and removals of elements instead of replacing the entire list.
 		 * 
 		 *   @param {Instance} list The instance to update.
 		 * 

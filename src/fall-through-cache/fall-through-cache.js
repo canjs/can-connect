@@ -7,81 +7,159 @@ var sortedSetJSON = require("../helpers/sorted-set-json");
 /**
  * @module can-connect/fall-through-cache fall-through-cache
  * @parent can-connect.modules
+ * @group can-connect/fall-through-cache.data Data Callbacks
+ * @group can-connect/fall-through-cache.hydrators Hydrators
  * 
  * A fall through cache that checks another `cacheConnection`.
+ * 
+ * @signature `fallThroughCache( baseConnection )`
+ * 
+ *   Implements a `getData` and `getListData` that 
+ *   check their [connection.cacheConnection] for data and then
+ *   in the background update the instance or list with data
+ *   retrieved using the base connection.
+ * 
+ * @body
+ * 
+ * ## Use
+ * 
+ * To use the `fall-through-cache`, create a connection with a
+ * [connection.cacheConnection] and a behavior that implements
+ * [connection.getData] and [connection.getListData].
+ * 
+ * ```
+ * var cache = connect(['localstorage-cache'],{
+ *   name: "todos"
+ * });
+ * 
+ * var todoConnection = connect([
+ *    'fall-through-cache',
+ *    'data-url',
+ *    'constructor',
+ *    'constructor-store'
+ *   ], {
+ *   url: "/todos",
+ *   cacheConnection: cache
+ * });
+ * ```
+ * 
+ * Then, make requests.  If the cache has the data,
+ * it will be returned immediately, and then the item or list updated later
+ * with the response from the base connection:
+ * 
+ * ```
+ * todoConnection.getList({due: "today"}).then(function(todos){
+ *   
+ * })
+ * ```
+ * 
+ * ## Demo
+ * 
+ * The following shows the `fall-through-cache` behavior.  
+ * 
+ * @demo src/fall-through-cache/fall-through-cache.html
+ * 
+ * Clicking
+ * "Completed" or "Incomplete" will make one of the following requests and
+ * display the results in the page:
+ * 
+ * ```
+ * todoConnection.getList({completed: true});
+ * todoConnection.getList({completed: false});
+ * ```
+ * 
+ * If you click back and forth between "Completed" and "Incomplete" multiple times
+ * you'll notice that the old data is displayed immediately and then 
+ * updated after about a second.  
  * 
  */
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {
-		// overwrite hydrateList calls
-		// so we can know the list that was made
+		/**
+		 * @function can-connect/fall-through-cache.hydrateList hydrateList
+		 * @parent can-connect/fall-through-cache.hydrators
+		 * 
+		 * Returns a List instance given raw data.
+		 * 
+		 * @signature `connection.hydrateList(listData, set)`
+		 * 
+		 *   Calls the base `hydrateList` to create a List for `listData`.
+		 * 
+		 *   Then, Looks for registered hydrateList callbacks for a given `set` and 
+		 *   calls them.
+		 * 
+		 *   @param {can-connect.listData} listData
+		 *   @param {Set} set
+		 *   @return {List}
+		 */
 		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
 			var id = sortedSetJSON( set );
 			var list = baseConnect.hydrateList.call(this, listData, set);
 			
-			if(this._getMakeListCallbacks[id]) {
-				this._getMakeListCallbacks[id].shift()(list);
-				if(!this._getMakeListCallbacks[id].length){
-					delete this._getMakeListCallbacks[id]
+			if(this._getHydrateListCallbacks[id]) {
+				this._getHydrateListCallbacks[id].shift()(list);
+				if(!this._getHydrateListCallbacks[id].length){
+					delete this._getHydrateListCallbacks[id]
 				}
 			}
 			return list;
 		},
-		_getMakeListCallbacks: {},
-		_getMakeList: function(set, callback){
+		_getHydrateListCallbacks: {},
+		_getHydrateList: function(set, callback){
 			var id = sortedSetJSON( set );
-			if(!this._getMakeListCallbacks[id]) {
-				this._getMakeListCallbacks[id]= []
+			if(!this._getHydrateListCallbacks[id]) {
+				this._getHydrateListCallbacks[id]= []
 			}
-			this._getMakeListCallbacks[id].push(callback);
+			this._getHydrateListCallbacks[id].push(callback);
 		},
-		_ignoreUpdateObjects: {},
-		ignoreNextUpdatedWith: function(instance, data){
-			var id = this.id(instance);
-			if(!this._ignoreUpdateObjects[id]) {
-				this._ignoreUpdateObjects[id] = [];
-			}
-			this._ignoreUpdateObjects[id].push(data);
-		},
-		updatedInstance: function(instance, data){
-			var id = this.id(instance);
-			var updateObjects = this._ignoreUpdateObjects[id];
-			if(updateObjects) {
-				var index = updateObjects.indexOf(data);
-				if(index >= 0) {
-					updateObjects.splice(index, 1);
-					if(!updateObjects.length) {
-						delete this._ignoreUpdateObjects[id];
-					}
-					// DO NOTHING!
-					return;
-				}
-			}
-			return baseConnect.updatedInstance.apply(this, arguments);
-		},
+		/**
+		 * @function can-connect/fall-through-cache.getListData getListData
+		 * @parent can-connect/fall-through-cache.data
+		 * 
+		 * Get raw data from the cache if available, and then update
+		 * the list later with data from the base connection.
+		 * 
+		 * @signature `connection.getListData(set)`
+		 * 
+		 *   Checks the [connection.cacheConnection] for `set`'s data.
+		 * 
+		 *   If the cache connection has data, the cached data is returned. Prior to 
+		 *   returning the data, the [can-connect/constructor.hydrateList] method
+		 *   is intercepted so we can get a handle on the list that's being created
+		 *   for the returned data. Once the intercepted list is retrieved, 
+		 *   we use the base connection to get data and update the intercepted list and 
+		 *   the cacheConnection. 
+		 * 
+		 *   If the cache connection does not have data, the base connection 
+		 *   is used to load the data and the cached connection is updated with that 
+		 *   data.
+		 * 
+		 *   @param {Set} set The set to load.
+		 * 
+		 *   @return {Promise<can-connect.listData>} A promise that returns the 
+		 *   raw data.  
+		 */
 		// if we do getList, the cacheConnection runs on
 		// if we do getListData, ... we need to register the list that is going to be created
 		// so that when the data is returned, it updates this
-		getListData: function(params){
-			// first, always check the cache connection
+		getListData: function(set){
+			
 			var self = this;
-			return this.cacheConnection.getListData(params).then(function(data){
+			return this.cacheConnection.getListData(set).then(function(data){
 				
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
-				
-				
-				self._getMakeList(params, function(list){
-					self.addListReference(list, params);
+				self._getHydrateList(set, function(list){
+					self.addListReference(list, set);
 					
 					setTimeout(function(){
-						baseConnect.getListData.call(self, params).then(function(listData){
+						baseConnect.getListData.call(self, set).then(function(listData){
 							
-							self.cacheConnection.updateListData(listData, params);
-							self.updatedList(list, listData, params);
-							self.deleteListReference(list, params);
+							self.cacheConnection.updateListData(listData, set);
+							self.updatedList(list, listData, set);
+							self.deleteListReference(list, set);
 							
 						}, function(){
 							// what do we do here?  self.rejectedUpdatedList ?
@@ -94,14 +172,32 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				// But, how would we do a bypass?
 				return data;
 			}, function(){
-				var listData = baseConnect.getListData.call(self, params);
+				
+				var listData = baseConnect.getListData.call(self, set);
 				listData.then(function(listData){
-					self.cacheConnection.updateListData(listData, params);
+					
+					self.cacheConnection.updateListData(listData, set);
 				});
 				
 				return listData;
 			});
 		},
+		/**
+		 * @function can-connect/fall-through-cache.hydrateInstance hydrateInstance
+		 * @parent can-connect/fall-through-cache.hydrators
+		 * 
+		 * Returns an instance given raw data.
+		 * 
+		 * @signature `connection.hydrateInstance(props)`
+		 * 
+		 *   Calls the base `hydrateInstance` to create an Instance for `props`.
+		 * 
+		 *   Then, Looks for registered hydrateInstance callbacks for a given [connection.id] and 
+		 *   calls them.
+		 * 
+		 *   @param {Object} props
+		 *   @return {Instance}
+		 */
 		hydrateInstance: function(props){
 
 			var id = this.id( props );
@@ -122,6 +218,33 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			}
 			this._getMakeInstanceCallbacks[id].push(callback);
 		},
+		/**
+		 * @function can-connect/fall-through-cache.getData getData
+		 * @parent can-connect/fall-through-cache.data
+		 * 
+		 * Get raw data from the cache if available, and then update
+		 * the instance later with data from the base connection.
+		 * 
+		 * @signature `connection.getData(params)`
+		 * 
+		 *   Checks the [connection.cacheConnection] for `params`'s data.
+		 * 
+		 *   If the cache connection has data, the cached data is returned. Prior to 
+		 *   returning the data, the [can-connect/constructor.hydrateInstance] method
+		 *   is intercepted so we can get a handle on the instance that's being created
+		 *   for the returned data. Once the intercepted instance is retrieved, 
+		 *   we use the base connection to get data and update the intercepted instance and 
+		 *   the cacheConnection. 
+		 * 
+		 *   If the cache connection does not have data, the base connection 
+		 *   is used to load the data and the cached connection is updated with that 
+		 *   data.
+		 * 
+		 *   @param {Object} params The set to load.
+		 * 
+		 *   @return {Promise<Object>} A promise that returns the 
+		 *   raw data.  
+		 */
 		getData: function(params){
 			// first, always check the cache connection
 			var self = this;

@@ -9,6 +9,7 @@ require("../../constructor/");
 require("../map/");
 require("../can");
 require("../../constructor/store/");
+require("../../constructor/callbacks-once/");
 require("../../data/callbacks/");
 require("../../data/callbacks-cache/");
 require("../../data/combine-requests/");
@@ -34,7 +35,8 @@ connect.superMap = function(options){
 		"data-inline-cache",
 		"data-parse",
 		"data-url",
-		"real-time"];
+		"real-time",
+		"constructor-callbacks-once"];
 
 	if(typeof localStorage !== "undefined") {
 		options.cacheConnection = connect(["data-localstorage-cache"],{

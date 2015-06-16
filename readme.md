@@ -1,7 +1,7 @@
 @page can-connect
-@group can-connect.externalCRUD 1 Instance Interface
+@group can-connect.modules 1 Behaviors
 @group can-connect.options 2 Options
-@group can-connect.modules 3 Modules
+@group can-connect.externalCRUD 3 Instance Interface
 @group can-connect.data_interface 4 Data Interface
 @group can-connect.types 5 Data Types
 
@@ -50,16 +50,87 @@ The following modules are useful to CanJS specifically:
  - [can-connect/can/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
  - [can-connect/can/tag] - Create a custom element that can load data into a template.
 
-## Use
+## Overview
 
-Use `can-connect`, its extensions, and an options object to configure a `connection` object.  The following
-uses [can-connect/constructor] and [can-connect/data-url] to create a `todoConnection` 
-that can create, read, update and destroy `Todo` instances at the `"service/todos"` endpoint:
+The "can-connect" module exports a `connect` function that is used to assemble different 
+behaviors and some options into a `connection`.  For example, the following uses `connect` and
+the [can-connect/constructor] and [can-connect/data-url] behaviors to create a `todoConnection`
+connection:
 
 ```js
 import connect from "can-connect";
-import "can-connect/constructor";
-import "can-connect/data-url";
+import "can-connect/constructor/";
+import "can-connect/data/url/";
+
+var todoConnection = connect(
+  ["constructor","data-url"],
+  {
+    url: "/services/todos"
+  });
+```
+
+A connection typically provides the ability to 
+create, read, update, or delete (CRUD) some data source. That data source is 
+usually accessed through the "Instance Interface" methods:
+
+ - [connection.get]
+ - [connection.getList]
+ - [connection.save]
+ - [connection.destroy]
+
+For example, to get all todos from "GET /services/todos", we could write the following:
+
+```
+todoConnection.getList({}).then(function(todos){ ... });
+```
+
+__Behaviors__, like [can-connect/constructor] and [can-connect/data-url] implement,
+extend, or require some set of [interfaces](#section_Interfaces).  For example, data-url implements
+the "Data Interface" methods, and [can-connect/constructor] implements the 
+"Instance Interface" methods.
+
+The `connect` method calls these behaviors in the right order to create a connection. For instance,
+the [can-connect/cache-requests] behavior must be applied after the [can-connect/data-url]
+connection.  This is because [can-connect/cache-requests], overwrites [can-connect/data-url]'s 
+[connection.getListData] first check a cache for the data.  Only if the data is not present, 
+does it call [can-connect/data-url]'s [connection.getListData]. So even if we write:
+
+```
+connect(['cache-requests','data-url'])
+```
+
+or
+
+```
+connect(['data-url','cache-requests'])
+```
+ 
+... our connection will be built in the right order!
+
+A __connection__ is just an object with each behavior object on its prototype chain and
+its options object at the end of the prototype chain.
+
+
+## Use
+
+To use `can-connect`, it's typically best to start out with the most basic
+behaviors: [can-connect/data-url] and [can-connect/constructor]. [can-connect/data-url]
+connects the "Data Interface" to a restful service. [can-connect/constructor] adds
+an "Instance Interface" that can create, read, update and delete (CRUD) typed data
+using the lower-level "Data Interface".
+
+
+
+
+
+[can-connect/constructor] 
+
+
+
+```js
+import connect from "can-connect";
+import "can-connect/constructor/";
+import "can-connect/data/url/";
 
 var todoConnection = connect(
   ["constructor","data-url"],
@@ -69,7 +140,7 @@ var todoConnection = connect(
   });
 ```
 
-Next, use the `External CRUD` methods to create, read, update, and destroy `Todo` instances.
+Next, use the `INSTANCE INTERFACE` methods to create, read, update, and destroy `Todo` instances.
 The following gets all todos from the server by making an ajax request to "/services/todos":
 
 ```
@@ -99,7 +170,7 @@ Todo.prototype.bind = function(){
 }
 ```
 
-## API
+## Interfaces
 
 The API is broken up into:
 
