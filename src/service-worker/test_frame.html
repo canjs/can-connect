@@ -1,0 +1,31 @@
+<!doctype html>
+    <html>
+      <head>
+        <title>can-connect tests</title>
+        <meta http-equiv="Service-Worker-Allowed: /">
+        <script src="../../node_modules/steal/steal.js" main="src/service-worker/service-worker"></script>
+        <script>
+          window.QUnit = window.parent.QUnit;
+          window.removeMyself = window.parent.removeMyself;
+        </script>
+      </head>
+      <body>
+        <script>
+        window.ready = Promise.all([
+          steal.import('can-connect'), 
+          steal.import('src/service-worker/service-worker')
+        ]).then(function(modules){
+            var connect = modules[0];
+            var serviceWorkerCache = modules[1];
+            window.connection = connect([serviceWorkerCache],{
+              name: 'todos',
+              findAll: "/todos",
+              findOne: "/todos/{id}",
+              update: "/todos/{id}",
+              destroy: "/todos/{id}",
+              workerURL: System.stealURL.substr(0, System.stealURL.indexOf("can-connect")) + "can-connect/src/service-worker/service-worker-main_test.js",
+              scope: System.stealURL.substr(0, System.stealURL.indexOf("can-connect")) + "can-connect/src/service-worker/"
+            }); 
+          }).catch(function(E) { console.error(E) });</script>
+      </body>
+    </html>
