@@ -21,6 +21,8 @@ var injectScript = function(frame, script) {
 	});
 };
 
+if(typeof navigator.serviceWorker === "object") {
+
 var testcount = 0;
 var timeout;
 QUnit.module("can-connect/service-worker-cache",{
@@ -213,3 +215,5 @@ QUnit.test("register as client", function() {
 		);
 	});
 });
+
+}
