@@ -9,9 +9,10 @@
     "when": "^3.7.3"
   },
   "devDependencies": {
+    "documentjs": "^0.3.0-pre.4",
     "steal": "^0.10.1",
     "steal-qunit": "0.0.2",
-    "documentjs": "^0.3.0-pre.4"
+    "testee": "^0.2.0"
   },
   "system": {
     "npmIgnore": [
@@ -24,11 +25,13 @@
       "lib": "src"
     },
     "meta": {
-      "when/es6-shim/Promise": {"format": "global"}
+      "when/es6-shim/Promise": {
+        "format": "global"
+      }
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "testee --browsers firefox test.html"
   },
   "keywords": [
     "CanJS"
