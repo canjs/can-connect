@@ -65,3 +65,24 @@ QUnit.test("basics", function(assert){
 	});
 	
 });
+
+QUnit.test('idProp is not part of the parameters', function() {
+	var connection = persist({
+		idProp: 'id',
+		url: "api/todos/"
+	});
+
+	fixture({
+		"GET api/todos/2": function (req) {
+			ok(!req.data.id);
+			deepEqual(req.data, {other: 'prop'});
+			return [{id: 1}];
+		}
+	});
+
+	stop();
+	connection.getData({id: 2, other: 'prop'}).then(function() {
+		start();
+	});
+
+});

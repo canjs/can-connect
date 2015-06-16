@@ -159,7 +159,6 @@ var makeAjax = function ( ajaxOb, data, type, ajax ) {
 
 	// Substitute in data for any templated parts of the URL.
 	params.url = helpers.sub(params.url, params.data, true);
-
 	return ajax(helpers.extend({
 		type: type || 'post',
 		dataType: 'json'

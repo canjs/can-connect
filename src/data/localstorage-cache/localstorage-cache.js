@@ -283,7 +283,6 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			});
 			var id = this.id(props);
-			debugger;
 			localStorage.removeItem(this.name+"/instance/"+id);
 			return Promise.resolve({});
 		}
