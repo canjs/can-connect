@@ -41,7 +41,7 @@ connect.superMap = function(options){
 	if(typeof localStorage !== "undefined") {
 		options.cacheConnection = connect(["data-localstorage-cache"],{
 			name: options.name+"Cache",
-			id: options.idProp
+			idProp: options.idProp
 		});
 		behaviors.push("fall-through-cache");
 	}
