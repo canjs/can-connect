@@ -8,6 +8,8 @@
 
 # can-connect
 
+[![Build Status](https://travis-ci.org/canjs/can-connec.png?branch=master)](https://travis-ci.org/canjs/can-connec)
+
 `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for 
 any JavaScript framework, not just CanJS.  It currently can:
 
