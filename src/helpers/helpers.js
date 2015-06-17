@@ -27,15 +27,19 @@ module.exports = helpers = {
 		}
 		return obj;
 	},
-	getObject: function(prop, data){
-		return data[prop];
+	getObject: function(prop, data, remove) {
+		var res = data[prop];
+		if(remove) {
+			delete data[prop];
+		}
+		return res;
 	},
 	sub: function (str, data, remove) {
 		var obs = [];
 		str = str || '';
 		obs.push(str.replace(strReplacer, function (whole, inside) {
 			// Convert inside to type.
-			var ob = helpers.getObject(inside, data, remove === true ? false : undefined);
+			var ob = helpers.getObject(inside, data, remove);
 			if (ob === undefined || ob === null) {
 				obs = null;
 				return '';

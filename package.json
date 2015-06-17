@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -31,7 +31,12 @@
     }
   },
   "scripts": {
-    "test": "testee --browsers firefox test.html"
+    "test": "testee --browsers firefox test.html",
+    "publish": "git push origin --tags",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "document": "documentjs"
   },
   "keywords": [
     "CanJS"
