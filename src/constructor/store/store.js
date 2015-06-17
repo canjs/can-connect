@@ -444,7 +444,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return list;
 		},
 		/**
-		 * @fuction can.connect/constructor-store.getList getList
+		 * @function can.connect/constructor-store.getList getList
 		 * @parent can.connect/constructor-store.crud
 		 * 
 		 * Overwrites [connection.getList] so any 

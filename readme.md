@@ -120,56 +120,78 @@ connects the "Data Interface" to a restful service. [can-connect/constructor] ad
 an "Instance Interface" that can create, read, update and delete (CRUD) typed data
 using the lower-level "Data Interface".
 
+By `typed` data we mean data that is more than just plain JavaScript objects.  For
+example, we might to create `todo` objects with a `isComplete` method:
 
+```
+var Todo = function(props){
+  Object.assign(this, props);
+};
 
+Todo.prototype.isComplete = function(){
+  return this.status === "complete";
+};
+```
 
+And, we might want a special list type with a `completed` and `active` method:
 
-[can-connect/constructor] 
+```
+var TodoList = function(todos){
+  [].push.apply(this, todos);
+};
+TodoList.prototype = Object.create(Array.prototype);
 
-
-
-```js
-import connect from "can-connect";
-import "can-connect/constructor/";
-import "can-connect/data/url/";
-
-var todoConnection = connect(
-  ["constructor","data-url"],
-  {
-    instance: function(data){ new Todo(data) },
-    resource: "/services/todos"
+TodoList.prototype.completed = function(){
+  return this.filter(function(todo){
+    return todo.status === "complete";
   });
+};
+
+TodoList.prototype.active = function(){
+  return this.filter(function(todo){
+    return todo.status !== "complete";
+  });
+};
 ```
 
-Next, use the `INSTANCE INTERFACE` methods to create, read, update, and destroy `Todo` instances.
-The following gets all todos from the server by making an ajax request to "/services/todos":
+We can create a connection that connects a restful "/api/todos"
+service to `Todo` instances and `TodoList` lists like:
 
 ```
-todoConnection.findAll({}).then(function(todos){});
-```
-
-`todos` is an array of `Todo` instances.
-
-
-
-
-Then, use that `todoConnection`'s `External CRUD Methods` to load data:
-
-```js
-todoConnection.findAll({completed: true}).then(function(todos){
-
+var todoConnection = connect(["constructor","data-url"],{
+  url: "/api/todos",
+  list: function(listData, set){
+  	return new TodoList(listData.data);
+  },
+  instance: function(props) {
+  	return new Todo(props);
+  }
 });
 ```
 
-To work well with `can-connect` your code might need to call some of its hooks:
+And then use that connection to get a `TodoList` of `Todo`s:
 
-```js
-Todo.prototype.bind = function(){
-  // tells this todo to be saved in the store so no other 
-  // instances that have its ID will be created
-  todoConnection.observedInstance(this);
-}
 ```
+todoConnection.getList({}).then(function(todos){
+	var todosEl = document.getElementById("todos-list");
+	todosEl.innerHTML = "<h2>Active</h2>"+
+		render(todos.active())+
+		"<h2>Complete</h2>"+
+		render(todos.completed());
+});
+
+var render = function(todos) {
+	return "<ul>"+todos.map(function(todo){
+		return "<li>"+todo.name+
+				"<input type='checkbox' "+
+				(todo.isComplete() ? "checked" : "")+"/></li>";
+	}).join("")+"</ul>";
+};
+```
+
+The following demo shows the result:
+
+@demo docs/demos/basics.html
 
 ## Interfaces
 
