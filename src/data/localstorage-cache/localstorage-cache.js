@@ -21,7 +21,7 @@ var setAdd = function(set, items, item, algebra){
 
 /**
  * @module can-connect/data/localstorage-cache localstorage-cache
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  */
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
 
@@ -283,7 +283,6 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			});
 			var id = this.id(props);
-			debugger;
 			localStorage.removeItem(this.name+"/instance/"+id);
 			return Promise.resolve({});
 		}

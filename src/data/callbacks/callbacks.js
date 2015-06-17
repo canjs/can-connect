@@ -1,6 +1,6 @@
 /**
  * @module can-connect/data/callbacks data-callbacks
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * 
  * Glues the result of the raw `Data Interface` methods to callbacks. This is
  * useful if you want something to happen with raw data anytime raw data is requested

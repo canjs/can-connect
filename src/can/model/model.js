@@ -103,7 +103,7 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			// handler( 'change','1.destroyed' ). This is used
 			// to remove items on destroyed from Model Lists.
 			// but there should be a better way.
-			can.dispatch.call(instance, {type:"change", target: instance}, [funcName]);
+			can.dispatch.call(instance, {type:funcName, target: instance});
 
 			//!steal-remove-start
 			can.dev.log("Model.js - " + constructor.shortName + " " + funcName);

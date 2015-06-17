@@ -7,7 +7,7 @@ var canSet = require("can-set");
 
 /**
  * @module can-connect/cache-requests cache-requests
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can-connect/cache-requests.data Data Interface
  * @group can-connect/cache-requests.algebra Algebra
  * 

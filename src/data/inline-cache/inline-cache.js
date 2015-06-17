@@ -3,7 +3,7 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
 /**
  * @module can-connect/data/inline-cache data-inline-cache
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can-connect/data/inline-cache.data-methods Data Methods
  * @group can-connect/data/inline-cache.globals Globals
  * 

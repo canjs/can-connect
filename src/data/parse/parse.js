@@ -1,6 +1,6 @@
 /**
  * @module {connect.Behavior} can-connect/data-parse data-parse
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * 
  * Extract response data into a format needed for other extensions.
  * 

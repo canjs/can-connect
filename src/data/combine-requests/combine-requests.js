@@ -5,7 +5,7 @@ var getItems = require("can-connect/helpers/get-items");
 
 /**
  * @module can-connect/data/combine-requests data-combine-requests
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can-connect/data/combine-requests.data-methods Data Methods
  * @group can-connect/data/combine-requests.options Options
  * @group can-connect/data/combine-requests.algebra Algebra Methods

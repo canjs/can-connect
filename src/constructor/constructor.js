@@ -1,6 +1,6 @@
 /**
  * @module {connect.Behavior} can-connect/constructor constructor
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can.connect/constructor.crud 0 CRUD Methods
  * @group can.connect/constructor.callbacks 1 CRUD Callbacks
  * @group can.connect/constructor.hydrators 2 Hydrators

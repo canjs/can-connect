@@ -1,12 +1,6 @@
-var getItems = require("../helpers/get-items");
-var connect = require("can-connect");
-var canSet = require("can-set");
-
-var sortedSetJSON = require("../helpers/sorted-set-json");
-
 /**
  * @module can-connect/fall-through-cache fall-through-cache
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache.data Data Callbacks
  * @group can-connect/fall-through-cache.hydrators Hydrators
  * 
@@ -73,6 +67,12 @@ var sortedSetJSON = require("../helpers/sorted-set-json");
  * updated after about a second.  
  * 
  */
+var getItems = require("../helpers/get-items");
+var connect = require("can-connect");
+var canSet = require("can-set");
+
+var sortedSetJSON = require("../helpers/sorted-set-json");
+
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {

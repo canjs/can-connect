@@ -1,6 +1,6 @@
 /**
  * @module {connect.Behavior} can-connect/data-url data-url
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * 
  * @option {connect.Behavior}
  * 

@@ -1,6 +1,6 @@
 /**
  * @module can-connect/data/callbacks-cache data-callbacks-cache
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * 
  * Calls [connection.cacheConnection] methods whenever 
  * the [can-connect/data/callbacks data interface callbacks] are called. This is

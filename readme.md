@@ -1,9 +1,10 @@
 @page can-connect
-@group can-connect.modules 1 Behaviors
+@group can-connect.behaviors 1 Behaviors
 @group can-connect.options 2 Options
 @group can-connect.externalCRUD 3 Instance Interface
 @group can-connect.data_interface 4 Data Interface
 @group can-connect.types 5 Data Types
+@group can-connect.modules 6 Modules
 
 # can-connect
 

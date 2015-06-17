@@ -1,6 +1,6 @@
 /**
  * @module can-connect/data/memory-cache memory-cache
- * @parent can-connect.modules
+ * @parent can-connect.behaviors
  * @group can-connect/data/memory-cache.data-methods Data Methods
  * 
  * Saves raw data in JavaScript memory that disappears when the page refreshes.
