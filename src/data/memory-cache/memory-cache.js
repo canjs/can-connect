@@ -1,5 +1,5 @@
 /**
- * @module can-connect/data/memory-cache memory-cache
+ * @module can-connect/data/memory-cache data-memory-cache
  * @parent can-connect.behaviors
  * @group can-connect/data/memory-cache.data-methods Data Methods
  * 
@@ -23,7 +23,7 @@
  * 
  * ## Use
  * 
- * `memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache] or
+ * `data-memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache] or
  * [can-connect/cache-requests].
  * 
  * 
@@ -282,7 +282,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 *   being retrieved.
 		 * 
 		 *   @return {Promise} A promise that resolves to the item if the memory cache has this item.
-		 *   If the memory cache, does not have this item it rejects the promise.
+		 *   If the memory cache does not have this item, it rejects the promise.
 		 */
 		getData: function(params){
 			var id = this.id(params);

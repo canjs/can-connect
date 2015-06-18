@@ -8,6 +8,7 @@ require("when/es6-shim/Promise");
 /**
  * @module can-connect/service-worker
  * @parent can-connect.behaviors
+ * @hide
  */
 module.exports = connect.behavior("service-worker",function(base){
 	

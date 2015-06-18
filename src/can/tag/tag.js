@@ -6,16 +6,24 @@
  * @param {String} tagName
  * @param {Object} connection
  * 
+ * @body
+ * 
+ * ## Use
+ * 
  * ```
  * connect.tag("order-model", connection);
  * ```
  * 
  * ```
- * <order-model getList="{type=orderType}">
- *   {{#isPending}}Loading{{/isPending}}
- *   {{#isResolved}}
- *     Data: {{value}}
- *   {{/isResolved}}
+ * <order-model get-list="{type=orderType}">
+ *   <ul>
+ *   \{{#isPending}}<li>Loading</li>\{{/isPending}}
+ *   \{{#isResolved}}
+ *     \{{#each value}}
+ *       <li>\{{name}}</li>
+ *     \{{/each}}
+ *   \{{/isResolved}}
+ *   </ul>
  * </order-model>
  * ```
  * 

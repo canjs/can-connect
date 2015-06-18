@@ -2,6 +2,22 @@
  * @module can-connect/can/model can/model
  * @parent can-connect.modules
  * Makes a constructor function work just like can.Model
+ * 
+ * @body
+ * 
+ * ## Use
+ * 
+ * ```
+ * import Model from "can-connect/can/model/";
+ * 
+ * Todo = Model.extend({
+ *   findAll: "/todos"
+ * },{});
+ * 
+ * Todo.findAll({}).then(function(todos){
+ *   
+ * });
+ * ```
  */
 
 

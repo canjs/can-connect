@@ -1,6 +1,8 @@
 /**
  * @module {connect.Behavior} can-connect/data-url data-url
  * @parent can-connect.behaviors
+ * @group can-connect/data-url.data-methods Data Methods
+ * @group can-connect/data-url.option Options
  * 
  * @option {connect.Behavior}
  * 
@@ -123,16 +125,80 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 	
 	return behavior;
 });
+/**
+ * @property {String|Object} can-connect/data-url.url url
+ * @parent can-connect/data-url.option
+ * 
+ * Specify the url and methods that should be used for the "Data Methods".
+ * 
+ * @option {String} If a string is provided, it's assumed to be a RESTful interface. For example,
+ * if the following is provided:
+ * 
+ * ```
+ * url: "/services/todos"
+ * ```
+ * 
+ * ... the following methods and requests are used:
+ * 
+ *  - `getListData` - `GET /services/todos`
+ *  - `getData` - `GET /services/todos/{id}`
+ *  - `createData` - `POST /services/todos`
+ *  - `updateData` - `PUT /services/todos/{id}`
+ *  - `destroyData` - `DELETE /services/todos/{id}`
+ * 
+ * @option {Object} If an object is provided, it can customize each method and URL directly
+ * like:
+ * 
+ * ```
+ * url: {
+ *   getListData: "GET /services/todos",
+ *   getData: "GET /services/todo/{id}",
+ *   createData: "POST /services/todo",
+ *   updateData: "PUT /services/todo/{id}",
+ *   destroyData: "DELETE /services/todo/{id}"
+ * }
+ * ```
+ * 
+ * You can provide a `resource` property that works like providing `url` as a string, but overwrite
+ * other values like:
+ * 
+ * ```
+ * url: {
+ *   resource: "/services/todo",
+ *   getListData: "GET /services/todos"
+ * }
+ * ```
+ */
 
 // ## pairs
 // The functions that will be created mapped to an object with:
 // - prop - the property to look for in connection.url for a url
 // - type - the default http method if one is not provided in the url
 var pairs = {
+	/**
+	 * @function can-connect/data-url.getListData getListData
+	 * @parent can-connect/data-url.data-methods
+	 */
 	getListData: {prop: "getListData", type: "GET"},
+	/**
+	 * @function can-connect/data-url.getData getData
+	 * @parent can-connect/data-url.data-methods
+	 */
 	getData: {prop: "getData", type: "GET"},
+	/**
+	 * @function can-connect/data-url.createData createData
+	 * @parent can-connect/data-url.data-methods
+	 */
 	createData: {prop: "createData", type: "POST"},
+	/**
+	 * @function can-connect/data-url.updateData updateData
+	 * @parent can-connect/data-url.data-methods
+	 */
 	updateData: {prop: "updateData", type: "PUT"},
+	/**
+	 * @function can-connect/data-url.destroyData destroyData
+	 * @parent can-connect/data-url.data-methods
+	 */
 	destroyData: {prop: "destroyData", type: "DELETE"}
 };
 

@@ -1,10 +1,7 @@
 @page can-connect
 @group can-connect.behaviors 1 Behaviors
-@group can-connect.options 2 Options
-@group can-connect.externalCRUD 3 Instance Interface
-@group can-connect.data_interface 4 Data Interface
-@group can-connect.types 5 Data Types
-@group can-connect.modules 6 Modules
+@group can-connect.modules 2 Modules
+@group can-connect.types 3 Data Types
 @outline 2
 
 # can-connect
@@ -347,6 +344,30 @@ a connection with Backbone's observable life-cycle. Read more [here](#section_Ot
 
 ### Other use
 
+Integrating `can-connect` with your framework is typically pretty easy.  In general,
+the pattern is creating a behavior that integrates with your framework's
+observable instances. The [can-connect/can/map]
+behavior can serve as a good guide. You'll typically want to implement the following
+in your behavior:
+
+`.instance` - Creates the appropriate observable object type.  
+`.list` - Creates the appropriate observable array type.  
+`.serializeInstance` - Return a plain object out of the observable object type.  
+`.serializeList` - Return a plain array out of the observable array type.  
+
+`.createdInstance` - Update an instance with data returned from `createData`.  
+`.updatedInstance` - Update an instance with data returned from `updateData`.  
+`.destroyedInstance` -  Update an instance with data returned from `destroyData`.  
+`.updatedList` - Update a list with raw data.
+
+And, in most frameworks you know when a particular observable is being used, typically
+observed, and when it can be discarded.  In those places, you should call:
+
+[can.connect/constructor-store.addInstanceReference] - Call when an instance is being used.  
+[can.connect/constructor-store.deleteInstanceReference] - Call when an instance is no longer being used.  
+[can.connect/constructor-store.addListReference] - Call when a list is being used.  
+[can.connect/constructor-store.deleteListReference] - Called when a list is no longer being used.  
+
 
 ## Interfaces
 
@@ -359,6 +380,8 @@ or consumed by the core behaviors.
 `.idProp -> String="id"` - The name of the unique identifier property.  
 `.listSet(list) -> set` - Returns the set a list represents.  
 `.listSetProp -> String="__set"` - The property on a List that contains its set.  
+
+Implemented by [connect.base].
 
 ### Instance Interface
 
@@ -395,7 +418,8 @@ Implemented by [can-connect/constructor]. Overwritten by [data-connect/real-time
 `.serializeList(list) -> Array<Object>` - Returns the serialized form of a list and its instances.  
 
 
-Implemented by [can-connect/constructor]. Overwritten by [can-connect/constructor/store].
+Implemented by [can-connect/constructor]. Overwritten by [can-connect/constructor/store],
+[can-connect/fall-through-cache].
 
 ### Data Interface 
 
@@ -405,7 +429,8 @@ The raw-data connection methods.
 
 `.getListData(set) -> Promise<ListData>` - Retrieves list data.  
 `.updateListData(listData[, set]) -> Promise<ListData>` - Update a list's data.  
-`.getSets() -> Promise<Array<Set>>` -> 
+`.getSets() -> Promise<Array<Set>>` - Returns the sets available to the connection.  
+
 
 `.getData(params) -> Promise<Object>` - Retrieves data for a particular item.  
 `.createData(props, cid) -> Promise<props>` - Creates instance data given the serialized form of the data. 
@@ -416,9 +441,12 @@ The raw-data connection methods.
 `.destroyData(props) -> Promise<props>` - Destroys an instance given the seralized 
 form of the data.  
 
+`.clear() -> Promise` - Clears all data in the connection.
+
 Implemented by [can-connect/data-url], 
 [can-connect/data/localstorage-cache], [can-connect/data/memory-cache]. 
-Overwritten by [can-connect/cache-requests], [can-connect/data/combine-requests], [can-connect/data/inline-cache].
+Overwritten by [can-connect/cache-requests], [can-connect/data/combine-requests], 
+[can-connect/data/inline-cache], [can-connect/fall-through-cache].
 Consumed by [can-connect/constructor].  
 
 #### Data Callbacks
@@ -429,7 +457,8 @@ Consumed by [can-connect/constructor].
 `.updatedData( props, params) -> props` - An instance's data is updated.  
 `.destroyedData( props, params) -> props` - An instance's data is destroyed.  
 
-Implemented by [can-connect/data/callbacks].  Overwritten by [can-connect/data/callbacks-cache].
+Implemented by [can-connect/data/callbacks].  Overwritten by [can-connect/data/callbacks-cache],
+[can-connect/real-time].
 
 #### Response parsers
 
@@ -469,25 +498,27 @@ connect.behavior("my-behavior", function(baseBehavior){
 })
 ```
 
-For example, localStorage might looks like:
+For example, creating a simple localStorage behavior might looks like:
 
 ```js
-connect.behavior("localstorage", function(baseBehavior, options){
+connect.behavior("localstorage", function(baseBehavior){
   return {
     getData: function(params){
-      var id = this.idProp;
+      var id = this.id(params);
       return new Promise(function(resolve){
-        var data = localStorage.getItem(options.name+"/"+params[id]);
+        var data = localStorage.getItem(baseBehavior.name+"/"+id);
         resolve( JSON.parse(data) )
       });
     },
     createData: function(props){
-      var nextId = ++JSON.parse( localStorage.getItem(options.name+"-ID") || "0");
-      localStorage.setItem(options.name+"-ID"), nextId);
+      var id = localStorage.getItem(baseBehavior.name+"-ID") || "0";
+      
+      var nextId = ++JSON.parse( id );
+      localStorage.setItem(baseBehavior.name+"-ID"), nextId);
       var id = this.idProp;
       return new Promise(function(resolve){
         props[id] = nextId;
-        localStorage.setItem(options.name+"/"+nextId, props);
+        localStorage.setItem(baseBehavior.name+"/"+nextId, props);
         resolve( props )
       });
     },

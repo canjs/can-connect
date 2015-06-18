@@ -1,7 +1,42 @@
 
 /**
- * @module can-connect/can/super-map can/super-map
+ * @module {function} can-connect/can/super-map can/super-map
  * @parent can-connect.modules
+ * 
+ * Create connection with many of the best behaviors in can-connect and hook it up to a map.
+ * 
+ * @signature `superMap(options)`
+ * 
+ *   Creates a connection with the following behaviors: [can-connect/constructor],
+ *   [can-connect/can/map],
+ *   [can-connect/constructor/store],
+ *   [can-connect/data/callbacks],
+ *   [can-connect/data/callbacks-cache],
+ *   [can-connect/data/combine-requests],
+ *   [can-connect/data/inline-cache],
+ *   [can-connect/data-parse],
+ *   [can-connect/data-url],
+ *   [can-connect/real-time],
+ *   [can-connect/constructor/callbacks-once].
+ * 
+ *   And creates a [can-connect/data/localstorage-cache] to use as a [connect.base.cacheConnection].
+ * 
+ * @body 
+ * 
+ * ## Use
+ * 
+ * ```
+ * var Todo = can.Map.extend({ ... });
+ * TodoList = can.List.extend({Map: Todo},{ ... });
+ * 
+ * 
+ * var todoConnection = superMap({
+ *   idProp: "_id",
+ *   Map: Todo,
+ *   List: TodoList,
+ *   url: "/services/todos"
+ * });
+ * ```
  */
 var connect = require("can-connect");
 
@@ -41,7 +76,8 @@ connect.superMap = function(options){
 	if(typeof localStorage !== "undefined") {
 		options.cacheConnection = connect(["data-localstorage-cache"],{
 			name: options.name+"Cache",
-			idProp: options.idProp
+			idProp: options.idProp,
+			algebra: options.algebra
 		});
 		behaviors.push("fall-through-cache");
 	}
