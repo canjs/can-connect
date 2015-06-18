@@ -43,7 +43,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 * 
 		 * @signature `connection.id( instance )`
 		 * 
-		 *   Reads [connection.idProp] so that it's observable unless
+		 *   Reads [connect.base.idProp] so that it's observable unless
 		 *   the id is being read as part of the map being bound or 
 		 *   unbound.
 		 * 
@@ -385,7 +385,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * 
 		 * @signature `map.isNew()`
 		 * 
-		 *   Returns `true` if [connection.id] is 0 or truthy.
+		 *   Returns `true` if [connect.base.id] is 0 or truthy.
 		 * 
 		 *   @return {Boolean} 
 		 */

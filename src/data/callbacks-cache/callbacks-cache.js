@@ -2,9 +2,9 @@
  * @module can-connect/data/callbacks-cache data-callbacks-cache
  * @parent can-connect.behaviors
  * 
- * Calls [connection.cacheConnection] methods whenever 
+ * Calls [connect.base.cacheConnection] methods whenever 
  * the [can-connect/data/callbacks data interface callbacks] are called. This is
- * useful for making sure a [connection.cacheConnection] is updated whenever data is updated.
+ * useful for making sure a [connect.base.cacheConnection] is updated whenever data is updated.
  */
 var connect = require("can-connect");
 var idMerge = require("can-connect/helpers/id-merge");
@@ -17,7 +17,7 @@ var pairs = {
 	 * @parent can-connect/data/callbacks-cache
 	 * 
 	 * Called with the resolved response data 
-	 * of [connection.createData]. Calls `createData` on the [connection.cacheConnection].
+	 * of [connection.createData]. Calls `createData` on the [connect.base.cacheConnection].
 	 */
 	createdData: "createData",
 	/**
@@ -25,7 +25,7 @@ var pairs = {
 	 * @parent can-connect/data/callbacks-cache
 	 * 
 	 * Called with the resolved response data 
-	 * of [connection.updateData]. Calls `updateData` on the [connection.cacheConnection].
+	 * of [connection.updateData]. Calls `updateData` on the [connect.base.cacheConnection].
 	 */
 	updatedData: "updateData",
 	/**
@@ -33,7 +33,7 @@ var pairs = {
 	 * @parent can-connect/data/callbacks-cache
 	 * 
 	 * Called with the resolved response data 
-	 * of [connection.destroyData]. Calls `destroyData` on the [connection.cacheConnection].
+	 * of [connection.destroyData]. Calls `destroyData` on the [connect.base.cacheConnection].
 	 */
 	destroyedData: "destroyData"
 	//gotInstanceData: "updateListData"

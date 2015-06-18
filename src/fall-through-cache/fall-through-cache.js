@@ -9,7 +9,7 @@
  * @signature `fallThroughCache( baseConnection )`
  * 
  *   Implements a `getData` and `getListData` that 
- *   check their [connection.cacheConnection] for data and then
+ *   check their [connect.base.cacheConnection] for data and then
  *   in the background update the instance or list with data
  *   retrieved using the base connection.
  * 
@@ -18,7 +18,7 @@
  * ## Use
  * 
  * To use the `fall-through-cache`, create a connection with a
- * [connection.cacheConnection] and a behavior that implements
+ * [connect.base.cacheConnection] and a behavior that implements
  * [connection.getData] and [connection.getListData].
  * 
  * ```
@@ -123,7 +123,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 * 
 		 * @signature `connection.getListData(set)`
 		 * 
-		 *   Checks the [connection.cacheConnection] for `set`'s data.
+		 *   Checks the [connect.base.cacheConnection] for `set`'s data.
 		 * 
 		 *   If the cache connection has data, the cached data is returned. Prior to 
 		 *   returning the data, the [can-connect/constructor.hydrateList] method
@@ -192,7 +192,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 * 
 		 *   Calls the base `hydrateInstance` to create an Instance for `props`.
 		 * 
-		 *   Then, Looks for registered hydrateInstance callbacks for a given [connection.id] and 
+		 *   Then, Looks for registered hydrateInstance callbacks for a given [connect.base.id] and 
 		 *   calls them.
 		 * 
 		 *   @param {Object} props
@@ -227,7 +227,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 * 
 		 * @signature `connection.getData(params)`
 		 * 
-		 *   Checks the [connection.cacheConnection] for `params`'s data.
+		 *   Checks the [connect.base.cacheConnection] for `params`'s data.
 		 * 
 		 *   If the cache connection has data, the cached data is returned. Prior to 
 		 *   returning the data, the [can-connect/constructor.hydrateInstance] method

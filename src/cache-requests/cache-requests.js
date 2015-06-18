@@ -16,7 +16,7 @@ var canSet = require("can-set");
  * @signature `cacheRequests( baseConnction )`
  * 
  *   Overwrites [can-connect/cache-requests.getListData] to use set logic to 
- *   determine which data is already in [connection.cacheConnection] or needs to be loaded from the base connection.
+ *   determine which data is already in [connect.base.cacheConnection] or needs to be loaded from the base connection.
  *   
  *   It then gets data from the cache and/or the base connection, merges it, and returns it.
  * 
@@ -126,7 +126,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 * 
 		 *   @param {Set} set The set that is being loaded.
 		 *   @param {Array<Set>} availableSets An array of available sets in the 
-		 *   [connection.cacheConnection].
+		 *   [connect.base.cacheConnection].
 		 *   @return {Promise<{needs: Set, cached: Set}>}
 		 * 
 		 * 
@@ -182,7 +182,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 *   @param {Set} set The set requested.
 		 *   @param {Object} diff The result of [can-connect/cache-requests.getDiff].
 		 *   @param {can-connect.listData} neededData The data loaded from the base connection.
-		 *   @param {can-connect.listData} cachedData The data loaded from the [connection.cacheConnection].
+		 *   @param {can-connect.listData} cachedData The data loaded from the [connect.base.cacheConnection].
 		 * 
 		 *   @return {can-connect.listData} Return the merged cached and requested data.
 		 */
@@ -194,11 +194,11 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 * @function can-connect/cache-requests.getListData getListData
 		 * @parent can-connect/cache-requests.data
 		 * 
-		 * Only request data that hasn't already been loaded by [connection.cacheConnection].
+		 * Only request data that hasn't already been loaded by [connect.base.cacheConnection].
 		 * 
 		 * @signature `connection.getListData(set)`
 		 * 
-		 *   Overwrites a base connection's `getListData` to use data in the [connection.cacheConnection]
+		 *   Overwrites a base connection's `getListData` to use data in the [connect.base.cacheConnection]
 		 *   whenever possible.  This works by [connection.getSets getting the stored sets] and doing a
 		 *   [can-connect/cache-requests.getDiff diff] to see what should be loaded from the cache
 		 *   or from the base connection.

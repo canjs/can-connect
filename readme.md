@@ -5,6 +5,7 @@
 @group can-connect.data_interface 4 Data Interface
 @group can-connect.types 5 Data Types
 @group can-connect.modules 6 Modules
+@outline 2
 
 # can-connect
 
@@ -116,6 +117,11 @@ its options object at the end of the prototype chain.
 
 ## Use
 
+This section 
+
+
+### Basic connection
+
 To use `can-connect`, it's typically best to start out with the most basic
 behaviors: [can-connect/data-url] and [can-connect/constructor]. [can-connect/data-url]
 connects the "Data Interface" to a restful service. [can-connect/constructor] adds
@@ -195,83 +201,260 @@ The following demo shows the result:
 
 @demo docs/demos/basics.html
 
+This connection also lets you create, update, and destroy a Todo instance as follows:
+
+```
+var todo = new Todo({
+  name: "take out trash"
+})
+
+// POSTs to /api/todos name=take out trash
+// server returns {id: 5}
+todoConnection.save( todo ).then(function(todo){
+  todo.id //-> 5
+  todo.name = 'take out garbage'
+  
+  // PUTs to /api/todos/5 name=take out garbage
+  // server returns {id: 5, "take out garbage"}
+  todoConnection.save( todo ).then( function(todo){
+    
+    // DELETEs to /api/todos/5
+    // serer returns {}
+    todoConnection.destroy( todo ).then( function(todo){
+    
+    });
+    
+  });
+  
+});
+```
+
+### Configure behaviors
+
+Whenever `connect` creates a connection, it always adds the [connect.base] 
+behavior. This behavior defines configurable options that are used by almost 
+every other behavior.  For example, if your data uses an `_id` property 
+to uniquely identify todos, you 
+can specify this with [connect.base.idProp] like:
+
+```
+var todoConnection = connect(["constructor","data-url"],{
+  url: "/api/todos",
+  idProp: "_id"
+});
+```
+
+Other behaviors list their configurable options in their own docs page.  
+
+### Overwrite behaviors
+
+If configurable options are not enough, you can overwrite any behavior with your own behavior.
+
+For example, the `constructors` [can-connect/constructor.updatedInstance] behavior 
+sets the instance's properties to match the result of [connection.updateData]. But if
+the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in 
+a todo with only an `id` property:
+
+```
+var todo = new Todo({id: 5, name: "take out garbage"})
+// PUTs to /api/todos/5 name=take out garbage
+// server returns {}
+todoConnection.save( todo ).then( function(todo){
+     
+  todo.id //-> 5
+  todo.name //-> undefined
+});
+```
+
+The following overwrites the behavior of `updateData`:
+
+```
+var mergeDataBehavior = {
+  updateData: function(instance, data){
+    Object.assign(instance, data);
+  }
+}
+
+
+var todoConnection = connect([
+    "constructor",
+    "data-url", 
+    mergeDataBehavior
+  ],{
+  url: "/api/todos"
+});
+```
+
+You can add your own behavior that overwrite all base behaviors by adding
+it to the end of the behaviors list.
+
+
+### CanJS use
+
+If you are using CanJS, you can either:
+
+- use the [can-connect/can/map] behavior that overwrites
+  many methods and settings to work with `can.Map` and `can.List`.
+- use the [can-connect/can/super-map] helper to create a connection that bundles "can/map" and 
+  many of the other extensions.
+
+Using [can-connect/can/map] to create a connection looks like:
+
+```
+var Todo = can.Map.extend({ ... });
+Todo.List = can.List.extend({Map: Todo},{});
+
+var todoConnection = connect([
+    "data-url",
+    "can/map",
+    "constructor",
+    "constructor-store"
+  ],{
+  Map: Todo,
+  url: "/todos"
+});
+```
+
+When you bind on a `Todo` instance or `Todo.List` list, they will automatically call
+[can.connect/constructor-store.addInstanceReference] and [can.connect/constructor-store.addListReference].
+
+Using [can-connect/can/super-map] to create a connection looks like:
+
+```
+var Todo = can.Map.extend({ ... });
+Todo.List = can.List.extend({Map: Todo},{});
+
+var todoConnection = superMap({
+  Map: Todo,
+  url: "/todos"
+});
+```
+
+### ReactJS use
+
+Help us create a special ReactJS behavior that integrates
+a connection with React's observable life-cycle. Read more [here](#section_Otheruse).
+
+### Angular use
+
+Help us create a special AngularJS behavior that integrates
+a connection with Angular's observable life-cycle. Read more [here](#section_Otheruse).
+
+### Backbone use
+
+Help us create a special BackboneJS behavior that integrates
+a connection with Backbone's observable life-cycle. Read more [here](#section_Otheruse).
+
+### Other use
+
+
 ## Interfaces
 
-The API is broken up into:
-
-- The different behaviors, like perist, instance-store, etc
-- A full list of options that behaviors consume.
-- [The core list of hooks that behaviors can call or implement](#core-hooks)
-- How to create a behavior.
-
-
-## Core Hooks
-
-These are hooks that most plugins will use in some way.
-
-### External Persisted CRUD methods
-
-The methods that people using an implemented connection should use.
-
-- [connection.getList] - load instances
-- [connection.get] - load a single instance
-- [connection.save] - creates or updates an instance
-- [connection.destroy] - destroys an instance
-
-### Data Interface 
-
-The raw-data connection methods.  These are used by "Instance Interface".  These should
-be implemented by behaviors. 
-
-- [connection.getListData] - Retrieves list data for a particular set.
-- [connection.updateListData] - Called when a set of data is updated with the raw data to be 
-  saved. This is normally used for caching connection layers.
-- [connection.createData] - Creates instance data given the serialized form of the data. 
-  Returns any additional properties that should be added to the instance. A client ID is passed of the instance that is being created.
-- [connection.updateData] - Updates instance data given the serialized form of the data.  Returns any additional properties that should be added to the instance.
-- [connection.destroyData] - Destroys an instance given the seralized form of the data.  Returns any additional properties that should be added to the instance.
-- `parseListData(*) -> {data:Array<Object>}` - Given the response of getListData, return the right object format.
-- `getData(set) -> Promise<Object>` - Retrieves data for a particular item.
-- `parseInstanceData(*) -> Object` - Given a single items response data, return the right object format.  This is called by parseListData as well as all other internal CRUD methods.
-
-## Hooks to update raw data
-
-These methods are used to update data from the outside, usually by a real time connection.
-
-- `createInstance( props ) -> instance`
-- `updateInstance( props ) -> instance` 
-- `destroyInstance( props ) -> instance` 
-
-### Instance and Instances
-
-- `hydrateInstance( props )` - Creates an instance in memory given data for that instance.
-- `hydrateList({data: Array<Object>}, set)` - Creates a container for instances and all the instances within that container.
-- `createdInstance(instance, props)` - Called whenever an instance is created in the persisted state.
-- `updatedInstance(instance, props)` - Called whenever an instance is updated in the persisted state.
-- `destroyedInstance(instance, props)` - Called whenever an instance is destroyed in the persisted state.
-- `updatedList(list, updatedListData, set)` - Called whenever a list has been updated. `updatedList` should be merged into `list`.
-- `serializeInstance`
-- `serializeList`
+The following is a list of the most important interface methods and properties implemented
+or consumed by the core behaviors.
 
 ### Identifiers
 
-- `id( props | instance ) -> STRING` - Given the raw data for an instance, or the instance, returns a unique identifier for the instance.
-- `idProp {String="id"}` - The name of the unique identifier property.
-- `listSet(list) -> set` - Returns the set this set represents.
-- `listSetProp {String="__set"}` - The property on a List that contains its set.
+`.id( props | instance ) -> String` - Returns a unique identifier for the instance or raw data.  
+`.idProp -> String="id"` - The name of the unique identifier property.  
+`.listSet(list) -> set` - Returns the set a list represents.  
+`.listSetProp -> String="__set"` - The property on a List that contains its set.  
 
-## External Hooks
+### Instance Interface
 
-Hooks that your library and code should be calling.
+The following methods operate on instances and lists.
 
-- `hydratedInstance(instance)` - Called whenever an isntance is created in memory.
-- `hydratedInstance(list, set)` - Called whenever a list is created in memory.
+#### CRUD methods:
 
-- `addInstanceReference(instance)` - Called whenver an instance is observed. This serves as a signal that memory-unsafe actions can be performed.
-- `deleteInstanceReference(instance)` - Called whenever an instance is no longer observed. This serves as a signal that memory-unsafe should be removed.
-- `addListReference(list)` - Called whenever a a list is observed.
-- `deleteListReference(list)` - Called whenever a a list is unobserved.
+`.getList(set) -> Promise<List>` - retrieve a list of instances.  
+`.getList(set) -> Promise<Instance>` - retrieve a single instance.   
+`.save(instance) -> Promise<Instance>` - creates or updates an instance.  
+`.destroy(instance) -> Promise<Instance>` - destroys an instance.  
 
+Implemented by [can-connect/constructor]. Overwritten by [can-connect/constructor/store].
+
+#### Instance callbacks
+
+`.createdInstance(instance, props)` - An instance is created.  
+`.updatedInstance(instance, props)` - An instance is updated.  
+`.destroyedInstance(instance, props)` - An instance is destroyed.  
+`.updatedList(list, updatedListData, set)` - A list has been updated.  
+
+Implemented by [can-connect/constructor]. Overwritten by [data-connect/real-time],
+[can-connect/constructor/callbacks-once].
+
+#### Hydrators and Serializers
+
+`.instance(props) -> Instance` - Creates an instance given raw data.  
+`.list({data: Array<Instance>}) -> List` - Creates a list given an array of instances.  
+`.hydrateInstance(props) -> Instance` - Provides an instance given raw data.  
+`.hydrateList({ListData}, set) -> List` - Provides a list given raw data.  
+`.hydratedInstance(instance)` - Called whenever an instance is created in memory.  
+`.hydratedList(list, set)` - Called whenever a list is created in memory.  
+`.serializeInstance(instance) -> Object` - Returns the serialized form of an instance.  
+`.serializeList(list) -> Array<Object>` - Returns the serialized form of a list and its instances.  
+
+
+Implemented by [can-connect/constructor]. Overwritten by [can-connect/constructor/store].
+
+### Data Interface 
+
+The raw-data connection methods.  
+
+#### CRUD methods
+
+`.getListData(set) -> Promise<ListData>` - Retrieves list data.  
+`.updateListData(listData[, set]) -> Promise<ListData>` - Update a list's data.  
+`.getSets() -> Promise<Array<Set>>` -> 
+
+`.getData(params) -> Promise<Object>` - Retrieves data for a particular item.  
+`.createData(props, cid) -> Promise<props>` - Creates instance data given the serialized form of the data. 
+  A client ID is passed of the 
+  instance that is being created.  
+`.updateData(props) -> Promise<props>` - Updates instance data given the 
+  serialized form of the data.  
+`.destroyData(props) -> Promise<props>` - Destroys an instance given the seralized 
+form of the data.  
+
+Implemented by [can-connect/data-url], 
+[can-connect/data/localstorage-cache], [can-connect/data/memory-cache]. 
+Overwritten by [can-connect/cache-requests], [can-connect/data/combine-requests], [can-connect/data/inline-cache].
+Consumed by [can-connect/constructor].  
+
+#### Data Callbacks
+
+`.gotListData(listData, set) -> ListaData` - List data is retrieved.  
+`.gotData( props, params) -> props` - Instance data is retreived.  
+`.createdData( props, params, cid) -> props` - An instance's data is created.  
+`.updatedData( props, params) -> props` - An instance's data is updated.  
+`.destroyedData( props, params) -> props` - An instance's data is destroyed.  
+
+Implemented by [can-connect/data/callbacks].  Overwritten by [can-connect/data/callbacks-cache].
+
+#### Response parsers
+
+`.parseListData(*) -> ListData` - Given the response of getListData, return the right object format.  
+`.parseInstanceData(*) -> props` - Given the response of getData, createData, updateData, and destroyData,
+return the right object format.
+
+Implemented by [can-connect/data-parse].
+
+#### Store Interface
+
+`.addInstanceReference(instance)` - Signal that memory-unsafe actions can be performed on the instance.  
+`.deleteInstanceReference(instance)` - Signal that memory-unsafe actions should be removed.
+`.addListReference(list)` - Signal that memory-unsafe actions can be performed on the list.  
+`.deleteListReference(list)` - Signal that memory-unsafe actions should be removed.
+
+Implemented by [can-connect/constructor/store].
+
+#### Real-time Methods
+
+`createInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been created.  
+`updateInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been updated.  
+`destroyInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been destroyed.  
+
+Implemented by [can-connect/real-time].
 
 ## Creating Behaviors
 
@@ -279,7 +462,7 @@ To create your own behavior, call `connect.behavior` with the name of your behav
 returns an object that defines the hooks you want to overwrite or provide:
 
 ```js
-connect.behavior("my-behavior", function(baseBehavior, options){
+connect.behavior("my-behavior", function(baseBehavior){
   return {
     // Hooks here
   };

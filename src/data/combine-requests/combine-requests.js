@@ -171,7 +171,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 		 * 
 		 * @signature `connection.getSubset( set, unionSet, data )`
 		 * 
-		 *   This implementation uses [can-set's getSubset](https://github.com/canjs/can-set#setgetsubset) with [connection.algebra].
+		 *   This implementation uses [can-set's getSubset](https://github.com/canjs/can-set#setgetsubset) with [connect.base.algebra].
 		 * 
 		 *   @param {Set} set the subset initially requested
 		 *   @param {Set} unionSet the combined set that was actually requested

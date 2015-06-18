@@ -19,7 +19,7 @@
  * 
  *   An instance is put in a list if it is a
  *   [set.subset](https://github.com/canjs/can-set#setsubset)
- *   of the [connection.listSet].
+ *   of the [connect.base.listSet].
  * 
  *   Currently, all items are added at the end of the list
  *   until [set.add](https://github.com/canjs/can-set/issues/2)
@@ -146,7 +146,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		 * @signature `connection.createInstance(props)`
 		 * 
 		 *   If there is no instance in the [can.connect/constructor-store.instanceStore]
-		 *   for `props`'s [connection.id], an instance is [can-connect/constructor.hydrateInstance hydrated],
+		 *   for `props`'s [connect.base.id], an instance is [can-connect/constructor.hydrateInstance hydrated],
 		 *   added to the store, and then [can-connect/real-time.createdData] is called with
 		 *   `props` and the hydrated instance's serialized data. [can-connect/real-time.createdData]
 		 *   will add this instance to any lists the instance belongs to.

@@ -237,7 +237,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * 
 		 * @signature `connection.save( instance )`
 		 *   
-		 *   Checks if the instance has an [connection.id] or not.  If it
+		 *   Checks if the instance has an [connect.base.id] or not.  If it
 		 *   has an id, the instance will be updated; otherwise, it will be created.
 		 * 
 		 *   To create an instance, the instance is added to the [can-connect/constructor.cidStore],
@@ -466,7 +466,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @signature `connection.updatedInstance( instance, props )`
 		 * 
 		 *   Sets the properties in `instance` to match the properties and values in `props`
-		 *   with the exception of [connection.idProp], which it leaves alone.
+		 *   with the exception of [connect.base.idProp], which it leaves alone.
 		 * 
 		 *   @param {Instance} instance The instance to update.
 		 * 
@@ -512,7 +512,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @signature `connection.destroyedInstance( instance, props )`
 		 * 
 		 *   Sets the properties in `instance` to match the properties and values in `props`
-		 *   with the exception of [connection.idProp], which it leaves alone.
+		 *   with the exception of [connect.base.idProp], which it leaves alone.
 		 * 
 		 *   @param {Instance} instance The instance to update.
 		 * 

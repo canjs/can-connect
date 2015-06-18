@@ -207,7 +207,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 * @signature `connection.getListData(set)`
 		 * 
 		 *   Goes through each set add by [can-connect/data/memory-cache.updateListData]. If
-		 *   `set` is a subset, uses [connection.algebra] to get the data for the requested `set`.
+		 *   `set` is a subset, uses [connect.base.algebra] to get the data for the requested `set`.
 		 *   
 		 *   @param {Set} set An object that represents the data to load. 
 		 * 
@@ -374,7 +374,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 * @signature `connection.destroyData(props)`
 		 * 
 		 *   Goes through each set of data and removes any data that matches 
-		 *   `props`'s [connection.id]. Finally removes this from the instance store.
+		 *   `props`'s [connect.base.id]. Finally removes this from the instance store.
 		 */
 		destroyData: function(props){
 			var self = this;

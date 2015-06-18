@@ -63,7 +63,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 	 * 
 	 *   A mapping of a [connection.name] to an Object that contains the 
 	 *   cached data for that connection.  That inner object is a mapping 
-	 *   between either [connection.id ids] or [connection.listSet serialized sets] to
+	 *   between either [connect.base.id ids] or [connect.base.listSet serialized sets] to
 	 *   response data for those requests.
 	 * 
 	 * 
@@ -125,7 +125,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 		 * @signature `connection.getListData( set )`
 		 * 
 		 *   Looks if there is a key in [can-connect/data/inline-cache.INLINE_CACHE]
-		 *   that matches the [connection.id] of `params`.  If there is, it uses that key's value for the
+		 *   that matches the [connect.base.id] of `params`.  If there is, it uses that key's value for the
 		 *   response data and deletes that key so it can not be reused.
 		 * 
 		 *   If there is no matching `key`, the base `getData` is used.

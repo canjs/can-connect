@@ -2,9 +2,13 @@
  * @module can-connect/constructor/callbacks-once constructor-callbacks-once
  * @parent can-connect.behaviors
  * 
- * Glues the result of the raw `Data Interface` methods to callbacks. This is
- * useful if you want something to happen with raw data anytime raw data is requested
- * or manipulated.
+ * Unecessary calls to the instance callback methods.
+ * 
+ * @signature `constructorCallbacksOnce(baseBehavior)`
+ * 
+ *   Prevents duplicate calls to the instance callback methods by tracking
+ *   the last data the methods were called with.  If called with the 
+ *   same data again, it does not call the base behavior's instance callback.
  * 
  * 
  */
@@ -14,8 +18,8 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 // wires up the following methods
 var callbacks = [
 	/**
-	 * @function can-connect/data/callbacks.createdData createdData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/constructor/callbacks-once.createdData createdData
+	 * @parent can-connect/constructor/callbacks-once
 	 * 
 	 * Called with the resolved response data 
 	 * of [connection.createData]. The result of this function will be used
@@ -23,8 +27,8 @@ var callbacks = [
 	 */
 	"createdInstance",
 	/**
-	 * @function can-connect/data/callbacks.updatedData updatedData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/constructor/callbacks-once.updatedData updatedData
+	 * @parent can-connect/constructor/callbacks-once
 	 * 
 	 * Called with the resolved response data 
 	 * of [connection.updateData]. The result of this function will be used
@@ -32,8 +36,8 @@ var callbacks = [
 	 */
 	"updatedInstance",
 	/**
-	 * @function can-connect/data/callbacks.destroyedData destroyedData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/constructor/callbacks-once.destroyedData destroyedData
+	 * @parent can-connect/constructor/callbacks-once
 	 * 
 	 * Called with the resolved response data 
 	 * of [connection.destroyData]. The result of this function will be used

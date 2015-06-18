@@ -25,11 +25,11 @@
  * 
  * The `constructor-store` extension is used to:
  *  - provide a store of instances and lists used by the client.
- *  - prevent multiple instances from being hydrated for the same [connection.id] or multiple
- *    lists for the same [connection.listSet].
+ *  - prevent multiple instances from being hydrated for the same [connect.base.id] or multiple
+ *    lists for the same [connect.base.listSet].
  * 
  * The stores provide access to an instance
- * by its [connection.id] or a list by its [connection.listSet]. These stores are
+ * by its [connect.base.id] or a list by its [connect.base.listSet]. These stores are
  * used by other extensions like [can-connect/real-time] and [can-connect/fall-through-cache].
  * 
  * Lets see how `constructor-store`'s behavior be used to prevent multiple 
@@ -89,13 +89,13 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @property {WeakReferenceMap} can.connect/constructor-store.instanceStore instanceStore
 		 * @parent can.connect/constructor-store.stores
 		 * 
-		 * A store of instances mapped by [connection.id].
+		 * A store of instances mapped by [connect.base.id].
 		 */
 		instanceStore: new WeakReferenceMap(),
 		/**
 		 * @property {WeakReferenceMap} can.connect/constructor-store.listStore listStore
 		 * @parent can.connect/constructor-store.stores
-		 * A store of lists mapped by [connection.listSet].
+		 * A store of lists mapped by [connect.base.listSet].
 		 */
 		listStore: new WeakReferenceMap(),
 		_requestInstances: {},
@@ -122,7 +122,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * 
 		 * @signature `connection.addInstanceReference( instance )`
 		 * 
-		 *   Adds a reference to an instance in the [can.connect/constructor-store.instanceStore] by [connection.id]. 
+		 *   Adds a reference to an instance in the [can.connect/constructor-store.instanceStore] by [connect.base.id]. 
 		 *   The number of references are incremented.  
 		 * 
 		 *   @param {Instance} instance The instance to add.
@@ -132,7 +132,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * ## Use
 		 * 
 		 * The [can.connect/constructor-store.instanceStore] contains a collection of instances
-		 * created for each [connection.id]. The `instanceStore` is used to prevent creating the 
+		 * created for each [connect.base.id]. The `instanceStore` is used to prevent creating the 
 		 * same instance multiple times.  Instances need to be added to this store for this behavior
 		 * to happen.  To do this, call `addInstanceReference` like the following:
 		 * 
@@ -202,7 +202,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @function can.connect/constructor-store.deleteInstanceReference deleteInstanceReference
 		 * @parent can.connect/constructor-store.stores
 		 * 
-		 * Removes a reference to an instance by [connection.id] so it can be garbage collected.
+		 * Removes a reference to an instance by [connect.base.id] so it can be garbage collected.
 		 * 
 		 * @signature `connection.addInstanceReference( instance )`
 		 * 
@@ -245,14 +245,14 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * 
 		 *   @param {List} list The list to add.
 		 * 
-		 *   @param {Set} [set] The set this list represents if it can't be identified with [connection.listSet].
+		 *   @param {Set} [set] The set this list represents if it can't be identified with [connect.base.listSet].
 		 * 
 		 * @body
 		 * 
 		 * ## Use
 		 * 
 		 * The [can.connect/constructor-store.listStore] contains a collection of lists
-		 * created for each [connection.listSet]. The `listStore` is used to prevent creating the 
+		 * created for each [connect.base.listSet]. The `listStore` is used to prevent creating the 
 		 * same list multiple times and for identifying a list for a given set. Lists need to be added to this store for this behavior
 		 * to happen.  To do this, call `addListReference` like the following:
 		 * 
@@ -305,7 +305,7 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * @function can.connect/constructor-store.deleteListReference deleteListReference
 		 * @parent can.connect/constructor-store.stores
 		 * 
-		 * Removes a reference to a list by [connection.listSet] so it can be garbage collected.
+		 * Removes a reference to a list by [connect.base.listSet] so it can be garbage collected.
 		 * 
 		 * @signature `connection.addInstanceReference( instance )`
 		 * 
