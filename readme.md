@@ -114,7 +114,63 @@ its options object at the end of the prototype chain.
 
 ## Use
 
-This section 
+This section covers how to install can-connect and then the basics of its use.
+
+### Install
+
+Use npm to install `can-connect`:
+
+```
+> npm install can-connect --save
+```
+
+Then, depending on your module loader, you'll do one of the following:
+
+#### StealJS
+
+Import can-connect and its behaviors like:
+
+```
+import connect from "can-connect";
+import "can-connect/data/url/"
+```
+
+#### Browserify
+
+`require` can-connect and its behaviors like:
+
+```
+var connect = require("can-connect");
+import("can-connect/data/url/url");
+```
+
+#### AMD
+
+Configure a package to can-connect and its dependency can-set:
+
+```
+require.config({
+  packages: [{
+    name: 'can-connect',
+    location: 'node_modules/can-connect/dist/amd',
+    main: 'can-connect'
+  },{
+    name: 'can-set',
+    location: 'node_modules/can-connect/node_modules/can-set/dist/amd',
+    main: 'src/set'
+  }]
+});
+```
+
+Then use `define` to load can-connect and its behaviors like:
+
+```
+define(["can-connect","can-connect/data/url/url"], function(connect){
+
+});
+```
+
+
 
 
 ### Basic connection
@@ -345,7 +401,7 @@ a connection with Backbone's observable life-cycle. Read more [here](#section_Ot
 ### Other use
 
 Integrating `can-connect` with your framework is typically pretty easy.  In general,
-the pattern is creating a behavior that integrates with your framework's
+the pattern involves creating a behavior that integrates with your framework's
 observable instances. The [can-connect/can/map]
 behavior can serve as a good guide. You'll typically want to implement the following
 in your behavior:
