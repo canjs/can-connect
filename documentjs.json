@@ -1,7 +1,6 @@
 {
 	"versions": {
-		"0.1": {
-			"source": "git://github.com/canjs/can-connect#master"
-		}
-	}
+		"0.1": "git://github.com/canjs/can-connect#master"
+	},
+	"defaultVersion" : "0.1"
 }
