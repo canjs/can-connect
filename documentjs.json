@@ -4,8 +4,7 @@
 			"glob": {
 				"pattern": "{src/**/*,readme,docs/**/*}.{js,md}"
 			},
-			"parent" : "can-connect",
-			"dest": "./doc"
+			"parent" : "can-connect"
 		}
 	}
 }

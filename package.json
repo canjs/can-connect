@@ -9,7 +9,7 @@
 		"when": "^3.7.3"
 	},
 	"devDependencies": {
-		"documentjs": "^0.3.0-pre.4",
+		"documentjs": "^0.3.0-pre.5",
 		"steal": "^0.10.1",
 		"steal-qunit": "0.0.2",
 		"testee": "^0.2.0",
