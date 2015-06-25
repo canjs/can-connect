@@ -65,8 +65,78 @@ module.exports = connect.behavior("data-worker",function(base){
 				});
 			}
 		};
-		
-		["getListData","updateListData","getSets","clear","getData","createData","updateData","destroyData"].forEach(function(name){
+		/**
+		 * @function can-connect/data/worker.getListData getListData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		["getListData",
+		/**
+		 * @function can-connect/data/worker.updateListData updateListData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"updateListData",
+		/**
+		 * @function can-connect/data/worker.getSets getSets
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"getSets",
+		/**
+		 * @function can-connect/data/worker.clear clear
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"clear",
+		/**
+		 * @function can-connect/data/worker.getData getData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"getData",
+		/**
+		 * @function can-connect/data/worker.createData createData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"createData",
+		/**
+		 * @function can-connect/data/worker.updateData updateData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"updateData",
+		/**
+		 * @function can-connect/data/worker.destroyData destroyData
+		 * @parent can-connect/data/worker.data
+		 * 
+		 * If passed a [can-connect/data/worker.worker] option, overwritten
+		 * to forward calling this method on a connection in the worker that
+		 * shares this connection's [can-connect/data/worker.name].
+		 */
+		"destroyData"].forEach(function(name){
 
 			behavior[name] = function(){
 				return this._workerRequest({
@@ -126,8 +196,19 @@ module.exports = connect.behavior("data-worker",function(base){
 				
 			}
 			/**
-			 * @property {String} name
+			 * @property {String} can-connect/data/worker.name name
 			 * @parent can-connect/data/worker.identifiers
+			 * 
+			 * @option {String} The connection must be provided a unique name.
+			 */
+			
+			/**
+			 * @property {Worker} can-connect/data/worker.worker worker
+			 * @parent can-connect/data/worker.identifiers
+			 * 
+			 * @option {Worker} A web-worker that "data instance" methods will be sent to.  This
+			 * web-worker should include a connection that matches the name of the window's 
+			 * connection.
 			 */
 		};
 	}
