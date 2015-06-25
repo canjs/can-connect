@@ -252,7 +252,7 @@ var render = function(todos) {
 
 The following demo shows the result:
 
-@demo docs/demos/basics.html
+@demo can-connect/docs/demos/basics.html
 
 This connection also lets you create, update, and destroy a Todo instance as follows:
 

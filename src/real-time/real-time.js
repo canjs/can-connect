@@ -66,7 +66,7 @@
  * connection will then update lists accordingly:
  * 
  * 
- * @demo src/real-time/real-time.html
+ * @demo can-connect/src/real-time/real-time.html
  * 
  * This example creates a `todoList` function and `todoItem` function
  * that manage the behavior of a list of todos and a single todo respectfully.
