@@ -154,10 +154,9 @@ var updateSettings = function (settings, originalOptions) {
 		return responses;
 	};
 
-
 // OVERWRITE XHR
 var XHR = XMLHttpRequest;
-window.XMLHttpRequest = function(){
+global.XMLHttpRequest = function(){
 	this._headers = {};
 };
 

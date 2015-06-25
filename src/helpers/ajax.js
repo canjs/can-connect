@@ -4,7 +4,7 @@ var helpers = require("can-connect/helpers/");
 var slice = [].slice;
 
 // from https://gist.github.com/mythz/1334560
-var win=window, xhrs = [
+var xhrs = [
        function () { return new XMLHttpRequest(); },
        function () { return new ActiveXObject("Microsoft.XMLHTTP"); },
        function () { return new ActiveXObject("MSXML2.XMLHTTP.3.0"); },
@@ -58,7 +58,7 @@ $._xhrResp = function (xhr) {
         case "text/javascript":
         case "application/javascript":
         case "application/x-javascript":
-            return win.JSON ? JSON.parse(xhr.responseText) : eval(xhr.responseText);
+            return JSON.parse(xhr.responseText);
         default:
             return xhr.responseText;
     }

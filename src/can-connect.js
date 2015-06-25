@@ -49,7 +49,11 @@ var connect = function(behaviors, options){
 connect.order = ["data-localstorage-cache","data-url","data-parse","cache-requests","data-combine-requests",
 
 	"constructor","constructor-store","can-map",
-	"fall-through-cache","data-inline-cache","data-callbacks-cache","data-callbacks","constructor-callbacks-once"
+	"fall-through-cache","data-inline-cache",
+	
+	"data-worker",
+	
+	"data-callbacks-cache","data-callbacks","constructor-callbacks-once"
 	];
 
 connect.behavior = function(name, behavior){
@@ -63,7 +67,8 @@ connect.behavior = function(name, behavior){
 		Behavior.name = name;
 		Behavior.prototype = base;
 		var newBehavior = new Behavior;
-		var res = behavior.apply(newBehavior, arguments);
+		// allows behaviors to be a simple object, not always a function
+		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
 		helpers.extend(newBehavior, res);
 		newBehavior.__behaviorName = name;
 		return newBehavior;

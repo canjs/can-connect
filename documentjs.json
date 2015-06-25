@@ -4,7 +4,8 @@
 			"glob": {
 				"pattern": "{src/**/*,readme,docs/**/*}.{js,md}"
 			},
-			"parent" : "can-connect"
+			"parent" : "can-connect",
+			"minifyBuild": false
 		}
 	}
 }
