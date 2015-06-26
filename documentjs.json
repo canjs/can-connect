@@ -5,7 +5,9 @@
 				"pattern": "{src/**/*,readme,docs/**/*}.{js,md}"
 			},
 			"parent" : "can-connect",
-			"minifyBuild": false
+			"minifyBuild": false,
+			"templates": "docs/theme/templates",
+			"static": "docs/theme/static"
 		}
 	}
 }
