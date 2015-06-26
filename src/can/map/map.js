@@ -31,6 +31,9 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 	// overwrite 
 	var behavior = {
 		init: function(){
+			this.Map = this.Map || Map.extend({});
+			this.List = this.List || List.extend({});
+
 			overwrite(this, this.Map, mapOverwrites, mapStaticOverwrites);
 			overwrite(this, this.List, listPrototypeOverwrites, listStaticOverwrites);
 			baseConnect.init.apply(this, arguments);
