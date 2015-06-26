@@ -51,7 +51,7 @@
  * 
  * The following shows the `fall-through-cache` behavior.  
  * 
- * @demo src/fall-through-cache/fall-through-cache.html
+ * @demo can-connect/src/fall-through-cache/fall-through-cache.html
  * 
  * Clicking
  * "Completed" or "Incomplete" will make one of the following requests and
