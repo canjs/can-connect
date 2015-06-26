@@ -19,7 +19,8 @@
 		"steal": "^0.10.1",
 		"can": "^2.3.0-pre.1",
 		"can-set": "^0.2.0",
-		"when": "^3.7.3"
+		"when": "^3.7.3",
+		"steal-qunit": "0.0.2"
 	},
 	"system": {
 		"ignoreBrowser": true,
