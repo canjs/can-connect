@@ -16,7 +16,7 @@
 with [can.Model](http://canjs.com/docs/can.Model.html) so that developers can migrate
 to `can-connect` without having to rewrite their models immediately.
 
-However, use of `can.Model` will be  in CanJS 3.0. Instead of extending `can.Model`,
+However, use of `can.Model` will be deprecated in CanJS 3.0. Instead of extending `can.Model`,
 extend `can.Map` and `can.List` and use the [can-connect/can/map] behavior to connect your Map and List to a connection:
 
 ```
