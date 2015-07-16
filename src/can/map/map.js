@@ -6,23 +6,6 @@ var connect = require("can-connect");
 var Map = require("can/map/map");
 var List = require("can/list/list");
 
-/**
- * @module {connect.Behavior} can-connect/can/map can/map
- * @group can-connect/can/map.map-static 0 Map Static Methods
- * @group can-connect/can/map.map 1 Map Instance Methods
- * @group can-connect/can/map.hydrators 2 Hydrators
- * @group can-connect/can/map.serializers 3 Serializers
- * @group can-connect/can/map.identifiers 4 Identifiers
- * @group can-connect/can/map.instance-callbacks 5 Instance Callbacks
- * @parent can-connect.behaviors
- * 
- * Connects a can.Map to everything that needs to be connected to
- * 
- * @signature `canMap( baseConnect )`
- * 
- * 
- */
-
 
 
 

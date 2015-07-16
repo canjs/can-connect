@@ -6,7 +6,7 @@
  * 
  * @option {connect.Behavior}
  * 
- * Uses the [connection.url] option to implement the behavior of 
+ * Uses the [can-connect/data-url.url] option to implement the behavior of 
  * [connection.getListData], 
  * [connection.getData],
  * [connection.createData],
