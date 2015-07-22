@@ -359,7 +359,7 @@ Todo.List = can.List.extend({Map: Todo},{});
 
 var todoConnection = connect([
     "data-url",
-    "can/map",
+    "can-map",
     "constructor",
     "constructor-store"
   ],{
