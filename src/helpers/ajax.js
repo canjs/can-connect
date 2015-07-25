@@ -77,8 +77,12 @@ module.exports = function (o) {
             if (timer) clearTimeout(timer);
             if (xhr.status < 300) {
                 if (o.success) o.success($._xhrResp(xhr));
+                deferred.resolve( JSON.parse( xhr.responseText ) );
             }
-            else if (o.error) o.error(xhr, xhr.status, xhr.statusText);
+            else {
+                if (o.error) o.error(xhr, xhr.status, xhr.statusText);
+                deferred.reject( JSON.parse( xhr.responseText ) );
+            }
             if (o.complete) o.complete(xhr, xhr.statusText);
         }
         else if (o.progress) o.progress(++n);
@@ -87,26 +91,15 @@ module.exports = function (o) {
     var isPost = o.type == "POST" || o.type == "PUT";
     if (!isPost && o.data) url += "?" + $._formData(o.data);
         xhr.open(o.type, url);
- 
+
         if (isPost) {
             var isJson = o.dataType.indexOf("json") >= 0;
         data = isJson ? JSON.stringify(o.data) : $._formData(o.data);
         xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded");
     }
-    
+
     var deferred = helpers.deferred();
-    
-    xhr.onreadystagechange = function() {
-	    if(xhr.readyState == 4 ) {
-	    	if( xhr.status == 200 ) {
-	    		deferred.resolve( JSON.parse( xhr.responseText ) );
-	    	} else {
-	    		deferred.reject( JSON.parse( xhr.responseText ) );
-	    	}
-	        
-	    }
-	};
-    
+
     xhr.send(data);
     return deferred.promise;
 };
