@@ -22,6 +22,7 @@ var connect=  require("can-connect/can-connect");
 var QUnit = require("steal-qunit");
 
 var can = require("can/util/util");
+var compute = require("can/compute/compute");
 var fixture = require("can/util/fixture/fixture");
 var testHelpers = require("can-connect/test-helpers");
 
@@ -308,4 +309,90 @@ QUnit.test("real-time super model", function(){
 	
 });
 
-
+test("isSaving and isDestroying", function(){
+	
+	stop();
+	
+	fixture({
+		"POST /services/todos": function(request){
+			return can.simpleExtend({id: 10}, request.data);
+		},
+		"PUT /services/todos/{id}": function(request){
+			return can.simpleExtend({},request.data);
+		},
+		"DELETE /services/todos/{id}": function(request){
+			return can.simpleExtend({destroyed:  1},request.data);
+		}
+	});
+	
+	
+	var todo = new this.Todo({foo: "bar"});
+	var todoConnection = this.todoConnection;
+	var state = "hydrated",
+		isSavingCalls = 0,
+		isDestroyingCalls = 0;
+	
+	var isSaving = can.compute(function(){
+		return todo.isSaving();
+	});
+	var isDestroying = can.compute(function(){
+		return todo.isDestroying();
+	});
+	
+	isSaving.bind("change", function(ev, newVal, oldVal){
+		isSavingCalls++;
+		if(isSavingCalls === 1) {
+			equal(state,"hydrated");
+			equal(newVal, true);
+			equal(todo.isNew(), true);
+		} else if(isSavingCalls === 2) {
+			equal(state,"hydrated");
+			equal(newVal, false);
+			equal(todo.isNew(), false);
+		} else if(isSavingCalls === 3) {
+			equal(state,"created");
+			equal(newVal, true);
+			equal(todo.isNew(), false);
+		} else if(isSavingCalls === 4) {
+			equal(state,"created");
+			equal(newVal, false);
+		} else {
+			ok(false, "extra saving call");
+		}
+	});
+	
+	isDestroying.bind("change", function(ev, newVal, oldVal){
+		isDestroyingCalls++;
+		if(isSavingCalls === 1) {
+			equal(state,"updated");
+			equal(newVal, true);
+		} else if(isSavingCalls === 2) {
+			equal(state,"updated");
+			equal(newVal, false);
+		}
+	});
+	
+	
+	todoConnection.save(todo).then(function(){
+		state = "created";
+		equal( todo.isSaving(), false, "isSaving is false" );
+		
+		todoConnection.save(todo).then(function(){
+			state = "updated";
+			equal( todo.isSaving(), false, "isSaving is false" );
+			
+			todoConnection.destroy(todo).then(function(){
+				equal( todo.isDestroying(), false, "isDestroying is false" );
+				start();
+			});
+			equal( todo.isSaving(), false, "isSaving is false" );
+			equal( todo.isDestroying(), true, "isDestroying is true" );
+		});
+		
+		equal( todo.isSaving(), true, "isSaving is true" );
+	});
+	
+	equal( todo.isSaving(), true, "isSaving is true" );
+	
+	
+});

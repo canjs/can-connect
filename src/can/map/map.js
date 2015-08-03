@@ -190,6 +190,28 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			var res = baseConnect.updatedList.apply(this, arguments);
 			can.batch.stop();
 			return res;
+		},
+		save: function(instance){
+			instance._saving = true;
+			can.batch.trigger(instance, "_saving", [true, false]);
+			var done = function(){
+				instance._saving = false;
+				can.batch.trigger(instance, "_saving", [false, true]);
+			};
+			var base = baseConnect.save.apply(this, arguments);
+			base.then(done,done);
+			return base;
+		},
+		destroy: function(instance){
+			instance._destroying = true;
+			can.batch.trigger(instance, "_destroying", [true, false]);
+			var done = function(){
+				instance._destroying = false;
+				can.batch.trigger(instance, "_destroying", [false, true]);
+			};
+			var base = baseConnect.destroy.apply(this, arguments);
+			base.then(done,done);
+			return base;
 		}
 	};
 	
@@ -380,6 +402,42 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 			// 0 is a valid ID.
 			// TODO: Why not `return id === null || id === undefined;`?
 			return !(id || id === 0); // If `null` or `undefined`
+		};
+	},
+	isSaving: function (base, connection) {
+		/**
+		 * @function can.Map.prototype.isSaving isSaving
+		 * @parent can-connect/can/map.map
+		 * 
+		 * Returns if the map is currently being saved.
+		 * 
+		 * @signature `map.isSaving()`
+		 * 
+		 *   Returns `true` if .save() has been called, but has not resolved yet.
+		 * 
+		 *   @return {Boolean} 
+		 */
+		return function () {
+			can.__observe(this,"_saving");
+			return !!this._saving; 
+		};
+	},
+	isDestroying: function (base, connection) {
+		/**
+		 * @function can.Map.prototype.isDestroying isDestroying
+		 * @parent can-connect/can/map.map
+		 * 
+		 * Returns if the map is currently being destroyed.
+		 * 
+		 * @signature `map.isSaving()`
+		 * 
+		 *   Returns `true` if .destroy() has been called, but has not resolved yet.
+		 * 
+		 *   @return {Boolean} 
+		 */
+		return function () {
+			can.__observe(this,"_destroying");
+			return !!this._destroying; 
 		};
 	},
 	save: function (base, connection) {

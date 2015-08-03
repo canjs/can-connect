@@ -1,4 +1,3 @@
-
 var can = require("can/util/util"),
 	Map = require("can/map/map"),
 	List = require("can/list/list"),
