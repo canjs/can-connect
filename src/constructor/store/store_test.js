@@ -101,7 +101,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
-		listed.__set = sets;
+		listed.__listSet = sets;
 		return listed;
 	};
 	

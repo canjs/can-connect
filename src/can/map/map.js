@@ -172,7 +172,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 					list.attr(prop, val);
 				}
 			});
-			list.__set = set;
+			list.__listSet = set;
 			return list;
 		},
 		/**
@@ -529,6 +529,7 @@ var listPrototypeOverwrites = {
 			// If there was a plain object passed to the List constructor,
 			// we use those as parameters for an initial getList.
 			if (can.isPlainObject(params) && !can.isArray(params)) {
+				this.__listSet = params;
 				base.apply(this);
 				this.replace(can.isDeferred(params) ? params : connection.getList(params));
 			} else {

@@ -225,7 +225,7 @@ var core = connect.behavior("base",function(base){
 		 * Specifies the property that uniquely identifies a list.
 		 * 
 		 * @option {String} The name of the property that uniquely identifies
-		 * the list.  Defaults to `"__set"`.
+		 * the list.  Defaults to `"__listSet"`.
 		 * 
 		 * @body
 		 * 
@@ -238,7 +238,7 @@ var core = connect.behavior("base",function(base){
 		 * ```
 		 * 
 		 */
-		listSetProp: "__set",
+		listSetProp: "__listSet",
 		init: function(){}
 		/**
 		 * @property {set.Algebra} connect.base.algebra algebra

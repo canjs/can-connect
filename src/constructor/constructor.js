@@ -202,7 +202,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 				return this.list(listData, set);
 			} else {
 				var list = listData.data.slice(0);
-				list.__set = set;
+				list[this.listSetProp || "__listSet"] = set;
 				return list;
 			}
 		},
@@ -613,7 +613,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   list: function(listData, set){
 		 *     var collection = Object.create(MyList);
 		 *     Array.apply(collection, listData.data);
-		 *     collection.__set = set;
+		 *     collection.__listSet = set;
 		 *     return collection;
 		 *   }
 		 * });
@@ -628,7 +628,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * ```
 		 * 
 		 * 
-		 * Notice that we added the `__set` data on the list. This is useful
+		 * Notice that we added the `__listSet` data on the list. This is useful
 		 * for other extensions.
 		 * 
 		 */
@@ -667,7 +667,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   list: function(listData, set){
 		 *     var collection = Object.create(MyList);
 		 *     Array.apply(collection, listData.data);
-		 *     collection.__set = set;
+		 *     collection.__listSet = set;
 		 *     return collection;
 		 *   }
 		 * });
@@ -682,7 +682,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * ```
 		 * 
 		 * 
-		 * Notice that we added the `__set` data on the list. This is useful
+		 * Notice that we added the `__listSet` data on the list. This is useful
 		 * for other extensions.
 		 * 
 		 */

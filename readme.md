@@ -435,7 +435,7 @@ or consumed by the core behaviors.
 `.id( props | instance ) -> String` - Returns a unique identifier for the instance or raw data.  
 `.idProp -> String="id"` - The name of the unique identifier property.  
 `.listSet(list) -> set` - Returns the set a list represents.  
-`.listSetProp -> String="__set"` - The property on a List that contains its set.  
+`.listSetProp -> String="__listSet"` - The property on a List that contains its set.  
 
 Implemented by [connect.base].
 

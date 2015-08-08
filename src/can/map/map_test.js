@@ -69,7 +69,7 @@ QUnit.module("can-connect/can/map",{
 			{
 				url: "/services/todos",
 				cacheConnection: cacheConnection,
-				Map: Map,
+				Map: Todo,
 				List: TodoList,
 				ajax: $.ajax
 			});
@@ -393,6 +393,34 @@ test("isSaving and isDestroying", function(){
 	});
 	
 	equal( todo.isSaving(), true, "isSaving is true" );
+	
+	
+});
+
+test("listSet works", function(){
+	fixture({
+		"GET /services/todos": function(){
+			return {data: []};	
+		}
+	});
+	var Todo = this.Todo;
+	var TodoList = this.TodoList;
+	var todoConnection = this.todoConnection;
+	stop();
+	
+	Promise.all([
+		todoConnection.getList({foo: "bar"}).then(function(list){
+			deepEqual( todoConnection.listSet(list), {foo: "bar"});
+		}),
+		Todo.getList({zed: "ted"}).then(function(list){
+			deepEqual( todoConnection.listSet(list), {zed: "ted"});
+		})
+	]).then(function(){
+		list = new TodoList({"zak": "ack"});
+		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
+		start();
+	});
+	
 	
 	
 });
