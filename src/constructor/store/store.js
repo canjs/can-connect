@@ -299,7 +299,9 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 */
 		addListReference: function(list, set) {
 			var id = sortedSetJSON( set || this.listSet(list) );
-			this.listStore.addReference( id, list );
+			if(id) {
+				this.listStore.addReference( id, list );
+			}
 		},
 		/**
 		 * @function can.connect/constructor-store.deleteListReference deleteListReference
@@ -334,7 +336,9 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 */
 		deleteListReference: function(list, set) {
 			var id = sortedSetJSON( set || this.listSet(list) );
-			this.listStore.deleteReference( id, list );
+			if(id) {
+				this.listStore.deleteReference( id, list );
+			}
 		},
 		/**
 		 * @function can.connect/constructor-store.hydratedInstance hydratedInstance

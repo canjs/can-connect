@@ -163,3 +163,50 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	}
 	
 });
+
+QUnit.test("list's without a listSet are not added to the store", function(){
+	var Person = function(values){
+		canSet.helpers.extend(this, values);
+	};
+	PersonList = function(people, sets){
+		var listed = people.slice(0);
+		listed.isList = true;
+		listed.__listSet = sets;
+		return listed;
+	};
+	
+	var connection = connect([function(){
+		var calls = 0;
+		return {
+			getListData: function(){
+				// nothing here first time
+				calls++;
+				if(calls === 1) {
+					return testHelpers.asyncResolve({data: [{id: 0}, {id: 1}] });
+				} else if(calls === 2){
+					return testHelpers.asyncResolve({data: [{id: 1}, {id: 2}] });
+				} else {
+					return testHelpers.asyncResolve({data: [] });
+				}
+			},
+			updatedList: function(list, updatedList, set){
+				list.splice.apply(list, [0, list.length].concat( updatedList.data ) );
+			}
+		};
+	},"constructor-store","constructor"],{
+		instance: function(values){
+			return new Person(values);
+		}, 
+		list: function(arr, sets){
+			return new PersonList(arr.data, sets);
+		}
+	});
+	
+	connection.addListReference([]);
+	connection.listStore.forEach(function(){
+		ok(false);
+	});
+	QUnit.expect(0)
+	
+	
+});
