@@ -36,6 +36,14 @@ require('can/view/bindings/bindings');
 require("../can");
 var mustacheCore = require( "can/view/stache/mustache_core");
 
+var convertToValue = function(arg){
+	if(typeof arg === "function") {
+		return convertToValue( arg() );
+	} else {
+		return arg;
+	}
+};
+
 connect.tag = function(tagName, connection){
 	
 	var removeBrackets = function(value, open, close){
@@ -76,15 +84,23 @@ connect.tag = function(tagName, connection){
 		});
 	
 		var request = can.compute(function(){
-			
 			var hash = {};
-			can.each(attrInfo.hash, function(val, key) {
-				if (val && val.hasOwnProperty("get")) {
-					hash[key] = tagData.scope.read(val.get, {}).value;
-				} else {
-					hash[key] = val;
-				}
-			});
+			if(typeof attrInfo.hash === "object") {
+				// old expression data
+				can.each(attrInfo.hash, function(val, key) {
+					if (val && val.hasOwnProperty("get")) {
+						hash[key] = tagData.scope.read(val.get, {}).value;
+					} else {
+						hash[key] = val;
+					}
+				});
+			} else {
+				// new expression data
+				can.each(attrInfo.hash(tagData.scope), function(val, key) {
+					hash[key] = convertToValue(val);
+				});
+			}
+			
 			var promise = connection[method](hash);
 			addToPageData(hash, promise);
 			return promise;

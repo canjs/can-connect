@@ -190,7 +190,7 @@ QUnit.test("real-time super model", function(){
 	
 	function serverSideDuplicateCreate(){
 		connection.createInstance({id: 10, due: "today",createdId: 1, type: "important"}).then(function(createdInstance){
-			equal(createdInstance, created);
+			equal(createdInstance, created, "created instance returned from SSE is the same as what we created earlier");
 			
 			ok( importantList.indexOf(created) >= 0, "in important");
 			ok( todayList.indexOf(created) >= 0, "in today");

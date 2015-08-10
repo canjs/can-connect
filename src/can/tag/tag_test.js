@@ -219,9 +219,6 @@ QUnit.test("get fullCache", function(){
 				ok(false,"rejected");
 				start();
 			}
-		}, function(e){
-			ok(false,e);
-			start();
 		});
 		
 		$("<div>").appendTo("#qunit-fixture").append(frag);
