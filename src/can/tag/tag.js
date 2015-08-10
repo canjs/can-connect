@@ -96,7 +96,7 @@ connect.tag = function(tagName, connection){
 				});
 			} else {
 				// new expression data
-				can.each(attrInfo.hash(tagData.scope), function(val, key) {
+				can.each(attrInfo.hash(tagData.scope, tagData.options, {}), function(val, key) {
 					hash[key] = convertToValue(val);
 				});
 			}
