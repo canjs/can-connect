@@ -1,86 +1,86 @@
 {
-  "name": "can-connect",
-  "version": "0.2.3",
-  "description": "Data connection middleware and utilities",
-  "main": "can-connect.js",
-  "dependencies": {
-    "can": "^2.3.0-pre.5",
-    "can-set": "^0.2.0",
-    "when": "^3.7.3"
-  },
-  "devDependencies": {
-    "documentjs": "^0.3.0-pre.5",
-    "steal": "^0.10.1",
-    "steal-qunit": "0.0.2",
-    "testee": "^0.2.0",
-    "steal-tools": "^0.10.0"
-  },
-  "docDependencies": {
-    "steal": "^0.10.1",
-    "can": "^2.3.0-pre.1",
-    "can-set": "^0.2.0",
-    "when": "^3.7.3",
-    "steal-qunit": "0.0.2"
-  },
-  "system": {
-    "ignoreBrowser": true,
-    "npmIgnore": [
-      "devDependencies"
-    ],
-    "npmDependencies": [
-      "steal-qunit"
-    ],
-    "directories": {
-      "lib": "src"
-    },
-    "meta": {
-      "when/es6-shim/Promise": {
-        "format": "global"
-      }
-    }
-  },
-  "browser": {
-    "./all": "./dist/cjs/all",
-    "./cache-requests/cache-requests": "./dist/cjs/cache-requests/cache-requests",
-    "./can-connect": "./dist/cjs/can-connect",
-    "./helpers/helpers": "./dist/cjs/helpers/helpers",
-    "./helpers/get-items": "./dist/cjs/helpers/get-items",
-    "./can/map/map": "./dist/cjs/can/map/map",
-    "./can/can": "./dist/cjs/can/can",
-    "./can/model/model": "./dist/cjs/can/model/model",
-    "./data/url/url": "./dist/cjs/data/url/url",
-    "./helpers/ajax": "./dist/cjs/helpers/ajax",
-    "./constructor/constructor": "./dist/cjs/constructor/constructor",
-    "./helpers/weak-reference-map": "./dist/cjs/helpers/weak-reference-map",
-    "./helpers/overwrite": "./dist/cjs/helpers/overwrite",
-    "./helpers/id-merge": "./dist/cjs/helpers/id-merge",
-    "./constructor/store/store": "./dist/cjs/constructor/store/store",
-    "./helpers/sorted-set-json": "./dist/cjs/helpers/sorted-set-json",
-    "./data/parse/parse": "./dist/cjs/data/parse/parse",
-    "./can/super-map/super-map": "./dist/cjs/can/super-map/super-map",
-    "./constructor/callbacks-once/callbacks-once": "./dist/cjs/constructor/callbacks-once/callbacks-once",
-    "./data/callbacks/callbacks": "./dist/cjs/data/callbacks/callbacks",
-    "./data/callbacks-cache/callbacks-cache": "./dist/cjs/data/callbacks-cache/callbacks-cache",
-    "./data/combine-requests/combine-requests": "./dist/cjs/data/combine-requests/combine-requests",
-    "./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
-    "./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",
-    "./fall-through-cache/fall-through-cache": "./dist/cjs/fall-through-cache/fall-through-cache",
-    "./real-time/real-time": "./dist/cjs/real-time/real-time",
-    "./can/tag/tag": "./dist/cjs/can/tag/tag",
-    "./data/memory-cache/memory-cache": "./dist/cjs/data/memory-cache/memory-cache"
-  },
-  "scripts": {
-    "test": "testee --browsers firefox test.html",
-    "prepublish": "node ./build.js",
-    "publish": "git push origin --tags",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish",
-    "document": "documentjs"
-  },
-  "keywords": [
-    "CanJS"
-  ],
-  "author": "Bitovi",
-  "license": "MIT"
+	"name": "can-connect",
+	"version": "0.2.3",
+	"description": "Data connection middleware and utilities",
+	"main": "can-connect.js",
+	"dependencies": {
+		"can": "^2.3.0-pre.5",
+		"can-set": "^0.2.0",
+		"when": "^3.7.3"
+	},
+	"devDependencies": {
+		"documentjs": "^0.3.0-pre.5",
+		"steal": "^0.10.1",
+		"steal-qunit": "0.0.2",
+		"testee": "^0.2.0",
+		"steal-tools": "^0.10.0"
+	},
+	"docDependencies": {
+		"steal": "^0.10.1",
+		"can": "^2.3.0-pre.1",
+		"can-set": "^0.2.0",
+		"when": "^3.7.3",
+		"steal-qunit": "0.0.2"
+	},
+	"system": {
+		"ignoreBrowser": true,
+		"npmIgnore": [
+			"devDependencies"
+		],
+		"npmDependencies": [
+			"steal-qunit"
+		],
+		"directories": {
+			"lib": "src"
+		},
+		"meta": {
+			"when/es6-shim/Promise": {
+				"format": "global"
+			}
+		}
+	},
+	"browser": {
+		"./all": "./dist/cjs/all",
+		"./cache-requests/cache-requests": "./dist/cjs/cache-requests/cache-requests",
+		"./can-connect": "./dist/cjs/can-connect",
+		"./helpers/helpers": "./dist/cjs/helpers/helpers",
+		"./helpers/get-items": "./dist/cjs/helpers/get-items",
+		"./can/map/map": "./dist/cjs/can/map/map",
+		"./can/can": "./dist/cjs/can/can",
+		"./can/model/model": "./dist/cjs/can/model/model",
+		"./data/url/url": "./dist/cjs/data/url/url",
+		"./helpers/ajax": "./dist/cjs/helpers/ajax",
+		"./constructor/constructor": "./dist/cjs/constructor/constructor",
+		"./helpers/weak-reference-map": "./dist/cjs/helpers/weak-reference-map",
+		"./helpers/overwrite": "./dist/cjs/helpers/overwrite",
+		"./helpers/id-merge": "./dist/cjs/helpers/id-merge",
+		"./constructor/store/store": "./dist/cjs/constructor/store/store",
+		"./helpers/sorted-set-json": "./dist/cjs/helpers/sorted-set-json",
+		"./data/parse/parse": "./dist/cjs/data/parse/parse",
+		"./can/super-map/super-map": "./dist/cjs/can/super-map/super-map",
+		"./constructor/callbacks-once/callbacks-once": "./dist/cjs/constructor/callbacks-once/callbacks-once",
+		"./data/callbacks/callbacks": "./dist/cjs/data/callbacks/callbacks",
+		"./data/callbacks-cache/callbacks-cache": "./dist/cjs/data/callbacks-cache/callbacks-cache",
+		"./data/combine-requests/combine-requests": "./dist/cjs/data/combine-requests/combine-requests",
+		"./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
+		"./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",
+		"./fall-through-cache/fall-through-cache": "./dist/cjs/fall-through-cache/fall-through-cache",
+		"./real-time/real-time": "./dist/cjs/real-time/real-time",
+		"./can/tag/tag": "./dist/cjs/can/tag/tag",
+		"./data/memory-cache/memory-cache": "./dist/cjs/data/memory-cache/memory-cache"
+	},
+	"scripts": {
+		"test": "testee --browsers firefox test.html",
+		"prepublish": "node ./build.js",
+		"publish": "git push origin --tags",
+		"release:patch": "npm version patch && npm publish",
+		"release:minor": "npm version minor && npm publish",
+		"release:major": "npm version major && npm publish",
+		"document": "documentjs"
+	},
+	"keywords": [
+		"CanJS"
+	],
+	"author": "Bitovi",
+	"license": "MIT"
 }

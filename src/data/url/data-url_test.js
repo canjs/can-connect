@@ -2,7 +2,7 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-connect/fixture/");
 var persist = require("can-connect/data/url/");
 
-QUnit.module("can-connect/persist",{
+QUnit.module("can-connect/data/url",{
 	setup: function(){
 		fixture.delay = 1;
 	}

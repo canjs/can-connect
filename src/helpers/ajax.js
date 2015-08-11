@@ -96,7 +96,7 @@ module.exports = function (o) {
     
     var deferred = helpers.deferred();
     
-    xhr.onreadystagechange = function() {
+    xhr.onreadystatechange = function() {
 	    if(xhr.readyState == 4 ) {
 	    	if( xhr.status == 200 ) {
 	    		deferred.resolve( JSON.parse( xhr.responseText ) );

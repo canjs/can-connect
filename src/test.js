@@ -3,6 +3,8 @@
 
 require("can-connect/helpers/helpers_test");
 
+require("./fixture/fixture_test");
+
 require("./data/url/data-url_test");
 require("./data/parse/parse_test");
 

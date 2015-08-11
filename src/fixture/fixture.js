@@ -1,6 +1,7 @@
 var helpers = require("can-connect/helpers/");
 var canSet = require("can-set");
 var deparam = require("can-connect/helpers/deparam");
+var helpers = require("can-connect/helpers/");
 
 var can = {};
 
@@ -81,7 +82,7 @@ var updateSettings = function (settings, originalOptions) {
 
 		if (data) {
 			// Template static fixture URLs
-			url = can.sub(url, data);
+			url = helpers.sub(url, data);
 		}
 
 		delete settings.fixture;
@@ -157,7 +158,12 @@ var updateSettings = function (settings, originalOptions) {
 // OVERWRITE XHR
 var XHR = XMLHttpRequest;
 global.XMLHttpRequest = function(){
-	this._headers = {};
+	var headers = this._headers = {};
+	this._xhr = {
+		getAllResponseHeaders: function(){
+			return headers;
+		}
+	};
 };
 
 XMLHttpRequest.prototype.setRequestHeader = function(name, value){
@@ -167,6 +173,25 @@ XMLHttpRequest.prototype.open = function(type, url){
 	this.type = type;
 	this.url = url;
 };
+XMLHttpRequest.prototype.getAllResponseHeaders = function(){
+	return this._xhr.getAllResponseHeaders.apply(this._xhr, arguments);
+};
+
+["response","responseText", "responseType", "responseURL","status","statusText"].forEach(function(prop){
+	
+	Object.defineProperty(XMLHttpRequest.prototype, prop, {
+		get: function(){
+			return this._xhr[prop];
+		},
+		set: function(newVal){
+			this._xhr[prop] = newVal;
+		}
+	});
+	
+});
+
+
+
 XMLHttpRequest.prototype.send = function(data) {
 	
 	var settings = {
@@ -181,7 +206,12 @@ XMLHttpRequest.prototype.send = function(data) {
 		settings.url = settings.url.split("?")[0];
 	}
 	if(typeof settings.data === "string") {
-		settings.data = JSON.parse(settings.data);
+		try {
+			settings.data = JSON.parse(settings.data);
+		} catch(e) {
+			settings.data = deparam( settings.data );
+		}
+		
 	}
 	
 	var self = this;
@@ -197,20 +227,25 @@ XMLHttpRequest.prototype.send = function(data) {
 		timeout = setTimeout(function () {
 			// if the user wants to call success on their own, we allow it ...
 			var success = function () {
+				
 				var response = extractResponse.apply(settings, arguments),
 					status = response[0];
 
 				if ((status >= 200 && status < 300 || status === 304) && stopped === false) {
 					self.readyState = 4;
 					self.status = status;
-					self.responseText = JSON.stringify(response[2][settings.dataType]);
-					self.onreadystagechange();
+					self.statusText = "OK";
+					self.responseText = JSON.stringify(response[2][settings.dataType || 'json']);
+					self.onreadystatechange && self.onreadystatechange();
+					self.onload && self.onload();
 				} else {
 					// TODO probably resolve better
 					self.readyState = 4;
 					self.status = status;
-					self.responseText = JSON.stringify(response[1]);
-					self.onreadystagechange();
+					self.statusText = "error";
+					self.responseText = typeof response[1] === "string" ? response[1] : JSON.stringify(response[1]);
+					self.onreadystatechange && self.onreadystatechange();
+					self.onload && self.onload();
 				}
 			},
 				// Get the results from the fixture.
@@ -219,16 +254,27 @@ XMLHttpRequest.prototype.send = function(data) {
 				// Resolve with fixture results
 				self.readyState = 4;
 				self.status = 200;
-				self.responseText = JSON.stringify(result);
-				self.onreadystagechange();
+				self.statusText = "OK";
+				self.responseText = typeof result === "string" ? result : JSON.stringify(result);
+				self.onreadystatechange && self.onreadystatechange();
+				self.onload && self.onload();
 			}
 		}, can.fixture.delay);
 
 		// Otherwise just run a normal can.ajax call.
 	} else {
+		//debugger;
 		var xhr = new XHR();
+		
+		// copy everything on this to the xhr object that is not on `this`'s prototype
+		for(var prop in this){
+			if(!( prop in XMLHttpRequest.prototype) ) {
+				xhr[prop] = this[prop];
+			}
+		}
+		//helpers.extend(xhr, this);
 		helpers.extend(xhr, settings);
-		xhr.onreadystagechange = this.onreadystagechange;
+		this._xhr = xhr;
 		xhr.open(settings.type, settings.url);
 		return xhr.send(data);
 	}
@@ -355,7 +401,7 @@ helpers.extend(can.fixture, {
 			return true;
 		},
 		type: function(a,b){
-			return a.toLowerCase() === b.toLowerCase();
+			return b ? a.toLowerCase() === b.toLowerCase() : false;
 		},
 		helpers: function(){
 			return true;
@@ -458,6 +504,7 @@ helpers.extend(can.fixture, {
 		// make all items
 		helpers.extend(methods, {
 			findAll: function (request) {
+				
 				request = request || {};
 				//copy array of items
 				var retArr = items.slice(0);
@@ -530,7 +577,8 @@ helpers.extend(can.fixture, {
 				} else if( typeof filter === "object" ) {
 					i = 0;
 					while (i < retArr.length) {
-						if ( !canSet.subset(retArr[i], request.data, filter) ) {
+						var subset = canSet.subset(retArr[i], request.data, filter);
+						if ( !subset ) {
 							retArr.splice(i, 1);
 						} else {
 							i++;
