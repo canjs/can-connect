@@ -623,5 +623,118 @@ var set = require("can-set");
 		});
 	});
 
+
+	test("filtering works", function() {
 	
+		var store = fixture.store(
+			[	{ state : 'CA', name : 'Casadina' },
+				{ state : 'NT', name : 'Alberny' }], 
+			// David, make sure this is here!
+			{});
+	
+		fixture({
+			'GET /api/cities' : store.findAll,
+		});
+		stop();
+		$.getJSON('/api/cities?state=CA').then(function(data){
+			deepEqual(data, {
+				data: [{
+					state : 'CA',
+					name : 'Casadina'
+				}],
+				count: 1
+			});
+			next();
+		}, function(e){
+			ok(false, ""+e);
+			start()
+		});
+		
+		function next(){
+	
+			var store =fixture.store([{
+				_id : 1,
+				name : 'Cheese City',
+				slug : 'cheese-city',
+				address : {
+					city : 'Casadina',
+					state : 'CA'
+				}
+			}, {
+				_id : 2,
+				name : 'Crab Barn',
+				slug : 'crab-barn',
+				address : {
+					city : 'Alberny',
+					state : 'NT'
+				}
+			}],{
+				
+			});
+	
+			fixture({
+				'GET /restaurants' : store.findAll
+			}); 
+			$.getJSON('/api/restaurants?address[city]=Alberny').then(function(responseData){
+				
+				deepEqual(responseData, {
+					count: 1,
+					data: [{
+						_id : 2,
+						name : 'Crab Barn',
+						slug : 'crab-barn',
+						address : {
+							city : 'Alberny',
+							state : 'NT'
+						}
+					}]
+				});
+				last();
+				
+			}, function(e){
+				ok(false);
+				debugger;
+				start();
+			});
+		}
+		function last(){
+			var store =fixture.store([{
+				_id : 1,
+				name : 'Cheese City',
+				slug : 'cheese-city',
+				address : {
+					city : 'Casadina',
+					state : 'CA'
+				}
+			}, {
+				_id : 2,
+				name : 'Crab Barn',
+				slug : 'crab-barn',
+				address : {
+					city : 'Alberny',
+					state : 'NT'
+				}
+			}],{
+				"address.city": function(restaurantValue, paramValue, restaurant, params){
+					return restaurant.address.city === paramValue;
+				}
+			});
+			var responseData = store.findAll({data: {"address.city": "Alberny"}});
+
+			deepEqual(responseData, {
+				count: 1,
+				data: [{
+					_id : 2,
+					name : 'Crab Barn',
+					slug : 'crab-barn',
+					address : {
+						city : 'Alberny',
+						state : 'NT'
+					}
+				}]
+			});
+			start();
+		}
+	}); 
+
 	

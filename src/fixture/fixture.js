@@ -200,7 +200,6 @@ XMLHttpRequest.prototype.send = function(data) {
 		headers: this._headers,
 		type: this.type.toLowerCase()
 	};
-	
 	if(!settings.data && settings.type === "get" || settings.type === "delete") {
 		settings.data = deparam( settings.url.split("?")[1] );
 		settings.url = settings.url.split("?")[0];
@@ -585,15 +584,20 @@ helpers.extend(can.fixture, {
 						}
 					}
 				}
-
 				// Return the data spliced with limit and offset, along with related values
 				// (e.g. count, limit, offset)
-				return {
+				var responseData = {
 					"count": retArr.length,
-					"limit": request.data.limit,
-					"offset": request.data.offset,
 					"data": retArr.slice(offset, offset + limit)
 				};
+				["limit","offset"].forEach(function(prop){
+					if(prop in request.data) {
+						responseData[prop] = request.data[prop];
+					}
+				});
+				
+				
+				return responseData;
 			},
 
 			/**
