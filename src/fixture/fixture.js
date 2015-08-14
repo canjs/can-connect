@@ -177,7 +177,7 @@ XMLHttpRequest.prototype.getAllResponseHeaders = function(){
 	return this._xhr.getAllResponseHeaders.apply(this._xhr, arguments);
 };
 
-["response","responseText", "responseType", "responseURL","status","statusText"].forEach(function(prop){
+["response","responseText", "responseType", "responseURL","status","statusText","readyState"].forEach(function(prop){
 	
 	Object.defineProperty(XMLHttpRequest.prototype, prop, {
 		get: function(){
