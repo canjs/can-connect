@@ -421,6 +421,32 @@ test("listSet works", function(){
 		start();
 	});
 	
-	
-	
 });
+
+test("findAll and findOne alias", function(){
+	
+	fixture({
+		"GET /services/todos": function(){
+			return {data: [{id: 1, name: "findAll"}]};	
+		},
+		"GET /services/todos/{id}": function(){
+			return {id: 2, name: "findOne"};	
+		}
+	});
+	
+	var Todo = this.Todo;
+	
+	stop();
+	Promise.all([
+		Todo.findOne({id: 1}).then(function(todo){
+			equal(todo.name, "findOne");
+		}),
+		Todo.findAll({}).then(function(todos){
+			equal(todos.length, 1);
+			equal(todos[0].name, "findAll");
+		})
+	]).then(function(){
+		start();
+	});
+});
+

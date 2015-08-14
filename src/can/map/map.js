@@ -322,6 +322,17 @@ var mapStaticOverwrites = {
 		};
 	},
 	/**
+	 * @function can.Map.getList getList
+	 * @parent can-connect/can/map.map-static
+	 * 
+	 * Alias of [can.Map.getList]. You should use `.getList()`.
+	 */
+	findAll: function (base, connection) {
+		return function(set) {
+			return connection.getList(set);
+		};
+	},
+	/**
 	 * @function can.Map.get get
 	 * @parent can-connect/can/map.map-static
 	 * 
@@ -350,6 +361,18 @@ var mapStaticOverwrites = {
 	 * ```
 	 */
 	get: function (base, connection) {
+		return function(params) {
+			// adds .then for compat
+			return connection.get(params);
+		};
+	},
+	/**
+	 * @function can.Map.findOne findOne
+	 * @parent can-connect/can/map.map-static
+	 * 
+	 * Alias of [can.Map.get]. You should use `.get()`.
+	 */
+	findOne: function (base, connection) {
 		return function(params) {
 			// adds .then for compat
 			return connection.get(params);
