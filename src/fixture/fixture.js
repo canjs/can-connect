@@ -156,8 +156,10 @@ var updateSettings = function (settings, originalOptions) {
 	};
 
 // OVERWRITE XHR
-var XHR = XMLHttpRequest;
-global.XMLHttpRequest = function(){
+var XHR = XMLHttpRequest,
+	g = typeof global !== "undefined"? global : window;
+	
+g.XMLHttpRequest = function(){
 	var headers = this._headers = {};
 	this._xhr = {
 		getAllResponseHeaders: function(){

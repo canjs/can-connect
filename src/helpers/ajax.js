@@ -70,6 +70,8 @@ $._formData = function (o) {
 };
 module.exports = function (o) {
     var xhr = $.xhr(), timer, n = 0;
+    var deferred = helpers.deferred();
+    
     o = _extend({ userAgent: "XMLHttpRequest", lang: "en", type: "GET", data: null, dataType: "application/x-www-form-urlencoded" }, o);
     if (o.timeout) timer = setTimeout(function () { xhr.abort(); if (o.timeoutFn) o.timeoutFn(o.url); }, o.timeout);
     xhr.onreadystatechange = function () {
@@ -80,6 +82,12 @@ module.exports = function (o) {
             }
             else if (o.error) o.error(xhr, xhr.status, xhr.statusText);
             if (o.complete) o.complete(xhr, xhr.statusText);
+
+	    	if( xhr.status == 200 ) {
+	    		deferred.resolve( JSON.parse( xhr.responseText ) );
+	    	} else {
+	    		deferred.reject( JSON.parse( xhr.responseText ) );
+	    	}
         }
         else if (o.progress) o.progress(++n);
     };
@@ -93,19 +101,6 @@ module.exports = function (o) {
         data = isJson ? JSON.stringify(o.data) : $._formData(o.data);
         xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded");
     }
-    
-    var deferred = helpers.deferred();
-    
-    xhr.onreadystatechange = function() {
-	    if(xhr.readyState == 4 ) {
-	    	if( xhr.status == 200 ) {
-	    		deferred.resolve( JSON.parse( xhr.responseText ) );
-	    	} else {
-	    		deferred.reject( JSON.parse( xhr.responseText ) );
-	    	}
-	        
-	    }
-	};
     
     xhr.send(data);
     return deferred.promise;
