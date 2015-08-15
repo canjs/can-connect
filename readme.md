@@ -9,7 +9,9 @@
 [![Build Status](https://travis-ci.org/canjs/can-connect.png?branch=master)](https://travis-ci.org/canjs/can-connect)
 
 `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for 
-any JavaScript framework, not just CanJS.  It currently can:
+any JavaScript framework, not just CanJS.  [Play with it here.](http://jsbin.com/nazewa/edit?html,js)
+
+It currently can:
 
 Load data:
 
