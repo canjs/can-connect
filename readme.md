@@ -184,7 +184,7 @@ an "Instance Interface" that can create, read, update and delete (CRUD) typed da
 using the lower-level "Data Interface".
 
 By `typed` data we mean data that is more than just plain JavaScript objects.  For
-example, we might to create `todo` objects with a `isComplete` method:
+example, we might to create `todo` objects with an `isComplete` method:
 
 ```
 var Todo = function(props){
@@ -196,7 +196,7 @@ Todo.prototype.isComplete = function(){
 };
 ```
 
-And, we might want a special list type with a `completed` and `active` method:
+And, we might want a special list type with `completed` and `active` methods:
 
 ```
 var TodoList = function(todos){
@@ -274,7 +274,7 @@ todoConnection.save( todo ).then(function(todo){
   todoConnection.save( todo ).then( function(todo){
     
     // DELETEs to /api/todos/5
-    // serer returns {}
+    // server returns {}
     todoConnection.destroy( todo ).then( function(todo){
     
     });
@@ -305,7 +305,7 @@ Other behaviors list their configurable options in their own docs page.
 
 If configurable options are not enough, you can overwrite any behavior with your own behavior.
 
-For example, the `constructors` [can-connect/constructor.updatedInstance] behavior 
+For example, the `constructor`'s [can-connect/constructor.updatedInstance] behavior 
 sets the instance's properties to match the result of [connection.updateData]. But if
 the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in 
 a todo with only an `id` property:
@@ -537,9 +537,9 @@ Implemented by [can-connect/constructor/store].
 
 #### Real-time Methods
 
-`createInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been created.  
-`updateInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been updated.  
-`destroyInstance( props ) -> Promise<instance>` - Inform the connection an instnace has been destroyed.  
+`createInstance( props ) -> Promise<instance>` - Inform the connection an instance has been created.  
+`updateInstance( props ) -> Promise<instance>` - Inform the connection an instance has been updated.  
+`destroyInstance( props ) -> Promise<instance>` - Inform the connection an instance has been destroyed.  
 
 Implemented by [can-connect/real-time].
 
@@ -556,7 +556,7 @@ connect.behavior("my-behavior", function(baseBehavior){
 })
 ```
 
-For example, creating a simple localStorage behavior might looks like:
+For example, creating a simple localStorage behavior might look like:
 
 ```js
 connect.behavior("localstorage", function(baseBehavior){
