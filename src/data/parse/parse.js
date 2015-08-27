@@ -71,12 +71,16 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 *   [can-connect.listData] format.
 		 * 
 		 *   @param {Object} responseData The response data from the AJAX request
-		 *   @param {Object} xhr The XHR object
-		 *   @param {Object} headers Any response headers.
 		 * 
 		 *   @return {can-connect.listData} An object like `{data: [props, props, ...]}`
 		 */
-		parseListData: function( responseData, xhr, headers ) {
+		parseListData: function( responseData ) {
+			
+			// call any base parseListData
+			if(baseConnect.parseListData) {
+			   responseData = baseConnect.parseListData.apply(this, arguments);
+			}
+			
 			var result;
 			if( Array.isArray(responseData) ) {
 				result = {data: responseData};
@@ -89,13 +93,13 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 					delete responseData[prop];
 				}
 				if(!Array.isArray(result.data)) {
-					throw new Error('Could not get any raw data while converting using .models');
+					throw new Error('Could not get any raw data while converting using .parseListData');
 				}
 				
 			}
 			var arr = [];
 			for(var i =0 ; i < result.data.length; i++) {
-				arr.push( this.parseInstanceData(result.data[i], xhr, headers) );
+				arr.push( this.parseInstanceData(result.data[i]) );
 			}
 			result.data = arr;
 			return result;
@@ -112,6 +116,12 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 * @return {Object} The data that should be passed to [connection.hydrateInstance].
 		 */
 		parseInstanceData: function( props ) {
+			// call any base parseInstanceData
+			if(baseConnect.parseInstanceData) {
+				// It's possible this might be looking for a property that only exists in some 
+				// responses. So if it doesn't return anything, go back to using props.
+			   props = baseConnect.parseInstanceData.apply(this, arguments) || props;
+			}
 			return this.parseInstanceProp ? helpers.getObject(this.parseInstanceProp, props) || props : props;
 		}
 		/**

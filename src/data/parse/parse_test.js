@@ -74,3 +74,55 @@ QUnit.test("basics", function(assert){
 	},logErrorAndStart);
 	
 });
+
+test("parseListData and parseInstanceData don't use options correctly (#27)", function(){
+	
+	var connection = connect(["data-url","data-parse"],{
+		url: {
+			getListData: "POST /getList",
+			getData: "DELETE /getInstance",
+			createData: "GET /create",
+			updateData: "GET /update/{id}",
+			destroyData: "GET /delete/{id}"
+		},
+		parseListData: function(responseData){
+			return responseData.items;
+		},
+		parseInstanceData: function(responseData){
+			return responseData.datas;
+		}
+	});
+	
+	fixture({
+		"POST /getList": function(){
+			return {items: [{id: 1}]};
+		},
+		"DELETE /getInstance": function(){
+			return {datas: {id: 2}};
+		},
+		"GET /create": function(){
+			return {datas: {id: 3}};
+		},
+		"GET /update/{id}": function(request){
+			equal(request.data.id, 3, "update id");
+			return {datas: {update: true}};
+		},
+		"GET /delete/{id}": function(request){
+			equal(request.data.id, 3, "update id");
+			return {datas: {destroy: true}};
+		}
+	});
+	
+	stop();
+	connection.getListData({foo: "bar"}).then(function(items){
+		deepEqual(items, {data: [{id: 1}]}, "getList");
+		start();
+	}, logErrorAndStart);
+	
+	stop();
+	connection.getData({foo: "bar"}).then(function(data){
+		deepEqual(data, {id: 2}, "getInstance");
+		start();
+	},logErrorAndStart);
+	
+});

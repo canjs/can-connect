@@ -83,7 +83,7 @@ var logErrorAndStart = function(e){
 				start();
 			}, function (err) {
 				ok(err instanceof Error, 'Got an error');
-				equal(err.message, 'Could not get any raw data while converting using .models');
+				equal(err.message, 'Could not get any raw data while converting using .parseListData');
 				start();
 			});
 	});
