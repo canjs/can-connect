@@ -67,31 +67,29 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		// ## Helpers
 		
 		
-		// an array of each set to the ids it contains
-		_sets: null,
 		// a map of each id to an instance
 		_instances: {},
 		getSetData: function(){
-			if(!this._sets) {
-				var sets = this._sets = {};
-				var self = this;
-				(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(set){
-					// make sure we actually have set data
-					 var setKey = sortedSetJSON(set);
-					 
-					if( localStorage.getItem(self.name+"/set/"+setKey) ) {
-						sets[setKey] = {
-							set: set,
-							setKey: setKey
-						};
-					}
-				});
-			}
-			return this._sets;
+			
+			var sets = {};
+			var self = this;
+			(JSON.parse(localStorage.getItem(this.name+"-sets"))|| []).forEach(function(set){
+				// make sure we actually have set data
+				 var setKey = sortedSetJSON(set);
+				 
+				if( localStorage.getItem(self.name+"/set/"+setKey) ) {
+					sets[setKey] = {
+						set: set,
+						setKey: setKey
+					};
+				}
+			});
+			
+			return sets;
 		},
-		_getSets: function(){
+		_getSets: function(setData){
 			var sets = [];
-			var setData = this.getSetData();
+			setData = setData || this.getSetData();
 			for(var setKey in setData) {
 				sets.push(setData[setKey].set);
 			}
@@ -118,12 +116,12 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			localStorage.removeItem(this.name+"/set/"+setKey);
 			delete sets[setKey];
 			if(noUpdate !== true) {
-				this.updateSets();
+				this.updateSets(sets);
 			}
 		},
-		updateSets: function(){
-			var sets = this._getSets();
-			localStorage.setItem(this.name+"-sets", JSON.stringify( sets ) );
+		updateSets: function(sets){
+			var setData = this._getSets(sets);
+			localStorage.setItem(this.name+"-sets", JSON.stringify( setData ) );
 		},
 		
 		updateSet: function(setDatum, items, newSet) {
@@ -173,7 +171,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			});
 			
 			localStorage.setItem(this.name+"/set/"+setKey, JSON.stringify(ids) );
-			this.updateSets();
+			this.updateSets(sets);
 		},
 		_eachSet: function(cb){
 			var sets = this.getSetData();
@@ -250,7 +248,6 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			}
 			this._instances = {};
-			this._sets = null;
 		},
 		
 		

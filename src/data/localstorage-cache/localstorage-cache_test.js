@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var localStorage = require("can-connect/data/localstorage-cache/");
+var dataLocalStorage = require("can-connect/data/localstorage-cache/");
 var connect = require("can-connect");
 require("when/es6-shim/Promise");
 
@@ -14,7 +14,7 @@ var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 
 QUnit.module("can-connect/data-localstorage-cache",{
 	setup: function(){
-		this.connection = connect([localStorage],{
+		this.connection = connect([dataLocalStorage],{
 			name: "todos"
 		});
 		this.connection.clear();
@@ -245,5 +245,23 @@ QUnit.test("getData can pull from updateListData", function(){
 	
 });
 
+QUnit.test("clearing localStorage clears set info", function(){
+	var connection = this.connection;
+	
+	QUnit.stop();
 
+	connection.updateListData({ data: items.slice(0) }, {foo: "bar"}).then(function(){
+		connection.getListData({foo: "bar"}).then(function(){
+			
+			localStorage.clear();
+			
+			connection.getSets().then(function(sets){
+				QUnit.deepEqual(sets, []);
+				QUnit.start();
+				
+			});
+			
+		});
+	});
+});
 
