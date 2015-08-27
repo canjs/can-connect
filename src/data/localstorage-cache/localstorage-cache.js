@@ -239,14 +239,18 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			localStorage.removeItem(this.name+"-sets");
 			
 			// remove all instances
-			var i = 0;
-			while(i < localStorage.length) {
+			
+			// firefox is weird about what happens when a key at an index is removed, 
+			// so we need to get all keys first
+			var keys = [];
+			for ( var i = 0, len = localStorage.length; i < len; ++i ) {
 				if(localStorage.key(i).indexOf(this.name+"/instance/") === 0) {
-					localStorage.removeItem( localStorage.key(i) );
-				} else {
-					i++;
+					keys.push(localStorage.key(i));
 				}
 			}
+			keys.forEach(function(key){
+				localStorage.removeItem( key );
+			});
 			this._instances = {};
 		},
 		
