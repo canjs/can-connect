@@ -1,1 +1,6 @@
-var serviceWorkerMain = require("can-connect/service-worker/service-worker-main");
+var serviceWorkerMain;
+if(typeof importScripts === 'function') {
+  serviceWorkerMain = importScripts(["./service-worker-main.js"]);
+} else {
+  serviceWorkerMain = require("./service-worker-main.js");
+}
