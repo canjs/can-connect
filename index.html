@@ -16,206 +16,136 @@
 <html class="no-js" lang="en">
 <!--<![endif]-->
 <head>
-	<meta charset="utf-8">
-	<title>can-connect - home</title>
-	<meta name="description" content="">
-	<meta name="author" content="">
+  <meta charset="utf-8">
+  <title>can-connect - home</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-	<link rel="stylesheet" type="text/css" href='./doc/static/bundles/static.css'/>
-	<!--[if lt IE 9]>
+  <link rel="stylesheet" type="text/css" href='./doc/static/bundles/static.css'/>
+  <!--[if lt IE 9]>
    <script type="text/javascript" src="./doc/static/html5shiv.js"></script>
     <!--<![endif]-->
 </head>
 
 <body class="docs">
-	<header>
-		<nav class="container">
+  <header>
+    <nav class="container">
 
-			<div class="logo-menu">
-				<a class="brand" href="index.html">DocumentJS</a>
-				<ul class="dropdown-menu">
-		          <li><a href="http://donejs.com">DoneJS</a></li>
-		          <li><a href="http://canjs.com" class="active">CanJS</a></li>
-		          <li><a href="http://jquerypp.com">jQuery++</a></li>
-		          <li><a href="http://stealjs.com">StealJS</a></li>
-		          <li><a href="http://funcunit.com">FuncUnit</a></li>
-		          <li><a href="http://documentjs.com">DocumentJS</a></li>
-		        </ul>
-			</div>
-			<ul class="nav">
-			  <li class="active">
-	            <a href="index.html">Home</a>
+      <div class="logo-menu">
+        <a class="brand" href="index.html">DocumentJS</a>
+        <ul class="dropdown-menu">
+              <li><a href="http://donejs.com">DoneJS</a></li>
+              <li><a href="http://canjs.com" class="active">CanJS</a></li>
+              <li><a href="http://jquerypp.com">jQuery++</a></li>
+              <li><a href="http://stealjs.com">StealJS</a></li>
+              <li><a href="http://funcunit.com">FuncUnit</a></li>
+              <li><a href="http://documentjs.com">DocumentJS</a></li>
+            </ul>
+      </div>
+      <ul class="nav">
+        <li class="active">
+              <a href="index.html">Home</a>
               </li>
-              
-		          <li>
-		            <a href="doc/index.html">Docs</a>
-		          </li>
-	          
-	          <li class=""><a href="https://twitter.com/documentjs">Twitter</a></li>
-		      <li class=""><a href="https://github.com/bitovi/documentjs">GitHub</a></li>
-	        </ul>
-			<div class="pull-right">
-				<div class="bitovi-menu">
-					<a href="http://bitovi.com" class="bitovi icon-bits">Bitovi</a>
-					<ul class="dropdown-menu">
-						<li><a href="http://bitovi.com">Bitovi.com</a></li>
-						<li><a href="http://bitovi.com/blog/">Blog</a></li>
-						<li><a href="http://bitovi.com/consulting/">Consulting</a></li>
-						<li><a href="http://bitovi.com/training/">Training</a></li>
-						<li><a href="http://bitovi.com/open-source/">Open Source</a></li>
-						<li><a href="http://bitovi.com/people/">People</a></li>
-						<li><a href="http://bitovi.com/contact/">Contact Us</a></li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-	</header>
-
-	
-
-		
-	<section class="comment">
-		<section style="width: 800px; margin:100px auto 20px auto; overflow:hidden;">
-		<div style="border-right: 1px solid #ccc; padding-right:20px; margin-right:50px; float:left;">
-		<h1>can-connect</h1>
-		<p>part of the CanJS family</p>
-		</div>  
-		<div style="float:left; width: 340px; padding-top: 10px;">
-		<p style="-webkit-font-smoothing: antialiased; font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; font-weight: 300; ">
-			Model layer utilities for every JavaScript framework! Assemble real-time,
-			high performance, restful data connections.
-		<br></p>
-		</div>
-		</section>
-
-	<div class='container api'>
-	<article class="content docs" style="width: 800px;">
-		<div style="float:right; width: 340px; padding-top: 10px;">
-			Connect typed data to a restful service.
-		</div>
-		<h2>Typed Restful Connections</h2>
-		
-<pre><code>// Create instances of Todo with data from the server.
-Todo = function(props) {
-  Object.assign(this, props)
-}
-Todo.prototype.complete = function(){
-  this.complete = true;
-}
-
-// Create the connection
-var todoConnection = connect(["data-url","constructor"],{
-  url: "/services/todos",
-  instance: function(properties) {
-    return new Todo(props);
-  }
-});
-
-// GET /services/todos/5
-todoConnection.get({id: 5}).then(function(todo){
-  todo.complete();
-	
-  // PUT /services/todos/5
-  todoConnection.save(todo)
-})
-</code></pre>
-	</article>
-	</div>
-	
-
-	<div class='container api'>
-	<article class="content docs" style="width: 800px;">
-		<div style="float:right; width: 340px; padding-top: 10px;">
-			Automatically insert and remove items from your lists.
-		</div>
-		<h2>Real time lists</h2>
-		
-<pre><code>// Create the connection
-var todoConnection = connect(["data-url","constructor","constructor-store","real-time"],{
-  url: "/services/todos"
-});
-
-// Get a list and keep an internal reference to it.
-todoConnection.getList({complete: false}).then(function(incomplete){
-  
-  todoConnection.addListReference(incomplete);
-  
-  // Tell the connection an instance has been created.
-  todoConnection.createInstance({
-    id: 6,
-    name: "dishes",
-    complete: false
-  }).then(function(createdTodo){
-  	
-    // it will automatically be added to any list it belongs to
-    incomplete.indexOf(createdTodo) >= 0 //-> true
-  })
-});
+              <li>
+                <a href="doc/index.html">Docs</a>
+              </li>
+            <li class=""><a href="https://twitter.com/documentjs">Twitter</a></li>
+          <li class=""><a href="https://github.com/bitovi/documentjs">GitHub</a></li>
+          </ul>
+      <div class="pull-right">
+        <div class="bitovi-menu">
+          <a href="http://bitovi.com" class="bitovi icon-bits">Bitovi</a>
+          <ul class="dropdown-menu">
+            <li><a href="http://bitovi.com">Bitovi.com</a></li>
+            <li><a href="http://bitovi.com/blog/">Blog</a></li>
+            <li><a href="http://bitovi.com/consulting/">Consulting</a></li>
+            <li><a href="http://bitovi.com/training/">Training</a></li>
+            <li><a href="http://bitovi.com/open-source/">Open Source</a></li>
+            <li><a href="http://bitovi.com/people/">People</a></li>
+            <li><a href="http://bitovi.com/contact/">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
 
 
-</code></pre>
-	</article>
-	</div>
-	
-	<div class='container api'>
-	<article class="content docs" style="width: 800px;">
-		<div style="float:right; width: 540px; padding-top: 10px;">
-			Requests will be made to a cache and returned to the user immediatly.  In the background, a request is 
-still made to the server and the initially returned data is updated.
-		</div>
-		<h2>Fall through caching</h2>
-		
-<pre style='clear:both'><code>// Create the cached connection
-var cacheConnection = connect(["data-localstorage-cache"],{
-  name: "todos"
-});
-	
-// Create the primary connection.
-var todoConnection = connect(["data-url","constructor","fall-through-cache"],{
-  url: "/services/todos",
-  cacheConnection: cacheConnection
-});
+  <section class="comment">
+    <section style="width: 800px; margin:100px auto 20px auto; overflow:hidden;">
+    <div style="border-right: 1px solid #ccc; padding-right:20px; margin-right:50px; float:left;">
+    <h1>can-connect</h1>
+    <p>part of the CanJS family</p>
+    </div>
+    <div style="float:left; width: 340px; padding-top: 10px;">
+    <p style="-webkit-font-smoothing: antialiased; font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; font-weight: 300; ">
+      Model layer utilities for every JavaScript framework! Assemble real-time,
+      high performance, restful data connections.
+    <br></p>
+    </div>
+    </section>
 
-// Get a list, it will first try to use localstorage
-// and immediately return what is there.
-todoConnection.getList({complete: false}).then(function(incomplete){
-  
-  incomplete.length //-> 2
-  
-  // After returning the cached data, it will still make the request using the primary
-  // connection and update the `incomplete` list with the results.
-  
-  // ... sometime later ...
-  incomplete.length //-> 4
- 
-});
+  <div class='container api'>
+    <article class="content docs" style="width: 800px;">
+      <div style="float:right; width: 340px; padding-top: 10px;">
+        Connect typed data to a RESTful service.
+      </div>
+      <h2>Typed RESTful Connections</h2>
+      <video controls style="max-width: 100%;"
+        poster="assets/videos/Can-Connect-Anim-1.s3b1-720p.png"
+        src="assets/videos/Can-Connect-Anim-1.s3b1-720p.mp4"></video>
+    </article>
+  </div>
 
+  <div class='container api'>
+    <article class="content docs" style="width: 800px;">
+      <div style="float:right; width: 340px; padding-top: 10px;">
+        Automatically update items in your lists.
+      </div>
+      <h2>Real Time Lists</h2>
+      <video controls style="max-width: 100%;"
+        poster="assets/videos/Can-Connect-Anim-2.s3b1-720p.png"
+        src="assets/videos/Can-Connect-Anim-2.s3b1-720p.mp4"></video>
+    </article>
+  </div>
 
-</code></pre>
-	</article>
-	</div>
+  <div class='container api'>
+    <article class="content docs" style="width: 800px;">
+      <div style="float:right; width: 340px; padding-top: 10px;">
+        React to requests before the server can respond.
+      </div>
+      <h2>Fall Through Caching</h2>
+      <video controls style="max-width: 100%;"
+        poster="assets/videos/Can-Connect-Anim-3.s3b1-720p.png"
+        src="assets/videos/Can-Connect-Anim-3.s3b1-720p.mp4"></video>
+    </article>
+  </div>
 
+  <div class='container api'>
+    <article class="content docs" style="width: 800px;">
+      <div style="float:right; width: 340px; padding-top: 10px;">
+        Reduce the number of server round trips.
+      </div>
+      <h2>Combine Data Requests</h2>
+      <video controls style="max-width: 100%;"
+        poster="assets/videos/Can-Connect-Anim-4.s3b1-720p.png"
+        src="assets/videos/Can-Connect-Anim-4.s3b1-720p.mp4"></video>
+    </article>
+  </div>
 
+    <script>
+      steal = {
+        instantiated: {
+          "bundles/static.css!$css" : null
+        }
+      };
+    </script>
+    <script type='text/javascript'
+        data-main="static"
+        src="./doc/static/steal.js"
+        env="production"
+        data-config="./doc/static/config.js"
+            bundles-path="bundles"></script>
 
-
-
-
-	
-	
-		<script>
-		  steal = {
-		    instantiated: {
-		      "bundles/static.css!$css" : null
-		    }
-		  };
-		</script>
-		<script type='text/javascript' 
-				data-main="static"
-				src="./doc/static/steal.js"
-				env="production"
-				data-config="./doc/static/config.js"
-		    		bundles-path="bundles"></script>
-	
 </body>
 
 </html>
