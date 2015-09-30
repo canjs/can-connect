@@ -34,7 +34,7 @@ var can = require('can/util/util');
 require('can/compute/compute');
 require('can/view/bindings/bindings');
 require("../can");
-var mustacheCore = require( "can/view/stache/mustache_core");
+var expression = require("can/view/stache/expression");
 
 var convertToValue = function(arg){
 	if(typeof arg === "function") {
@@ -63,9 +63,8 @@ connect.tag = function(tagName, connection){
 		
 		var attrValue = getList || getInstance;
 		var method = getList ? "getList" : "get";
-		
-		
-		var attrInfo = mustacheCore.expressionData('tmp ' + removeBrackets(attrValue));
+
+		var attrInfo = expression.parse('tmp(' + removeBrackets(attrValue)+")", {baseMethodType: "Call"});
 		// -> {hash: {foo: 'bar', zed: 5, abc: {get: 'myValue'}}}
 	
 		
