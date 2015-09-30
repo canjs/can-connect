@@ -39,7 +39,7 @@ stealTools.export({
 	
 	fs.writeFile(
 		__dirname+"/package.json", 
-		JSON.stringify(packageJSON, null, "\t"),
+		JSON.stringify(packageJSON, null, "  "),
 		function(){});
 	
 	
