@@ -79,7 +79,7 @@
   "scripts": {
     "test": "testee --browsers firefox test.html",
     "preversion": "npm test && npm run build",
-    "version": "git checkout -b release && git add -f dist/ && git commit -am \"Update dist for release\"",
+    "version": "git checkout -b release && git add -f dist/",
     "postversion": "git push --tags && git checkout master && git branch -D release && git push",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
