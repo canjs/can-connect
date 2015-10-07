@@ -6,6 +6,7 @@ var persist = require("can-connect/data/url/");
 var constructor = require("can-connect/constructor/");
 var instanceStore = require("can-connect/constructor/store/");
 var connect = require("can-connect/can-connect");
+var forEach = require("can-connect/helpers/").forEach;
 var testHelpers = require("can-connect/test-helpers");
 require("when/es6-shim/Promise");
 
@@ -15,7 +16,7 @@ require("when/es6-shim/Promise");
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor/store",{
 	setup: function(){
-		
+
 	}
 });
 
@@ -41,7 +42,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		}
 	});
 	fixture.delay = 1;
-	
+
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
@@ -60,7 +61,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		},
 		instance: function(values){
 			return new Person(values);
-		}, 
+		},
 		list: function(arr){
 			return new PersonList(arr.data);
 		},
@@ -68,21 +69,21 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 			list.splice(0, list.length, updatedList.data);
 		}
 	});
-	
+
 	var person = new Person({id: 1, name: "Justin"});
-	
+
 	peopleConnection.addInstanceReference(person);
-	
+
 	stop();
 	peopleConnection.getList({}).then(function(people){
 		equal(people[0], person, "same instances");
-		
+
 		equal(person.age, 32, "age property added");
-		
+
 		// allows the request to finish
 		setTimeout(function(){
 			peopleConnection.deleteInstanceReference(person);
-		
+
 			peopleConnection.getList({}).then(function(people){
 				ok(people[0] != person, "not the same instances");
 				equal(people[0].age, 32, "age property from data");
@@ -91,7 +92,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 			}, testHelpers.logErrorAndStart);
 		},1);
 	}, testHelpers.logErrorAndStart);
-	
+
 });
 
 QUnit.test("list store is kept and re-used and possibly discarded", function(){
@@ -104,7 +105,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 		listed.__listSet = sets;
 		return listed;
 	};
-	
+
 	var connection = connect([function(){
 		var calls = 0;
 		return {
@@ -126,12 +127,12 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	},"constructor-store","constructor"],{
 		instance: function(values){
 			return new Person(values);
-		}, 
+		},
 		list: function(arr, sets){
 			return new PersonList(arr.data, sets);
 		}
 	});
-	
+
 	var resolvedList;
 	connection.getList({}).then(function(list){
 		resolvedList =  list;
@@ -139,9 +140,9 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 		connection.addListReference(list);
 		setTimeout(checkStore,1);
 	}, testHelpers.logErrorAndStart);
-	
+
 	stop();
-	
+
 	function checkStore(){
 		connection.getList({}).then(function(list){
 			equal(list, resolvedList);
@@ -155,13 +156,13 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 
 	function checkEmpty() {
 		connection.getList({}).then(function(list){
-			
+
 			ok(list !== resolvedList);
 			start();
 		}, testHelpers.logErrorAndStart);
-		
+
 	}
-	
+
 });
 
 QUnit.test("list's without a listSet are not added to the store", function(){
@@ -174,7 +175,7 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 		listed.__listSet = sets;
 		return listed;
 	};
-	
+
 	var connection = connect([function(){
 		var calls = 0;
 		return {
@@ -196,17 +197,17 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 	},"constructor-store","constructor"],{
 		instance: function(values){
 			return new Person(values);
-		}, 
+		},
 		list: function(arr, sets){
 			return new PersonList(arr.data, sets);
 		}
 	});
-	
+
 	connection.addListReference([]);
-	connection.listStore.forEach(function(){
+	forEach.call(connection.listStore, function(){
 		ok(false);
 	});
 	QUnit.expect(0)
-	
-	
+
+
 });

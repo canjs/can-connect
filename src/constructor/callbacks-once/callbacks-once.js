@@ -1,47 +1,48 @@
 /**
  * @module can-connect/constructor/callbacks-once constructor-callbacks-once
  * @parent can-connect.behaviors
- * 
+ *
  * Unecessary calls to the instance callback methods.
- * 
+ *
  * @signature `constructorCallbacksOnce(baseBehavior)`
- * 
+ *
  *   Prevents duplicate calls to the instance callback methods by tracking
- *   the last data the methods were called with.  If called with the 
+ *   the last data the methods were called with.  If called with the
  *   same data again, it does not call the base behavior's instance callback.
- * 
- * 
+ *
+ *
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var helpers = require("can-connect/helpers/");
 
 // wires up the following methods
 var callbacks = [
 	/**
 	 * @function can-connect/constructor/callbacks-once.createdData createdData
 	 * @parent can-connect/constructor/callbacks-once
-	 * 
-	 * Called with the resolved response data 
+	 *
+	 * Called with the resolved response data
 	 * of [connection.createData]. The result of this function will be used
-	 * as the new response data. 
+	 * as the new response data.
 	 */
 	"createdInstance",
 	/**
 	 * @function can-connect/constructor/callbacks-once.updatedData updatedData
 	 * @parent can-connect/constructor/callbacks-once
-	 * 
-	 * Called with the resolved response data 
+	 *
+	 * Called with the resolved response data
 	 * of [connection.updateData]. The result of this function will be used
-	 * as the new response data. 
+	 * as the new response data.
 	 */
 	"updatedInstance",
 	/**
 	 * @function can-connect/constructor/callbacks-once.destroyedData destroyedData
 	 * @parent can-connect/constructor/callbacks-once
-	 * 
-	 * Called with the resolved response data 
+	 *
+	 * Called with the resolved response data
 	 * of [connection.destroyData]. The result of this function will be used
-	 * as the new response data. 
+	 * as the new response data.
 	 */
 	"destroyedInstance"
 ];
@@ -49,16 +50,16 @@ var callbacks = [
 
 
 module.exports = connect.behavior("constructor-callbacks-once",function(baseConnect){
-	
+
 	var behavior = {
 	};
-	
+
 	// overwrites createData to createdData
-	callbacks.forEach(function(name){
+	helpers.forEach.call(callbacks, function(name){
 		behavior[name] = function(instance, data ){
-			
+
 			var lastSerialized = this.getInstanceMetaData(instance, "last-data");
-			
+
 			var serialize = sortedSetJSON(data),
 				serialized = sortedSetJSON( this.serializeInstance( instance ) );
 			if(lastSerialized !== serialize && serialized !== serialize) {
@@ -67,8 +68,8 @@ module.exports = connect.behavior("constructor-callbacks-once",function(baseConn
 				return result;
 			}
 		};
-		
+
 	});
-	
+
 	return behavior;
 });

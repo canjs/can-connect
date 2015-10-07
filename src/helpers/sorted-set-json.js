@@ -1,12 +1,16 @@
+var helpers = require("./helpers");
+var forEach = helpers.forEach;
+var keys = helpers.keys;
+
 module.exports = function(set){
 	if(set == null) {
 		return set
 	} else {
 		var sorted = {};
-		Object.keys(set).sort().forEach(function(prop){
+		forEach.call(keys(set).sort(), function(prop){
 			sorted[prop] = set[prop];
 		});
 		return JSON.stringify(sorted);
 	}
-	
+
 };

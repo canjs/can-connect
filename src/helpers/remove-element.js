@@ -1,12 +1,14 @@
 var observer = new MutationObserver( function(mutations){
-	mutations.forEach(function(mutation) {
-      for(var i = 0 ; i < mutation.removedNodes.length; i++ ){ 
-      	if(removeHandlers.has(mutation.removedNodes[i])) {
-      		removeHandlers.get(mutation.removedNodes[i])();
-      		removeHandlers["delete"](mutation.removedNodes[i]);
-      	}
-      }
-    });  
+	var mutation;
+	for(var i = 0; i < mutations.length; i++) {
+		mutation = mutations[i];
+		for(var j = 0 ; j < mutation.removedNodes.length; j++ ){
+			if(removeHandlers.has(mutation.removedNodes[j])) {
+				removeHandlers.get(mutation.removedNodes[j])();
+				removeHandlers["delete"](mutation.removedNodes[j]);
+			}
+		}
+	}
 });
 
 observer.observe(document.documentElement, {childList: true, subtree: true});

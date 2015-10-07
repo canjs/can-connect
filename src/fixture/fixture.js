@@ -158,7 +158,7 @@ var updateSettings = function (settings, originalOptions) {
 // OVERWRITE XHR
 var XHR = XMLHttpRequest,
 	g = typeof global !== "undefined"? global : window;
-	
+
 g.XMLHttpRequest = function(){
 	var headers = this._headers = {};
 	this._xhr = {
@@ -179,8 +179,8 @@ XMLHttpRequest.prototype.getAllResponseHeaders = function(){
 	return this._xhr.getAllResponseHeaders.apply(this._xhr, arguments);
 };
 
-["response","responseText", "responseType", "responseURL","status","statusText","readyState"].forEach(function(prop){
-	
+helpers.forEach.call(["response","responseText", "responseType", "responseURL","status","statusText","readyState"], function(prop){
+
 	Object.defineProperty(XMLHttpRequest.prototype, prop, {
 		get: function(){
 			return this._xhr[prop];
@@ -189,13 +189,13 @@ XMLHttpRequest.prototype.getAllResponseHeaders = function(){
 			this._xhr[prop] = newVal;
 		}
 	});
-	
+
 });
 
 
 
 XMLHttpRequest.prototype.send = function(data) {
-	
+
 	var settings = {
 		url: this.url,
 		data: data,
@@ -212,23 +212,23 @@ XMLHttpRequest.prototype.send = function(data) {
 		} catch(e) {
 			settings.data = deparam( settings.data );
 		}
-		
+
 	}
-	
+
 	var self = this;
 	updateSettings(settings, settings);
 
 	// If the call is a fixture call, we run the same type of code as we would
 	// with jQuery's ajaxTransport.
 	if (settings.fixture) {
-		var timeout, 
+		var timeout,
 			stopped = false;
 
 		// set a timeout that simulates making a request ....
 		timeout = setTimeout(function () {
 			// if the user wants to call success on their own, we allow it ...
 			var success = function () {
-				
+
 				var response = extractResponse.apply(settings, arguments),
 					status = response[0];
 
@@ -266,7 +266,7 @@ XMLHttpRequest.prototype.send = function(data) {
 	} else {
 		//debugger;
 		var xhr = new XHR();
-		
+
 		// copy everything on this to the xhr object that is not on `this`'s prototype
 		for(var prop in this){
 			if(!( prop in XMLHttpRequest.prototype) ) {
@@ -432,7 +432,7 @@ helpers.extend(can.fixture, {
 
 		// Shift off the URL and just keep the data.
 		res.shift();
-		order.forEach(function (name) {
+		helpers.forEach.call(order, function (name) {
 			// Add data from regular expression onto data object.
 			data[name] = res.shift();
 		});
@@ -442,7 +442,7 @@ helpers.extend(can.fixture, {
 	// Make a store of objects to use when making requests against fixtures.
 	store: function (count, make, filter) {
 		/*jshint eqeqeq:false */
-		
+
 		// the currentId to use when a new instance is created.
 		var	currentId = 0,
 			findOne = function (id) {
@@ -456,7 +456,7 @@ helpers.extend(can.fixture, {
 			types,
 			items,
 			reset;
-			
+
 		if(Array.isArray(count) && typeof count[0] === "string" ){
 			types = count;
 			count = make;
@@ -468,8 +468,8 @@ helpers.extend(can.fixture, {
 			make= filter;
 			filter = arguments[3];
 		}
-		
-		
+
+
 		if(typeof count === "number") {
 			items = [];
 			reset = function () {
@@ -500,21 +500,21 @@ helpers.extend(can.fixture, {
 				items = initialItems.slice(0);
 			};
 		}
-		
+
 
 		// make all items
 		helpers.extend(methods, {
 			findAll: function (request) {
-				
+
 				request = request || {};
 				//copy array of items
 				var retArr = items.slice(0);
 				request.data = request.data || {};
 				//sort using order
 				//order looks like ["age ASC","gender DESC"]
-				(request.data.order || [])
+				helpers.forEach.call((request.data.order || [])
 					.slice(0)
-					.reverse().forEach(function (name) {
+					.reverse(), function (name) {
 						var split = name.split(" ");
 						retArr = retArr.sort(function (a, b) {
 							if (split[1].toUpperCase() !== "ASC") {
@@ -538,9 +538,9 @@ helpers.extend(can.fixture, {
 					});
 
 				//group is just like a sort
-				(request.data.group || [])
+				helpers.forEach.call((request.data.group || [])
 					.slice(0)
-					.reverse().forEach(function (name) {
+					.reverse(), function (name) {
 						var split = name.split(" ");
 						retArr = retArr.sort(function (a, b) {
 							return a[split[0]] > b[split[0]];
@@ -592,13 +592,13 @@ helpers.extend(can.fixture, {
 					"count": retArr.length,
 					"data": retArr.slice(offset, offset + limit)
 				};
-				["limit","offset"].forEach(function(prop){
+				helpers.forEach.call(["limit","offset"], function(prop){
 					if(prop in request.data) {
 						responseData[prop] = request.data[prop];
 					}
 				});
-				
-				
+
+
 				return responseData;
 			},
 
@@ -623,7 +623,7 @@ helpers.extend(can.fixture, {
 			 */
 			findOne: function (request, response) {
 				var item = findOne(getId(request));
-				
+
 				if(typeof item === "undefined") {
 					return response(404, 'Requested resource not found');
 				}
@@ -670,7 +670,7 @@ helpers.extend(can.fixture, {
 			destroy: function (request, response) {
 				var id = getId(request),
 					item = findOne(id);
-					
+
 				if(typeof item === "undefined") {
 					return response(404, 'Requested resource not found');
 				}
