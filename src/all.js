@@ -16,7 +16,7 @@ connect.dataParse = require("./data/parse/");
 connect.dataUrl = require("./data/url/");
 connect.fallThroughCache = require("./fall-through-cache/");
 connect.realTime = require("./real-time/");
-connect.fixture = require("./fixture/");
+connect.fixture = require("can-fixture");
 
 connect.Model = require("./can/model/");
 connect.superMap = require("./can/super-map/");

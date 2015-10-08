@@ -72,8 +72,6 @@
     "./helpers/ajax": "./dist/cjs/helpers/ajax",
     "./fall-through-cache/fall-through-cache": "./dist/cjs/fall-through-cache/fall-through-cache",
     "./real-time/real-time": "./dist/cjs/real-time/real-time",
-    "./fixture/fixture": "./dist/cjs/fixture/fixture",
-    "./helpers/deparam": "./dist/cjs/helpers/deparam",
     "./can/model/model": "./dist/cjs/can/model/model",
     "./can/super-map/super-map": "./dist/cjs/can/super-map/super-map",
     "./can/tag/tag": "./dist/cjs/can/tag/tag"
