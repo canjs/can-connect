@@ -71,7 +71,7 @@ connect.tag = function(tagName, connection){
 		var addedToPageData = false;
 		var addToPageData = can.__notObserve(function(set, promise){
 			if(!addedToPageData) {
-				var root = tagData.scope.attr("@root");
+				var root = tagData.scope.attr("%root") || tagData.scope.attr("@root");
 				if( root && root.pageData ) {
 					if(method === "get"){
 						set = connection.id(set);
@@ -129,6 +129,3 @@ connect.tag = function(tagName, connection){
 };
 
 module.exports = connect.tag;
-
-
-
