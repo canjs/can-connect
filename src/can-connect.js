@@ -10,7 +10,7 @@ var connect = function(behaviors, options){
 	behaviors = helpers.map.call(behaviors, function(behavior, index){
 		var sortedIndex;
 		if(typeof behavior === "string") {
-			sortedIndex = connect.order.indexOf(behavior);
+			sortedIndex = helpers.indexOf.call(connect.order, behavior);
 			behavior = behaviorsMap[behavior];
 		} else if(behavior.isBehavior) {
 

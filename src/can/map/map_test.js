@@ -25,6 +25,7 @@ var can = require("can/util/util");
 var compute = require("can/compute/compute");
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
+var helpers = require("can-connect/helpers/");
 
 var later = testHelpers.later;
 
@@ -138,7 +139,8 @@ QUnit.test("real-time super model", function(){
 
 	function checkCache(name, set, expectData, next) {
 		cacheConnection.getListData(set).then(function(data){
-			deepEqual(data.data.map(testHelpers.getId), expectData.map(testHelpers.getId), name);
+			deepEqual(helpers.map.call(data.data, testHelpers.getId),
+					  helpers.map.call(expectData, testHelpers.getId), name);
 			setTimeout(next, 1);
 		});
 	}

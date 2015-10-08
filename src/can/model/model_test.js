@@ -644,7 +644,7 @@ var logErrorAndStart = function(e){
 			findAll: 'GET /guys'
 		}, {});
 		updateCount = 0;
-		fixture('GET /guys', function () {
+		canFixture('GET /guys', function () {
 			var guys = [{
 				id: 1,
 				updateCount: updateCount,

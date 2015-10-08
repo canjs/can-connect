@@ -13,25 +13,6 @@ var xhrs = [
     _xhrf = null;
 var hasOwnProperty = Object.prototype.hasOwnProperty,
     nativeForEach = Array.prototype.forEach;
-var _each = function (o, fn, ctx) {
-    if (o == null) return;
-    if (nativeForEach && o.forEach === nativeForEach)
-        o.forEach(fn, ctx);
-    else if (o.length === +o.length) {
-        for (var i = 0, l = o.length; i < l; i++)
-            if (i in o && fn.call(ctx, o[i], i, o) === breaker) return;
-    } else {
-        for (var key in o)
-            if (hasOwnProperty.call(o, key))
-                if (fn.call(ctx, o[key], key, o) === breaker) return;
-}
-};
-var _extend = function (o) {
-    _each(slice.call(arguments, 1), function (a) {
-    for (var p in a) if (a[p] !== void 0) o[p] = a[p];
-    });
-    return o;
-};
 
 var $ = {};
 $.xhr = function () {
@@ -71,8 +52,8 @@ $._formData = function (o) {
 module.exports = function (o) {
     var xhr = $.xhr(), timer, n = 0;
     var deferred = helpers.deferred();
-    
-    o = _extend({ userAgent: "XMLHttpRequest", lang: "en", type: "GET", data: null, dataType: "application/x-www-form-urlencoded" }, o);
+
+    o = helpers.extend({ userAgent: "XMLHttpRequest", lang: "en", type: "GET", data: null, dataType: "application/x-www-form-urlencoded" }, o);
     if (o.timeout) timer = setTimeout(function () { xhr.abort(); if (o.timeoutFn) o.timeoutFn(o.url); }, o.timeout);
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -95,13 +76,13 @@ module.exports = function (o) {
     var isPost = o.type == "POST" || o.type == "PUT";
     if (!isPost && o.data) url += "?" + $._formData(o.data);
         xhr.open(o.type, url);
- 
+
         if (isPost) {
             var isJson = o.dataType.indexOf("json") >= 0;
         data = isJson ? JSON.stringify(o.data) : $._formData(o.data);
         xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded");
     }
-    
+
     xhr.send(data);
     return deferred.promise;
 };

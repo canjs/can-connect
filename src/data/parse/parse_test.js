@@ -16,7 +16,6 @@ var logErrorAndStart = function(e){
 
 QUnit.test("basics", function(assert){
 
-
 	var connection = connect(["data-url","data-parse"],{
 		url: {
 			getListData: "POST /getList",
