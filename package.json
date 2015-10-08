@@ -14,11 +14,12 @@
     "url": "https://github.com/canjs/can-connect.git"
   },
   "devDependencies": {
+    "can-fixture": "0.0.1",
     "documentjs": "^0.3.0-pre.5",
     "steal": "^0.11.0-pre.6",
     "steal-qunit": "0.0.2",
-    "testee": "^0.2.0",
-    "steal-tools": "^0.10.0"
+    "steal-tools": "^0.10.0",
+    "testee": "^0.2.0"
   },
   "docDependencies": {
     "can": "^2.3.0-beta.0",
@@ -33,7 +34,8 @@
       "devDependencies"
     ],
     "npmDependencies": [
-      "steal-qunit"
+      "steal-qunit",
+      "can-fixture"
     ],
     "directories": {
       "lib": "src"

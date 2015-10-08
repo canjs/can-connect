@@ -1,4 +1,4 @@
-var QUnit = require("steal-qunit"); 
+var QUnit = require("steal-qunit");
 
 var can = require("can/util/util");
 require("can/map/map");
@@ -7,7 +7,7 @@ require("can/list/list");
 var stache = require("can/view/stache/stache");
 var superMap = require("can-connect/can/super-map/");
 var tag = require("can-connect/can/tag/");
-var fixture = require("can/util/fixture/fixture");
+var fixture = require("can-fixture");
 var findAllTemplate = require("./tag_find_all_test.stache!");
 var findOneTemplate = require("./tag_find_one_test.stache!");
 
@@ -16,11 +16,11 @@ QUnit.module("can-connect/can/tag");
 
 
 QUnit.test("getList", function(){
-	
-	
+
+
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
-	
+
 	var options = {
 			url: "/api/people",
 			Map: Person,
@@ -29,9 +29,9 @@ QUnit.test("getList", function(){
 	};
 	var connection = superMap(options);
 	options.cacheConnection.clear();
-	
+
 	tag("person-model",connection);
-	
+
 	fixture({
 		"GET /api/people": function(request){
 			if(request.data.type === "first") {
@@ -39,14 +39,14 @@ QUnit.test("getList", function(){
 			} else {
 				return {data: [{id: 3, type: "second"},{id: 4, type: "second"}]};
 			}
-			
+
 		}
 	});
 	var type = can.compute("first");
 	stop();
-	
+
 	var resolvedCalls = 0;
-	
+
 	var frag = findAllTemplate({
 		pending: function(){
 			ok(true, "called pending");
@@ -66,25 +66,25 @@ QUnit.test("getList", function(){
 				$("#qunit-fixture").empty();
 				start();
 			}
-			
+
 		},
 		type: type
 	});
 	$("<div>").appendTo("#qunit-fixture").append(frag);
-	
-	
+
+
 	var viewModel = can.viewModel( frag.childNodes[0] );
-	
-	
+
+
 });
 
 
 QUnit.test("get", function(){
-	
-	
+
+
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
-	
+
 	var options = {
 			url: "/api/people",
 			Map: Person,
@@ -93,9 +93,9 @@ QUnit.test("get", function(){
 	};
 	var connection = superMap(options);
 	options.cacheConnection.clear();
-	
+
 	tag("person-model",connection);
-	
+
 	fixture({
 		"GET /api/people/{id}": function(request){
 			if(request.data.id === "1") {
@@ -103,14 +103,14 @@ QUnit.test("get", function(){
 			} else {
 				return {id: 2, type: "second"};
 			}
-			
+
 		}
 	});
 	var personId = can.compute(1);
 	stop();
-	
+
 	var resolvedCalls = 0;
-	
+
 	var frag = findOneTemplate({
 		pending: function(){
 			ok(true, "called pending");
@@ -130,7 +130,7 @@ QUnit.test("get", function(){
 				$("#qunit-fixture").empty();
 				start();
 			}
-			
+
 		},
 		personId: personId,
 		rejected: function(){
@@ -139,20 +139,20 @@ QUnit.test("get", function(){
 		}
 	});
 	$("<div>").appendTo("#qunit-fixture").append(frag);
-	
-	
+
+
 	var viewModel = can.viewModel( frag.childNodes[0] );
-	
-	
-	
+
+
+
 });
 
 QUnit.test("get fullCache", function(){
 	var resolvedCalls = 0;
-	
+
 	var Person = can.Map.extend({});
 	Person.List = can.List.extend({Map: Person},{});
-	
+
 	var options = {
 			url: "/api/people",
 			Map: Person,
@@ -161,12 +161,12 @@ QUnit.test("get fullCache", function(){
 	};
 	var connection = superMap(options);
 	connection.cacheConnection.clear();
-	
+
 	tag("person-model",connection);
-	
+
 	fixture({
 		"GET /api/people/{id}": function(request){
-			
+
 			if(request.data.id === "1") {
 				ok(resolvedCalls >= 1, "got data we already resolved from cache");
 				return {id: 1, type: "first"};
@@ -177,19 +177,19 @@ QUnit.test("get fullCache", function(){
 				},10);
 				return {id: 2, type: "second"};
 			}
-			
+
 		},
 		"GET /api/people": function(request){
 			return {data: [{id: 1, type: "first"},{id: 2, type: "second"}]};
 		}
 	});
 	stop();
-	
+
 	connection.getList({}).then(function(){
 
 		var personId = can.compute(1);
 
-		
+
 		var frag = findOneTemplate({
 			pending: function(){
 				ok(true, "called pending");
@@ -198,21 +198,21 @@ QUnit.test("get fullCache", function(){
 				resolvedCalls++;
 				ok(true, "called resolved");
 				if(resolvedCalls === 1) {
-	
+
 					equal(el[0].innerHTML, "first", "first id");
 					setTimeout(function(){
 						personId(2);
-						
+
 						setTimeout(function(){
 							equal($("person-model .resolved").text(), "second", "updated id");
 							$("#qunit-fixture").empty();
 						},20);
-						
+
 					},1);
 				} else {
 					ok(true,"not called immediately, because .then cant be with Promises");
 				}
-				
+
 			},
 			personId: personId,
 			rejected: function(){
@@ -220,16 +220,16 @@ QUnit.test("get fullCache", function(){
 				start();
 			}
 		});
-		
+
 		$("<div>").appendTo("#qunit-fixture").append(frag);
-		
-		
+
+
 		var viewModel = can.viewModel( frag.childNodes[0] );
-		
+
 	});
-	
-	
-	
-	
-	
+
+
+
+
+
 });

@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var fixture = require("can/util/fixture/fixture");
+var fixture = require("can-fixture");
 var Map = require("can/map/map");
 var superMap = require("can-connect/can/super-map/");
 

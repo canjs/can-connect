@@ -6,7 +6,7 @@ import connect from "can-connect";
 import "can-connect/data/url/";
 import "can-connect/constructor/";
 import "can-connect/constructor/store/";
-import fixture from "can/util/fixture/";
+import fixture from "can-fixture";
 
 // A connection that gets todos data
 var todosConnection = connect(["constructor-store","constructor","data-url"],{
@@ -14,8 +14,8 @@ var todosConnection = connect(["constructor-store","constructor","data-url"],{
 });
 
 // Trap ajax requests to return and modify the following `todo` object.
-var todo = { 
-	id: 5, 
+var todo = {
+	id: 5,
 	name: "do the dishes"
 };
 fixture({
@@ -35,16 +35,16 @@ var todoEditor = function(id){
 	var update = function(){
 		element.firstChild.value = todo.name;
 	};
-	
+
 	element.innerHTML = "<input/><button>X</button>";
-	
+
 	todosConnection.get({id: id}).then(function(retrievedTodo){
 		todo = retrievedTodo;
 		Object.observe(todo, update, ["update"] );
 		todosConnection.addInstanceReference(todo);
 		update();
 	});
-	
+
     element.lastChild.onclick = function(){
     	Object.unobserve(todo, update, ["update"] );
     	todosConnection.deleteInstanceReference(todo);
@@ -53,14 +53,14 @@ var todoEditor = function(id){
     element.firstChild.onchange = function(){
     	todo.name = this.value;
     };
-    
+
     element.firstChild.onkeypress = function(ev){
     	if(ev.keyCode === 13) {
     		todo.name = this.value;
 			todosConnection.save(todo);
     	}
     };
-    
+
     return element;
 };
 

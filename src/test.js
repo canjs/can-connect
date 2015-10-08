@@ -1,6 +1,5 @@
 require("can-connect/helpers/helpers_test");
 
-//require("./fixture/fixture_test");
 require("./data/url/data-url_test");
 require("./data/parse/parse_test");
 
@@ -22,4 +21,3 @@ require("./can/map/map_test");
 require("./can/super-map/super-map_test");
 require("./can/model/model_test");
 require("./can/tag/tag_test");
-
