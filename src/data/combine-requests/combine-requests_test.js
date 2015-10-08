@@ -4,6 +4,7 @@ var persist = require("can-connect/data/url/");
 var combineRequests = require("can-connect/data/combine-requests/");
 var set = require("can-set");
 require("when/es6-shim/Promise");
+var map = require("can-connect/helpers/").map;
 
 var getId = function(d){ return d.id};
 
@@ -18,7 +19,7 @@ QUnit.test("basics", function(){
 	stop();
 	var count = 0;
 
-	
+
 	var res = combineRequests( {
 		getListData: function(params){
 			deepEqual(params,{},"called for everything");
@@ -38,16 +39,16 @@ QUnit.test("basics", function(){
 	var p1 = res.getListData({type: "critical"});
 	var p2 = res.getListData({due: "today"});
 	var p3 = res.getListData({});
-	
+
 	Promise.all([p1,p2,p3]).then(function(result){
-		var res1 = result[0], 
-			res2 = result[1], 
+		var res1 = result[0],
+			res2 = result[1],
 			res3 = result[2];
-		
-		
-		deepEqual(res1.data.map(getId), [1,3,5]);
-		deepEqual(res2.data.map(getId), [1,2]);
-		deepEqual(res3.data.map(getId), [1,2,3,4,5,6]);
+
+
+		deepEqual(map.call(res1.data, getId), [1,3,5]);
+		deepEqual(map.call(res2.data, getId), [1,2]);
+		deepEqual(map.call(res3.data, getId), [1,2,3,4,5,6]);
 		start();
 	});
 });
@@ -56,7 +57,7 @@ QUnit.test("basics", function(){
 QUnit.test("ranges", function(){
 	stop();
 	var count = 0;
-	
+
 	var res = combineRequests(  {
 		getListData: function(params){
 			deepEqual(params,{start: 0, end: 5},"called for everything");
@@ -74,17 +75,17 @@ QUnit.test("ranges", function(){
 		algebra: set.comparators.rangeInclusive("start","end")
 	});
 
-	
+
 	var p1 = res.getListData({start: 0, end: 3});
 	var p2 = res.getListData({start: 2, end: 5});
-	
+
 	Promise.all([p1,p2]).then(function(result){
 		var res1 = result[0], res2 = result[1];
-		
-		deepEqual(res1.data.map(getId), [1,2,3,4]);
-		deepEqual(res2.data.map(getId), [3,4,5,6]);
+
+		deepEqual(map.call(res1.data, getId), [1,2,3,4]);
+		deepEqual(map.call(res2.data, getId), [3,4,5,6]);
 		start();
 	});
-	
-	
+
+
 });

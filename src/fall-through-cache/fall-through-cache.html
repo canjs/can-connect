@@ -4,7 +4,7 @@
 <a href="#incomplete">Incomplete</a>
 
 <div id='list'></div>
-	
+
 <script src="../../node_modules/steal/steal.js" id="demo-source">
 import connect from "can-connect";
 import "can-connect/data/url/";
@@ -12,13 +12,14 @@ import "can-connect/constructor/";
 import "can-connect/constructor/store/";
 import "can-connect/data/localstorage-cache/";
 import "can-connect/fall-through-cache/";
-import fixture from "can-connect/fixture/";
+import fixture from "can-fixture";
 import $ from "jquery";
+import helpers from "can-connect/helpers/";
 
 var cache = connect(['data-localstorage-cache'],{
 	name: "todos"
 });
- 
+
 // A connection that gets todos data
 var todosConnection = connect([
 	"fall-through-cache",
@@ -42,7 +43,7 @@ var todoItem = function(todo) {
 		li.text(todo.id+": "+todo.name);
 	};
 	update();
-	
+
 	Object.observe(todo, update, ["add", "update", "delete"] );
 	todosConnection.addInstanceReference(todo);
 
@@ -59,8 +60,8 @@ var todoList = function(set){
 	var todos;
 
 	var update = function(changes){
-		
-		changes.forEach(function(change){
+
+		helpers.forEach.call(changes, function(change){
 			if(change.type === "add") {
 				// Create the `todoItem` and insert it in the right spot
 				var li = todoItem(todos[change.name]).hide();
@@ -70,7 +71,7 @@ var todoList = function(set){
 					element.append(li);
 				}
 				li.fadeIn();
-			} 
+			}
 			else if(change.type === "delete") {
 				// Find the `todoItem` to remove.
 				// Trigger an event so it can tear itself down.
@@ -80,28 +81,28 @@ var todoList = function(set){
 				li.fadeOut(function(){
 					li.remove();
 				});
-			} 
+			}
 			else if(change.type === "update" && !isNaN(+change.name)) {
 				// replace the old item with a new one
 				var li = element.children().eq( change.name );
 				li.triggerHandler("remove");
-				
+
 				var newLi = todoItem(todos[change.name]).hide();
 				li.replaceWith(newLi);
 				newLi.fadeIn();
 			}
 		});
-		
+
 	};
-	
+
 	todosConnection.getList(set).then(function(retrievedTodos){
-		
+
 		element.empty();
 		todos = retrievedTodos;
-		
+
 		todosConnection.addListReference(todos);
 		Object.observe(todos, update, ["add", "update", "delete"] );
-	 	
+
 		update(todos.map(function(todo, i){
 			return {
 				type: "add",
@@ -109,7 +110,7 @@ var todoList = function(set){
 			};
 		}));
 	});
-	
+
 	element.bind("removed", function(){
 		update(todos.reverse().map(function(todo, i){
 			return {
@@ -120,14 +121,14 @@ var todoList = function(set){
 		Object.unobserve(todos, update, ["add", "update", "delete"] );
 		todosConnection.deleteListReference(todos);
 	});
-    
+
 	return element;
 };
 
 // When the hash changes, update which `todoList` is displayed.
 var updatePage = function(){
 	var complete = window.location.hash !== "#incomplete";
-	
+
 	$("#list").children().remove().triggerHandler("remove");
 	var ul = todoList({complete: complete});
 	$("#list").html(ul);
@@ -150,7 +151,7 @@ function randomTodos(complete){
 	for(var i =0; i < 10; i++) {
 		ids.push(i);
 	}
-	
+
 	var todos = [];
 	var total = fixture.rand(7) + 1;
 	for(var i = 0; i < total; i++){

@@ -5,7 +5,7 @@ import "can-connect/constructor/store/";
 import "can-connect/data/memory-cache/";
 import "can-connect/cache-requests/";
 import "can-connect/data/worker/";
-import fixture from "can-connect/fixture/";
+import fixture from "can-fixture";
 
 var cache = connect(['data-memory-cache'],{
 	name: "todos"

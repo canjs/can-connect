@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var fixture = require("can-connect/fixture/");
+var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 
 QUnit.module("can-connect/data/url",{
@@ -9,7 +9,7 @@ QUnit.module("can-connect/data/url",{
 });
 
 QUnit.test("basics", function(assert){
-	
+
 	var connection = persist({
 		url: {
 			getListData: "POST /getList",
@@ -19,7 +19,7 @@ QUnit.test("basics", function(assert){
 			destroyData: "GET /delete/{id}"
 		}
 	});
-	
+
 	fixture({
 		"POST /getList": function(){
 			return [{id: 1}];
@@ -39,31 +39,31 @@ QUnit.test("basics", function(assert){
 			return {destroy: true};
 		}
 	});
-	
+
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
 		deepEqual(items, [{id: 1}], "getList");
 		start();
 	});
-	
+
 	stop();
 	connection.getData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 2}, "getInstance");
 		start();
 	});
-	
+
 	stop();
 	connection.createData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 3}, "create");
 		start();
 	});
-	
+
 	stop();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		deepEqual(data, {destroy: true}, "update");
 		start();
 	});
-	
+
 });
 
 QUnit.test('idProp is not part of the parameters', function() {

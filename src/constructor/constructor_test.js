@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var canSet = require("can-set");
-var fixture = require("can-connect/fixture/");
+var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var connect = require("can-connect/can-connect");
 var constructor = require("can-connect/constructor/");
@@ -38,7 +38,7 @@ QUnit.module("can-connect/constructor",{
 });
 
 QUnit.test("basics", function(){
-	
+
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
@@ -47,17 +47,17 @@ QUnit.test("basics", function(){
 		listed.isList = true;
 		return listed;
 	};
-	
-	var peopleConnection = constructor( persist( connect.base({ 
+
+	var peopleConnection = constructor( persist( connect.base({
 		instance: function(values){
 			return new Person(values);
-		}, 
+		},
 		list: function(arr){
 			return new PersonList(arr.data);
 		},
 		url: "/constructor/people"
 	}) ));
-	
+
 	stop();
 	peopleConnection.getList({}).then(function(people){
 		ok(people.isList, "is a list");
@@ -65,14 +65,14 @@ QUnit.test("basics", function(){
 		ok(people[0] instanceof Person);
 		start();
 	}, logErrorAndStart); //-> instances
-	
+
 	stop();
 	peopleConnection.get({id: 5}).then(function(person){
 		equal(person.id, 5, "got a list");
 		ok(person instanceof Person);
 		start();
 	}, logErrorAndStart);
-	
+
 	var p = new Person({name: "justin"});
 	stop();
 	peopleConnection.save(p).then(function(updatedP){
@@ -80,7 +80,7 @@ QUnit.test("basics", function(){
 		equal(p.id, 3);
 		start();
 	});
-	
+
 	var p2 = new Person({name: "justin", id: 3});
 	stop();
 	peopleConnection.save(p2).then(function(updatedP){
@@ -88,7 +88,7 @@ QUnit.test("basics", function(){
 		equal(p2.update, true);
 		start();
 	}, logErrorAndStart);
-	
+
 	var p3 = new Person({name: "justin", id: 3});
 	stop();
 	peopleConnection.destroy(p3).then(function(updatedP){
@@ -96,5 +96,5 @@ QUnit.test("basics", function(){
 		equal(p3.destroy, true);
 		start();
 	}, logErrorAndStart);
-	
+
 });

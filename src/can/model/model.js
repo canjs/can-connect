@@ -2,12 +2,12 @@ var can = require("can/util/util"),
 	Map = require("can/map/map"),
 	List = require("can/list/list"),
 	connect = require("can-connect"),
-	
+
 	persist = require("../../data/url/"),
 	constructor = require("../../constructor/"),
 	instanceStore = require("../../constructor/store/"),
 	parseData = require("../../data/parse/");
-	
+
 	require("../can");
 	require("when/es6-shim/Promise");
 
@@ -32,7 +32,7 @@ var resolveSingleExport = function(originalPromise){
 var mapBehavior = connect.behavior(function(baseConnect){
 	var behavior = {
 		id: function(inst) {
-			
+
 			if(inst instanceof can.Map) {
 				if(callCanReadingOnIdRead) {
 					can.__observe(inst, inst.constructor.id);
@@ -75,7 +75,7 @@ var mapBehavior = connect.behavior(function(baseConnect){
 				return baseConnect.parseListData.apply(baseConnect, arguments);
 			}
 		}
-		
+
 	};
 
 	can.each([
@@ -106,10 +106,10 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			can.dispatch.call(constructor, funcName, [instance]);
 		};
 	});
-	
-	
+
+
 	return behavior;
-	
+
 });
 
 
@@ -136,18 +136,18 @@ can.Model = can.Map.extend({
 		this.store = {};
 
 		can.Map.setup.apply(this, arguments);
-		
-		// 
-		
-		
-		
+
+		//
+
+
+
 		if (!can.Model) {
 			return;
 		}
-		
+
 		// save everything that's not on base can.Model
 
-		
+
 		// `List` is just a regular can.Model.List that knows what kind of Model it's hooked up to.
 		if(staticProps && staticProps.List) {
 			this.List = staticProps.List;
@@ -158,14 +158,14 @@ can.Model = can.Map.extend({
 			}, {});
 		}
 		var self = this;
-		
+
 		var staticMethods = ["findAll","findOne","create","update","destroy"];
 		var parseMethods = {
 			parseModel: "parseInstanceData",
 			parseModels: "parseListData"
 		};
-		
-		
+
+
 		var connectionOptions = {
 			// persist options
 			url: {
@@ -177,13 +177,13 @@ can.Model = can.Map.extend({
 				resource: this.resource
 			},
 			idProp: this.id,
-			// parseData 
+			// parseData
 			parseInstanceProp: typeof getBaseValue(this.parseModel) === "string" ? getBaseValue(this.parseModel) : undefined,
 			parseListProp: typeof getBaseValue(this.parseModels) === "string" ? getBaseValue(this.parseModels) : undefined,
 			// constructor options
 			instance: function(values){
 				return new self(values);
-			}, 
+			},
 			list: function(listData){
 				var list = new self.List(listData.data);
 				can.each(listData, function (val, prop) {
@@ -199,13 +199,13 @@ can.Model = can.Map.extend({
 			parseModels: getBaseValue(this.parseModels),
 			ajax: function(){
 				var promiseLike = $.ajax.apply($, arguments);
-				
+
 				return new Promise(function(resolve, reject){
 					promiseLike.then(resolve, reject);
 				});
 			}
 		};
-		
+
 		this.connection = mapBehavior(
 			instanceStore(
 				constructor(
@@ -215,7 +215,7 @@ can.Model = can.Map.extend({
 				)
 			)
 		);
-		
+
 		this.store = this.connection.instanceStore;
 		// map static stuff to crud .. but we don't want this inherited by the next thing'
 		can.each(staticMethods, function(name){
@@ -263,13 +263,13 @@ can.Model = can.Map.extend({
 	destroy: function(success, error){
 		var promise;
 		if (this.isNew()) {
-			
+
 			promise = can.Deferred().resolve(this);
 			this.constructor.connection.destroyedInstance(this, {});
 		} else {
 			promise = this.constructor.connection.destroy(this);
 		}
-		
+
 		promise.then(success,error);
 		return promise;
 	},

@@ -9,7 +9,9 @@ module.exports = function (params) {
 	var data = {}, pairs, lastPart;
 	if (params && paramTest.test(params)) {
 		pairs = params.split('&');
-		pairs.forEach(function (pair) {
+		var pair;
+		for(var i = 0, len = pairs.length; i < len; i++) {
+			pair = pairs[i];
 			var parts = pair.split('='),
 				key = prep(parts.shift()),
 				value = prep(parts.join('=')),
@@ -30,7 +32,7 @@ module.exports = function (params) {
 					current[lastPart] = value;
 				}
 			}
-		});
+		}
 	}
 	return data;
 };

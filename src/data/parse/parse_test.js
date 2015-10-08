@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var fixture = require("can-connect/fixture/fixture");
+var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var parseData = require("can-connect/data/parse/");
 var connect = require("can-connect");
@@ -15,8 +15,7 @@ var logErrorAndStart = function(e){
 };
 
 QUnit.test("basics", function(assert){
-	
-	
+
 	var connection = connect(["data-url","data-parse"],{
 		url: {
 			getListData: "POST /getList",
@@ -28,7 +27,7 @@ QUnit.test("basics", function(assert){
 		parseListProp: "items",
 		parseInstanceProp: "datas"
 	});
-	
+
 	fixture({
 		"POST /getList": function(){
 			return {items: [{id: 1}]};
@@ -48,35 +47,35 @@ QUnit.test("basics", function(assert){
 			return {datas: {destroy: true}};
 		}
 	});
-	
+
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
 		deepEqual(items, {data: [{id: 1}]}, "getList");
 		start();
 	}, logErrorAndStart);
-	
+
 	stop();
 	connection.getData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 2}, "getInstance");
 		start();
 	},logErrorAndStart);
-	
+
 	stop();
 	connection.createData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 3}, "create");
 		start();
 	},logErrorAndStart);
-	
+
 	stop();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		deepEqual(data, {destroy: true}, "update");
 		start();
 	},logErrorAndStart);
-	
+
 });
 
 test("parseListData and parseInstanceData don't use options correctly (#27)", function(){
-	
+
 	var connection = connect(["data-url","data-parse"],{
 		url: {
 			getListData: "POST /getList",
@@ -92,7 +91,7 @@ test("parseListData and parseInstanceData don't use options correctly (#27)", fu
 			return responseData.datas;
 		}
 	});
-	
+
 	fixture({
 		"POST /getList": function(){
 			return {items: [{id: 1}]};
@@ -112,17 +111,17 @@ test("parseListData and parseInstanceData don't use options correctly (#27)", fu
 			return {datas: {destroy: true}};
 		}
 	});
-	
+
 	stop();
 	connection.getListData({foo: "bar"}).then(function(items){
 		deepEqual(items, {data: [{id: 1}]}, "getList");
 		start();
 	}, logErrorAndStart);
-	
+
 	stop();
 	connection.getData({foo: "bar"}).then(function(data){
 		deepEqual(data, {id: 2}, "getInstance");
 		start();
 	},logErrorAndStart);
-	
+
 });

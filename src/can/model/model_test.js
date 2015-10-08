@@ -1,6 +1,7 @@
 var QUnit = require("steal-qunit");
 var can = require("can/util/util");
-var fixture = require("can/util/fixture/fixture");
+var fixture = require("can-fixture");
+var canFixture = require("can/util/fixture/");
 require("can-connect/can/model/");
 
 var logErrorAndStart = function(e){
@@ -25,24 +26,24 @@ var logErrorAndStart = function(e){
 		});
 		var newModel = new MyModel({});
 		ok(newModel.isNew(), 'new model is isNew');
-		
+
 		var oldModel = new MyModel({
 			foo: 'bar'
 		});
-		
+
 		ok(!oldModel.isNew(), 'old model is not new');
 		equal(oldModel.foo(), 'bar', 'method can coexist with attribute');
 	});
-	
+
 	test('findAll deferred', function () {
-		
+
 		fixture('model/test/people.json', function(){
 			return [{
 			 "id" : 5,
 			 "name" : "Justin"
 			}];
 		});
-		
+
 		var Person = can.Model.extend({
 			findAll: function (params) {
 				return can.ajax({
@@ -53,9 +54,9 @@ var logErrorAndStart = function(e){
 			}
 		}, {});
 		stop();
-		
+
 		var people = Person.findAll({});
-		
+
 		people.then(function (people) {
 			equal(people.length, 1, 'we got a person back');
 			equal(people[0].name, 'Justin', 'Got a name back');
@@ -63,7 +64,7 @@ var logErrorAndStart = function(e){
 			start();
 		});
 	});
-	
+
 	test('findAll rejects non-array (#384)', function () {
 		var Person = can.Model.extend({
 			findAll: function (params, success, error) {
@@ -87,7 +88,7 @@ var logErrorAndStart = function(e){
 				start();
 			});
 	});
-	
+
 	asyncTest('findAll deferred reject', function () {
 		// This test is automatically paused
 		function rejectDeferred(df) {
@@ -118,8 +119,8 @@ var logErrorAndStart = function(e){
 		var people_resolve = Person.findAll({
 			resolve: true
 		});
-		
-		
+
+
 		people_reject.done(function () {
 			ok(false, 'This deferred should be rejected');
 		});
@@ -129,19 +130,19 @@ var logErrorAndStart = function(e){
 		people_resolve.done(function () {
 			ok(true, 'This deferred is resolved');
 		});
-		
+
 		people_resolve.fail(function () {
 			ok(false, 'The deferred should be resolved');
 		});
-		
+
 		setTimeout(function () {
 			// continue the test
 			start();
 		}, 20);
 	});
-	
 
-	
+
+
 	/*if (window.jQuery) {
 		asyncTest('findAll abort', function () {
 			expect(4);
@@ -161,13 +162,13 @@ var logErrorAndStart = function(e){
 					});
 				}
 			}, {});
-			
+
 			Person.findAll({
 				abort: false
 			}).done(function () {
 				ok(true, 'resolved');
 			});
-			
+
 			var resolveDf = df;
 			var abortPromise = Person.findAll({
 				abort: true
@@ -183,18 +184,18 @@ var logErrorAndStart = function(e){
 			}, 200);
 		});
 	}*/
-		
-	
+
+
 	test('findOne deferred', function () {
-		
+
 		fixture('model/test/person.json', function(){
 			return {name: "Justin"}
 		});
-		
+
 		var Person = can.Model({
 			findOne: 'model/test/person.json'
 		}, {});
-		
+
 		stop();
 		var person = Person.findOne({});
 		person.then(function (person) {
@@ -203,7 +204,7 @@ var logErrorAndStart = function(e){
 			start();
 		},logErrorAndStart);
 	});
-	
+
 	test('save deferred', function () {
 		can.Model('Person', {
 			create: function (attrs, success, error) {
@@ -216,15 +217,15 @@ var logErrorAndStart = function(e){
 			name: 'Justin'
 		}),
 			personD = person.save();
-			
+
 		stop();
 		personD.then(function (person) {
 			start();
 			equal(person.id, 5, 'we got an id');
 		});
 	});
-	
-	
+
+
 	test('update deferred', function () {
 		var Person = can.Model({
 			update: function (id, attrs, success, error) {
@@ -233,7 +234,7 @@ var logErrorAndStart = function(e){
 				});
 			}
 		}, {});
-		
+
 		var person = new Person({
 			name: 'Justin',
 			id: 5
@@ -245,7 +246,7 @@ var logErrorAndStart = function(e){
 			equal(person.thing, 'er', 'we got updated');
 		});
 	});
-	
+
 	test('destroy deferred', function () {
 		var Person = can.Model( {
 			destroy: function (id, success, error) {
@@ -265,9 +266,9 @@ var logErrorAndStart = function(e){
 			equal(person.thing, 'er', 'we got destroyed');
 		});
 	});
-	
-	
-	
+
+
+
 	test('models', function () {
 		var Person = can.Model({
 			prettyName: function () {
@@ -281,7 +282,7 @@ var logErrorAndStart = function(e){
 		equal(people[0].prettyName(), 'Mr. Justin', 'wraps wrapping works');
 	});
 	test('.models with custom id', function () {
-		
+
 		var CustomId = can.Model({
 			id: '_id'
 		}, {
@@ -293,7 +294,7 @@ var logErrorAndStart = function(e){
 			'_id': 2,
 			'name': 'Brian'
 		}]);
-		
+
 		equal(results.length, 2, 'Got two items back');
 		equal(results[0].name, 'Justin', 'First name right');
 		equal(results[1].name, 'Brian', 'Second name right');
@@ -301,7 +302,7 @@ var logErrorAndStart = function(e){
 
 	test('binding', 2, function () {
 		var Person = can.Model({},{});
-		
+
 		var inst = new Person({
 			foo: 'bar'
 		});
@@ -310,9 +311,9 @@ var logErrorAndStart = function(e){
 			equal(val, 'baz', 'values match');
 		});
 		inst.attr('foo', 'baz');
-		
+
 	});
-	
+
 	/*test('auto methods', function () {
 		//turn off fixtures
 		can.fixture.on = false;
@@ -322,7 +323,7 @@ var logErrorAndStart = function(e){
 			create: 'GET ' + can.test.path('model/test/create.json'),
 			update: 'GET ' + can.test.path('model/test/update{id}.json')
 		}, {});
-		
+
 		stop();
 		School.findAll({
 			type: 'schools'
@@ -351,11 +352,11 @@ var logErrorAndStart = function(e){
 			});
 		});
 	});*/
-	
-	
+
+
 	test('isNew', function () {
 		var Person = can.Model({},{});
-		
+
 		var p = new Person();
 		ok(p.isNew(), 'nothing provided is new');
 		var p2 = new Person({
@@ -367,7 +368,7 @@ var logErrorAndStart = function(e){
 		});
 		ok(!p3.isNew(), '0 is not new');
 	});
-	
+
 	/*test('findAll string', function () {
 		can.fixture.on = false;
 		can.Model('Test.Thing', {
@@ -405,7 +406,7 @@ var logErrorAndStart = function(e){
 			}
 		}, {});
 		stop();
-		
+
 		Event.bind('created', function (ev, passedItem) {
 			ok(this === Event, 'got model');
 			ok(passedItem === item, 'got instance');
@@ -453,7 +454,7 @@ var logErrorAndStart = function(e){
 			create: '/testinmodelsfoos.json'
 		}, {});
 		var st = '{type: "unauthorized"}';
-		can.fixture('/testinmodelsfoos.json', function (request, response) {
+		fixture('/testinmodelsfoos.json', function (request, response) {
 			response(401, st);
 		});
 		stop();
@@ -481,17 +482,17 @@ var logErrorAndStart = function(e){
 			update: {},
 			destroy: {}
 		}, {});
-		
-		can.fixture('GET /objectdef/{id}', function (original) {
+
+		canFixture('GET /objectdef/{id}', function (original) {
 			equal(original.timeout, 1000, 'timeout set');
 			return {
 				yes: true
 			};
 		});
-		can.fixture('GET /test/place', function (original) {
+		canFixture('GET /test/place', function (original) {
 			return [original.data];
 		});
-		
+
 		stop();
 		ObjectDef.findOne({
 			id: 5
@@ -501,7 +502,7 @@ var logErrorAndStart = function(e){
 			ok(false,"rejected")
 			start();
 		});
-		
+
 		/*
 		stop();
 		// Do find all, pass some attrs
@@ -537,12 +538,12 @@ var logErrorAndStart = function(e){
 			update: 'POST /abort',
 			destroy: 'POST /abort'
 		}, {});
-		
+
 		var a = new Abortion({
 			name: 'foo'
 		});
-		
-		var deferred = 
+
+		var deferred =
 			a.save(function () {
 				ok(false, 'success create');
 				start();
@@ -580,16 +581,16 @@ var logErrorAndStart = function(e){
 	});*/
 	test('store binding', function () {
 		var Storage = can.Model.extend({},{});
-		
+
 		var s = new Storage({
 			id: 1,
 			thing: {
 				foo: 'bar'
 			}
 		});
-		
+
 		ok(!Storage.store[1], 'not stored');
-		
+
 		var func = function () {};
 		s.bind('foo', func);
 		ok(Storage.store.has(1), 'stored');
@@ -607,12 +608,12 @@ var logErrorAndStart = function(e){
 			findAll: '/guys',
 			findOne: '/guy/{id}'
 		}, {});
-		can.fixture('GET /guys', function () {
+		fixture('GET /guys', function () {
 			return [{
 				id: 1
 			}];
 		});
-		can.fixture('GET /guy/{id}', function () {
+		fixture('GET /guy/{id}', function () {
 			return {
 				id: 1
 			};
@@ -636,14 +637,14 @@ var logErrorAndStart = function(e){
 				}, 1);
 			});
 	});
-	
+
 	test('store instance updates', function () {
 		var Guy, updateCount;
 		Guy = can.Model.extend({
 			findAll: 'GET /guys'
 		}, {});
 		updateCount = 0;
-		can.fixture('GET /guys', function () {
+		canFixture('GET /guys', function () {
 			var guys = [{
 				id: 1,
 				updateCount: updateCount,
@@ -673,7 +674,7 @@ var logErrorAndStart = function(e){
 			ok(false, "error")
 		});
 	});
-	
+
 	/*
 	 test("store instance update removed fields", function(){
 	var Guy, updateCount, remove;
@@ -714,7 +715,7 @@ var logErrorAndStart = function(e){
 		var MyModel = can.Model.extend({
 			destroy: '/destroyplace/{id}'
 		}, {});
-		can.fixture('/destroyplace/{id}', function (original) {
+		fixture('/destroyplace/{id}', function (original) {
 			ok(true, 'fixture called');
 			equal(original.url, '/destroyplace/5', 'urls match');
 			return {};
@@ -726,20 +727,20 @@ var logErrorAndStart = function(e){
 			.destroy(function () {
 				start();
 			});
-			
-		can.fixture('/product/{id}', function (original) {
+
+		fixture('/product/{id}', function (original) {
 			equal(original.data.id, 9001, 'Changed ID is correctly set.');
 			return {};
 		});
-		
+
 		Base = can.Model.extend({
 			id: '_id'
 		}, {});
-		
+
 		Product = Base.extend({
 			destroy: 'DELETE /product/{_id}'
 		}, {});
-		
+
 		var p = new Product({
 			_id: 9001
 		});
@@ -749,14 +750,14 @@ var logErrorAndStart = function(e){
 				ok(false,"error"+e);
 				start();
 			});
-			
+
 		stop();
 	});
 	test('extended templated destroy', function () {
 		var MyModel = can.Model({
 			destroy: '/destroyplace/{attr1}/{attr2}/{id}'
 		}, {});
-		can.fixture('/destroyplace/{attr1}/{attr2}/{id}', function (original) {
+		fixture('/destroyplace/{attr1}/{attr2}/{id}', function (original) {
 			ok(true, 'fixture called');
 			equal(original.url, '/destroyplace/foo/bar/5', 'urls match');
 			return {};
@@ -770,7 +771,7 @@ var logErrorAndStart = function(e){
 			.destroy(function () {
 				start();
 			});
-		can.fixture('/product/{attr3}/{id}', function (original) {
+		fixture('/product/{attr3}/{id}', function (original) {
 			equal(original.data.id, 9001, 'Changed ID is correctly set.');
 			start();
 			return {};
@@ -788,7 +789,7 @@ var logErrorAndStart = function(e){
 			.destroy();
 		stop();
 	});
-	
+
 	/*test('overwrite makeFindAll', function () {
 		var store = {};
 		var LocalModel = can.Model.extend({
@@ -859,7 +860,7 @@ var logErrorAndStart = function(e){
 			});
 		});
 	});*/
-	
+
 	test('model list attr', function () {
 		var Person = can.Model({}, {});
 		var list1 = new Person.List(),
@@ -906,7 +907,7 @@ var logErrorAndStart = function(e){
 					id: 2
 				})
 			]);
-			
+
 		// you must be bound to the list to get this
 		people.bind('length', function () {});
 		orgs.bind('length', function () {});
@@ -934,7 +935,7 @@ var logErrorAndStart = function(e){
 		m.isNew();
 		can.__observe = old;
 	});
-	
+
 	test('extends defaults by calling base method', function () {
 		var M1 = can.Model.extend({
 			defaults: {
@@ -946,7 +947,7 @@ var logErrorAndStart = function(e){
 	});
 	test('.models updates existing list if passed', 4, function () {
 		var Model = can.Model.extend({},{});
-		
+
 		var list = Model.models([{
 			id: 1,
 			name: 'first'
@@ -954,11 +955,11 @@ var logErrorAndStart = function(e){
 			id: 2,
 			name: 'second'
 		}]);
-		
+
 		list.bind('add', function (ev, newData) {
 			equal(newData.length, 3, 'Got all new items at once');
 		});
-		
+
 		var newList = Model.models([{
 			id: 3,
 			name: 'third'
@@ -969,12 +970,12 @@ var logErrorAndStart = function(e){
 			id: 5,
 			name: 'fifth'
 		}], list);
-		
+
 		equal(list, newList, 'Lists are the same');
 		equal(newList.attr('length'), 3, 'List has new items');
 		equal(list[0].name, 'third', 'New item is the first one');
 	});
-	
+
 	test('calling destroy with unsaved model triggers destroyed event (#181)', function () {
 		var MyModel = can.Model.extend({}, {}),
 			newModel = new MyModel(),
@@ -994,7 +995,7 @@ var logErrorAndStart = function(e){
 	test('model removeAttr (#245)', function () {
 		var MyModel = can.Model.extend({}),
 			model;
-		
+
 		// pretend it is live bound
 		model = MyModel.model({
 			id: 0,
@@ -1002,7 +1003,7 @@ var logErrorAndStart = function(e){
 			name: 'test'
 		});
 		MyModel.connection.addInstanceReference(model);
-		
+
 		model = MyModel.model({
 			id: 0,
 			name: 'text updated'
@@ -1012,7 +1013,7 @@ var logErrorAndStart = function(e){
 		MyModel = can.Model.extend({
 			removeAttr: true
 		}, {});
-		
+
 		// pretend it is live bound
 		model = MyModel.model({
 			id: 0,
@@ -1040,8 +1041,8 @@ var logErrorAndStart = function(e){
 		}, {}),
 			id = 0,
 			updateTime;
-			
-		can.fixture('POST /todo', function (original, respondWith, settings) {
+
+		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
 				item: can.extend(original.data, {
@@ -1049,8 +1050,8 @@ var logErrorAndStart = function(e){
 				})
 			};
 		});
-		
-		can.fixture('PUT /todo', function (original, respondWith, settings) {
+
+		fixture('PUT /todo', function (original, respondWith, settings) {
 			updateTime = new Date()
 				.getTime();
 			return {
@@ -1076,7 +1077,7 @@ var logErrorAndStart = function(e){
 					updatedAt: updateTime
 				}, '.model works for update');
 			});
-			
+
 		var instance = new MyModel({
 			name: 'Dishes'
 		}),
@@ -1086,13 +1087,13 @@ var logErrorAndStart = function(e){
 			instance.attr('name', 'Laundry')
 				.save(undefined, logErrorAndStart);
 		}, logErrorAndStart);
-		
+
 	});
-	
-	
+
+
 	test('List params uses findAll', function () {
 		stop();
-		can.fixture('/things', function (request) {
+		fixture('/things', function (request) {
 			equal(request.data.param, 'value', 'params passed');
 			return [{
 				id: 1,
@@ -1102,7 +1103,7 @@ var logErrorAndStart = function(e){
 		var Model = can.Model.extend({
 			findAll: '/things'
 		}, {});
-		
+
 		var items = new Model.List({
 			param: 'value'
 		});
@@ -1143,7 +1144,7 @@ var logErrorAndStart = function(e){
 			parseModel: 'foo',
 			parseModels: 'bar'
 		}, {});
-		
+
 		var strangers = StrangeProp.models({
 			bar: [{
 				foo: {
@@ -1181,7 +1182,7 @@ var logErrorAndStart = function(e){
 			name: 'Justin'
 		});
 		t.bind('name', handler);
-		
+
 		var def = t.save();
 		stop();
 		def.then(function (todo) {
@@ -1194,7 +1195,7 @@ var logErrorAndStart = function(e){
 
 	test("Model#save should not replace attributes with their default values (#560)", function () {
 
-		can.fixture("POST /person.json", function (request, response) {
+		fixture("POST /person.json", function (request, response) {
 
 			return {
 				createdAt: "now"
@@ -1235,7 +1236,7 @@ var logErrorAndStart = function(e){
 			id = 0,
 			updateTime;
 
-		can.fixture('POST /todo', function (original, respondWith, settings) {
+		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
 				item: can.extend(original.data, {
@@ -1243,7 +1244,7 @@ var logErrorAndStart = function(e){
 				})
 			};
 		});
-		can.fixture('PUT /todo', function (original, respondWith, settings) {
+		fixture('PUT /todo', function (original, respondWith, settings) {
 			updateTime = new Date()
 				.getTime();
 			return {
@@ -1297,7 +1298,7 @@ var logErrorAndStart = function(e){
 			id = 0,
 			updateTime;
 
-		can.fixture('POST /todo', function (original, respondWith, settings) {
+		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
 				item: can.extend(original.data, {
@@ -1305,7 +1306,7 @@ var logErrorAndStart = function(e){
 				})
 			};
 		});
-		can.fixture('PUT /todo', function (original, respondWith, settings) {
+		fixture('PUT /todo', function (original, respondWith, settings) {
 			updateTime = new Date()
 				.getTime();
 			return {
@@ -1355,7 +1356,7 @@ var logErrorAndStart = function(e){
 			name: "first"
 		}];
 
-		can.fixture("/mymodels", function () {
+		canFixture("/mymodels", function () {
 			return array;
 		});
 
@@ -1363,7 +1364,7 @@ var logErrorAndStart = function(e){
 			findAll: "/mymodels",
 			parseModels: function (raw, xhr) {
 				// only check this if jQuery because its deferreds can resolve with multiple args
-				
+
 				equal(array, raw, "got passed raw data");
 				return {
 					data: raw,
@@ -1383,7 +1384,7 @@ var logErrorAndStart = function(e){
 
 	test("parseModels and parseModel and findAll", function () {
 
-		can.fixture("/mymodels", function () {
+		fixture("/mymodels", function () {
 			return {
 				myModels: [{
 					myModel: {
@@ -1421,7 +1422,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("#501 - resource definition - create", function() {
-		can.fixture("/foods", function() {
+		fixture("/foods", function() {
 			return [];
 		});
 
@@ -1438,7 +1439,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("#501 - resource definition - findAll", function() {
-		can.fixture("/drinks", function() {
+		fixture("/drinks", function() {
 			return [{
 				id: 1,
 				name: "coke"
@@ -1460,7 +1461,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("#501 - resource definition - findOne", function() {
-		can.fixture("GET /clothes/{id}", function() {
+		fixture("GET /clothes/{id}", function() {
 			return [{
 				id: 1,
 				name: "pants"
@@ -1479,7 +1480,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("#501 - resource definition - remove trailing slash(es)", function() {
-		can.fixture("POST /foods", function() {
+		fixture("POST /foods", function() {
 			return [];
 		});
 
@@ -1501,7 +1502,7 @@ var logErrorAndStart = function(e){
 		var map = new MyModel({name: "map1"});
 		var map2 = new MyModel({name: "map2"});
 		var list = new MyModel.List([map, map2]);
-		
+
 		list.bind('destroyed', function(ev){
 			ok(true, 'trigger destroyed');
 		});
@@ -1531,7 +1532,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('#1089 - resource definition - inheritance', function() {
-		can.fixture('GET /things/{id}', function() {
+		fixture('GET /things/{id}', function() {
 			return { id: 0, name: 'foo' };
 		});
 
@@ -1551,19 +1552,19 @@ var logErrorAndStart = function(e){
 	});
 
 	test('#1089 - resource definition - CRUD overrides', function() {
-		can.fixture('GET /foos/{id}', function() {
+		canFixture('GET /foos/{id}', function() {
 			return { id: 0, name: 'foo' };
 		});
 
-		can.fixture('POST /foos', function() {
+		canFixture('POST /foos', function() {
 			return { id: 1 };
 		});
 
-		can.fixture('PUT /foos/{id}', function() {
+		canFixture('PUT /foos/{id}', function() {
 			return { id: 1, updated: true };
 		});
 
-		can.fixture('GET /bars', function() {
+		canFixture('GET /bars', function() {
 			return [{}];
 		});
 
@@ -1589,13 +1590,13 @@ var logErrorAndStart = function(e){
 		stop();
 		Promise.all([alldfd, onedfd, postdfd])
 		.then(function(result) {
-			
+
 			var things = result[0], thing= result[1], newthing= result[2];
-			
+
 			equal(things.length, 1, 'findAll override called');
 			equal(thing.name, 'foo', 'resource findOne called');
 			equal(newthing.id, 1, 'post override called with function');
-			
+
 			newthing.save(function(res) {
 				ok(res.updated, 'put override called with object');
 				start();
