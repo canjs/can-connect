@@ -44,7 +44,9 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 require("when/es6-shim/Promise");
-var forEach = require("can-connect/helpers/").forEach;
+var helpers = require("can-connect/helpers/");
+var forEach = helpers.forEach;
+var map = helpers.map;
 
 //
 var indexOf = function(connection, props, items){
@@ -108,7 +110,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 		getInstances: function(ids){
 			var self = this;
-			return ids.map(function(id){
+			return map.call(ids, function(id){
 				return self.getInstance(id);
 			});
 		},
@@ -145,7 +147,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			// save objects and ids
 			var self = this;
 
-			var ids = items.map(function(item){
+			var ids = map.call(items, function(item){
 				var id = self.id(item);
 				localStorage.setItem(self.name+"/instance/"+id, JSON.stringify(item) );
 				return id;
@@ -165,7 +167,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 
 			var self = this;
 
-			var ids = items.map(function(item){
+			var ids = map.call(items, function(item){
 				var id = self.id(item);
 				localStorage.setItem(self.name+"/instance/"+id, JSON.stringify(item));
 				return id;

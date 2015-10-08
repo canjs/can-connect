@@ -134,6 +134,8 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 					return 1;
 				} else if( canSet.subset(pReq2.set, pReq1.set, self.algebra) ) {
 					return -1;
+				} else {
+					return 0;
 				}
 
 			});

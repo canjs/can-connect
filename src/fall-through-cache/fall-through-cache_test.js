@@ -5,7 +5,7 @@ var store = require("can-connect/constructor/store/");
 var connect = require("can-connect");
 var canSet = require("can-set");
 var testHelpers = require("can-connect/test-helpers");
-
+var map = require("can-connect/helpers/").map;
 
 require("can-connect/data/callbacks/");
 
@@ -18,20 +18,20 @@ QUnit.test("basics", function(){
 	stop();
 	var firstItems = [ {id: 0, foo: "bar"}, {id: 1, foo: "bar"} ];
 	var secondItems = [ {id: 1, foo: "BAZ"}, {id: 2, foo: "bar"} ];
-	
+
 	var state = testHelpers.makeStateChecker(QUnit,["cache-getListData-empty",
 		"base-getListData",
 		"cache-updateListData",
 		"connection-foundAll",
-		
-		
+
+
 		"connection-getList-2",
 		"cache-getListData-items",
 		"connection-foundAll-2",
 		"base-getListData-2",
 		"cache-updateListData-2",
 		"updatedList"] );
-		
+
 
 	var cacheConnection = connect([function(){
 		var calls = 0;
@@ -60,7 +60,7 @@ QUnit.test("basics", function(){
 			}
 		};
 	}],{});
-	
+
 	var base = function(base, options){
 		var calls = 0;
 		return {
@@ -79,37 +79,37 @@ QUnit.test("basics", function(){
 		return {
 			updatedList: function(list, updated){
 				state.check("updatedList");
-				deepEqual( updated.data.map(getId), secondItems.map(getId) );
+				deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
 				start();
 			}
 		};
 	};
-	
+
 	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
 		cacheConnection: cacheConnection
 	});
-	
+
 	// first time, it takes the whole time
 	connection.getList({}).then(function( list ){
 		state.check("connection-foundAll");
-		deepEqual( list.map(getId), firstItems.map(getId) );
+		deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
-	
+
 	function secondCall() {
 		state.check("connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
-			deepEqual( list.map(getId), firstItems.map(getId) );
+			deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);
 	}
-	
-	
-	
+
+
+
 	// second time, it should return the original list from localStorage
-	
+
 	// but then update the list as the request goes out
-	
+
 });
 
 
@@ -117,19 +117,19 @@ QUnit.test("getInstance and getData", function(){
 	stop();
 	var firstData =  {id: 0, foo: "bar"};
 	var secondData = {id: 0, foo: "BAR"};
-	
+
 	var state = testHelpers.makeStateChecker(QUnit,["cache-getData-empty",
 		"base-getData",
 		"cache-updateData",
 		"connection-foundOne",
 		"connection-getInstance-2",
 		"cache-getData-item",
-		
+
 		"connection-foundOne-2",
 		"base-getData-2",
 		"cache-updateData-2",
 		"updatedInstance"] );
-		
+
 
 	var cacheConnection = connect([function(){
 		var calls = 0;
@@ -158,7 +158,7 @@ QUnit.test("getInstance and getData", function(){
 			}
 		};
 	}],{});
-	
+
 	var base = function(base, options){
 		var calls = 0;
 		return {
@@ -183,18 +183,18 @@ QUnit.test("getInstance and getData", function(){
 			}
 		};
 	};
-	
+
 	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
 		cacheConnection: cacheConnection
 	});
-	
+
 	// first time, it takes the whole time
 	connection.get({id: 0}).then(function( instance ){
 		state.check("connection-foundOne");
 		deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
-	
+
 	function secondCall() {
 		state.check("connection-getInstance-2");
 		connection.get({id: 0}).then(function(instance){
@@ -202,5 +202,5 @@ QUnit.test("getInstance and getData", function(){
 			deepEqual( instance, {id: 0, foo: "bar"}  );
 		}, testHelpers.logErrorAndStart);
 	}
-	
+
 });

@@ -2,6 +2,10 @@ var QUnit = require("steal-qunit");
 var serviceWorkerCache = require("can-connect/service-worker/");
 var connect = require("can-connect");
 
+if(typeof Worker === "undefined") {
+	return;
+}
+
 var logErrorAndStart = function(e){
 	debugger;
 	ok(false,"Error "+e);
@@ -22,16 +26,16 @@ QUnit.module("can-connect/service-worker",{
 
 QUnit.test("updateListData", function(){
 	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
-	
+
 	var connection = this.connection;
-	
+
 	stop();
 	connection.getListData({foo: "bar"})
 		.then(function(listData){
 			deepEqual(listData, {data: [{id: 1}, {id: 2}]}, "got back data");
 			start();
 		}, logErrorAndStart);
-	
+
 });
 
 

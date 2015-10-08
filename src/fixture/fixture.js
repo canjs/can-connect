@@ -179,9 +179,9 @@ XMLHttpRequest.prototype.getAllResponseHeaders = function(){
 	return this._xhr.getAllResponseHeaders.apply(this._xhr, arguments);
 };
 
-helpers.forEach.call(["response","responseText", "responseType", "responseURL","status","statusText","readyState"], function(prop){
+helpers.forEach.call(["response","responseText", "responseType", "responseURL","status","statusText","readyState", "onreadystatechange"], function(prop){
 
-	Object.defineProperty(XMLHttpRequest.prototype, prop, {
+	helpers.defineProperty(XMLHttpRequest.prototype, prop, {
 		get: function(){
 			return this._xhr[prop];
 		},
@@ -457,7 +457,7 @@ helpers.extend(can.fixture, {
 			items,
 			reset;
 
-		if(Array.isArray(count) && typeof count[0] === "string" ){
+		if(helpers.isArray(count) && typeof count[0] === "string" ){
 			types = count;
 			count = make;
 			make= filter;
@@ -484,7 +484,7 @@ helpers.extend(can.fixture, {
 					currentId = Math.max(item.id + 1, currentId + 1) || items.length;
 					items.push(item);
 				}
-				if (Array.isArray(types)) {
+				if (helpers.isArray(types)) {
 					can.fixture["~" + types[0]] = items;
 					can.fixture["-" + types[0]] = methods.findAll;
 					can.fixture["-" + types[1]] = methods.findOne;
@@ -554,6 +554,7 @@ helpers.extend(can.fixture, {
 				//filter results if someone added an attr like parentId
 				for (var param in request.data) {
 					i = 0;
+					console.log("indexof")
 					if (request.data[param] !== undefined && // don't do this if the value of the param is null (ignore it)
 						(param.indexOf("Id") !== -1 || param.indexOf("_id") !== -1)) {
 						while (i < retArr.length) {

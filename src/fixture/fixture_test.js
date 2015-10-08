@@ -1,17 +1,18 @@
 var Qunit = require('steal-qunit');
 var fixture = require("can-connect/fixture/");
 var Model = require("can-connect/can/model/");
-var set = require("can-set");
+//var set = require("can-set");
 
-	
+console.log("fixture_test");
+
+
 	QUnit.module('can/util/fixture');
 	test('static fixtures', function () {
-		
 
 		stop();
 		fixture('GET something', __dirname+'/fixtures/test.json');
 		fixture('POST something', __dirname+'/fixtures/test.json');
-		
+
 		$.ajax({
 			url: 'something',
 			dataType: 'json'
@@ -87,7 +88,7 @@ var set = require("can-set");
 					});
 			});
 	});
-	
+
 
 	test('fixture.store fixtures', function () {
 		stop();
@@ -103,7 +104,7 @@ var set = require("can-set");
 			}
 		});
 		fixture('things', store.findAll);
-		
+
 		$.ajax({
 			url: 'things',
 			dataType: 'json',
@@ -285,7 +286,7 @@ var set = require("can-set");
 					});
 			});
 	});
-	
+
 	test('fixture.store with can.Model', function () {
 		var store = fixture.store(100, function (i) {
 			return {
@@ -365,13 +366,13 @@ var set = require("can-set");
 
 		Model.findOne({ id: 3 })
 					.then(function(){},function (data) {
-						
+
 						equal(data.statusText, 'error', 'Got an error');
 						equal(data.responseText, 'Requested resource not found', 'Got correct status message');
 						start();
 					});
 	});
-	
+
 	test('fixture.store returns 404 on update with a bad id (#803)', function () {
 		var store = fixture.store(5, function (i) {
 			return {
@@ -384,7 +385,7 @@ var set = require("can-set");
 			}, {});
 
 		stop();
-		
+
 		fixture('POST /models/{id}', store.update);
 		new MyModel({id: 6, 'jedan': 'dva'}).save()
 					.then(function(){},function (data) {
@@ -393,7 +394,7 @@ var set = require("can-set");
 						start();
 					});
 	});
-	
+
 	test('fixture.store returns 404 on destroy with a bad id (#803)', function () {
 		var store = fixture.store(2, function (i) {
 			return {
@@ -406,7 +407,7 @@ var set = require("can-set");
 			}, {});
 
 		stop();
-		
+
 		fixture('DELETE /models/{id}', store.destroy);
 
 		new MyModel({id: 6}).destroy()
@@ -536,9 +537,9 @@ var set = require("can-set");
 			url: 'foo/5'
 		});
 	});
-	
+
 	test("create a store with array and comparison object",function(){
-		
+
 		var store = fixture.store([
 			{id: 1, modelId: 1, year: 2013, name: "2013 Mustang", thumb: "http://mustangsdaily.com/blog/wp-content/uploads/2012/07/01-2013-ford-mustang-gt-review-585x388.jpg"},
 			{id: 2, modelId: 1, year: 2014, name: "2014 Mustang", thumb: "http://mustangsdaily.com/blog/wp-content/uploads/2013/03/2014-roush-mustang.jpg"},
@@ -551,23 +552,23 @@ var set = require("can-set");
 		],{
 			year: function(a, b){
 				return a == b;
-				
+
 			},
 			modelId: function(a, b){
 				return a == b;
 			}
 		});
-		
-		
+
+
 		fixture('GET /presetStore', store.findAll);
 		stop();
 		$.ajax({ url: "/presetStore", method: "get", data: {year: 2013, modelId:1}, dataType: "json" }).then(function(response){
-			
+
 			equal(response.data[0].id, 1, "got the first item");
 			equal(response.data.length, 1, "only got one item");
 			start();
 		});
-		
+
 	});
 
 	test("store with objects allows .create, .update and .destroy (#1471)", 6, function(){
@@ -625,13 +626,13 @@ var set = require("can-set");
 
 
 	test("filtering works", function() {
-	
+
 		var store = fixture.store(
 			[	{ state : 'CA', name : 'Casadina' },
-				{ state : 'NT', name : 'Alberny' }], 
+				{ state : 'NT', name : 'Alberny' }],
 			// David, make sure this is here!
 			{});
-	
+
 		fixture({
 			'GET /api/cities' : store.findAll,
 		});
@@ -649,9 +650,9 @@ var set = require("can-set");
 			ok(false, ""+e);
 			start()
 		});
-		
+
 		function next(){
-	
+
 			var store =fixture.store([{
 				_id : 1,
 				name : 'Cheese City',
@@ -669,14 +670,14 @@ var set = require("can-set");
 					state : 'NT'
 				}
 			}],{
-				
+
 			});
-	
+
 			fixture({
 				'GET /restaurants' : store.findAll
-			}); 
+			});
 			$.getJSON('/api/restaurants?address[city]=Alberny').then(function(responseData){
-				
+
 				deepEqual(responseData, {
 					count: 1,
 					data: [{
@@ -690,7 +691,7 @@ var set = require("can-set");
 					}]
 				});
 				last();
-				
+
 			}, function(e){
 				ok(false);
 				debugger;
@@ -735,6 +736,6 @@ var set = require("can-set");
 			});
 			start();
 		}
-	}); 
+	});
 
-	
+

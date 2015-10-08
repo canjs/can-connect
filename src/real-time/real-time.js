@@ -3,12 +3,12 @@
  * @parent can-connect.behaviors
  * @group can-connect/real-time.methods 0 Methods
  * @group can-connect/real-time.callbacks 1 Data Callbacks
- * 
+ *
  * Update lists to include or exclude instances based
  * on set logic.
- * 
+ *
  * @signature `realTime( baseConnection )`
- * 
+ *
  *   Overwrites the "data callback" methods and provides
  *   [can-connect/real-time.createInstance],
  *   [can-connect/real-time.updateInstance], and
@@ -16,22 +16,22 @@
  *   that
  *   update lists to include or exclude a created,
  *   updated, or destroyed instance.
- * 
+ *
  *   An instance is put in a list if it is a
  *   [set.subset](https://github.com/canjs/can-set#setsubset)
  *   of the [connect.base.listSet].
- * 
+ *
  *   Currently, all items are added at the end of the list
  *   until [set.add](https://github.com/canjs/can-set/issues/2)
  *   is in `can-set`.
- * 
- * @body 
- * 
+ *
+ * @body
+ *
  * ## Use
- * 
+ *
  * To use `real-time`, create a connection with its dependent
  * behaviors like:
- * 
+ *
  * ```
  * var todoConnection = connect(
  *    ["real-time",
@@ -42,60 +42,60 @@
  *   url: "/todos"
  * });
  * ```
- * 
+ *
  * Next, use the connection to load lists and save those lists in the
  * store:
- * 
+ *
  * ```
  * todoConnection.getList({complete: false}).then(function(todos){
  *   todoConnection.addListReference(todos);
  * })
  * ```
- * 
+ *
  * Finally, use one of the  [can-connect/real-time.createInstance],
  * [can-connect/real-time.updateInstance], and
  * [can-connect/real-time.destroyInstance] methods to tell the connection
  * that data has changed.  The connection will update (by calling splice)
  * each list accordingly.
- * 
- * 
+ *
+ *
  * ## Example
- * 
+ *
  * The following demo shows two lists that use this connection.  The
  * "Run Code" button sends the connection data changes which the
  * connection will then update lists accordingly:
- * 
- * 
+ *
+ *
  * @demo can-connect/src/real-time/real-time.html
- * 
+ *
  * This example creates a `todoList` function and `todoItem` function
  * that manage the behavior of a list of todos and a single todo respectfully.
  * It uses [Object.observe](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/observe)
  * to observe changes in the todo list and individual todo data. Other
  * frameworks will typically provide their own observable system.
- * 
+ *
  * ### todoList
- * 
+ *
  * When `todoList` is created, it is passed the `set` of data to load.  It uses
  * this to get todos from the `todoConnection` like:
- * 
- * 
+ *
+ *
  * ```
  * todosConnection.getList(set).then(function(retrievedTodos){
  * ```
- * 
- * It then adds those `todos` to the [can.connect/constructor-store.listStore] so 
+ *
+ * It then adds those `todos` to the [can.connect/constructor-store.listStore] so
  * they can be updated automatically.  And, it listens to changes in `todos` and calls an `update` function:
- * 
+ *
  * ```
  * todosConnection.addListReference(todos);
  * Object.observe(todos, update, ["add", "update", "delete"] );
  * ```
- * 
+ *
  * The update function is able to inserted new `todoItem`s in the page when items are added
  * to or removed from `todos`.  We exploit that by calling `update` as if it just added
  * each todo in the list:
- * 
+ *
  * ```
  * update(todos.map(function(todo, i){
  *   return {
@@ -104,24 +104,24 @@
  *   };
  * }));
  * ```
- * 
+ *
  * ### todoItem
- * 
+ *
  * The `todoItem` creates an element that updates with changes
  * in its `todo`.  It listens to changes in the `todo` and saves
  * the todo in the [can.connect/constructor-store.instanceStore] with the
  * following:
- * 
+ *
  * ```
  * Object.observe(todo, update, ["add", "update", "delete"] );
  * todosConnection.addInstanceReference(todo);
  * ```
- * 
+ *
  * A `todoItem` needs to be able to stop listening on the `todo` and remove itself from the
  * `instanceStore` if the `todo` is removed from the page.  To provide this teardown
  * functionality, `todoItem` listens to a `"removed"` event on its element and
  * `unobserves` the todo and removes it from the `instanceStore`:
- * 
+ *
  * ```
  * $(li).bind("removed", function(){
  *   Object.unobserve(todo, update, ["add", "update", "delete"] );
@@ -131,7 +131,7 @@
  */
 var connect = require("../can-connect");
 var canSet = require("can-set");
-
+var helpers = require("can-connect/helpers/");
 
 
 
@@ -140,46 +140,46 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		/**
 		 * @function can-connect/real-time.createInstance createInstance
 		 * @parent can-connect/real-time.methods
-		 * 
-		 * Programatically indicate a new instance has been created. 
-		 * 
+		 *
+		 * Programatically indicate a new instance has been created.
+		 *
 		 * @signature `connection.createInstance(props)`
-		 * 
+		 *
 		 *   If there is no instance in the [can.connect/constructor-store.instanceStore]
 		 *   for `props`'s [connect.base.id], an instance is [can-connect/constructor.hydrateInstance hydrated],
 		 *   added to the store, and then [can-connect/real-time.createdData] is called with
 		 *   `props` and the hydrated instance's serialized data. [can-connect/real-time.createdData]
 		 *   will add this instance to any lists the instance belongs to.
-		 * 
-		 *   If this instance has already been created, calls 
+		 *
+		 *   If this instance has already been created, calls
 		 *   [can-connect/real-time.updateInstance] with `props`.
-		 * 
+		 *
 		 *   @param {Object} props
-		 * 
+		 *
 		 *   @return {Promise<Instance>}
-		 * 
+		 *
 		 * @body
-		 * 
+		 *
 		 * ## Use
-		 * 
+		 *
 		 * With a `real-time` connection, call `createInstance` when an instance is created that
-		 * the connection itself did not make.  For instance, the following might listen to 
-		 * [socket.io](http://socket.io/) for when a `todo` is created and update the connection 
+		 * the connection itself did not make.  For instance, the following might listen to
+		 * [socket.io](http://socket.io/) for when a `todo` is created and update the connection
 		 * accordingly:
-		 * 
+		 *
 		 * ```
 		 * socket.on('todo created', function(todo){
 		 *   todoConnection.createInstance(order);
 		 * });
 		 * ```
-		 * 
+		 *
 		 */
 		createInstance: function(props){
 			var id = this.id(props);
 			var instance = this.instanceStore.get(id);
 			var promise;
 			var serialized;
-			
+
 			if( instance ) {
 				// already created, lets update
 				return this.updateInstance(props);
@@ -187,11 +187,11 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 				instance = this.hydrateInstance(props);
 				serialized = this.serializeInstance(instance);
 				var self = this;
-				
+
 				this.addInstanceReference(instance);
-			
+
 				return Promise.resolve( this.createdData(props, serialized) ).then(function(){
-					
+
 					self.deleteInstanceReference(instance);
 					return instance;
 				});
@@ -200,23 +200,23 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		/**
 		 * @function can-connect/real-time.createdData createdData
 		 * @parent can-connect/real-time.callbacks
-		 * 
+		 *
 		 * Called whenever instance data is created.
-		 * 
+		 *
 		 * @signature `connection.createdData(props, params, [cid])`
-		 * 
+		 *
 		 *   Updates lists with the created instance.
-		 * 
+		 *
 		 *   Gets the instance created for this request. Then, updates the instance with
-		 *   the response data `props`. 
-		 * 
+		 *   the response data `props`.
+		 *
 		 *   Next, it goes through every list in the [can.connect/constructor-store.listStore],
 		 *   test if the instance's data belongs in that list.  If it does,
-		 *   adds the instance's data to the serialized list data and 
+		 *   adds the instance's data to the serialized list data and
 		 *   [can-connect/constructor.updatedList updates the list].
-		 * 
-		 * 
-		 *   
+		 *
+		 *
+		 *
 		 */
 		createdData: function(props, params, cid){
 			var instance;
@@ -235,42 +235,42 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		/**
 		 * @function can-connect/real-time.updatedData updatedData
 		 * @parent can-connect/real-time.callbacks
-		 * 
+		 *
 		 * Called whenever instance data is updated.
-		 * 
+		 *
 		 * @signature `connection.updatedData(props, params)`
-		 * 
+		 *
 		 *   Gets the instance that is updated, updates
 		 *   it with `props` and the adds or removes it to
 		 *   lists it belongs in.
-		 * 
+		 *
 		 *   @return {undefined} Returns `undefined` to prevent `.save` from calling `updatedInstance`.
 		 */
 		// Go through each list in the listStore and see if there are lists that should have this,
 		// or a list that shouldn't.
 		updatedData: function(props, params){
-			
+
 			var instance = this.instanceStore.get( this.id(params) );
 			this.updatedInstance(instance, props);
 			update.call(this, this.serializeInstance(instance));
-			
+
 			// Returning undefined prevents other behaviors from running.
 			return undefined;
 		},
 		/**
 		 * @function can-connect/real-time.updateInstance updateInstance
 		 * @parent can-connect/real-time.methods
-		 * 
-		 * Programatically indicate a new instance has been updated. 
-		 * 
+		 *
+		 * Programatically indicate a new instance has been updated.
+		 *
 		 * @signature `connection.updateInstance(props)`
-		 * 
+		 *
 		 *   Calls [can-connect/real-time.updatedData] in the right way so
 		 *   that the instance is updated and added to or removed from
 		 *   any lists it belongs in.
-		 * 
-		 *   @param {Object} props The properties of the instance that 
-		 * 
+		 *
+		 *   @param {Object} props The properties of the instance that
+		 *
 		 *   @return {Promise<Instance>} the updated instance.
 		 */
 		updateInstance: function(props){
@@ -280,12 +280,12 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 				instance = this.hydrateInstance(props);
 			}
 			this.addInstanceReference(instance);
-			
+
 			var serialized = this.serializeInstance(instance),
 				self = this;
-			
+
 			return Promise.resolve( this.updatedData(props, serialized) ).then(function(){
-				
+
 				self.deleteInstanceReference(instance);
 				return instance;
 			});
@@ -293,7 +293,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		/**
 		 * @function can-connect/real-time.destroyedData destroyedData
 		 * @parent can-connect/real-time.callbacks
-		 * 
+		 *
 		 * @param {Object} props
 		 * @param {Object} params
 		 */
@@ -302,7 +302,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 			var instance = this.instanceStore.get(id);
 			if( !instance ) {
 				instance = this.hydrateInstance(props);
-			} 
+			}
 			var serialized = this.serializeInstance(instance);
 			// we can pre-register it so everything else finds it
 			destroy.call(this, serialized);
@@ -311,15 +311,15 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		/**
 		 * @function can-connect/real-time.destroyInstance destroyInstance
 		 * @parent can-connect/real-time.methods
-		 * 
-		 * Programatically indicate a new instance has been destroyed. 
-		 * 
+		 *
+		 * Programatically indicate a new instance has been destroyed.
+		 *
 		 * @signature `connection.destroyInstance(props)`
-		 * 
+		 *
 		 *   Gets or creates an instance from `props` and uses
 		 *   it to call [can-connect/real-time.destroyedData]
 		 *   correctly.
-		 * 
+		 *
 		 * @param {Object} props The properties of the destroyed instance.
 		 * @return {Promise<Instance>}  A promise with the destroyed instance.
 		 */
@@ -330,12 +330,12 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 				instance = this.hydrateInstance(props);
 			}
 			this.addInstanceReference(instance);
-			
+
 			var serialized = this.serializeInstance(instance),
 				self = this;
-			
+
 			return Promise.resolve( this.destroyedData(props, serialized) ).then(function(){
-				
+
 				self.deleteInstanceReference(instance);
 				return instance;
 			});
@@ -361,15 +361,16 @@ var setAdd = function(connection, set, items, item, algebra){
 var create = function(props){
 	var self = this;
 	// go through each list
+
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
-		
-		
+
+
 		var index = indexOf(self, props, list);
-		
+
 		if(canSet.subset(props, set, self.algebra)) {
-			
+
 			// if it's not in the list, update the list with this and the lists data merged
 			if(index == -1) {
 				// get back the list items
@@ -378,9 +379,9 @@ var create = function(props){
 			} else {
 				// if the index
 			}
-			
-		} 
-		
+
+		}
+
 	});
 };
 
@@ -389,31 +390,31 @@ var create = function(props){
 // with the new.
 var update = function(props) {
 	var self = this;
-	
+
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
-		
-		
+
+
 		var index = indexOf(self, props, list);
-		
+
 		if(canSet.subset(props, set, self.algebra)) {
-			
+
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
 			if(index == -1) {
 				// get back the list items
 				var items = self.serializeList(list);
 				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
-			} 
-			
+			}
+
 		}  else if(index != -1){
 			// otherwise remove it
 			var items = self.serializeList(list);
 			items.splice(index,1);
 			self.updatedList(list,  { data: items }, set);
 		}
-		
+
 	});
 };
 
@@ -423,15 +424,15 @@ var destroy = function(props) {
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
-		
+
 		var index = indexOf(self, props, list);
-		
+
 		if(index != -1){
 			// otherwise remove it
 			var items = self.serializeList(list);
 			items.splice(index,1);
 			self.updatedList(list,  { data: items }, set);
 		}
-		
+
 	});
 };

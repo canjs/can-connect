@@ -4,6 +4,7 @@ var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
 require("when/es6-shim/Promise");
+var map = require("can-connect/helpers/").map;
 
 var set = require("can-set");
 
@@ -36,21 +37,21 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 		},
 		cacheConnection: memCache(connect.base({}))
 	} );
-	
+
 	res.getListData({}).then(function(list){
-		
-		deepEqual(list.map(getId), [1,2,3,4,5,6]);
-		
+
+		deepEqual(map.call(list, getId), [1,2,3,4,5,6]);
+
 		res.getListData({type: "critical"}).then(function(list){
-			deepEqual(list.data.map(getId), [1,3,5]);
-			
+			deepEqual(map.call(list.data, getId), [1,3,5]);
+
 			res.getListData({due: "today"}).then(function(list){
-				deepEqual(list.data.map(getId), [1,2]);
+				deepEqual(map.call(list.data, getId), [1,2]);
 				start();
 			});
-			
+
 		});
-		
+
 	});
 
 });
@@ -60,16 +61,16 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
-	
+
 	var algebra = set.comparators.rangeInclusive("start","end");
-	
+
 	var behavior = cacheRequests( {
 		getListData: function(params){
 			equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
 			equal(params.end, count * 10, "end is right "+params.end);
-			
-			
+
+
 			var items = [];
 			for(var i= (+params.start); i <= (+params.end); i++) {
 				items.push({
@@ -81,8 +82,8 @@ QUnit.test("Incrementally load data", function(){
 		algebra: algebra,
 		cacheConnection: memCache(connect.base({algebra: algebra}))
 	} );
-	
-	
+
+
 	behavior.getListData({
 		start: 1,
 		end: 10
@@ -91,7 +92,7 @@ QUnit.test("Incrementally load data", function(){
 		equal(list.length, 10, "got 10 items");
 		equal(list[0].id, 1);
 		equal(list[9].id, 10);
-		
+
 		behavior.getListData({
 			start: 1,
 			end: 20
@@ -100,8 +101,8 @@ QUnit.test("Incrementally load data", function(){
 			equal(list.length, 20, "got 20 items");
 			equal(list[0].id, 1, "0th object's id'");
 			equal(list[19].id, 20, "19th object's id");
-			
-			
+
+
 			behavior.getListData({start: 9, end: 12}).then(function(listData){
 				var list = listData.data;
 				equal(list.length, 4, "got 4 items");
@@ -109,11 +110,11 @@ QUnit.test("Incrementally load data", function(){
 				equal(list[3].id, 12);
 				start();
 			});
-			
-			
-			
+
+
+
 		});
-		
+
 	});
-	
+
 });

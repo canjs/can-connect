@@ -1,3 +1,5 @@
+var map = require("can-connect/helpers/").map;
+
 module.exports = function(list, update, id, make){
 	var listIndex = 0,
 		updateIndex =  0;
@@ -27,16 +29,16 @@ module.exports = function(list, update, id, make){
 			listIndex++;
 			updateIndex++;
 			continue;
-		} 
+		}
 		// just clean up the rest and exit
 		else {
-			list.splice.apply( list, [listIndex, list.length-listIndex].concat( update.slice(updateIndex).map(make) ) );
+			list.splice.apply( list, [listIndex, list.length-listIndex].concat( map.call(update.slice(updateIndex), make) ) );
 			return list;
 		}
 	}
 	if( (updateIndex === update.length) && (listIndex === list.length) ) {
 		return;
 	}
-	list.splice.apply( list, [listIndex, list.length-listIndex].concat( update.slice(updateIndex).map(make) ) );
+	list.splice.apply( list, [listIndex, list.length-listIndex].concat( map.call(update.slice(updateIndex), make) ) );
 	return;
 };

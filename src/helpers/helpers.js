@@ -103,5 +103,35 @@ module.exports = helpers = {
 			}
 			return result;
 		};
+	})(),
+	defineProperty: (function(){
+		try {
+			var tmp = {};
+			Object.defineProperty(tmp, "foo", {});
+			return Object.defineProperty;
+		} catch(_) {
+			// Not fixable, we can only support .value
+			return function(obj, name, desc){
+				if(desc.value) {
+					obj[name] = value;
+				}
+			};
+		}
+	})(),
+	isArray: Array.isArray || function(arr){
+		return Object.prototype.toString.call(arr) === "[object Array]";
+	},
+	bind: (function(){
+		if(Function.prototype.bind) {
+			return function(fn, ctx){
+				return fn.bind(ctx);
+			}
+		} else {
+			return function(fn, ctx){
+				return function(){
+					return fn.apply(ctx, arguments);
+				};
+			}
+		}
 	})()
 };
