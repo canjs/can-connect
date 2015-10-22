@@ -16,6 +16,7 @@ a [can.Map](http://canjs.com/docs/can.Map.html).
   [can-connect/data-parse],
   [can-connect/data-url],
   [can-connect/real-time],
+  [can-connect/fall-through-cache],
   [can-connect/constructor/callbacks-once].
 
   And creates a [can-connect/data/localstorage-cache] to use as a [connect.base.cacheConnection].
