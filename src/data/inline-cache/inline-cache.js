@@ -28,7 +28,7 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
  * })
  * ```
  * 
- * Make the page respond with an `INILNE_CACHE` that contains the name of the 
+ * Make the page respond with an `INLINE_CACHE` that contains the name of the 
  * connection and a mapping of ids or sets to the response data:
  * 
  * ```
