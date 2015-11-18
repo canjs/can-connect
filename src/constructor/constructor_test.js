@@ -9,6 +9,7 @@ var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();
 };
+var wait = require("can-wait");
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
@@ -97,4 +98,39 @@ QUnit.test("basics", function(){
 		start();
 	}, logErrorAndStart);
 
+});
+
+QUnit.test("Adds data to canWait.data", function(){
+	var Todo = function(values){
+		canSet.helpers.extend(this, values);
+	};
+	var TodoList = function(todos){
+		var listed = todos.slice(0);
+		listed.isList = true;
+		return listed;
+	};
+	var connection = constructor( persist( connect.base({
+		instance: function(values){
+			return new Todo(values);
+		},
+		list: function(arr){
+			return new TodoList(arr.data);
+		},
+		url: "/constructor/todos",
+		name: "todos"
+	}) ));
+
+	fixture({
+		"GET /constructor/todos/2": function(req) {
+			return [{id:2}];
+		}
+	});
+
+	stop();
+
+	wait(function(){
+		connection.get({ id: 2 });
+	}).then(function(responses){
+		equal(responses.length, 1, "There was one piece of data added");
+	}).then(start);
 });
