@@ -35,7 +35,14 @@ connect.superMap = function(options){
 
 	if(typeof localStorage !== "undefined") {
 		// if no cacheConnection provided, create one
-		if(typeof options.cacheConnection !== 'undefined' && options.cacheConnection.__behaviorName !== 'data-localstorage-cache' && options.cacheConnection.__behaviorName !== 'data-memory-cache') {
+		if(typeof options.cacheConnection === 'undefined') {
+            options.cacheConnection = connect(['data-localstorage-cache'], {
+                name: options.name + 'Cache',
+                idProp: options.idProp,
+                algebra: options.algebra
+            });
+
+        }else if ( options.cacheConnection.__behaviorName !== 'data-localstorage-cache' && options.cacheConnection.__behaviorName !== 'data-memory-cache') {
             options.cacheConnection = connect(['data-localstorage-cache'], {
                 name: options.name + 'Cache',
                 idProp: options.idProp,
