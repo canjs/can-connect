@@ -132,5 +132,6 @@ QUnit.test("Adds data to canWait.data", function(){
 		connection.get({ id: 2 });
 	}).then(function(responses){
 		equal(responses.length, 1, "There was one piece of data added");
+		ok(responses[0].pageData.todos, "pageData added");
 	}).then(start);
 });

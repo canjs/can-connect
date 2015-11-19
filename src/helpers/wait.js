@@ -29,7 +29,7 @@ function addToCanWaitData(promise, name, set){
 			var keyData = data[name] = {};
 			keyData[sortedSetJson(set)] = typeof resp.serialize === "function" ?
 				resp.serialize() : resp;
-			canWait.data(data);
+			canWait.data({ pageData: data });
 			return resp;
 		});
 	}
