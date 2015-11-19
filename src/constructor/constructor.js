@@ -87,6 +87,7 @@ var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var overwrite = require("can-connect/helpers/overwrite");
 var idMerge = require("can-connect/helpers/id-merge");
 var helpers = require("can-connect/helpers/");
+var addToCanWaitData = require("can-connect/helpers/wait");
 
 module.exports = connect.behavior("constructor",function(baseConnect){
 
@@ -133,9 +134,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		get: function(params) {
 			var self = this;
-			return this.getData(params).then(function(data){
+			return addToCanWaitData(this.getData(params).then(function(data){
 				return self.hydrateInstance(data);
-			});
+			}), this.name, params);
 		},
 
 		/**
@@ -169,9 +170,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		getList: function(set) {
 			var self = this;
-			return this.getListData( set ).then(function(data){
+			return addToCanWaitData(this.getListData( set ).then(function(data){
 				return self.hydrateList(data, set);
-			});
+			}), this.name, set);
 		},
 
 
