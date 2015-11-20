@@ -60,6 +60,7 @@
     "./helpers/weak-reference-map": "./dist/cjs/helpers/weak-reference-map",
     "./helpers/overwrite": "./dist/cjs/helpers/overwrite",
     "./helpers/id-merge": "./dist/cjs/helpers/id-merge",
+    "./helpers/wait": "./dist/cjs/helpers/wait",
     "./constructor/callbacks-once/callbacks-once": "./dist/cjs/constructor/callbacks-once/callbacks-once",
     "./helpers/sorted-set-json": "./dist/cjs/helpers/sorted-set-json",
     "./constructor/store/store": "./dist/cjs/constructor/store/store",
