@@ -35,24 +35,19 @@ connect.superMap = function(options){
 
 	if(typeof localStorage !== "undefined") {
 		// if no cacheConnection provided, create one
-		if(typeof options.cacheConnection === 'undefined') {
+		if (typeof options.cacheConnection === 'undefined' || (options.cacheConnection.__behaviorName !== 'data-localstorage-cache' && options.cacheConnection.__behaviorName !== 'data-memory-cache' && options.cacheConnection.__behaviorName !== 'data-inline-cache')) {
             options.cacheConnection = connect(['data-localstorage-cache'], {
-                name: options.name + 'Cache',
-                idProp: options.idProp,
-                algebra: options.algebra
-            });
-
-        }else if ( options.cacheConnection.__behaviorName !== 'data-localstorage-cache' && options.cacheConnection.__behaviorName !== 'data-memory-cache') {
-            options.cacheConnection = connect(['data-localstorage-cache'], {
-                name: options.name + 'Cache',
+                name: options.name,
                 idProp: options.idProp,
                 algebra: options.algebra
             });
         }
         // use the cacheConnection options if none are set by superMap
-        options.name = options.name || options.cacheConnection.name;
-        options.idProp = options.idProp || options.cacheConnection.idProp;
-        options.algebra = options.algebra || options.cacheConnection.algebra;
+        options.name = options.cacheConnection.name || options.name;
+        options.idProp = options.cacheConnection.idProp || options.idProp;
+        options.algebra = options.cacheConnection.algebra || options.algebra;
+        
+        can.simpleExtend(options.cacheConnection, {name: options.name, idProp: options.idProp, algebra: options.algebra});
         
 		behaviors.push("fall-through-cache");
 	}
