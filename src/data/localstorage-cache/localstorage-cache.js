@@ -123,7 +123,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 		},
 		updateSets: function(sets){
-			var setData = this._getSets(sets);
+			var setData = this._getSets(sets) || [{}];
 			localStorage.setItem(this.name+"-sets", JSON.stringify( setData ) );
 		},
 
@@ -358,6 +358,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var items = getItems(data);
 			var sets = this.getSetData();
 			var self = this;
+			set = set || {};
 
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
