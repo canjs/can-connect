@@ -3,14 +3,12 @@ var forEach = helpers.forEach;
 var keys = helpers.keys;
 
 module.exports = function(set){
-	if(set == null) {
-		return set
-	} else {
-		var sorted = {};
-		forEach.call(keys(set).sort(), function(prop){
-			sorted[prop] = set[prop];
-		});
-		return JSON.stringify(sorted);
-	}
+	var sorted = {};
+    if(typeof set !== 'undefined' && set !== null) {
+        forEach.call(keys(set).sort(), function (prop) {
+            sorted[prop] = set[prop];
+        });
 
+    }
+    return JSON.stringify(sorted);
 };
