@@ -9,6 +9,24 @@ var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();
 };
+
+var makeIframe = function(src){
+	var href = window.location.href.split("/");
+	href.pop();
+	if(href.pop() !== "constructor") {
+		src = "src/constructor/" + src;
+	}
+
+	var iframe = document.createElement('iframe');
+	window.removeMyself = function(){
+		delete window.removeMyself;
+		document.body.removeChild(iframe);
+		QUnit.start();
+	};
+	document.body.appendChild(iframe);
+	iframe.src = src;
+};
+
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
@@ -97,4 +115,8 @@ QUnit.test("basics", function(){
 		start();
 	}, logErrorAndStart);
 
+});
+
+asyncTest("Adds data to canWait.data", function(){
+	makeIframe("tests/wait.html");
 });
