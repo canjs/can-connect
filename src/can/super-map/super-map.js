@@ -34,19 +34,11 @@ connect.superMap = function(options){
 		"constructor-callbacks-once"];
 
 	if(typeof localStorage !== "undefined") {
-		// if no cacheConnection provided, create one
-		if(typeof options.cacheConnection !== 'undefined' && options.cacheConnection.__behaviorName !== 'data-localstorage-cache' && options.cacheConnection.__behaviorName !== 'data-memory-cache') {
-            options.cacheConnection = connect(['data-localstorage-cache'], {
-                name: options.name + 'Cache',
-                idProp: options.idProp,
-                algebra: options.algebra
-            });
-        }
-        // use the cacheConnection options if none are set by superMap
-        options.name = options.name || options.cacheConnection.name;
-        options.idProp = options.idProp || options.cacheConnection.idProp;
-        options.algebra = options.algebra || options.cacheConnection.algebra;
-        
+		options.cacheConnection = connect(["data-localstorage-cache"],{
+			name: options.name+"Cache",
+			idProp: options.idProp,
+			algebra: options.algebra
+		});
 		behaviors.push("fall-through-cache");
 	}
 	options.ajax = $.ajax;
