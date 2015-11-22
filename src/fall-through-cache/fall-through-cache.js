@@ -22,7 +22,7 @@
  * [connection.getData] and [connection.getListData].
  *
  * ```
- * var cache = connect(['localstorage-cache'],{
+ * var cache = connect(['data-localstorage-cache'],{
  *   name: "todos"
  * });
  *

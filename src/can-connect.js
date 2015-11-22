@@ -277,7 +277,7 @@ var core = connect.behavior("base",function(base){
 		 * ## Use
 		 *
 		 * ```
-		 * var cacheConnection = connect(['memory-cache'],{})
+		 * var cacheConnection = connect(['data-memory-cache'],{})
 		 *
 		 * connect([...behavior names...],{
 		 *   cacheConnection: cacheConnection
