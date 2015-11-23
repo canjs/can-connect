@@ -169,6 +169,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *
 		 */
 		getList: function(set) {
+			set = set ||  {};
 			var self = this;
 			return addToCanWaitData(this.getListData( set ).then(function(data){
 				return self.hydrateList(data, set);

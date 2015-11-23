@@ -456,10 +456,10 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * are kept in the store until the response resolves.
 		 * 
 		 */
-		getList: function(params) {
+		getList: function(set) {
 			var self = this;
 			self._pendingRequests++;
-			var promise = baseConnect.getList.call(this, params);
+			var promise = baseConnect.getList.call(this, set);
 			
 			promise.then(function(instances){
 				self._finishedRequest();

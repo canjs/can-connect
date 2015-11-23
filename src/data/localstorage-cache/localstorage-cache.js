@@ -301,6 +301,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 *   the promise is rejected.
 		 */
 		getListData: function(set){
+			set = set || {};
 			var setKey = sortedSetJSON(set);
 
 			var setDatum = this.getSetData()[setKey];
@@ -355,6 +356,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){
+			set = set || {};
 			var items = getItems(data);
 			var sets = this.getSetData();
 			var self = this;

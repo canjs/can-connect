@@ -586,3 +586,5 @@ connect.behavior("localstorage", function(baseBehavior){
 })
 ```
 
+# can-fixture
+# can-fixture

@@ -265,3 +265,18 @@ QUnit.test("clearing localStorage clears set info", function(){
 	});
 });
 
+
+QUnit.test("Support passing undefined as a set to mean passing {} (#54)", function(){
+	var connection = this.connection;
+
+	QUnit.stop();
+
+	connection.updateListData({ data: items.slice(0) }, undefined).then(function(){
+		QUnit.equal(localStorage.getItem("todos-sets"),"[{}]", "contains universal set");
+		QUnit.equal(localStorage.getItem("todos/set/{}"),"[1,2,3]", "has set to id");
+		QUnit.start();
+	});
+});
+
+
+

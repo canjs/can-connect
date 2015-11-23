@@ -38,7 +38,7 @@ QUnit.test("basics", function(){
 
 	var p1 = res.getListData({type: "critical"});
 	var p2 = res.getListData({due: "today"});
-	var p3 = res.getListData({});
+	var p3 = res.getListData();
 
 	Promise.all([p1,p2,p3]).then(function(result){
 		var res1 = result[0],

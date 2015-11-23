@@ -92,7 +92,7 @@ QUnit.test("basics", function(){
 	});
 
 	// first time, it takes the whole time
-	connection.getList({}).then(function( list ){
+	connection.getList().then(function( list ){
 		state.check("connection-foundAll");
 		deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
@@ -100,7 +100,7 @@ QUnit.test("basics", function(){
 
 	function secondCall() {
 		state.check("connection-getList-2");
-		connection.getList({}).then(function(list){
+		connection.getList().then(function(list){
 			state.check("connection-foundAll-2");
 			deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);

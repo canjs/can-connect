@@ -216,6 +216,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 *   the promise is rejected.
 		 */
 		getListData: function(set){
+			set = set || {};
 			var sets = this._getSets();
 
 			for(var i = 0; i < sets.length; i++) {
@@ -246,6 +247,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){
+			set = set || {};
 			var items = getItems(data);
 			var sets = this.getSetData();
 			var self = this;

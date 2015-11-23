@@ -105,6 +105,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 		 *   @return {Promise<can-connect.listData>}
 		 */
 		getListData: function(set){
+			set = set || {};
 			var id = sortedSetJSON(set);
 			var data = getData.call(this, id);
 			if(data !== undefined) {
