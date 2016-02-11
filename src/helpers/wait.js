@@ -24,14 +24,18 @@ function sortedSetJson(set){
 // server side rendering.
 function addToCanWaitData(promise, name, set){
 	if(typeof canWait !== "undefined" && canWait.data) {
-		return promise.then(canWait(function(resp){
+		var addToData = canWait(function(resp){
 			var data = {};
 			var keyData = data[name] = {};
 			keyData[sortedSetJson(set)] = typeof resp.serialize === "function" ?
 				resp.serialize() : resp;
 			canWait.data({ pageData: data });
 			return resp;
-		}, false));
+		});
+
+		promise.then(null, addToData);
+
+		return promise.then(addToData);
 	}
 	return promise;
 }
