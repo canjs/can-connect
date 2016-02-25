@@ -335,7 +335,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			if(res){
 				return Promise.resolve( JSON.parse(res) );
 			} else {
-				return new Promise.reject({message: "no data", error: 404});
+				return Promise.reject({message: "no data", error: 404});
 			}
 		},
 
