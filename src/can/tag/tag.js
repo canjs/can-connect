@@ -100,7 +100,8 @@ connect.tag = function(tagName, connection){
 					hash[key] = convertToValue(val);
 				});
 			} else {
-				hash = attrInfo.argExprs[0].value(tagData.scope, tagData.options)();
+				hash = attrInfo.argExprs.length ? attrInfo.argExprs[0].value(tagData.scope, tagData.options)()
+					: {};
 			}
 
 			var promise = connection[method](hash);
