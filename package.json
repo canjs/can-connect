@@ -46,7 +46,8 @@
       "when/es6-shim/Promise": {
         "format": "global"
       }
-    }
+    },
+    "npmAlgorithm": "flat"
   },
   "browser": {
     "./all": "./dist/cjs/all",
