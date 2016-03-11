@@ -390,7 +390,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var self = this;
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(props, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, props, this.algebra)) {
 					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra), setDatum.set);
 				}
 			});
@@ -418,7 +418,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, props, items);
 
-				if(canSet.subset(props, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, props, this.algebra)) {
 
 					// if it's not in, add it
 					if(index == -1) {

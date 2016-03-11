@@ -312,7 +312,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			var instance = this.updateInstance(props);
 
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(instance, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, instance, this.algebra)) {
 					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra), setDatum.set);
 				}
 			});
