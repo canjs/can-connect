@@ -180,7 +180,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var sets = this.getSetData();
 			var self = this;
 			var loop = function(setDatum, setKey) {
-				return cb(setDatum, setKey, function(){
+				return cb.call(self,setDatum, setKey, function(){
 
 					if( !("items" in setDatum) ) {
 						var ids = JSON.parse( localStorage.getItem(self.name+"/set/"+setKey) );
@@ -478,5 +478,3 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 	return behavior;
 
 });
-
-
