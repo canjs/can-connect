@@ -1,4 +1,5 @@
 var connect = require("can-connect/can-connect");
+var set = require("can-set");
 require("can-connect/real-time/");
 require("can-connect/constructor/");
 require("can-connect/constructor/store/");
@@ -225,5 +226,86 @@ QUnit.test("basics", function(){
 
 	}
 
+});
 
+test("sorting by id works", function(){
+	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+
+	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
+	var dataBehavior = function(){
+		return {
+			getListData: function(){
+				// nothing here first time
+				return testHelpers.asyncResolve({data: items.slice(0) });
+			}
+		};
+	};
+
+	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store",
+		"data-callbacks", "constructor-callbacks-once"],{
+			algebra: algebra
+	});
+
+	stop();
+	var listItems;
+	connection.getList({}).then(function(list){
+		listItems = list;
+		connection.addListReference(list);
+		setTimeout(createInstance,1);
+
+	});
+
+	function createInstance(){
+		connection.createInstance({id: 2, name: "a"}).then(function(){
+			setTimeout(checkList,1);
+		})
+	}
+	function checkList(){
+		var itemsCopy = items.slice(0);
+		itemsCopy.splice(1, 0, {id: 2, name: "a"});
+		deepEqual(listItems, itemsCopy);
+		start();
+	}
+});
+
+
+test("sorting by sort clause works with updates", function(){
+	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+
+	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
+	var dataBehavior = function(){
+		return {
+			getListData: function(){
+				// nothing here first time
+				return testHelpers.asyncResolve({data: items.slice(0) });
+			}
+		};
+	};
+
+	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store",
+		"data-callbacks", "constructor-callbacks-once"],{
+			algebra: algebra
+	});
+
+	stop();
+	var listItems;
+	connection.getList({sortBy: "name"}).then(function(list){
+		listItems = list;
+		connection.addListReference(list);
+		list.forEach(function(instance){
+			connection.addInstanceReference(instance);
+		})
+		setTimeout(updateInstance,1);
+
+	});
+
+	function updateInstance(){
+		connection.updateInstance({id: 3, name: "p"}).then(function(){
+			setTimeout(checkList,1);
+		})
+	}
+	function checkList(){
+		deepEqual(listItems, [{id: 1, name:"d"}, {id: 4, name:"m"}, {id: 3, name:"p"}, {id: 5, name:"s"}]);
+		start();
+	}
 });

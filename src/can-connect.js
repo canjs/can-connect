@@ -146,13 +146,11 @@ var core = connect.behavior("base",function(base){
 		 * follows:
 		 *
 		 * ```
-		 * var overwrites = {
+		 * var classAssignmentConnection = connect(['data-url'],{
+		 *   url: "/class_assignments",
 		 *   id: function(classAssignment){
 		 *     return classAssignment.studentId+"-"+classAssignment.classId;
 		 *   }
-		 * };
-		 * var classAssignmentConnection = connect(['data-url', overwrites],{
-		 *   url: "/class_assignments"
 		 * });
 		 * ```
 		 *

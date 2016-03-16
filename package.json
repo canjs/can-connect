@@ -1,11 +1,11 @@
 {
   "name": "can-connect",
-  "version": "0.3.2",
+  "version": "0.5.0-pre.2",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
-    "can": "^2.3.0 || ^2.3.0-beta.0",
-    "can-set": "^0.3.0",
+    "can": "^2.3.0",
+    "can-set": "^0.5.0-pre.2",
     "jquery": "^2.1.4",
     "when": "^3.7.3"
   },
@@ -25,7 +25,7 @@
   "docDependencies": {
     "can": "^2.3.0-beta.0",
     "steal": "^0.11.0-pre.6",
-    "can-set": "^0.3.9",
+    "can-set": "^0.5.0-pre.2",
     "when": "^3.7.3",
     "steal-qunit": "0.0.2"
   },
@@ -46,7 +46,8 @@
       "when/es6-shim/Promise": {
         "format": "global"
       }
-    }
+    },
+    "npmAlgorithm": "flat"
   },
   "browser": {
     "./all": "./dist/cjs/all",
@@ -60,6 +61,7 @@
     "./helpers/weak-reference-map": "./dist/cjs/helpers/weak-reference-map",
     "./helpers/overwrite": "./dist/cjs/helpers/overwrite",
     "./helpers/id-merge": "./dist/cjs/helpers/id-merge",
+    "./helpers/wait": "./dist/cjs/helpers/wait",
     "./constructor/callbacks-once/callbacks-once": "./dist/cjs/constructor/callbacks-once/callbacks-once",
     "./helpers/sorted-set-json": "./dist/cjs/helpers/sorted-set-json",
     "./constructor/store/store": "./dist/cjs/constructor/store/store",

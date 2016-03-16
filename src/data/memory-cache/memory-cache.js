@@ -135,7 +135,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			var sets = this.getSetData();
 			var self = this;
 			var loop = function(setDatum, setKey) {
-				return cb(setDatum, setKey, function(){
+				return cb.call(self, setDatum, setKey, function(){
 					return setDatum.items;
 
 				});
@@ -314,7 +314,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			var instance = this.updateInstance(props);
 
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(instance, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, instance, this.algebra)) {
 					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra), setDatum.set);
 				}
 			});
@@ -401,5 +401,3 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 	return behavior;
 
 });
-
-

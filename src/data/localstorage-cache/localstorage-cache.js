@@ -180,7 +180,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var sets = this.getSetData();
 			var self = this;
 			var loop = function(setDatum, setKey) {
-				return cb(setDatum, setKey, function(){
+				return cb.call(self,setDatum, setKey, function(){
 
 					if( !("items" in setDatum) ) {
 						var ids = JSON.parse( localStorage.getItem(self.name+"/set/"+setKey) );
@@ -336,7 +336,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			if(res){
 				return Promise.resolve( JSON.parse(res) );
 			} else {
-				return new Promise.reject({message: "no data", error: 404});
+				return Promise.reject({message: "no data", error: 404});
 			}
 		},
 
@@ -392,7 +392,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			var self = this;
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.subset(props, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, props, this.algebra)) {
 					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra), setDatum.set);
 				}
 			});
@@ -420,7 +420,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, props, items);
 
-				if(canSet.subset(props, setDatum.set, this.algebra)) {
+				if(canSet.has(setDatum.set, props, this.algebra)) {
 
 					// if it's not in, add it
 					if(index == -1) {
@@ -480,5 +480,3 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 	return behavior;
 
 });
-
-

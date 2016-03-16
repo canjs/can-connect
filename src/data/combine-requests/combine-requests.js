@@ -228,12 +228,19 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 						forEach.call(combinedData, function(combined){
 
 							base.getListData(combined.set).then(function(data){
-
 								if(combined.pendingRequests.length === 1) {
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									forEach.call(combined.pendingRequests, function(pending){
 										pending.deferred.resolve( {data: self.getSubset(pending.set, combined.set, getItems(data) )} );
+									});
+								}
+							}, function(err){
+								if(combined.pendingRequests.length === 1) {
+									combined.pendingRequests[0].deferred.reject(err);
+								} else {
+									forEach.call(combined.pendingRequests, function(pending){
+										pending.deferred.reject(err);
 									});
 								}
 

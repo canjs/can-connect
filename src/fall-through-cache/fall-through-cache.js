@@ -262,7 +262,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 							self.updatedInstance(instance, instanceData2);
 							self.deleteInstanceReference(instance);
 
-						}, function(){
+						}, function(e){
 							// what do we do here?  self.rejectedUpdatedList ?
 							console.log("REJECTED", e);
 						});

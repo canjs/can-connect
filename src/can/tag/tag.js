@@ -93,12 +93,15 @@ connect.tag = function(tagName, connection){
 						hash[key] = val;
 					}
 				});
-			} else {
+			} else if(typeof attrInfo.hash === "function"){
 				// new expression data
 				var getHash = attrInfo.hash(tagData.scope, tagData.options, {});
 				can.each(getHash(), function(val, key) {
 					hash[key] = convertToValue(val);
 				});
+			} else {
+				hash = attrInfo.argExprs.length ? attrInfo.argExprs[0].value(tagData.scope, tagData.options)()
+					: {};
 			}
 
 			var promise = connection[method](hash);

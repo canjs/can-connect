@@ -354,8 +354,16 @@ var indexOf = function(connection, props, items){
 	return -1;
 };
 
-var setAdd = function(connection, set, items, item, algebra){
-	return items.concat([item]);
+var setAdd = function(connection, setItems, items, item, algebra){
+	var index = set.index(setItems, items, item, algebra);
+	if(index === undefined) {
+		index = items.length;
+	}
+
+	var copy = items.slice(0);
+	copy.splice(index, 0, item);
+
+	return copy;
 };
 
 var create = function(props){
@@ -369,7 +377,7 @@ var create = function(props){
 
 		var index = indexOf(self, props, list);
 
-		if(canSet.subset(props, set, self.algebra)) {
+		if(canSet.has(set, props, self.algebra)) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			if(index == -1) {
@@ -398,14 +406,27 @@ var update = function(props) {
 
 		var index = indexOf(self, props, list);
 
-		if(canSet.subset(props, set, self.algebra)) {
+		if(canSet.has(set, props, self.algebra)) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
+			var items = self.serializeList(list);
 			if(index == -1) {
 				// get back the list items
-				var items = self.serializeList(list);
 				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
+			} else {
+				var sortedIndex = canSet.index(set, items, props, self.algebra);
+				if(sortedIndex !== undefined && sortedIndex !== index) {
+					var copy = items.slice(0);
+					if(index < sortedIndex) {
+						copy.splice(sortedIndex, 0, props);
+						copy.splice(index,1);
+					} else {
+						copy.splice(index,1);
+						copy.splice(sortedIndex, 0, props);
+					}
+					self.updatedList(list,  { data: copy }, set);
+				}
 			}
 
 		}  else if(index != -1){

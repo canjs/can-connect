@@ -89,3 +89,20 @@ QUnit.test("ranges", function(){
 
 
 });
+
+QUnit.test("Rejects when getListData rejects", function(){
+	stop();
+
+	var res = combineRequests({
+		getListData: function(){
+			return Promise.reject(new Error("didn't work"));
+		}
+	});
+
+	var promise = res.getListData({start: 0, end: 3});
+
+	promise.then(null, function(err){
+		equal(err.message, "didn't work", "promise was rejected");
+		start();
+	});
+});
