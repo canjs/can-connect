@@ -293,6 +293,3 @@ QUnit.test("Support passing undefined as a set to mean passing {} (#54)", functi
 		QUnit.start();
 	});
 });
-
-
-
