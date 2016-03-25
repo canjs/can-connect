@@ -355,7 +355,7 @@ var indexOf = function(connection, props, items){
 };
 
 var setAdd = function(connection, setItems, items, item, algebra){
-	var index = set.index(setItems, items, item, algebra);
+	var index = canSet.index(setItems, items, item, algebra);
 	if(index === undefined) {
 		index = items.length;
 	}
