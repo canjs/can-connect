@@ -3,10 +3,8 @@ require("../can");
 
 var can = require("can/util/util");
 var connect = require("can-connect");
-var Map = require("can/map/map");
 var List = require("can/list/list");
-
-
+var Map = require("can/map/map");
 
 
 module.exports = connect.behavior("can-map",function(baseConnect){
@@ -145,7 +143,8 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *   creates the base `can.Map`.
 		 */
 		instance: function(props){
-			return new (this.Map || Map)(props);
+			var _Map = this.Map || Map;
+			return new _Map(props);
 		},
 		/**
 		 * @function can-connect/can/map.list list
@@ -166,7 +165,8 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *   @return {List}
 		 */
 		list: function(listData, set){
-			var list = new (this.List || (this.Map && this.Map.List) || List)(listData.data);
+			var _List = this.List || (this.Map && this.Map.List) || List;
+			var list = new _List(listData.data);
 			can.each(listData, function (val, prop) {
 				if (prop !== 'data') {
 					list.attr(prop, val);
@@ -603,11 +603,13 @@ var listStaticOverwrites = {
 
 
 var overwrite = function( connection, Constructor, prototype, statics) {
-	for(var prop in prototype) {
+	var prop;
+
+	for(prop in prototype) {
 		Constructor.prototype[prop] = prototype[prop](Constructor.prototype[prop], connection);
 	}
 	if(statics) {
-		for(var prop in statics) {
+		for(prop in statics) {
 			Constructor[prop] = statics[prop](Constructor[prop], connection);
 		}
 	}

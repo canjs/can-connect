@@ -30,7 +30,7 @@ var connect = function(behaviors, options){
 				return b1.sortedIndex - b2.sortedIndex;
 			}
 			return b1.originalIndex - b2.originalIndex;
-		})
+		});
 
 	behaviors = helpers.map.call(behaviors, function(b){
 		return b.behavior;
@@ -67,7 +67,7 @@ connect.behavior = function(name, behavior){
 		var Behavior = function(){};
 		Behavior.name = name;
 		Behavior.prototype = base;
-		var newBehavior = new Behavior;
+		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function
 		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
 		helpers.extend(newBehavior, res);

@@ -48,11 +48,12 @@ var helpers = require("can-connect/helpers/");
 var forEach = helpers.forEach;
 var map = helpers.map;
 
-//
 var indexOf = function(connection, props, items){
-	var id = connection.id(props);
+	var id = parseInt(connection.id(props), 10);
+
 	for(var i = 0; i < items.length; i++) {
-		if( id == connection.id(items[i]) ) {
+		var connId = parseInt(connection.id(items[i]), 10);
+		if( id ===  connId ){
 			return i;
 		}
 	}
@@ -421,7 +422,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				if(canSet.has(setDatum.set, props, this.algebra)) {
 
 					// if it's not in, add it
-					if(index == -1) {
+					if(index === -1) {
 						// how to insert things together?
 
 						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra) );
@@ -431,7 +432,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 						self.updateSet(setDatum, items);
 					}
 
-				} else if(index != -1){
+				} else if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
@@ -463,7 +464,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, props, items);
 
-				if(index != -1){
+				if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);

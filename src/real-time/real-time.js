@@ -131,8 +131,6 @@
  */
 var connect = require("../can-connect");
 var canSet = require("can-set");
-var helpers = require("can-connect/helpers/");
-
 
 
 module.exports = connect.behavior("real-time",function(baseConnect){
@@ -177,7 +175,6 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		createInstance: function(props){
 			var id = this.id(props);
 			var instance = this.instanceStore.get(id);
-			var promise;
 			var serialized;
 
 			if( instance ) {
@@ -345,9 +342,11 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 
 
 var indexOf = function(connection, props, items){
-	var id = connection.id(props);
+	var id = parseInt(connection.id(props), 10);
+
 	for(var i = 0; i < items.length; i++) {
-		if( id === connection.id(items[i]) ) {
+		var connId = parseInt(connection.id(items[i]), 10);
+		if( id ===  connId) {
 			return i;
 		}
 	}
@@ -380,7 +379,7 @@ var create = function(props){
 		if(canSet.has(set, props, self.algebra)) {
 
 			// if it's not in the list, update the list with this and the lists data merged
-			if(index == -1) {
+			if(index === -1) {
 				// get back the list items
 				var items = self.serializeList(list);
 				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
@@ -400,6 +399,7 @@ var update = function(props) {
 	var self = this;
 
 	this.listStore.forEach(function(list, id){
+		var items;
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
@@ -410,8 +410,8 @@ var update = function(props) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
-			var items = self.serializeList(list);
-			if(index == -1) {
+			items = self.serializeList(list);
+			if(index === -1) {
 				// get back the list items
 				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
 			} else {
@@ -429,9 +429,9 @@ var update = function(props) {
 				}
 			}
 
-		}  else if(index != -1){
+		}  else if(index !== -1){
 			// otherwise remove it
-			var items = self.serializeList(list);
+			items = self.serializeList(list);
 			items.splice(index,1);
 			self.updatedList(list,  { data: items }, set);
 		}
@@ -448,7 +448,7 @@ var destroy = function(props) {
 
 		var index = indexOf(self, props, list);
 
-		if(index != -1){
+		if(index !== -1){
 			// otherwise remove it
 			var items = self.serializeList(list);
 			items.splice(index,1);

@@ -4,7 +4,7 @@ var can = require("can/util/util");
 require("can/map/map");
 require("can/list/list");
 
-var stache = require("can/view/stache/stache");
+var $ = require("jquery");
 var superMap = require("can-connect/can/super-map/");
 var tag = require("can-connect/can/tag/");
 var fixture = require("can-fixture");
@@ -71,11 +71,6 @@ QUnit.test("getList", function(){
 		type: type
 	});
 	$("<div>").appendTo("#qunit-fixture").append(frag);
-
-
-	var viewModel = can.viewModel( frag.childNodes[0] );
-
-
 });
 
 
@@ -139,12 +134,6 @@ QUnit.test("get", function(){
 		}
 	});
 	$("<div>").appendTo("#qunit-fixture").append(frag);
-
-
-	var viewModel = can.viewModel( frag.childNodes[0] );
-
-
-
 });
 
 QUnit.test("get fullCache", function(){
@@ -222,14 +211,5 @@ QUnit.test("get fullCache", function(){
 		});
 
 		$("<div>").appendTo("#qunit-fixture").append(frag);
-
-
-		var viewModel = can.viewModel( frag.childNodes[0] );
-
 	});
-
-
-
-
-
 });

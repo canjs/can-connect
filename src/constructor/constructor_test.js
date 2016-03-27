@@ -4,8 +4,8 @@ var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var connect = require("can-connect/can-connect");
 var constructor = require("can-connect/constructor/");
+
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -60,7 +60,7 @@ QUnit.test("basics", function(){
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
-	PersonList = function(people){
+	var PersonList = function(people){
 		var listed = people.slice(0);
 		listed.isList = true;
 		return listed;

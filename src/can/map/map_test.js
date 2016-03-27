@@ -14,6 +14,7 @@ require("can-connect/real-time/");
 require("can-connect/data/inline-cache/");
 require("when/es6-shim/Promise");
 
+var $ = require("jquery");
 var Map = require("can/map/map");
 var List = require("can/list/list");
 
@@ -22,7 +23,6 @@ var connect=  require("can-connect/can-connect");
 var QUnit = require("steal-qunit");
 
 var can = require("can/util/util");
-var compute = require("can/compute/compute");
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
 var helpers = require("can-connect/helpers/");
@@ -30,7 +30,6 @@ var helpers = require("can-connect/helpers/");
 var later = testHelpers.later;
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -124,7 +123,6 @@ QUnit.test("real-time super model", function(){
 				return can.simpleExtend({},request.data);
 			} else {
 				ok(false, "bad state!");
-				debugger;
 				start();
 			}
 		},
@@ -147,8 +145,7 @@ QUnit.test("real-time super model", function(){
 
 	var connection = this.todoConnection,
 		cacheConnection = this.cacheConnection,
-		Todo = this.Todo,
-		TodoList = this.TodoList;
+		Todo = this.Todo;
 
 	var importantList,
 		todayList,
@@ -224,7 +221,7 @@ QUnit.test("real-time super model", function(){
 		ok( importantList.indexOf(created) >= 0, "still in important");
 		equal( todayList.indexOf(created) , -1, "removed from today");
 		update2();
-	};
+	}
 
 	function update2() {
 		created.removeAttr("type");
@@ -418,7 +415,7 @@ test("listSet works", function(){
 			deepEqual( todoConnection.listSet(list), {zed: "ted"});
 		})
 	]).then(function(){
-		list = new TodoList({"zak": "ack"});
+		var list = new TodoList({"zak": "ack"});
 		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
 		start();
 	});

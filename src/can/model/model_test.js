@@ -5,7 +5,6 @@ var canFixture = require("can/util/fixture/");
 require("can-connect/can/model/");
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -189,7 +188,7 @@ var logErrorAndStart = function(e){
 	test('findOne deferred', function () {
 
 		fixture('model/test/person.json', function(){
-			return {name: "Justin"}
+			return {name: "Justin"};
 		});
 
 		var Person = can.Model({
@@ -206,7 +205,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('save deferred', function () {
-		can.Model('Person', {
+		var Person = can.Model({
 			create: function (attrs, success, error) {
 				return new can.Deferred().resolve({
 					id: 5
@@ -499,7 +498,7 @@ var logErrorAndStart = function(e){
 		}, function () {
 			start();
 		}, function(){
-			ok(false,"rejected")
+			ok(false,"rejected");
 			start();
 		});
 
@@ -664,14 +663,14 @@ var logErrorAndStart = function(e){
 			equal(Guy.store.get(1).updateCount, 0, 'updateCount is 0');
 			equal(Guy.store.get(1).nested.count, 0, 'nested.count is 0');
 		},function(){
-			ok(false, "error")
+			ok(false, "error");
 		});
 
 		Guy.findAll({}, function (guys) {
 			equal(Guy.store.get(1).updateCount, 1, 'updateCount is 1');
 			equal(Guy.store.get(1).nested.count, 1, 'nested.count is 1');
 		}, function(){
-			ok(false, "error")
+			ok(false, "error");
 		});
 	});
 
@@ -733,11 +732,11 @@ var logErrorAndStart = function(e){
 			return {};
 		});
 
-		Base = can.Model.extend({
+		var Base = can.Model.extend({
 			id: '_id'
 		}, {});
 
-		Product = Base.extend({
+		var Product = Base.extend({
 			destroy: 'DELETE /product/{_id}'
 		}, {});
 
@@ -745,7 +744,7 @@ var logErrorAndStart = function(e){
 			_id: 9001
 		});
 		p.destroy().then(function(){
-				start()
+				start();
 			}, function(e){
 				ok(false,"error"+e);
 				start();
@@ -776,10 +775,10 @@ var logErrorAndStart = function(e){
 			start();
 			return {};
 		});
-		Base = can.Model({
+		var Base = can.Model({
 			id: '_id'
 		}, {});
-		Product = Base({
+		var Product = Base({
 			destroy: 'DELETE /product/{attr3}/{_id}'
 		}, {});
 		new Product({
@@ -1514,12 +1513,12 @@ var logErrorAndStart = function(e){
 	test("a model defined with a fullName has findAll working (#1034)", function(){
 		var List = can.List.extend();
 
+		/* globals My */
 		can.Model.extend("My.Model",{
 			List: List
 		},{});
 
 		equal(List.Map, My.Model, "list's Map points to My.Model");
-
 	});
 
 	test("providing parseModels works", function(){

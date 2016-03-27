@@ -46,7 +46,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
-	PersonList = function(people){
+	var PersonList = function(people){
 		var listed = people.slice(0);
 		listed.isList = true;
 		return listed;
@@ -85,7 +85,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 			peopleConnection.deleteInstanceReference(person);
 
 			peopleConnection.getList({}).then(function(people){
-				ok(people[0] != person, "not the same instances");
+				ok(people[0] !== person, "not the same instances");
 				equal(people[0].age, 32, "age property from data");
 				ok(!people[0].name, "does not have name");
 				start();
@@ -99,7 +99,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
-	PersonList = function(people, sets){
+	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
 		listed.__listSet = sets;
@@ -169,7 +169,7 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 	var Person = function(values){
 		canSet.helpers.extend(this, values);
 	};
-	PersonList = function(people, sets){
+	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
 		listed.__listSet = sets;
@@ -207,7 +207,7 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 	forEach.call(connection.listStore, function(){
 		ok(false);
 	});
-	QUnit.expect(0)
+	QUnit.expect(0);
 
 
 });

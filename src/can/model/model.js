@@ -1,6 +1,5 @@
-var can = require("can/util/util"),
-	Map = require("can/map/map"),
-	List = require("can/list/list"),
+var $ = require("jquery"),
+	can = require("can/util/util"),
 	connect = require("can-connect"),
 
 	persist = require("../../data/url/"),
@@ -299,7 +298,7 @@ can.Model = can.Map.extend({
 	}
 });
 
-var ML = can.Model.List = can.List.extend({
+can.Model.List = can.List.extend({
 	// ## can.Model.List.setup
 	// On change or a nested named event, setup change bubbling.
 	// On any other type of event, setup "destroyed" bubbling.

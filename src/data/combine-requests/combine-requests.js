@@ -143,7 +143,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 			// O(n^2).  This can probably be made faster, but there are rarely lots of pending requests.
 			var combineData = [];
 			var current;
-			var self = this;
+
 			doubleLoop(pendingRequests, {
 				start: function(pendingRequest){
 					current = {

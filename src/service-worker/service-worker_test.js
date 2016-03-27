@@ -7,13 +7,9 @@ if(typeof Worker === "undefined") {
 }
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
-
-var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
-var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 
 QUnit.module("can-connect/service-worker",{
 	setup: function(){
@@ -25,8 +21,6 @@ QUnit.module("can-connect/service-worker",{
 });
 
 QUnit.test("updateListData", function(){
-	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
-
 	var connection = this.connection;
 
 	stop();

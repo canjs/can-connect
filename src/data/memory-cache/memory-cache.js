@@ -37,9 +37,11 @@ var overwrite = require("can-connect/helpers/overwrite");
 var helpers = require("can-connect/helpers/");
 
 var indexOf = function(connection, props, items){
-	var id = connection.id(props);
+	var id = parseInt(connection.id(props), 10);
+
 	for(var i = 0; i < items.length; i++) {
-		if( id == connection.id(items[i]) ) {
+		var connId = parseInt(connection.id(items[i]), 10);
+		if( id ===  connId ) {
 			return i;
 		}
 	}
@@ -109,7 +111,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			// save objects and ids
 			var self = this;
 
-			var ids = helpers.forEach.call(items, function(item){
+			helpers.forEach.call(items, function(item){
 				self.updateInstance(item);
 			});
 		},
@@ -126,7 +128,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
 			var self = this;
 
-			var ids = helpers.forEach.call(items, function(item){
+			helpers.forEach.call(items, function(item){
 				self.updateInstance(item);
 			});
 			this.updateSets();
@@ -344,7 +346,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				if( canSet.subset(instance, setDatum.set, this.algebra) ) {
 
 					// if it's not in, add it
-					if(index == -1) {
+					if(index === -1) {
 						// how to insert things together?
 
 						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra) );
@@ -354,7 +356,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 						self.updateSet(setDatum, items);
 					}
 
-				} else if(index != -1){
+				} else if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
@@ -384,7 +386,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				var items = getItems();
 				var index = indexOf(self, props, items);
 
-				if(index != -1){
+				if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);

@@ -15,8 +15,7 @@ require("../../data/url/");
 require("../../fall-through-cache/");
 require("../../real-time/");
 
-var Map = require("can/map/map");
-var List = require("can/list/list");
+var $ = require("jquery");
 
 connect.superMap = function(options){
 

@@ -20,9 +20,9 @@ module.exports = {
 				return this.get();
 			}
 		};
-		
-		
-		
+
+
+
 	},
 	later: function(fn){
 		return function(){
@@ -30,7 +30,6 @@ module.exports = {
 		};
 	},
 	logErrorAndStart: function(e){
-		debugger;
 		ok(false,"Error "+e);
 		start();
 	},
