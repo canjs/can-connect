@@ -1,12 +1,13 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("can-connect/data/url/");
 var combineRequests = require("can-connect/data/combine-requests/");
 var set = require("can-set");
 require("when/es6-shim/Promise");
 var map = require("can-connect/helpers/").map;
 
-var getId = function(d){ return d.id};
+var getId = function(d){
+	return d.id;
+};
 
 
 QUnit.module("can-connect/combine_requests",{

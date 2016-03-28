@@ -25,7 +25,6 @@ helpers.extend(PolyWeakSet,{
 		data.referenceCount++;
 	},
 	deleteReference: function(item){
-		var self = this;
 		var id = this.getKey(item);
 		var data = this.set[id];
 		if(data){
@@ -44,5 +43,4 @@ helpers.extend(PolyWeakSet,{
 	}
 });
 
-module.exports = ;
-
+module.exports = PolyWeakSet;

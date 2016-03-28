@@ -1,7 +1,5 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var persist = require("can-connect/data/url/");
-var parseData = require("can-connect/data/parse/");
 var connect = require("can-connect");
 
 QUnit.module("can-connect/data-parse",{
