@@ -1,6 +1,7 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
+var $ = require("jquery");
 
 QUnit.module("can-connect/data/url",{
 	setup: function(){
@@ -85,4 +86,22 @@ QUnit.test('idProp is not part of the parameters', function() {
 		start();
 	});
 
+});
+
+QUnit.test("errors propagate to jQuery", function(){
+	var connection = persist({
+		idProp: "id",
+		url: "some/fake/api/"
+	});
+	connection.ajax = $.ajax;
+
+	var doc = $(document);
+	doc.on("ajaxError", function handler(e){
+		doc.off("ajaxError", handler);
+		ok(e instanceof jQuery.Event, "got a jquery event object");
+		start();
+	});
+
+	stop();
+	connection.getData({id: 1});
 });
