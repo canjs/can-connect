@@ -2,6 +2,7 @@ var QUnit = require("steal-qunit");
 var connect = require("can-connect");
 var map = require("can-connect/helpers/").map;
 var testHelpers = require("can-connect/test-helpers");
+var $ = require("jquery");
 
 require("can-connect/data/callbacks/");
 
@@ -196,4 +197,35 @@ QUnit.test("getInstance and getData", function(){
 		}, testHelpers.logErrorAndStart);
 	}
 
+});
+
+QUnit.test("Errors propagate to jQuery", function(){
+	var cacheConnection = connect([function(){
+		return {
+			getData: function(){
+				return testHelpers.asyncResolve({id: 1, foo: "bar"});
+			},
+			updateData: function(){
+				return testHelpers.asyncResolve({id: 1, foo: "qux"});
+			}
+		};
+	}]);
+
+	var connection = connect(["constructor","fall-through-cache", "data-url",
+							 "constructor-store", "data-callbacks"], {
+		cacheConnection: cacheConnection,
+		idProp: "id",
+		url: "some/fake/api"
+	});
+	connection.ajax = $.ajax;
+
+	var doc = $(document);
+	doc.on("ajaxError", function handler(e){
+		doc.off("ajaxError", handler);
+		ok(e instanceof jQuery.Event, "got a jQuery event for the error");
+		start();
+	});
+
+	stop();
+	connection.get({id: 1});
 });

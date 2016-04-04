@@ -245,6 +245,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		getData: function(params){
 			// first, always check the cache connection
 			var self = this;
+
 			return this.cacheConnection.getData(params).then(function(instanceData){
 
 				// get the list that is going to be made

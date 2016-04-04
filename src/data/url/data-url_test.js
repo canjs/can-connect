@@ -88,7 +88,7 @@ QUnit.test('idProp is not part of the parameters', function() {
 
 });
 
-QUnit.test("errors propagate to jQuery", function(){
+QUnit.test("Errors propagate to jQuery", function(){
 	var connection = persist({
 		idProp: "id",
 		url: "some/fake/api/"
