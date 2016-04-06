@@ -1,6 +1,7 @@
 var QUnit = require("steal-qunit");
 var memoryCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
+var canSet = require("can-set");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -241,5 +242,23 @@ QUnit.test("getData can pull from updateListData", function(){
 
 });
 
+QUnit.test("respect sort order (#80)", function(){
+	var items = [{id: 1, name:"zed"},{id: 2, name:"bar"},{id: 3, name:"foo"}];
 
+	stop();
 
+	var connection = connect([memoryCache],{
+		algebra: new canSet.Algebra(canSet.comparators.sort("sortBy"))
+	});
+
+	connection.updateListData({ data: items.slice(0) }, {})
+		.then(function(){
+
+		return connection.getListData({sortBy: "name"})
+	}).then(function(res){
+		QUnit.deepEqual( res.data,
+			[{id: 2, name:"bar"},{id: 3, name:"foo"},{id: 1, name:"zed"}] );
+		QUnit.start();
+	});
+
+});

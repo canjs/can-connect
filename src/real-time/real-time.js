@@ -131,6 +131,7 @@
  */
 var connect = require("../can-connect");
 var canSet = require("can-set");
+var setAdd = require("can-connect/helpers/set-add");
 
 
 module.exports = connect.behavior("real-time",function(baseConnect){
@@ -351,18 +352,6 @@ var indexOf = function(connection, props, items){
 		}
 	}
 	return -1;
-};
-
-var setAdd = function(connection, setItems, items, item, algebra){
-	var index = canSet.index(setItems, items, item, algebra);
-	if(index === undefined) {
-		index = items.length;
-	}
-
-	var copy = items.slice(0);
-	copy.splice(index, 0, item);
-
-	return copy;
 };
 
 var create = function(props){

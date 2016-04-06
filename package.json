@@ -5,7 +5,7 @@
   "main": "can-connect.js",
   "dependencies": {
     "can": "^2.3.0",
-    "can-set": "^0.5.0-pre.2",
+    "can-set": "^0.5.2",
     "jquery": "^2.1.4",
     "when": "^3.7.3"
   },
@@ -14,7 +14,7 @@
     "url": "https://github.com/canjs/can-connect.git"
   },
   "devDependencies": {
-    "can-fixture": "0.1.0",
+    "can-fixture": "^0.1.0",
     "can-wait": "^0.2.0",
     "documentjs": "^0.3.0-pre.5",
     "jshint": "^2.9.1",

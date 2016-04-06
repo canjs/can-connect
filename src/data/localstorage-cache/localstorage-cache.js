@@ -47,6 +47,7 @@ require("when/es6-shim/Promise");
 var helpers = require("can-connect/helpers/");
 var forEach = helpers.forEach;
 var map = helpers.map;
+var setAdd = require("can-connect/helpers/set-add");
 
 var indexOf = function(connection, props, items){
 	var id = parseInt(connection.id(props), 10);
@@ -60,9 +61,7 @@ var indexOf = function(connection, props, items){
 	return -1;
 };
 
-var setAdd = function(set, items, item, algebra){
-	return items.concat([item]);
-};
+
 
 
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
@@ -392,7 +391,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
 				if(canSet.has(setDatum.set, props, this.algebra)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra), setDatum.set);
+					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), props, self.algebra), setDatum.set);
 				}
 			});
 			var id = this.id(props);
@@ -425,7 +424,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra) );
+						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), props, self.algebra) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, props);
