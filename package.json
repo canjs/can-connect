@@ -5,7 +5,7 @@
   "main": "can-connect.js",
   "dependencies": {
     "can": "^2.3.0",
-    "can-set": "^0.5.2",
+    "can-set": "^0.5.5",
     "jquery": "^2.1.4",
     "when": "^3.7.3"
   },
@@ -16,19 +16,19 @@
   "devDependencies": {
     "can-fixture": "^0.1.0",
     "can-wait": "^0.2.0",
-    "documentjs": "^0.3.0-pre.5",
+    "documentjs": "^0.4.4",
     "jshint": "^2.9.1",
-    "steal": "^0.11.0-pre.6",
-    "steal-qunit": "0.0.2",
-    "steal-tools": "^0.10.0",
-    "testee": "^0.2.0"
+    "steal": "^0.15.8",
+    "steal-qunit": "^0.1.1",
+    "steal-tools": "^0.15.5",
+    "testee": "^0.2.5"
   },
   "docDependencies": {
-    "can": "^2.3.0-beta.0",
-    "steal": "^0.11.0-pre.6",
-    "can-set": "^0.5.0-pre.2",
+    "can": "^2.3.0",
+    "steal": "^0.15.8",
+    "can-set": "^0.5.5",
     "when": "^3.7.3",
-    "steal-qunit": "0.0.2"
+    "steal-qunit": "^0.1.1"
   },
   "system": {
     "ignoreBrowser": true,
