@@ -1,6 +1,6 @@
+sudo: false
 language: node_js
-node_js: 0.10
-script: npm test
+node_js: node
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"

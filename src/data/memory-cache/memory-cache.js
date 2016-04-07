@@ -35,6 +35,7 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 var overwrite = require("can-connect/helpers/overwrite");
 var helpers = require("can-connect/helpers/");
+var setAdd = require("can-connect/helpers/set-add");
 
 var indexOf = function(connection, props, items){
 	var id = parseInt(connection.id(props), 10);
@@ -48,9 +49,6 @@ var indexOf = function(connection, props, items){
 	return -1;
 };
 
-var setAdd = function(set, items, item, algebra){
-	return items.concat([item]);
-};
 
 module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
@@ -315,7 +313,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
 			this._eachSet(function(setDatum, setKey, getItems){
 				if(canSet.has(setDatum.set, instance, this.algebra)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra), setDatum.set);
+					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra), setDatum.set);
 				}
 			});
 
@@ -349,7 +347,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra) );
+						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, instance);
