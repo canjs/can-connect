@@ -254,7 +254,7 @@ QUnit.test("respect sort order (#80)", function(){
 	connection.updateListData({ data: items.slice(0) }, {})
 		.then(function(){
 
-		return connection.getListData({sortBy: "name"})
+		return connection.getListData({sortBy: "name"});
 	}).then(function(res){
 		QUnit.deepEqual( res.data,
 			[{id: 2, name:"bar"},{id: 3, name:"foo"},{id: 1, name:"zed"}] );
