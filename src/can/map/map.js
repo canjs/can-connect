@@ -270,7 +270,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			can.dispatch.call(instance, {type:funcName, target: instance});
 
 			//!steal-remove-start
-			can.dev.log("Model.js - " + (constructor.shortName || this.name) + ""+this.id(instance)+" " + funcName);
+			can.dev.log("Model.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class
