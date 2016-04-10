@@ -1,5 +1,6 @@
 require("can-connect/helpers/helpers_test");
 
+require("./core_test");
 require("./data/url/data-url_test");
 require("./data/parse/parse_test");
 

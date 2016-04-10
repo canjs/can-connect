@@ -118,7 +118,8 @@ var core = connect.behavior("base",function(base){
 		 *
 		 * @signature `connection.id(instance)`
 		 *
-		 *   Returns the [connect.base.idProp] if it exists, otherwise the `id` property.
+		 *   Returns the [connect.base.idProp] if it exists, otherwise the [connect.base.algebra]'s
+		 *   id values, otherwise the `id` property.
 		 *
 		 *   @param {Instance|Object} instance The instance or raw `props` for an instance.
 		 *
@@ -139,7 +140,17 @@ var core = connect.behavior("base",function(base){
 		 * {_id: 5, name: "do the dishes"}
 		 * ```
 		 *
-		 * In this case [connect.base.idProp] should be set to `"_id"`.  However,
+		 * In this case, [connect.base.algebra]'s `id` comparator should be set to
+		 * "_id" like:
+		 *
+		 * ```
+		 * var algebra = new set.Algebra({
+		 *   set.comparators.id("_id")
+	 	 * });
+		 * connect([...],{algebra: algebra});
+		 * ```
+		 *
+		 * However,
 		 * some data sources have compound ids.  For example, "Class Assignment"
 		 * connection might be represented by two properties, the `studentId` and the
 		 * `classId`.  For this kind of setup, you can provide your own id function as
@@ -153,14 +164,34 @@ var core = connect.behavior("base",function(base){
 		 *   }
 		 * });
 		 * ```
-		 *
 		 */
 		id: function(instance){
-			return instance[this.idProp || "id"];
+			var ids = [],
+				algebra = this.algebra;
+
+			if(algebra && algebra.clauses && algebra.clauses.id) {
+				for(var prop in algebra.clauses.id) {
+					ids.push(instance[prop]);
+				}
+			}
+
+			if(this.idProp && !ids.length) {
+				ids.push(instance[this.idProp]);
+			}
+			if(!ids.length) {
+				ids.push(instance.id);
+			}
+
+			// Join with something unlikely to be matched.
+			// TODO: provide a way to supply join
+			return ids.length > 1 ? ids.join("@|@"): ids[0];
 		},
 		/**
 		 * @property {String} connect.base.idProp idProp
 		 * @parent connect.base
+		 *
+		 * @deprecated {0.5.3} Instead of specifying hte idProp it should be
+		 * set on the algebra passed to the connection.
 		 *
 		 * Specifies the property that uniquely identifies an instance.
 		 *
