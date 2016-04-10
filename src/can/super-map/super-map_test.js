@@ -55,3 +55,30 @@ QUnit.test("creates map if none is provided (#8)", function(){
 
 
 });
+
+QUnit.test("allow other caches (#59)", function(){
+
+	var cacheConnection = {
+		getData: function(){
+			ok(true, "called this cacheConnection");
+			return Promise.resolve({id: 5});
+		}
+	};
+
+	var connection = superMap({
+		url: "/api/restaurants",
+		name: "restaurant",
+		cacheConnection: cacheConnection
+	});
+
+	fixture({
+		"GET /api/restaurants/{_id}": function(request){
+			return {id: 5};
+		}
+	});
+
+	stop();
+	connection.getData({_id: 5}).then(function(data){
+		start();
+	});
+});
