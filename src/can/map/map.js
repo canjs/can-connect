@@ -36,15 +36,28 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *   @return {*}
 		 */
 		id: function(instance) {
-			var idProp = this.idProp;
+
 			if(instance instanceof can.Map) {
-				if(callCanReadingOnIdRead) {
-					can.__observe(instance, idProp);
+				var ids = [],
+					algebra = this.algebra;
+
+				if(algebra && algebra.clauses && algebra.clauses.id) {
+					for(var prop in algebra.clauses.id) {
+						ids.push(readObservabe(instance,prop));
+					}
 				}
+
+				if(this.idProp && !ids.length) {
+					ids.push(readObservabe(instance,this.idProp));
+				}
+				if(!ids.length) {
+					ids.push(readObservabe(instance,"id"));
+				}
+
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
-				return instance.__get(idProp);
+				return ids.length > 1 ? ids.join("@|@"): ids[0];
 			} else {
-				return instance[idProp];
+				return baseConnect.id(instance);
 			}
 		},
 		/**
@@ -600,7 +613,12 @@ var listStaticOverwrites = {
 	}
 };
 
-
+var readObservabe = function(instance, prop){
+	if(callCanReadingOnIdRead) {
+		can.__observe(instance, prop);
+	}
+	return instance.__get(prop);
+};
 
 var overwrite = function( connection, Constructor, prototype, statics) {
 	var prop;

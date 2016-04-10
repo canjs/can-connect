@@ -58,7 +58,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			return this._sets;
 		},
 
-		_getListData: function(set){
+		__getListData: function(set){
 			var setsData = this.getSetData();
 			var setData = setsData[sortedSetJSON(set)];
 			if(setData) {
@@ -216,20 +216,25 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 *   the promise is rejected.
 		 */
 		getListData: function(set){
-			var sets = this._getSets();
-
-			for(var i = 0; i < sets.length; i++) {
-				var checkSet = sets[i];
-
-				if( canSet.subset(set, checkSet, this.algebra) ) {
-					var items = canSet.getSubset(set, checkSet, this._getListData(checkSet), this.algebra);
-					return Promise.resolve({data: items});
-				}
+			var listData = this._getListData(set);
+			if(listData) {
+				return Promise.resolve(listData);
 			}
 			return Promise.reject({message: "no data", error: 404});
 
 		},
+		// a sync method used by can-fixture.
+		_getListData: function(set){
+			var sets = this._getSets();
+			for(var i = 0; i < sets.length; i++) {
+				var checkSet = sets[i];
 
+				if( canSet.subset(set, checkSet, this.algebra) ) {
+					var items = canSet.getSubset(set, checkSet, this.__getListData(checkSet), this.algebra);
+					return {data: items};
+				}
+			}
+		},
 		/**
 		 * @function can-connect/data/memory-cache.updateListData updateListData
 		 * @parent can-connect/data/memory-cache.data-methods

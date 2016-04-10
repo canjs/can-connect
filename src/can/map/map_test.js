@@ -14,6 +14,7 @@ require("can-connect/real-time/");
 require("can-connect/data/inline-cache/");
 require("when/es6-shim/Promise");
 
+var set = require("can-set");
 var $ = require("jquery");
 var Map = require("can/map/map");
 var List = require("can/list/list");
@@ -26,6 +27,7 @@ var can = require("can/util/util");
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
 var helpers = require("can-connect/helpers/");
+
 
 var later = testHelpers.later;
 
@@ -449,3 +451,34 @@ test("findAll and findOne alias", function(){
 	});
 });
 
+QUnit.test("reads id from set algebra (#82)", function(){
+	var Todo = Map.extend({});
+	var TodoList = List.extend({
+		Map: Todo
+	});
+
+
+	var todoConnection = connect([
+		"constructor",
+		"can-map",
+		"constructor-store",
+		"data-callbacks",
+		"data-callbacks-cache",
+		"data-combine-requests",
+		"data-inline-cache",
+		"data-parse",
+		"data-url",
+		"fall-through-cache",
+		"real-time"],
+		{
+			url: "/services/todos",
+			Map: Todo,
+			List: TodoList,
+			ajax: $.ajax,
+			algebra: new set.Algebra(
+			   set.comparators.id("_id")
+			)
+		});
+
+	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
+});
