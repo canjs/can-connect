@@ -33,11 +33,13 @@ connect.superMap = function(options){
 		"constructor-callbacks-once"];
 
 	if(typeof localStorage !== "undefined") {
-		options.cacheConnection = connect(["data-localstorage-cache"],{
-			name: options.name+"Cache",
-			idProp: options.idProp,
-			algebra: options.algebra
-		});
+		if(!options.cacheConnection) {
+			options.cacheConnection = connect(["data-localstorage-cache"],{
+				name: options.name+"Cache",
+				idProp: options.idProp,
+				algebra: options.algebra
+			});
+		}
 		behaviors.push("fall-through-cache");
 	}
 	options.ajax = $.ajax;
@@ -46,6 +48,3 @@ connect.superMap = function(options){
 };
 
 module.exports = connect.superMap;
-
-
-
