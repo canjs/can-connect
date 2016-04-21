@@ -194,7 +194,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *
 		 * Updates a list with response data.
 		 *
-		 * @signature `connection.udpatedList( list, listData, set)`
+		 * @signature `connection.updatedList( list, listData, set)`
 		 *
 		 *   Updates the list within a batch event.
 		 */
