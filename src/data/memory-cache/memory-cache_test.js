@@ -262,3 +262,24 @@ QUnit.test("respect sort order (#80)", function(){
 	});
 
 });
+
+QUnit.test("non numeric ids (#79)", function(){
+	var items = [{id: "a", name:"zed"},{id: "b", name:"bar"},{id: "c", name:"foo"}];
+
+	stop();
+
+	var connection = connect([memoryCache],{});
+
+	// add data tot he store, remove an item, make sure it's gone
+	connection.updateListData({ data: items.slice(0) }, {})
+		.then(function(){
+		return connection.destroyData({id: "b", name:"bar"});
+	}).then(function(){
+		return connection.getListData({});
+	}).then(function(res){
+		QUnit.deepEqual( res.data,
+			[{id: "a", name:"zed"},{id: "c", name:"foo"}] );
+		QUnit.start();
+	});
+
+});
