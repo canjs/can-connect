@@ -48,19 +48,7 @@ var helpers = require("can-connect/helpers/");
 var forEach = helpers.forEach;
 var map = helpers.map;
 var setAdd = require("can-connect/helpers/set-add");
-
-var indexOf = function(connection, props, items){
-	var id = parseInt(connection.id(props), 10);
-
-	for(var i = 0; i < items.length; i++) {
-		var connId = parseInt(connection.id(items[i]), 10);
-		if( id ===  connId ){
-			return i;
-		}
-	}
-	return -1;
-};
-
+var indexOf = require("can-connect/helpers/get-index-by-id");
 
 
 
