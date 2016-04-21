@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -72,6 +72,7 @@
     "./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
     "./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",
     "./helpers/set-add": "./dist/cjs/helpers/set-add",
+    "./helpers/get-index-by-id": "./dist/cjs/helpers/get-index-by-id",
     "./data/memory-cache/memory-cache": "./dist/cjs/data/memory-cache/memory-cache",
     "./data/parse/parse": "./dist/cjs/data/parse/parse",
     "./data/url/url": "./dist/cjs/data/url/url",
