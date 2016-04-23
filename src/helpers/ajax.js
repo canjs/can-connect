@@ -101,6 +101,9 @@ module.exports = function (o) {
 		data = isJson ? JSON.stringify(o.data) : $._formData(o.data);
 		xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded");
 	}
+	
+	// X-Requested-With header
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest" );
 
 	xhr.send(data);
 	return deferred.promise;
