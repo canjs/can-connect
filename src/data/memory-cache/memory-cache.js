@@ -34,10 +34,9 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 var overwrite = require("can-connect/helpers/overwrite");
-var helpers = require("can-connect/helpers/");
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
-
+var assign = require("can-util/js/assign/assign");
 
 module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
@@ -87,7 +86,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 					var oldSetKey = setDatum.setKey;
 					sets[newSetKey] = setDatum;
 					setDatum.setKey = newSetKey;
-					setDatum.set = helpers.extend({},newSet);
+					setDatum.set = assign({},newSet);
 					// remove the old one
 					this.removeSet(oldSetKey);
 				}
@@ -98,7 +97,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			// save objects and ids
 			var self = this;
 
-			helpers.forEach.call(items, function(item){
+			items.forEach(function(item){
 				self.updateInstance(item);
 			});
 		},
@@ -110,12 +109,12 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			sets[setKey] = {
 				setKey: setKey,
 				items: items,
-				set: helpers.extend({},set)
+				set: assign({},set)
 			};
 
 			var self = this;
 
-			helpers.forEach.call(items, function(item){
+			items.forEach(function(item){
 				self.updateInstance(item);
 			});
 			this.updateSets();
@@ -249,7 +248,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				var union = canSet.union(setDatum.set, set, this.algebra);
 				if(union) {
 					// copies so we don't pass the same set object
-					var getSet = helpers.extend({},setDatum.set);
+					var getSet = assign({},setDatum.set);
 					return this.getListData(getSet).then(function(setData){
 
 						self.updateSet(setDatum, canSet.getUnion(getSet, set, getItems(setData), items, self.algebra), union);

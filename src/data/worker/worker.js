@@ -1,6 +1,7 @@
 
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+var makeDeferred = require("can-connect/helpers/deferred");
+
 require("when/es6-shim/Promise");
 
 module.exports = connect.behavior("data-worker",function(base){
@@ -10,7 +11,7 @@ module.exports = connect.behavior("data-worker",function(base){
 
 		var requestId = 0;
 		var requestDeferreds = {};
-		var isReady = helpers.deferred();
+		var isReady = makeDeferred();
 
 		var behavior = {
 			_workerRequest: function(data){
@@ -18,7 +19,7 @@ module.exports = connect.behavior("data-worker",function(base){
 				data.requestId = requestId++;
 
 				// save the deferred so it can later be resolved when this response comes back
-				var def = helpers.deferred(),
+				var def = makeDeferred(),
 					worker = this.worker;
 				requestDeferreds[data.requestId] = def;
 

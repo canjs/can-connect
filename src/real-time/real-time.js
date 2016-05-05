@@ -344,7 +344,6 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 var create = function(props){
 	var self = this;
 	// go through each list
-
 	this.listStore.forEach(function(list, id){
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.

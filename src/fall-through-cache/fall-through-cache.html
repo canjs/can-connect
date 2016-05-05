@@ -14,7 +14,6 @@ import "can-connect/data/localstorage-cache/";
 import "can-connect/fall-through-cache/";
 import fixture from "can-fixture";
 import $ from "jquery";
-import helpers from "can-connect/helpers/";
 
 var cache = connect(['data-localstorage-cache'],{
 	name: "todos"
@@ -61,7 +60,7 @@ var todoList = function(set){
 
 	var update = function(changes){
 
-		helpers.forEach.call(changes, function(change){
+		changes.forEach(function(change){
 			if(change.type === "add") {
 				// Create the `todoItem` and insert it in the right spot
 				var li = todoItem(todos[change.name]).hide();

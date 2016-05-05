@@ -2,7 +2,6 @@ var connect = require("can-connect");
 
 require("../../constructor/");
 require("../map/");
-require("../can");
 require("../../constructor/store/");
 require("../../constructor/callbacks-once/");
 require("../../data/callbacks/");

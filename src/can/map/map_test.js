@@ -1,5 +1,10 @@
-// load connections
+var set = require("can-set");
+var $ = require("jquery");
+var Map = require("can-map");
+var List = require("can-list");
+var compute = require("can-compute");
 
+// load connections
 require("can-connect/constructor/");
 require("can-connect/can/map/");
 require("can-connect/constructor/store/");
@@ -14,20 +19,17 @@ require("can-connect/real-time/");
 require("can-connect/data/inline-cache/");
 require("when/es6-shim/Promise");
 
-var set = require("can-set");
-var $ = require("jquery");
-var Map = require("can/map/map");
-var List = require("can/list/list");
+
 
 var connect=  require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
 
-var can = require("can/util/util");
+
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
-var helpers = require("can-connect/helpers/");
-
+var map = [].map;
+var assign = require("can-util/js/assign/assign");
 
 var later = testHelpers.later;
 
@@ -115,14 +117,14 @@ QUnit.test("real-time super model", function(){
 			if( state.get() === "createData-today+important" ) {
 				state.next();
 				// todo change to all props
-				return can.simpleExtend({id: 10}, request.data);
+				return assign({id: 10}, request.data);
 			}
 		},
 		"PUT /services/todos/{id}": function(request){
 			if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 				state.next();
 				// todo change to all props
-				return can.simpleExtend({},request.data);
+				return assign({},request.data);
 			} else {
 				ok(false, "bad state!");
 				start();
@@ -132,15 +134,15 @@ QUnit.test("real-time super model", function(){
 			if(state.get() === "destroyData-important-1") {
 				state.next();
 				// todo change to all props
-				return can.simpleExtend({destroyed:  1},request.data);
+				return assign({destroyed:  1},request.data);
 			}
 		}
 	});
 
 	function checkCache(name, set, expectData, next) {
 		cacheConnection.getListData(set).then(function(data){
-			deepEqual(helpers.map.call(data.data, testHelpers.getId),
-					  helpers.map.call(expectData, testHelpers.getId), name);
+			deepEqual(map.call(data.data, testHelpers.getId),
+					  map.call(expectData, testHelpers.getId), name);
 			setTimeout(next, 1);
 		});
 	}
@@ -159,7 +161,7 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
-
+		
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);
 
@@ -316,13 +318,13 @@ test("isSaving and isDestroying", function(){
 
 	fixture({
 		"POST /services/todos": function(request){
-			return can.simpleExtend({id: 10}, request.data);
+			return assign({id: 10}, request.data);
 		},
 		"PUT /services/todos/{id}": function(request){
-			return can.simpleExtend({},request.data);
+			return assign({},request.data);
 		},
 		"DELETE /services/todos/{id}": function(request){
-			return can.simpleExtend({destroyed:  1},request.data);
+			return assign({destroyed:  1},request.data);
 		}
 	});
 
@@ -333,10 +335,10 @@ test("isSaving and isDestroying", function(){
 		isSavingCalls = 0,
 		isDestroyingCalls = 0;
 
-	var isSaving = can.compute(function(){
+	var isSaving = compute(function(){
 		return todo.isSaving();
 	});
-	var isDestroying = can.compute(function(){
+	var isDestroying = compute(function(){
 		return todo.isDestroying();
 	});
 

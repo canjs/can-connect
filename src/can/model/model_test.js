@@ -1,8 +1,16 @@
+var CanModel = require("can-connect/can/model/");
+
 var QUnit = require("steal-qunit");
-var can = require("can/util/util");
 var fixture = require("can-fixture");
-var canFixture = require("can/util/fixture/");
-require("can-connect/can/model/");
+var canFixture = fixture;
+var ajax = require("can-util/dom/ajax/ajax");
+var makeDeferred = require("can-connect/helpers/deferred");
+var canEvent = require("can-event");
+var CanMap = require("can-map");
+var CanList = require("can-list");
+var ObserveInfo = require("can-observe-info");
+
+var assign = require("can-util/js/assign/assign");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -11,12 +19,12 @@ var logErrorAndStart = function(e){
 
 
 (function () {
-	QUnit.module('can/model', {
+	QUnit.module('can-connect/can/model', {
 		setup: function () {}
 	});
 	var isDojo = typeof dojo !== 'undefined';
 	test('shadowed id', function () {
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			id: 'foo'
 		}, {
 			foo: function () {
@@ -43,9 +51,9 @@ var logErrorAndStart = function(e){
 			}];
 		});
 
-		var Person = can.Model.extend({
+		var Person = CanModel.extend({
 			findAll: function (params) {
-				return can.ajax({
+				return ajax({
 					url: 'model/test/people.json',
 					data: params,
 					dataType: 'json'
@@ -65,7 +73,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('findAll rejects non-array (#384)', function () {
-		var Person = can.Model.extend({
+		var Person = CanModel.extend({
 			findAll: function (params, success, error) {
 				return new Promise(function(resolve){
 					setTimeout(function () {
@@ -101,15 +109,15 @@ var logErrorAndStart = function(e){
 				df.resolve([]);
 			}, 1);
 		}
-		var Person = can.Model({
+		var Person = CanModel({
 			findAll: function (params, success, error) {
-				var df = can.Deferred();
+				var df = makeDeferred();
 				if (params.resolve) {
 					resolveDeferred(df);
 				} else {
 					rejectDeferred(df);
 				}
-				return df;
+				return df.promise;
 			}
 		}, {});
 		var people_reject = Person.findAll({
@@ -120,17 +128,17 @@ var logErrorAndStart = function(e){
 		});
 
 
-		people_reject.done(function () {
+		people_reject.then(function () {
 			ok(false, 'This deferred should be rejected');
 		});
-		people_reject.fail(function () {
+		people_reject.catch(function () {
 			ok(true, 'The deferred is rejected');
 		});
-		people_resolve.done(function () {
+		people_resolve.then(function () {
 			ok(true, 'This deferred is resolved');
 		});
 
-		people_resolve.fail(function () {
+		people_resolve.catch(function () {
 			ok(false, 'The deferred should be resolved');
 		});
 
@@ -146,9 +154,9 @@ var logErrorAndStart = function(e){
 		asyncTest('findAll abort', function () {
 			expect(4);
 			var df;
-			can.Model('Person', {
+			CanModel('Person', {
 				findAll: function (params, success, error) {
-					df = can.Deferred();
+					df = makeDeferred();
 					df.then(function () {
 						ok(!params.abort, 'not aborted');
 					}, function () {
@@ -191,7 +199,7 @@ var logErrorAndStart = function(e){
 			return {name: "Justin"};
 		});
 
-		var Person = can.Model({
+		var Person = CanModel({
 			findOne: 'model/test/person.json'
 		}, {});
 
@@ -205,9 +213,9 @@ var logErrorAndStart = function(e){
 	});
 
 	test('save deferred', function () {
-		var Person = can.Model({
+		var Person = CanModel({
 			create: function (attrs, success, error) {
-				return new can.Deferred().resolve({
+				return Promise.resolve({
 					id: 5
 				});
 			}
@@ -226,9 +234,9 @@ var logErrorAndStart = function(e){
 
 
 	test('update deferred', function () {
-		var Person = can.Model({
+		var Person = CanModel({
 			update: function (id, attrs, success, error) {
-				return new can.Deferred().resolve({
+				return Promise.resolve({
 					thing: 'er'
 				});
 			}
@@ -247,9 +255,9 @@ var logErrorAndStart = function(e){
 	});
 
 	test('destroy deferred', function () {
-		var Person = can.Model( {
+		var Person = CanModel( {
 			destroy: function (id, success, error) {
-				return new can.Deferred().resolve({
+				return Promise.resolve({
 					thing: 'er'
 				});
 			}
@@ -269,7 +277,7 @@ var logErrorAndStart = function(e){
 
 
 	test('models', function () {
-		var Person = can.Model({
+		var Person = CanModel({
 			prettyName: function () {
 				return 'Mr. ' + this.name;
 			}
@@ -282,7 +290,7 @@ var logErrorAndStart = function(e){
 	});
 	test('.models with custom id', function () {
 
-		var CustomId = can.Model({
+		var CustomId = CanModel({
 			id: '_id'
 		}, {
 		});
@@ -300,7 +308,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('binding', 2, function () {
-		var Person = can.Model({},{});
+		var Person = CanModel({},{});
 
 		var inst = new Person({
 			foo: 'bar'
@@ -313,48 +321,11 @@ var logErrorAndStart = function(e){
 
 	});
 
-	/*test('auto methods', function () {
-		//turn off fixtures
-		can.fixture.on = false;
-		var School = can.Model.extend('Jquery.Model.Models.School', {
-			findAll: can.test.path('model/test/{type}.json'),
-			findOne: can.test.path('model/test/{id}.json'),
-			create: 'GET ' + can.test.path('model/test/create.json'),
-			update: 'GET ' + can.test.path('model/test/update{id}.json')
-		}, {});
 
-		stop();
-		School.findAll({
-			type: 'schools'
-		}, function (schools) {
-			ok(schools, 'findAll Got some data back');
-			equal(schools[0].constructor.shortName, 'School', 'there are schools');
-			School.findOne({
-				id: '4'
-			}, function (school) {
-				ok(school, 'findOne Got some data back');
-				equal(school.constructor.shortName, 'School', 'a single school');
-				new School({
-					name: 'Highland'
-				})
-					.save(function (school) {
-						equal(school.name, 'Highland', 'create gets the right name');
-						school.attr({
-							name: 'LHS'
-						})
-							.save(function () {
-								start();
-								equal(school.name, 'LHS', 'create gets the right name');
-								can.fixture.on = true;
-							});
-					});
-			});
-		});
-	});*/
 
 
 	test('isNew', function () {
-		var Person = can.Model({},{});
+		var Person = CanModel({},{});
 
 		var p = new Person();
 		ok(p.isNew(), 'nothing provided is new');
@@ -368,40 +339,26 @@ var logErrorAndStart = function(e){
 		ok(!p3.isNew(), '0 is not new');
 	});
 
-	/*test('findAll string', function () {
-		can.fixture.on = false;
-		can.Model('Test.Thing', {
-			findAll: can.test.path('model/test/findAll.json') + ''
-		}, {});
-		stop();
-		Test.Thing.findAll({}, function (things) {
-			equal(things.length, 1, 'got an array');
-			equal(things[0].id, 1, 'an array of things');
-			start();
-			can.fixture.on = true;
-		});
-	});*/
-
 	test('Model events', function () {
 		expect(12);
 		var order = 0;
-		var Event =  can.Model({
+		var Event =  CanModel({
 			create: function () {
-				var def = isDojo ? new dojo.Deferred() : new can.Deferred();
+				var def = isDojo ? new dojo.Deferred() : makeDeferred();
 				def.resolve({
 					id: 1
 				});
-				return def;
+				return def.promise;
 			},
 			update: function (attrs) {
-				var def = isDojo ? new dojo.Deferred() : new can.Deferred();
+				var def = isDojo ? new dojo.Deferred() : makeDeferred();
 				def.resolve(attrs);
-				return def;
+				return def.promise;
 			},
 			destroy: function () {
-				var def = isDojo ? new dojo.Deferred() : new can.Deferred();
+				var def = isDojo ? new dojo.Deferred() : makeDeferred();
 				def.resolve({});
-				return def;
+				return def.promise;
 			}
 		}, {});
 		stop();
@@ -438,7 +395,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('removeAttr test', function () {
-		var Person = can.Model({},{});
+		var Person = CanModel({},{});
 		var person = new Person({
 			foo: 'bar'
 		});
@@ -449,7 +406,7 @@ var logErrorAndStart = function(e){
 		equal(attrs.foo, undefined, 'attrs removed');
 	});
 	test('save error args', function () {
-		var Foo = can.Model.extend({
+		var Foo = CanModel.extend({
 			create: '/testinmodelsfoos.json'
 		}, {});
 		var st = '{type: "unauthorized"}';
@@ -468,22 +425,22 @@ var logErrorAndStart = function(e){
 			});
 	});
 	test('object definitions', function () {
-		var ObjectDef = can.Model.extend({
+		var ObjectDef = CanModel.extend({
 			findAll: {
 				url: '/test/place',
 				dataType: 'json'
 			},
 			findOne: {
 				url: '/objectdef/{id}',
-				timeout: 1000
+				type: 'POST'
 			},
 			create: {},
 			update: {},
 			destroy: {}
 		}, {});
 
-		canFixture('GET /objectdef/{id}', function (original) {
-			equal(original.timeout, 1000, 'timeout set');
+		canFixture('POST /objectdef/{id}', function (req) {
+			equal(req.type, "post", "made post");
 			return {
 				yes: true
 			};
@@ -502,84 +459,11 @@ var logErrorAndStart = function(e){
 			start();
 		});
 
-		/*
-		stop();
-		// Do find all, pass some attrs
-		ObjectDef.findAll({
-			start: 0,
-			count: 10,
-			myflag: 1
-		}, function (data) {
-			start();
-			equal(data[0].myflag, 1, 'my flag set');
-		});
-		stop();
-		// Do find all with slightly different attrs than before,
-		// and notice when leaving one out the other is still there
-		ObjectDef.findAll({
-			start: 0,
-			count: 10
-		}, function (data) {
-			start();
-			equal(data[0].myflag, undefined, 'my flag is undefined');
-		});*/
+
 	});
-	/*test('aborting create update and destroy', function () {
-		stop();
-		var delay = can.fixture.delay;
-		can.fixture.delay = 1000;
-		can.fixture('POST /abort', function () {
-			ok(false, 'we should not be calling the fixture');
-			return {};
-		});
-		var Abortion = can.Model.extend({
-			create: 'POST /abort',
-			update: 'POST /abort',
-			destroy: 'POST /abort'
-		}, {});
 
-		var a = new Abortion({
-			name: 'foo'
-		});
-
-		var deferred =
-			a.save(function () {
-				ok(false, 'success create');
-				start();
-			}, function () {
-				ok(true, 'create error called');
-				deferred = new Abortion({
-					name: 'foo',
-					id: 5
-				})
-					.save(function () {
-						ok(false, 'save called');
-						start();
-					}, function () {
-						ok(true, 'error called in update');
-						deferred = new Abortion({
-							name: 'foo',
-							id: 5
-						})
-							.destroy(function () {}, function () {
-								ok(true, 'destroy error called');
-								can.fixture.delay = delay;
-								start();
-							});
-						setTimeout(function () {
-							deferred.abort();
-						}, 10);
-					});
-				setTimeout(function () {
-					deferred.abort();
-				}, 10);
-			});
-		setTimeout(function () {
-			deferred.abort();
-		}, 10);
-	});*/
 	test('store binding', function () {
-		var Storage = can.Model.extend({},{});
+		var Storage = CanModel.extend({},{});
 
 		var s = new Storage({
 			id: 1,
@@ -603,7 +487,7 @@ var logErrorAndStart = function(e){
 		ok(!Storage.store.has(5), 'not stored');
 	});
 	test('store ajax binding', function () {
-		var Guy = can.Model.extend({
+		var Guy = CanModel.extend({
 			findAll: '/guys',
 			findOne: '/guy/{id}'
 		}, {});
@@ -639,7 +523,7 @@ var logErrorAndStart = function(e){
 
 	test('store instance updates', function () {
 		var Guy, updateCount;
-		Guy = can.Model.extend({
+		Guy = CanModel.extend({
 			findAll: 'GET /guys'
 		}, {});
 		updateCount = 0;
@@ -674,44 +558,9 @@ var logErrorAndStart = function(e){
 		});
 	});
 
-	/*
-	 test("store instance update removed fields", function(){
-	var Guy, updateCount, remove;
 
-	Guy = can.Model.extend({
-		findAll : 'GET /guys'
-	},{});
-	remove = false;
-
-	can.fixture("GET /guys", function(){
-		var guys = [{id: 1, name: 'mikey', age: 35, likes: ['soccer', 'fantasy baseball', 'js', 'zelda'], dislikes: ['backbone', 'errors']}];
-		if(remove) {
-			delete guys[0].name;
-			guys[0].likes = [];
-			delete guys[0].dislikes;
-		}
-		remove = true;
-		return guys;
-	});
-	stop();
-	Guy.findAll({}, function(guys){
-		start();
-		guys[0].bind('updated', function(){});
-		ok(Guy.store[1], 'instance stored');
-		equal(Guy.store[1].name, 'mikey', 'name is mikey')
-		equal(Guy.store[1].likes.length, 4, 'mikey has 4 likes')
-		equal(Guy.store[1].dislikes.length, 2, 'mikey has 2 dislikes')
-	})
-	Guy.findAll({}, function(guys){
-		equal(Guy.store[1].name, undefined, 'name is undefined')
-		equal(Guy.store[1].likes.length, 0, 'no likes')
-		equal(Guy.store[1].dislikes, undefined, 'dislikes removed')
-	})
-
-})
-	 */
 	test('templated destroy that inherits id', function () {
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			destroy: '/destroyplace/{id}'
 		}, {});
 		fixture('/destroyplace/{id}', function (original) {
@@ -732,7 +581,7 @@ var logErrorAndStart = function(e){
 			return {};
 		});
 
-		var Base = can.Model.extend({
+		var Base = CanModel.extend({
 			id: '_id'
 		}, {});
 
@@ -753,7 +602,7 @@ var logErrorAndStart = function(e){
 		stop();
 	});
 	test('extended templated destroy', function () {
-		var MyModel = can.Model({
+		var MyModel = CanModel({
 			destroy: '/destroyplace/{attr1}/{attr2}/{id}'
 		}, {});
 		fixture('/destroyplace/{attr1}/{attr2}/{id}', function (original) {
@@ -775,7 +624,7 @@ var logErrorAndStart = function(e){
 			start();
 			return {};
 		});
-		var Base = can.Model({
+		var Base = CanModel({
 			id: '_id'
 		}, {});
 		var Product = Base({
@@ -789,79 +638,8 @@ var logErrorAndStart = function(e){
 		stop();
 	});
 
-	/*test('overwrite makeFindAll', function () {
-		var store = {};
-		var LocalModel = can.Model.extend({
-			makeFindOne: function (findOne) {
-				return function (params, success, error) {
-					var def = new can.Deferred(),
-						data = store[params.id];
-					def.then(success, error);
-					// make the ajax request right away
-					var findOneDeferred = findOne(params);
-					if (data) {
-						var instance = this.model(data);
-						findOneDeferred.then(function (data) {
-							instance.updated(data);
-						}, function () {
-							can.trigger(instance, 'error', data);
-						});
-						def.resolve(instance);
-					} else {
-						findOneDeferred.then(can.proxy(function (data) {
-							var instance = this.model(data);
-							store[instance[this.id]] = data;
-							def.resolve(instance);
-						}, this), function (data) {
-							def.reject(data);
-						});
-					}
-					return def;
-				};
-			}
-		}, {
-			updated: function (attrs) {
-				can.Model.prototype.updated.apply(this, arguments);
-				store[this[this.constructor.id]] = this.serialize();
-			}
-		});
-		can.fixture('/food/{id}', function (settings) {
-			return count === 0 ? {
-				id: settings.data.id,
-				name: 'hot dog'
-			} : {
-				id: settings.data.id,
-				name: 'ice water'
-			};
-		});
-		var Food = LocalModel({
-			findOne: '/food/{id}'
-		}, {});
-		stop();
-		var count = 0;
-		Food.findOne({
-			id: 1
-		}, function (food) {
-			count = 1;
-			ok(true, 'empty findOne called back');
-			food.bind('name', function () {
-				ok(true, 'name changed');
-				equal(count, 2, 'after last find one');
-				equal(this.name, 'ice water');
-				start();
-			});
-			Food.findOne({
-				id: 1
-			}, function (food2) {
-				count = 2;
-				ok(food2 === food, 'same instances');
-				equal(food2.name, 'hot dog');
-			});
-		});
-	});*/
-
 	test('model list attr', function () {
-		var Person = can.Model({}, {});
+		var Person = CanModel({}, {});
 		var list1 = new Person.List(),
 			list2 = new Person.List([
 				new Person({
@@ -876,18 +654,18 @@ var logErrorAndStart = function(e){
 		equal(list1.length, 2, 'Merging using attr yields length of 2');
 	});
 	test('destroying a model impact the right list', function () {
-		var Person = can.Model.extend({
+		var Person = CanModel.extend({
 			destroy: function (id, success) {
-				var def = isDojo ? new dojo.Deferred() : new can.Deferred();
+				var def = makeDeferred();
 				def.resolve({});
-				return def;
+				return def.promise;
 			}
 		}, {});
-		var Organisation = can.Model.extend({
+		var Organisation = CanModel.extend({
 			destroy: function (id, success) {
-				var def = isDojo ? new dojo.Deferred() : new can.Deferred();
+				var def = makeDeferred();
 				def.resolve({});
-				return def;
+				return def.promise;
 			}
 		}, {});
 		var people = new Person.List([
@@ -916,27 +694,32 @@ var logErrorAndStart = function(e){
 		equal(people.length, 2, 'Initial Person.List has length of 2');
 		equal(orgs.length, 2, 'Initial Organisation.List has length of 2');
 		orgs[0].destroy();
-		equal(people.length, 2, 'After destroying orgs[0] Person.List has length of 2');
-		equal(orgs.length, 1, 'After destroying orgs[0] Organisation.List has length of 1');
+		stop();
+		setTimeout(function(){
+			start();
+			equal(people.length, 2, 'After destroying orgs[0] Person.List has length of 2');
+			equal(orgs.length, 1, 'After destroying orgs[0] Organisation.List has length of 1');
+		},10);
+
 	});
 	test('uses attr with isNew', function () {
 		// TODO this does not seem to be consistent expect(2);
-		var old = can.__observe;
-		can.__observe = function (object, attribute) {
+		var old = ObserveInfo.observe;
+		ObserveInfo.observe = function (object, attribute) {
 			if (attribute === 'id') {
 				ok(true, 'used attr');
 			}
 		};
-		var M = can.Model.extend({},{});
+		var M = CanModel.extend({},{});
 		var m = new M({
 			id: 4
 		});
 		m.isNew();
-		can.__observe = old;
+		ObserveInfo.observe = old;
 	});
 
 	test('extends defaults by calling base method', function () {
-		var M1 = can.Model.extend({
+		var M1 = CanModel.extend({
 			defaults: {
 				foo: 'bar'
 			}
@@ -945,7 +728,7 @@ var logErrorAndStart = function(e){
 		equal(M2.defaults.foo, 'bar');
 	});
 	test('.models updates existing list if passed', 4, function () {
-		var Model = can.Model.extend({},{});
+		var Model = CanModel.extend({},{});
 
 		var list = Model.models([{
 			id: 1,
@@ -976,7 +759,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('calling destroy with unsaved model triggers destroyed event (#181)', function () {
-		var MyModel = can.Model.extend({}, {}),
+		var MyModel = CanModel.extend({}, {}),
 			newModel = new MyModel(),
 			list = new MyModel.List(),
 			deferred;
@@ -987,12 +770,12 @@ var logErrorAndStart = function(e){
 		deferred = newModel.destroy();
 		ok(deferred, '.destroy returned a Deferred');
 		equal(list.attr('length'), 0, 'Unsaved model removed from list');
-		deferred.done(function (data) {
+		deferred.then(function (data) {
 			ok(data === newModel, 'Resolved with destroyed model as described in docs');
 		});
 	});
 	test('model removeAttr (#245)', function () {
-		var MyModel = can.Model.extend({}),
+		var MyModel = CanModel.extend({}),
 			model;
 
 		// pretend it is live bound
@@ -1009,7 +792,7 @@ var logErrorAndStart = function(e){
 		});
 		equal(model.attr('name'), 'text updated', 'attribute updated');
 		equal(model.attr('index'), 2, 'Index attribute still remains');
-		MyModel = can.Model.extend({
+		MyModel = CanModel.extend({
 			removeAttr: true
 		}, {});
 
@@ -1031,7 +814,7 @@ var logErrorAndStart = function(e){
 		}, 'Index attribute got removed');
 	});
 	test('.parseModel on create and update (#301)', function () {
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			create: 'POST /todo',
 			update: 'PUT /todo',
 			parseModel: function (data) {
@@ -1044,7 +827,7 @@ var logErrorAndStart = function(e){
 		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
-				item: can.extend(original.data, {
+				item: assign(original.data, {
 					id: id
 				})
 			};
@@ -1099,7 +882,7 @@ var logErrorAndStart = function(e){
 				name: 'Thing One'
 			}];
 		});
-		var Model = can.Model.extend({
+		var Model = CanModel.extend({
 			findAll: '/things'
 		}, {});
 
@@ -1113,7 +896,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('destroy not calling callback for new instances (#403)', function () {
-		var Recipe = can.Model.extend({}, {});
+		var Recipe = CanModel.extend({}, {});
 		expect(1);
 		stop();
 		new Recipe({
@@ -1126,12 +909,12 @@ var logErrorAndStart = function(e){
 	});
 
 	test('.model should always serialize Observes (#444)', function () {
-		var ConceptualDuck = can.Model.extend({
+		var ConceptualDuck = CanModel.extend({
 			defaults: {
 				sayeth: 'Abstractly \'quack\''
 			}
 		}, {});
-		var ObserveableDuck = can.Map({}, {});
+		var ObserveableDuck = CanMap({}, {});
 		equal('quack', ConceptualDuck.model(new ObserveableDuck({
 				sayeth: 'quack'
 			}))
@@ -1139,7 +922,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test('string configurable model and models functions (#128)', function () {
-		var StrangeProp = can.Model.extend({
+		var StrangeProp = CanModel.extend({
 			parseModel: 'foo',
 			parseModels: 'bar'
 		}, {});
@@ -1167,13 +950,13 @@ var logErrorAndStart = function(e){
 	});
 
 	test('create deferred does not resolve to the same instance', function () {
-		var Todo = can.Model.extend({
+		var Todo = CanModel.extend({
 			create: function () {
-				var def = new can.Deferred();
+				var def = makeDeferred();
 				def.resolve({
 					id: 5
 				});
-				return def;
+				return def.promise;
 			}
 		}, {});
 		var handler = function () {};
@@ -1201,7 +984,7 @@ var logErrorAndStart = function(e){
 			};
 		});
 
-		var Person = can.Model.extend({
+		var Person = CanModel.extend({
 			update: 'POST /person.json'
 		}, {
 			name: 'Example name'
@@ -1223,7 +1006,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test(".parseModel as function on create and update (#560)", function () {
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			create: 'POST /todo',
 			update: 'PUT /todo',
 			parseModel: function (data) {
@@ -1238,7 +1021,7 @@ var logErrorAndStart = function(e){
 		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
-				item: can.extend(original.data, {
+				item: assign(original.data, {
 					id: id
 				})
 			};
@@ -1287,7 +1070,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test(".parseModel as string on create and update (#560)", function () {
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			create: 'POST /todo',
 			update: 'PUT /todo',
 			parseModel: "item"
@@ -1300,7 +1083,7 @@ var logErrorAndStart = function(e){
 		fixture('POST /todo', function (original, respondWith, settings) {
 			id++;
 			return {
-				item: can.extend(original.data, {
+				item: assign(original.data, {
 					id: id
 				})
 			};
@@ -1359,12 +1142,11 @@ var logErrorAndStart = function(e){
 			return array;
 		});
 
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			findAll: "/mymodels",
 			parseModels: function (raw, xhr) {
 				// only check this if jQuery because its deferreds can resolve with multiple args
-
-				equal(array, raw, "got passed raw data");
+				deepEqual(array, raw, "got passed raw data");
 				return {
 					data: raw,
 					count: 1000
@@ -1394,7 +1176,7 @@ var logErrorAndStart = function(e){
 			};
 		});
 
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			findAll: "/mymodels",
 			parseModels: "myModels",
 			parseModel: "myModel"
@@ -1413,7 +1195,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("Nested lists", function(){
-		var Teacher = can.Model.extend({});
+		var Teacher = CanModel.extend({});
 		var teacher = new Teacher();
 		teacher.attr("locations", [{id: 1, name: "Chicago"}, {id: 2, name: "LA"}]);
 		ok(!(teacher.attr('locations') instanceof Teacher.List), 'nested list is not an instance of Teacher.List');
@@ -1425,7 +1207,7 @@ var logErrorAndStart = function(e){
 			return [];
 		});
 
-		var FoodModel = can.Model.extend({
+		var FoodModel = CanModel.extend({
 			resource: "/foods"
 		}, {});
 
@@ -1445,7 +1227,7 @@ var logErrorAndStart = function(e){
 			}];
 		});
 
-		var DrinkModel = can.Model.extend({
+		var DrinkModel = CanModel.extend({
 			resource: "/drinks"
 		}, {});
 
@@ -1467,7 +1249,7 @@ var logErrorAndStart = function(e){
 			}];
 		});
 
-		var ClothingModel = can.Model.extend({
+		var ClothingModel = CanModel.extend({
 			resource: "/clothes"
 		}, {});
 
@@ -1483,7 +1265,7 @@ var logErrorAndStart = function(e){
 			return [];
 		});
 
-		var FoodModel = can.Model.extend({
+		var FoodModel = CanModel.extend({
 			resource: "/foods//////"
 		}, {});
 
@@ -1497,7 +1279,7 @@ var logErrorAndStart = function(e){
 
 	test("model list destroy after calling replace", function(){
 		expect(2);
-		var MyModel = can.Model.extend({},{});
+		var MyModel = CanModel.extend({},{});
 		var map = new MyModel({name: "map1"});
 		var map2 = new MyModel({name: "map2"});
 		var list = new MyModel.List([map, map2]);
@@ -1505,16 +1287,16 @@ var logErrorAndStart = function(e){
 		list.bind('destroyed', function(ev){
 			ok(true, 'trigger destroyed');
 		});
-		can.trigger(map, 'destroyed');
+		canEvent.trigger.call(map, 'destroyed');
 		list.replace([map2]);
-		can.trigger(map2, 'destroyed');
+		canEvent.trigger.call(map2, 'destroyed');
 	});
 
 	test("a model defined with a fullName has findAll working (#1034)", function(){
-		var List = can.List.extend();
-
+		var List = CanList.extend();
+		var My = {};
 		/* globals My */
-		can.Model.extend("My.Model",{
+		My.Model = CanModel.extend("Model",{
 			List: List
 		},{});
 
@@ -1522,7 +1304,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("providing parseModels works", function(){
-		var MyModel = can.Model.extend({
+		var MyModel = CanModel.extend({
 			parseModel: "modelData"
 		},{});
 
@@ -1535,7 +1317,7 @@ var logErrorAndStart = function(e){
 			return { id: 0, name: 'foo' };
 		});
 
-		var Base = can.Model.extend();
+		var Base = CanModel.extend();
 		var Thing = Base.extend({
 			resource: '/things'
 		}, {});
@@ -1567,7 +1349,7 @@ var logErrorAndStart = function(e){
 			return [{}];
 		});
 
-		var Thing = can.Model.extend({
+		var Thing = CanModel.extend({
 			resource: '/foos',
 			findAll: 'GET /bars',
 			update: {
@@ -1575,7 +1357,7 @@ var logErrorAndStart = function(e){
 				type: 'PUT'
 			},
 			create: function() {
-				return can.ajax({
+				return ajax({
 					url: '/foos',
 					type: 'POST'
 				});
@@ -1609,10 +1391,10 @@ var logErrorAndStart = function(e){
 
 	test("findAll not called if List constructor argument is deferred (#1074)", function() {
 		var count = 0;
-		var Foo = can.Model.extend({
+		var Foo = CanModel.extend({
 			findAll: function() {
 				count++;
-				return can.Deferred();
+				return makeDeferred().promise;
 			}
 		}, {});
 		new Foo.List(Foo.findAll());
@@ -1620,14 +1402,14 @@ var logErrorAndStart = function(e){
 	});
 
 	test("static methods do not get overwritten with resource property set (#1309)", function() {
-		var Base = can.Model.extend({
+		var Base = CanModel.extend({
 			resource: '/path',
 			findOne: function() {
-				var dfd = can.Deferred();
+				var dfd = makeDeferred();
 				dfd.resolve({
 					text: 'Base findAll'
 				});
-				return dfd;
+				return dfd.promise;
 			}
 		}, {});
 
@@ -1645,13 +1427,13 @@ var logErrorAndStart = function(e){
 	});
 
 	test("parseModels does not get overwritten if already implemented in base class (#1246, #1272)", 5, function() {
-		var Base = can.Model.extend({
+		var Base = CanModel.extend({
 			findOne: function() {
-				var dfd = can.Deferred();
+				var dfd = makeDeferred();
 				dfd.resolve({
 					text: 'Base findOne'
 				});
-				return dfd;
+				return dfd.promise;
 			},
 			parseModel: function(attributes) {
 				deepEqual(attributes, {
@@ -1679,13 +1461,13 @@ var logErrorAndStart = function(e){
 
 		var Third = Extended.extend({
 			findOne: function() {
-				var dfd = can.Deferred();
+				var dfd = makeDeferred();
 				dfd.resolve({
 					nested: {
 						text: 'Third findOne'
 					}
 				});
-				return dfd;
+				return dfd.promise;
 			},
 
 			parseModel: 'nested'
@@ -1697,8 +1479,8 @@ var logErrorAndStart = function(e){
 	});
 
 	test("Models with no id (undefined or null) are not placed in store (#1358)", function(){
-		var MyStandardModel = can.Model.extend({});
-		var MyCustomModel = can.Model.extend({id:"ID"}, {});
+		var MyStandardModel = CanModel.extend({});
+		var MyCustomModel = CanModel.extend({id:"ID"}, {});
 
 		var myID = null;
 		var instanceNull = new MyStandardModel ({id:myID});
@@ -1718,7 +1500,7 @@ var logErrorAndStart = function(e){
 	});
 
 	test("Models should be removed from store when instance.removeAttr('id') is called", function(){
-		var Task = can.Model.extend({},{});
+		var Task = CanModel.extend({},{});
 		var t1 = new Task({id: 1, name: "MyTask"});
 
 		t1.bind('change', function(){});
@@ -1730,4 +1512,3 @@ var logErrorAndStart = function(e){
 	});
 
 })();
-

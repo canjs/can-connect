@@ -28,13 +28,26 @@
  * ```
  *
  */
+
+
+require("can-stache-bindings");
+
 var connect = require("can-connect");
 
-var can = require('can/util/util');
-require('can/compute/compute');
-require('can/view/bindings/bindings');
-require("../can");
-var expression = require("can/view/stache/expression");
+var compute = require('can-compute');
+var expression = require("can-stache/src/expression");
+var viewCallbacks = require("can-view-callbacks");
+var ObserveInfo = require("can-observe-info");
+var nodeLists = require("can-view-nodelist");
+var canEvent = require("can-event");
+
+var each = require("can-util/js/each/each");
+
+var domMutate = require("can-util/dom/mutate/mutate");
+var domData = require("can-util/dom/data/data");
+
+
+require("can-util/dom/events/removed/removed");
 
 var convertToValue = function(arg){
 	if(typeof arg === "function") {
@@ -57,7 +70,7 @@ connect.tag = function(tagName, connection){
 	};
 
 
-	can.view.tag(tagName, function(el, tagData){
+	viewCallbacks.tag(tagName, function(el, tagData){
 		var getList = el.getAttribute("getList") || el.getAttribute("get-list");
 		var getInstance = el.getAttribute("get");
 
@@ -69,7 +82,7 @@ connect.tag = function(tagName, connection){
 
 
 		var addedToPageData = false;
-		var addToPageData = can.__notObserve(function(set, promise){
+		var addToPageData = ObserveInfo.notObserve(function(set, promise){
 			if(!addedToPageData) {
 				var root = tagData.scope.attr("%root") || tagData.scope.attr("@root");
 				if( root && root.pageData ) {
@@ -82,11 +95,11 @@ connect.tag = function(tagName, connection){
 			addedToPageData = true;
 		});
 
-		var request = can.compute(function(){
+		var request = compute(function(){
 			var hash = {};
 			if(typeof attrInfo.hash === "object") {
 				// old expression data
-				can.each(attrInfo.hash, function(val, key) {
+				each(attrInfo.hash, function(val, key) {
 					if (val && val.hasOwnProperty("get")) {
 						hash[key] = tagData.scope.read(val.get, {}).value;
 					} else {
@@ -96,7 +109,7 @@ connect.tag = function(tagName, connection){
 			} else if(typeof attrInfo.hash === "function"){
 				// new expression data
 				var getHash = attrInfo.hash(tagData.scope, tagData.options, {});
-				can.each(getHash(), function(val, key) {
+				each(getHash(), function(val, key) {
 					hash[key] = convertToValue(val);
 				});
 			} else {
@@ -109,24 +122,24 @@ connect.tag = function(tagName, connection){
 			return promise;
 		});
 
-		can.data(can.$(el), "viewModel", request);
+		domData.set.call(el, "viewModel", request);
 
-		var nodeList = can.view.nodeLists.register([], undefined, true);
+		var nodeList = nodeLists.register([], undefined, tagData.parentNodeList || true);
 
 		var frag = tagData.subtemplate ?
 					tagData.subtemplate( tagData.scope.add(request), tagData.options, nodeList ) :
 					document.createDocumentFragment();
 
 		// Append the resulting document fragment to the element
-		can.appendChild(el, frag);
+		domMutate.appendChild.call(el, frag);
 
 		// update the nodeList with the new children so the mapping gets applied
-		can.view.nodeLists.update(nodeList, el.childNodes);
+		nodeLists.update(nodeList, el.childNodes);
 
 		// add to pageData
 
-		can.one.call(el, 'removed', function() {
-			can.view.nodeLists.unregister(nodeList);
+		canEvent.one.call(el, 'removed', function() {
+			nodeLists.unregister(nodeList);
 		});
 	});
 };

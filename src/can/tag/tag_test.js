@@ -1,8 +1,8 @@
 var QUnit = require("steal-qunit");
 
-var can = require("can/util/util");
-require("can/map/map");
-require("can/list/list");
+var CanMap = require("can-map");
+var CanList = require("can-list");
+var compute = require("can-compute");
 
 var $ = require("jquery");
 var superMap = require("can-connect/can/super-map/");
@@ -11,6 +11,7 @@ var fixture = require("can-fixture");
 var findAllTemplate = require("./tag_find_all_test.stache!");
 var findOneTemplate = require("./tag_find_one_test.stache!");
 
+require("can-util/dom/events/inserted/inserted");
 
 QUnit.module("can-connect/can/tag");
 
@@ -18,8 +19,8 @@ QUnit.module("can-connect/can/tag");
 QUnit.test("getList", function(){
 
 
-	var Person = can.Map.extend({});
-	Person.List = can.List.extend({Map: Person},{});
+	var Person = CanMap.extend({});
+	Person.List = CanList.extend({Map: Person},{});
 
 	var options = {
 			url: "/api/people",
@@ -42,7 +43,7 @@ QUnit.test("getList", function(){
 
 		}
 	});
-	var type = can.compute("first");
+	var type = compute("first");
 	stop();
 
 	var resolvedCalls = 0;
@@ -56,13 +57,13 @@ QUnit.test("getList", function(){
 			ok(true, "called resolved");
 			if(resolvedCalls === 1) {
 				ok(true, "called resolved");
-				equal(el[0].childNodes[1].innerHTML, "1", "added id");
+				equal(el.childNodes[1].innerHTML, "1", "added id");
 				setTimeout(function(){
 					type("second");
 				},1);
 			} else {
 				ok(true, "called resolved");
-				equal(el[0].childNodes[1].innerHTML, "3", "added id");
+				equal(el.childNodes[1].innerHTML, "3", "added id");
 				$("#qunit-fixture").empty();
 				start();
 			}
@@ -77,8 +78,8 @@ QUnit.test("getList", function(){
 QUnit.test("get", function(){
 
 
-	var Person = can.Map.extend({});
-	Person.List = can.List.extend({Map: Person},{});
+	var Person = CanMap.extend({});
+	Person.List = CanList.extend({Map: Person},{});
 
 	var options = {
 			url: "/api/people",
@@ -101,7 +102,7 @@ QUnit.test("get", function(){
 
 		}
 	});
-	var personId = can.compute(1);
+	var personId = compute(1);
 	stop();
 
 	var resolvedCalls = 0;
@@ -115,13 +116,13 @@ QUnit.test("get", function(){
 			ok(true, "called resolved");
 			if(resolvedCalls === 1) {
 				ok(true, "called resolved");
-				equal(el[0].innerHTML, "first", "added id");
+				equal(el.innerHTML, "first", "added id");
 				setTimeout(function(){
 					personId(2);
 				},1);
 			} else {
 				ok(true, "called resolved");
-				equal(el[0].innerHTML, "second", "added id");
+				equal(el.innerHTML, "second", "added id");
 				$("#qunit-fixture").empty();
 				start();
 			}
@@ -139,8 +140,8 @@ QUnit.test("get", function(){
 QUnit.test("get fullCache", function(){
 	var resolvedCalls = 0;
 
-	var Person = can.Map.extend({});
-	Person.List = can.List.extend({Map: Person},{});
+	var Person = CanMap.extend({});
+	Person.List = CanList.extend({Map: Person},{});
 
 	var options = {
 			url: "/api/people",
@@ -176,7 +177,7 @@ QUnit.test("get fullCache", function(){
 
 	connection.getList({}).then(function(){
 
-		var personId = can.compute(1);
+		var personId = compute(1);
 
 
 		var frag = findOneTemplate({
@@ -188,7 +189,7 @@ QUnit.test("get fullCache", function(){
 				ok(true, "called resolved");
 				if(resolvedCalls === 1) {
 
-					equal(el[0].innerHTML, "first", "first id");
+					equal(el.innerHTML, "first", "first id");
 					setTimeout(function(){
 						personId(2);
 

@@ -1,6 +1,5 @@
-var helpers = require("./helpers");
-var forEach = helpers.forEach;
-var keys = helpers.keys;
+var forEach = [].forEach;
+var keys = Object.keys;
 
 module.exports = function(set){
 	if(set == null) {

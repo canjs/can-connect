@@ -1,4 +1,3 @@
-var isArray = require("can-connect/helpers/").isArray;
 /**
  * @module {connect.Behavior} can-connect/data-url data-url
  * @parent can-connect.behaviors
@@ -90,9 +89,14 @@ var isArray = require("can-connect/helpers/").isArray;
  *
  * This does the same thing as the first `todoConnection` example.
  */
+var isArray = require("can-util/js/is-array/is-array");
+var assign = require("can-util/js/assign/assign");
+var each = require("can-util/js/each/each");
+var ajax = require("can-util/dom/ajax/ajax");
+var string = require("can-util/js/string/string");
+
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
-var ajax = require("can-connect/helpers/ajax");
+
 
 // # can-connect/data-url
 // For each pair, create a function that checks the url object
@@ -101,7 +105,7 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 
 
 	var behavior = {};
-	helpers.each(pairs, function(reqOptions, name){
+	each(pairs, function(reqOptions, name){
 		behavior[name] = function(params){
 
 			if(typeof this.url === "object") {
@@ -217,16 +221,16 @@ var makeAjax = function ( ajaxOb, data, type, ajax ) {
 		}
 	} else {
 		// If the first argument is an object, just load it into `params`.
-		helpers.extend(params, ajaxOb);
+		assign(params, ajaxOb);
 	}
 
 	// If the `data` argument is a plain object, copy it into `params`.
 	params.data = typeof data === "object" && !isArray(data) ?
-		helpers.extend(params.data || {}, data) : data;
+		assign(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = helpers.sub(params.url, params.data, true);
-	return ajax(helpers.extend({
+	params.url = string.sub(params.url, params.data, true);
+	return ajax(assign({
 		type: type || 'post',
 		dataType: 'json'
 	}, params));
@@ -241,6 +245,3 @@ var createURLFromResource = function(resource, idProp, name) {
 		return url + "/{" + idProp + "}";
 	}
 };
-
-
-

@@ -1,14 +1,20 @@
 var $ = require("jquery"),
-	can = require("can/util/util"),
 	connect = require("can-connect"),
 
 	persist = require("../../data/url/"),
 	constructor = require("../../constructor/"),
 	instanceStore = require("../../constructor/store/"),
-	parseData = require("../../data/parse/");
+	parseData = require("../../data/parse/"),
+	CanMap = require("can-map"),
+	CanList = require("can-list"),
+	ObserveInfo = require("can-observe-info"),
+	canEvent = require("can-event");
 
-	require("../can");
-	require("when/es6-shim/Promise");
+var each = require("can-util/js/each/each");
+var dev = require("can-util/js/dev/dev");
+var makeArray = require("can-util/js/make-array/make-array");
+var types = require("can-util/js/types/types");
+var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 var callCanReadingOnIdRead = true;
 var getBaseValue = function(prop){
@@ -31,21 +37,28 @@ var resolveSingleExport = function(originalPromise){
 var mapBehavior = connect.behavior(function(baseConnect){
 	var behavior = {
 		id: function(inst) {
-
-			if(inst instanceof can.Map) {
+			var idProp = inst.constructor.id || "id";
+			if(inst instanceof CanMap) {
 				if(callCanReadingOnIdRead) {
-					can.__observe(inst, inst.constructor.id);
+					ObserveInfo.observe(inst, idProp);
 				}
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `can.__reading`.)
-				return inst.__get(inst.constructor.id);
+				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObserveInfo.reading`.)
+				return inst.__get(idProp);
 			} else {
-				return inst[this.constructor.id];
+				if(callCanReadingOnIdRead) {
+					return inst[idProp];
+				} else {
+					return ObserveInfo.notObserve(function(){
+						return inst[idProp];
+					});
+				}
+
 			}
 		},
 		listSet: function(){
 			return undefined;
 		},
-		idProp: baseConnect.constructor.id,
+		idProp: baseConnect.constructor.id || "id",
 		serializeInstance: function(instance){
 			return instance.serialize();
 		},
@@ -77,7 +90,7 @@ var mapBehavior = connect.behavior(function(baseConnect){
 
 	};
 
-	can.each([
+	each([
 		"created",
 		"updated",
 		"destroyed"
@@ -88,21 +101,21 @@ var mapBehavior = connect.behavior(function(baseConnect){
 
 			// Update attributes if attributes have been passed
 			if(attrs && typeof attrs === 'object') {
-				instance.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs, this.constructor.removeAttr || false);
+				instance.attr(typeof attrs.attr === "function" ? attrs.attr() : attrs, this.constructor.removeAttr || false);
 			}
 
 			// triggers change event that bubble's like
 			// handler( 'change','1.destroyed' ). This is used
 			// to remove items on destroyed from Model Lists.
 			// but there should be a better way.
-			can.dispatch.call(instance, {type:funcName, target: instance});
+			canEvent.dispatch.call(instance, {type:funcName, target: instance});
 
 			//!steal-remove-start
-			can.dev.log("Model.js - " + constructor.shortName + " " + funcName);
+			dev.log("Model.js - " + constructor.shortName + " " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class
-			can.dispatch.call(constructor, funcName, [instance]);
+			canEvent.dispatch.call(constructor, funcName, [instance]);
 		};
 	});
 
@@ -114,40 +127,40 @@ var mapBehavior = connect.behavior(function(baseConnect){
 
 
 
-can.Model = can.Map.extend({
+var CanModel = CanMap.extend({
 	setup: function (base, fullName, staticProps, protoProps) {
-		// Assume `fullName` wasn't passed. (`can.Model.extend({ ... }, { ... })`)
+		// Assume `fullName` wasn't passed. (`CanModel.extend({ ... }, { ... })`)
 		// This is pretty usual.
 		if (typeof fullName !== "string") {
 			protoProps = staticProps;
 			staticProps = fullName;
 		}
-		// Assume no static properties were passed. (`can.Model.extend({ ... })`)
+		// Assume no static properties were passed. (`CanModel.extend({ ... })`)
 		// This is really unusual for a model though, since there's so much configuration.
 		if (!protoProps) {
 			//!steal-remove-start
-			can.dev.warn("can/model/model.js: can.Model extended without static properties.");
+			dev.warn("can/model/model.js: CanModel extended without static properties.");
 			//!steal-remove-end
 			protoProps = staticProps;
 		}
 
-		// Create the model store here, in case someone wants to use can.Model without inheriting from it.
+		// Create the model store here, in case someone wants to use CanModel without inheriting from it.
 		this.store = {};
 
-		can.Map.setup.apply(this, arguments);
+		CanMap.setup.apply(this, arguments);
 
 		//
 
 
 
-		if (!can.Model) {
+		if (!CanModel) {
 			return;
 		}
 
-		// save everything that's not on base can.Model
+		// save everything that's not on base CanModel
 
 
-		// `List` is just a regular can.Model.List that knows what kind of Model it's hooked up to.
+		// `List` is just a regular CanModel.List that knows what kind of Model it's hooked up to.
 		if(staticProps && staticProps.List) {
 			this.List = staticProps.List;
 			this.List.Map = this;
@@ -185,7 +198,7 @@ can.Model = can.Map.extend({
 			},
 			list: function(listData){
 				var list = new self.List(listData.data);
-				can.each(listData, function (val, prop) {
+				each(listData, function (val, prop) {
 					if (prop !== 'data') {
 						list.attr(prop, val);
 					}
@@ -217,31 +230,31 @@ can.Model = can.Map.extend({
 
 		this.store = this.connection.instanceStore;
 		// map static stuff to crud .. but we don't want this inherited by the next thing'
-		can.each(staticMethods, function(name){
+		each(staticMethods, function(name){
 			if( self.connection[name] ) {
-				var fn = can.proxy(self.connection[name], self.connection);
+				var fn = self.connection[name].bind(self.connection);
 				fn.base = self[name];
-				can.Construct._overwrite(self, base, name, fn);
+				CanMap._overwrite(self, base, name, fn);
 			}
 		});
-		can.each(parseMethods, function(connectionName, name){
-			var fn = can.proxy(self.connection[connectionName], self.connection);
+		each(parseMethods, function(connectionName, name){
+			var fn = self.connection[connectionName].bind(self.connection);
 			fn.base = self[name];
-			can.Construct._overwrite(self, base, name,  fn);
+			CanMap._overwrite(self, base, name,  fn);
 		});
 	},
 	models: function(raw, oldList){
-		var args = can.makeArray(arguments);
+		var args = makeArray(arguments);
 		args[0] = this.connection.parseListData.apply(this.connection, arguments);
 		var list = this.connection.hydrateList.apply(this.connection, args);
-		if( oldList instanceof can.List ) {
+		if( oldList instanceof CanList ) {
 			return oldList.replace(list);
 		} else {
 			return list;
 		}
 	},
 	model: function(raw){
-		var args = can.makeArray(arguments);
+		var args = makeArray(arguments);
 		args[0] = this.connection.parseInstanceData.apply(this.connection, arguments);
 		var instance = this.connection.hydrateInstance.apply(this.connection, arguments);
 		return instance;
@@ -263,7 +276,7 @@ can.Model = can.Map.extend({
 		var promise;
 		if (this.isNew()) {
 
-			promise = can.Deferred().resolve(this);
+			promise = Promise.resolve(this);
 			this.constructor.connection.destroyedInstance(this, {});
 		} else {
 			promise = this.constructor.connection.destroy(this);
@@ -272,38 +285,38 @@ can.Model = can.Map.extend({
 		promise.then(success,error);
 		return promise;
 	},
-	// ## can.Model#bind and can.Model#unbind
+	// ## CanModel#bind and CanModel#unbind
 	// These aren't actually implemented here, but their setup needs to be changed to account for the store.
-	_bindsetup: function () {
+	_eventSetup: function () {
 		// this should not call reading
 		callCanReadingOnIdRead = false;
 		this.constructor.connection.addInstanceReference(this);
 		callCanReadingOnIdRead = true;
-		return can.Map.prototype._bindsetup.apply(this, arguments);
+		return CanMap.prototype._eventSetup.apply(this, arguments);
 	},
-	_bindteardown: function () {
+	_eventTeardown: function () {
 		callCanReadingOnIdRead = false;
 		this.constructor.connection.deleteInstanceReference(this);
 		callCanReadingOnIdRead = true;
-		return can.Map.prototype._bindteardown.apply(this, arguments);
+		return CanMap.prototype._eventTeardown.apply(this, arguments);
 	},
 	// Change the behavior of `___set` to account for the store.
 	___set: function (prop, val) {
-		can.Map.prototype.___set.call(this, prop, val);
+		CanMap.prototype.___set.call(this, prop, val);
 		// If we add or change the ID, update the store accordingly.
 		// TODO: shouldn't this also delete the record from the old ID in the store?
-		if ( prop === this.constructor.id && this._bindings ) {
+		if ( prop === (this.constructor.id || "id") && this._bindings ) {
 			this.constructor.connection.addInstanceReference(this);
 		}
 	}
 });
 
-can.Model.List = can.List.extend({
-	// ## can.Model.List.setup
+CanModel.List = CanList.extend({
+	// ## CanModel.List.setup
 	// On change or a nested named event, setup change bubbling.
 	// On any other type of event, setup "destroyed" bubbling.
 	_bubbleRule: function(eventName, list) {
-		var bubbleRules = can.List._bubbleRule(eventName, list);
+		var bubbleRules = CanList._bubbleRule(eventName, list);
 		bubbleRules.push('destroyed');
 		return bubbleRules;
 	}
@@ -311,15 +324,15 @@ can.Model.List = can.List.extend({
 	setup: function (params) {
 		// If there was a plain object passed to the List constructor,
 		// we use those as parameters for an initial findAll.
-		if (can.isPlainObject(params) && !can.isArray(params)) {
-			can.List.prototype.setup.apply(this);
-			this.replace(can.isDeferred(params) ? params : this.constructor.Map.findAll(params));
+		if (isPlainObject(params) && !Array.isArray(params)) {
+			CanList.prototype.setup.apply(this);
+			this.replace(types.isPromise(params) ? params : this.constructor.Map.findAll(params));
 		} else {
 			// Otherwise, set up the list like normal.
-			can.List.prototype.setup.apply(this, arguments);
+			CanList.prototype.setup.apply(this, arguments);
 		}
 		this._init = 1;
-		this.bind('destroyed', can.proxy(this._destroyed, this));
+		this.bind('destroyed', this._destroyed.bind(this));
 		delete this._init;
 	},
 	_destroyed: function (ev, attr) {
@@ -332,4 +345,4 @@ can.Model.List = can.List.extend({
 	}
 });
 
-module.exports = can.Model;
+module.exports = CanModel;
