@@ -1,6 +1,4 @@
-var helpers = require("can-connect/helpers/");
-var bind = helpers.bind;
-var isArray = helpers.isArray;
+
 
 /**
  * @module {connect.Behavior} can-connect/constructor constructor
@@ -82,11 +80,13 @@ var isArray = helpers.isArray;
  *
  *
  */
+var isArray = require("can-util/js/is-array/is-array");
+var makeArray = require("can-util/js/make-array/make-array");
+var assign = require("can-util/js/assign/assign");
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var overwrite = require("can-connect/helpers/overwrite");
 var idMerge = require("can-connect/helpers/id-merge");
-var helpers = require("can-connect/helpers/");
 var addToCanWaitData = require("can-connect/helpers/wait");
 
 module.exports = connect.behavior("constructor",function(baseConnect){
@@ -231,7 +231,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			if(this.instance) {
 				return this.instance(props);
 			}  else {
-				return helpers.extend({}, props);
+				return assign({}, props);
 			}
 		},
 		/**
@@ -460,7 +460,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   @param {Object} props The data from [connection.createData].
 		 */
 		createdInstance: function(instance, props){
-			helpers.extend(instance, props);
+			assign(instance, props);
 		},
 		/**
 		 * @function can-connect/constructor.updatedInstance updatedInstance
@@ -506,7 +506,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			// This only works with "referenced" instances because it will not
 			// update and assume the instance is already updated
 			// this could be overwritten so that if the ids match, then a merge of properties takes place
-			idMerge(list, instanceList, bind(this.id, this), bind(this.hydrateInstance, this));
+			idMerge(list, instanceList, this.id.bind(this), this.hydrateInstance.bind(this));
 		},
 		/**
 		 * @function can-connect/constructor.destroyedInstance destroyedInstance
@@ -541,7 +541,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   @return {Object} A serialized representation of the instance.
 		 */
 		serializeInstance: function(instance){
-			return helpers.extend({}, instance);
+			return assign({}, instance);
 		},
 		/**
 		 * @function can-connect/constructor.serializeList serializeList
@@ -561,7 +561,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 */
 		serializeList: function(list){
 			var self = this;
-			return helpers.map.call(list, function(instance){
+			return makeArray(list).map(function(instance){
 				return self.serializeInstance(instance);
 			});
 		},
@@ -696,4 +696,3 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 	return behavior;
 
 });
-

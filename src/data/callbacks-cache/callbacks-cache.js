@@ -7,7 +7,8 @@
  * useful for making sure a [connect.base.cacheConnection] is updated whenever data is updated.
  */
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+var assign = require("can-util/js/assign/assign");
+var each = require("can-util/js/each/each");
 
 // wires up the following methods
 var pairs = {
@@ -44,11 +45,11 @@ module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 
 	var behavior = {};
 
-	helpers.each(pairs, function(cacheCallback, dataCallbackName){
+	each(pairs, function(cacheCallback, dataCallbackName){
 		behavior[dataCallbackName] = function(data, set, cid){
 
 			// update the data in the cache
-			this.cacheConnection[cacheCallback]( helpers.extend({}, data) );
+			this.cacheConnection[cacheCallback]( assign({}, data) );
 
 			return baseConnect[dataCallbackName].call(this,  data, set, cid);
 		};

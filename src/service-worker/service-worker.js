@@ -1,6 +1,6 @@
 
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+var makeDeferred = require("can-connect/helpers/deferred");
 require("when/es6-shim/Promise");
 
 /**
@@ -13,11 +13,11 @@ module.exports = connect.behavior("service-worker",function(base){
 	var worker = new Worker(this.workerURL);
 	var requestId = 0;
 	var requestDeferreds = {};
-	var isReady = helpers.deferred();
+	var isReady = makeDeferred();
 
 	var makeRequest = function(data){
 		var reqId = requestId++;
-		var def = helpers.deferred();
+		var def = makeDeferred();
 		requestDeferreds[reqId] = def;
 
 		isReady.promise.then(function(){

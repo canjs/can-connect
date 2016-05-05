@@ -1,4 +1,4 @@
-var helpers = require("./helpers/");
+var assign = require("can-util/js/assign/assign");
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -7,10 +7,10 @@ var helpers = require("./helpers/");
  */
 var connect = function(behaviors, options){
 
-	behaviors = helpers.map.call(behaviors, function(behavior, index){
+	behaviors = behaviors.map(function(behavior, index){
 		var sortedIndex;
 		if(typeof behavior === "string") {
-			sortedIndex = helpers.indexOf.call(connect.order, behavior);
+			sortedIndex = connect.order.indexOf(behavior);
 			behavior = behaviorsMap[behavior];
 		} else if(behavior.isBehavior) {
 
@@ -32,13 +32,13 @@ var connect = function(behaviors, options){
 			return b1.originalIndex - b2.originalIndex;
 		});
 
-	behaviors = helpers.map.call(behaviors, function(b){
+	behaviors = behaviors.map(function(b){
 		return b.behavior;
 	});
 
 	var behavior = core( connect.behavior("options",function(){return options; })() );
 
-	helpers.forEach.call(behaviors, function(behave){
+	behaviors.forEach(function(behave){
 		behavior = behave(behavior);
 	});
 	if(behavior.init) {
@@ -70,7 +70,7 @@ connect.behavior = function(name, behavior){
 		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function
 		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
-		helpers.extend(newBehavior, res);
+		assign(newBehavior, res);
 		newBehavior.__behaviorName = name;
 		return newBehavior;
 	};

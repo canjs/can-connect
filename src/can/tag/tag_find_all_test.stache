@@ -1,4 +1,4 @@
 <person-model getList='{type=type}'>
-	{{#isPending}}<span class='pending' can-inserted="{pending}"></span>{{/isPending}}
-	{{#isResolved}}<span class='resolved' can-inserted="{resolved}">{{#each value}}<span>{{id}}</span>{{/each}}</span>{{/isResolved}}
+	{{#isPending}}<span class='pending' ($inserted)="pending"></span>{{/isPending}}
+	{{#isResolved}}<span class='resolved' ($inserted)="resolved">{{#each value}}<span>{{id}}</span>{{/each}}</span>{{/isResolved}}
 </person-model>

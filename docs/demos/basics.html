@@ -5,10 +5,10 @@ import connect from "can-connect";
 import "can-connect/data/url/";
 import "can-connect/constructor/";
 import fixture from "can-connect/fixture/";
-import "can-connect/helpers/object-assign";
+import assign from "can-util/js/assign/assign";
 
 var Todo = function(props){
-  Object.assign(this, props);
+  assign(this, props);
 };
 
 Todo.prototype.isComplete = function(){
@@ -54,7 +54,7 @@ fixture({
 				{id: 3, name: "change bulb", status: "complete"}
 			]
 		};
-		
+
 	}
 });
 

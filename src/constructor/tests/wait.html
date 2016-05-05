@@ -16,16 +16,18 @@
 			System["import"]("can-connect/data/url/"),
 			System["import"]("can-connect/can-connect"),
 			System["import"]("can-set"),
-			System["import"]("can-fixture")
+			System["import"]("can-fixture"),
+			System["import"]("can-util/js/assign/assign")
 		]).then(function(mods){
 			var constructor = mods[0];
 			var persist = mods[1];
 			var connect = mods[2];
 			var canSet = mods[3];
 			var fixture = mods[4];
+			var assign = mods[5]
 
 			var Todo = function(values){
-				canSet.helpers.extend(this, values);
+				assign(this, values);
 			};
 			var TodoList = function(todos){
 				var listed = todos.slice(0);

@@ -2,7 +2,7 @@ var QUnit = require("steal-qunit");
 var connect = require("can-connect");
 var testHelpers = require("can-connect/test-helpers");
 require("can-connect/data/callbacks/");
-var helpers = require("can-connect/helpers/");
+var map = [].map;
 
 var getId = function(d){
 	return d.id;
@@ -75,7 +75,7 @@ QUnit.test("basics", function(){
 		return {
 			updatedList: function(list, updated){
 				state.check("updatedList");
-				deepEqual( helpers.map.call(updated.data, getId), helpers.map.call(secondItems, getId) );
+				deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
 				start();
 			}
 		};
@@ -89,7 +89,7 @@ QUnit.test("basics", function(){
 	// first time, it takes the whole time
 	connection.getList({}).then(function( list ){
 		state.check("connection-foundAll");
-		deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
+		deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
@@ -97,7 +97,7 @@ QUnit.test("basics", function(){
 		state.check("connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
-			deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
+			deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);
 	}
 
@@ -108,5 +108,3 @@ QUnit.test("basics", function(){
 	// but then update the list as the request goes out
 
 });
-
-

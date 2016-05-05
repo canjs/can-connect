@@ -2,8 +2,9 @@
 var connect = require("can-connect");
 var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
-var forEach = require("can-connect/helpers/").forEach;
 
+var makeDeferred = require("can-connect/helpers/deferred");
+var forEach = [].forEach;
 /**
  * @module can-connect/data/combine-requests data-combine-requests
  * @parent can-connect.behaviors
@@ -250,14 +251,11 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 
 				}, this.time || 1);
 			}
-			var deferred = {};
-			var promise = new Promise(function(resolve, reject){
-				deferred.resolve = resolve;
-				deferred.reject = reject;
-			});
+			var deferred = makeDeferred();
+
 			pendingRequests.push({deferred: deferred, set: set});
 
-			return promise;
+			return deferred.promise;
 		}
 	};
 });
@@ -285,4 +283,3 @@ var doubleLoop = function(arr, callbacks){
 		i++;
 	}
 };
-

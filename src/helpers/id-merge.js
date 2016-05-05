@@ -1,4 +1,4 @@
-var map = require("can-connect/helpers/").map;
+var map = [].map;
 
 module.exports = function(list, update, id, make){
 	var listIndex = 0,

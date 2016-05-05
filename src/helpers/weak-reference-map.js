@@ -1,4 +1,4 @@
-var helpers = require("can-connect/helpers/");
+var assign = require("can-util/js/assign/assign");
 
 var WeakReferenceMap = function(){
 	this.set = {};
@@ -7,7 +7,7 @@ var WeakReferenceMap = function(){
 // if weakmap, we can add and never worry ...
 // otherwise, we need to have a count ...
 
-helpers.extend(WeakReferenceMap.prototype,{
+assign(WeakReferenceMap.prototype,{
 	has: function(key){
 		return !!this.set[key];
 	},
@@ -45,4 +45,3 @@ helpers.extend(WeakReferenceMap.prototype,{
 });
 
 module.exports = WeakReferenceMap;
-

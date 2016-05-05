@@ -1,5 +1,3 @@
-var isArray = require("can-connect/helpers/").isArray;
-
 /**
  * @module {connect.Behavior} can-connect/data-parse data-parse
  * @parent can-connect.behaviors
@@ -51,8 +49,10 @@ var isArray = require("can-connect/helpers/").isArray;
  * ```
  *
  */
-var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+ var connect = require("can-connect");
+ var each = require("can-util/js/each/each");
+ var isArray = require("can-util/js/is-array/is-array");
+ var string = require("can-util/js/string/string");
 
 
 module.exports = connect.behavior("data-parse",function(baseConnect){
@@ -133,7 +133,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 			} else {
 				var prop = this.parseListProp || 'data';
 
-				responseData.data = helpers.getObject(prop, responseData);
+				responseData.data = string.getObject(prop, responseData);
 				result = responseData;
 				if(prop !== "data") {
 					delete responseData[prop];
@@ -213,7 +213,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 				// responses. So if it doesn't return anything, go back to using props.
 			   props = baseConnect.parseInstanceData.apply(this, arguments) || props;
 			}
-			return this.parseInstanceProp ? helpers.getObject(this.parseInstanceProp, props) || props : props;
+			return this.parseInstanceProp ? string.getObject(this.parseInstanceProp, props) || props : props;
 		}
 		/**
 		 * @property {String} connection.parseListProp parseListProp
@@ -287,7 +287,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 
 	};
 
-	helpers.each(pairs, function(parseFunction, name){
+	each(pairs, function(parseFunction, name){
 		behavior[name] = function(params){
 			var self = this;
 			return baseConnect[name].call(this, params).then(function(){

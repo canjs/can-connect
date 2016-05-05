@@ -44,9 +44,8 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 require("when/es6-shim/Promise");
-var helpers = require("can-connect/helpers/");
-var forEach = helpers.forEach;
-var map = helpers.map;
+var forEach = [].forEach;
+var map = [].map;
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 

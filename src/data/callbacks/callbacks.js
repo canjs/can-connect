@@ -9,7 +9,7 @@
  *
  */
 var connect = require("can-connect");
-var helpers = require("can-connect/helpers/");
+var each = require("can-util/js/each/each");
 
 // wires up the following methods
 var pairs = {
@@ -58,7 +58,7 @@ module.exports = connect.behavior("data-callbacks",function(baseConnect){
 	};
 
 	// overwrites createData to createdData
-	helpers.each(pairs, function(callbackName, name){
+	each(pairs, function(callbackName, name){
 
 		behavior[name] = function(params, cid){
 			var self = this;

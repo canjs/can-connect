@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var connect = require("can-connect");
-var map = require("can-connect/helpers/").map;
+var map = [].map;
 var testHelpers = require("can-connect/test-helpers");
 
 require("can-connect/data/callbacks/");
