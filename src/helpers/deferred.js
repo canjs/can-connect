@@ -6,4 +6,4 @@ module.exports = function(){
 		def.reject = reject;
 	});
 	return def;
-}
+};

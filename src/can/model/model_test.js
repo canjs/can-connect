@@ -1295,7 +1295,6 @@ var logErrorAndStart = function(e){
 	test("a model defined with a fullName has findAll working (#1034)", function(){
 		var List = CanList.extend();
 		var My = {};
-		/* globals My */
 		My.Model = CanModel.extend("Model",{
 			List: List
 		},{});

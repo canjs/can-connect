@@ -7,7 +7,7 @@ var canBatch = require("can-event/batch/batch");
 var canEvent = require("can-event");
 var ObserveInfo = require("can-observe-info");
 
-var isPlainObject = require("can-util/js/is-plain-object/is-plain-object")
+var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 var isArray = require("can-util/js/is-array/is-array");
 var types = require("can-util/js/types/types");
 var each = require("can-util/js/each/each");
