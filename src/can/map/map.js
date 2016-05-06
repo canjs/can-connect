@@ -26,7 +26,7 @@ var getExpando = function(map, prop) {
 	} else {
 		return map._data[prop];
 	}
-}
+};
 
 module.exports = connect.behavior("can-map",function(baseConnect){
 

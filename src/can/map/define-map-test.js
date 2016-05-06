@@ -39,7 +39,7 @@ var logErrorAndStart = function(e){
 };
 var cleanUndefineds = function(obj) {
 	if(Array.isArray(obj)) {
-		return obj.map(cleanUndefineds)
+		return obj.map(cleanUndefineds);
 	} else {
 		var res = {};
 		for(var prop in obj) {
