@@ -23,7 +23,6 @@ connect.superMap = function(options){
 		"can-map",
 		"constructor-store",
 		"data-callbacks",
-		"data-callbacks-cache",
 		"data-combine-requests",
 		"data-inline-cache",
 		"data-parse",
@@ -39,7 +38,7 @@ connect.superMap = function(options){
 				algebra: options.algebra
 			});
 		}
-		behaviors.push("fall-through-cache");
+		behaviors.push("data-callbacks-cache","fall-through-cache");
 	}
 	options.ajax = $.ajax;
 
