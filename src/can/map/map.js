@@ -1,8 +1,7 @@
+"use strict";
 var each = require("can-util/js/each/each");
 
 var connect = require("can-connect");
-var CanList = require("can-list");
-var CanMap = require("can-map");
 var canBatch = require("can-event/batch/batch");
 var canEvent = require("can-event");
 var ObserveInfo = require("can-observe-info");
@@ -14,13 +13,28 @@ var each = require("can-util/js/each/each");
 var isFunction = require("can-util/js/is-function/is-function");
 var dev = require("can-util/js/dev/dev");
 
+var setExpando = function(map, prop, value) {
+	if("attr" in map) {
+		map[prop] = value;
+	} else {
+		map._data[prop] = value;
+	}
+};
+var getExpando = function(map, prop) {
+	if("attr" in map) {
+		return map[prop];
+	} else {
+		return map._data[prop];
+	}
+};
+
 module.exports = connect.behavior("can-map",function(baseConnect){
 
 	// overwrite
 	var behavior = {
 		init: function(){
-			this.Map = this.Map || CanMap.extend({});
-			this.List = this.List || CanList.extend({});
+			this.Map = this.Map || types.DefaultMap.extend({});
+			this.List = this.List || types.DefaultList.extend({});
 			overwrite(this, this.Map, mapOverwrites, mapStaticOverwrites);
 			overwrite(this, this.List, listPrototypeOverwrites, listStaticOverwrites);
 			baseConnect.init.apply(this, arguments);
@@ -43,7 +57,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 */
 		id: function(instance) {
 
-			if(instance instanceof CanMap) {
+			if(!isPlainObject(instance)) {
 				var ids = [],
 					algebra = this.algebra;
 
@@ -162,7 +176,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *   creates the base `CanMap`.
 		 */
 		instance: function(props){
-			var _Map = this.Map || CanMap;
+			var _Map = this.Map || types.DefaultMap;
 			return new _Map(props);
 		},
 		/**
@@ -184,7 +198,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 *   @return {List}
 		 */
 		list: function(listData, set){
-			var _List = this.List || (this.Map && this.Map.List) || CanList;
+			var _List = this.List || (this.Map && this.Map.List) || types.DefaultList;
 			var list = new _List(listData.data);
 			each(listData, function (val, prop) {
 				if (prop !== 'data') {
@@ -211,10 +225,10 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			return res;
 		},
 		save: function(instance){
-			instance._saving = true;
+			setExpando(instance, "_saving", true);
 			canBatch.trigger.call(instance, "_saving", [true, false]);
 			var done = function(){
-				instance._saving = false;
+				setExpando(instance, "_saving", false);
 				canBatch.trigger.call(instance, "_saving", [false, true]);
 			};
 			var base = baseConnect.save.apply(this, arguments);
@@ -222,10 +236,10 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			return base;
 		},
 		destroy: function(instance){
-			instance._destroying = true;
+			setExpando(instance, "_destroying", true);
 			canBatch.trigger.call(instance, "_destroying", [true, false]);
 			var done = function(){
-				instance._destroying = false;
+				setExpando(instance, "_destroying", false);
 				canBatch.trigger.call(instance, "_destroying", [false, true]);
 			};
 			var base = baseConnect.destroy.apply(this, arguments);
@@ -279,7 +293,16 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
-				instance.attr(isFunction(props.attr) ? props.attr() : props, this.constructor.removeAttr || false);
+				if("attr" in instance) {
+					instance.attr(isFunction(props.attr) ? props.attr() : props, this.constructor.removeAttr || false);
+				} else {
+					canBatch.start();
+					each(props, function(value, prop){
+						instance[prop] = value;
+					});
+					canBatch.stop();
+				}
+
 			}
 
 			// triggers change event that bubble's like
@@ -289,7 +312,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			canEvent.dispatch.call(instance, {type:funcName, target: instance});
 
 			//!steal-remove-start
-			dev.log("Model.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
+			dev.log("can-connect/can/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class
@@ -461,7 +484,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 */
 		return function () {
 			ObserveInfo.observe(this,"_saving");
-			return !!this._saving;
+			return !!getExpando(this, "_saving");
 		};
 	},
 	isDestroying: function (base, connection) {
@@ -479,7 +502,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 */
 		return function () {
 			ObserveInfo.observe(this,"_destroying");
-			return !!this._destroying;
+			return !!getExpando(this, "_destroying");
 		};
 	},
 	save: function (base, connection) {
@@ -596,13 +619,17 @@ var listPrototypeOverwrites = {
 	_eventSetup: function (base, connection) {
 		return function(){
 			connection.addListReference(this);
-			return base.apply(this, arguments);
+			if(base) {
+				return base.apply(this, arguments);
+			}
 		};
 	},
 	_eventTeardown: function (base, connection) {
 		return function(){
 			connection.deleteListReference(this);
-			return base.apply(this, arguments);
+			if(base) {
+				return base.apply(this, arguments);
+			}
 		};
 	}
 };
@@ -620,10 +647,21 @@ var listStaticOverwrites = {
 };
 
 var readObservabe = function(instance, prop){
-	if(callCanReadingOnIdRead) {
-		ObserveInfo.observe(instance, prop);
+	if("__get" in instance) {
+		if(callCanReadingOnIdRead) {
+			ObserveInfo.observe(instance, prop);
+		}
+		return instance.__get(prop);
+	} else {
+		if(callCanReadingOnIdRead) {
+			return instance[prop];
+		} else {
+			return ObserveInfo.notObserve(function(){
+				return instance[prop];
+			})();
+		}
 	}
-	return instance.__get(prop);
+
 };
 
 var overwrite = function( connection, Constructor, prototype, statics) {

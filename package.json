@@ -1,19 +1,19 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.1",
+  "version": "0.6.0-pre.2",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
     "can-compute": "^3.0.0-pre.2",
-    "can-define": "^0.6.0",
-    "can-event": "^3.0.0-pre.3",
+    "can-define": "^0.6.5",
     "can-list": "^3.0.0-pre.1",
     "can-map": "^3.0.0-pre.2",
+    "can-event": "^3.0.0-pre.3",
     "can-observe-info": "^3.0.0-pre.5",
     "can-set": "^0.6.0-pre.3",
     "can-stache": "^3.0.0-pre.1",
     "can-stache-bindings": "^3.0.0-pre.1",
-    "can-util": "^3.0.0-pre.12",
+    "can-util": "^3.0.0-pre.14",
     "can-view-callbacks": "^3.0.0-pre.1",
     "can-view-nodelist": "^3.0.0-pre.1",
     "jquery": "^2.1.4",
@@ -25,6 +25,7 @@
     "url": "https://github.com/canjs/can-connect.git"
   },
   "devDependencies": {
+    "can-define": "^0.6.3",
     "can-fixture": "^0.1.0",
     "can-wait": "^0.2.0",
     "documentjs": "^0.4.4",
