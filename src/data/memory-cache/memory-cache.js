@@ -310,7 +310,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				}
 			});
 
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -355,7 +355,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			});
 
 
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -385,7 +385,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			});
 			var id = this.id(props);
 			delete this._instances[id];
-			return Promise.resolve({});
+			return Promise.resolve(assign({},props));
 		}
 	};
 

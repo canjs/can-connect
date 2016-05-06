@@ -49,7 +49,7 @@ module.exports = connect.behavior("data-callbacks-cache",function(baseConnect){
 		behavior[dataCallbackName] = function(data, set, cid){
 
 			// update the data in the cache
-			this.cacheConnection[cacheCallback]( assign({}, data) );
+			this.cacheConnection[cacheCallback]( assign(assign({}, set), data) );
 
 			return baseConnect[dataCallbackName].call(this,  data, set, cid);
 		};
