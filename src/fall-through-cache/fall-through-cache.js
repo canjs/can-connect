@@ -67,10 +67,7 @@
  * updated after about a second.
  *
  */
-var getItems = require("../helpers/get-items");
 var connect = require("can-connect");
-var canSet = require("can-set");
-
 var sortedSetJSON = require("../helpers/sorted-set-json");
 
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
@@ -101,7 +98,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			if(this._getHydrateListCallbacks[id]) {
 				this._getHydrateListCallbacks[id].shift()(list);
 				if(!this._getHydrateListCallbacks[id].length){
-					delete this._getHydrateListCallbacks[id]
+					delete this._getHydrateListCallbacks[id];
 				}
 			}
 			return list;
@@ -110,7 +107,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		_getHydrateList: function(set, callback){
 			var id = sortedSetJSON( set );
 			if(!this._getHydrateListCallbacks[id]) {
-				this._getHydrateListCallbacks[id]= []
+				this._getHydrateListCallbacks[id]= [];
 			}
 			this._getHydrateListCallbacks[id].push(callback);
 		},
@@ -206,7 +203,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			if(this._getMakeInstanceCallbacks[id]) {
 				this._getMakeInstanceCallbacks[id].shift()(instance);
 				if(!this._getMakeInstanceCallbacks[id].length){
-					delete this._getMakeInstanceCallbacks[id]
+					delete this._getMakeInstanceCallbacks[id];
 				}
 			}
 			return instance;

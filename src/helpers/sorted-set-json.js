@@ -1,10 +1,9 @@
-var helpers = require("./helpers");
-var forEach = helpers.forEach;
-var keys = helpers.keys;
+var forEach = [].forEach;
+var keys = Object.keys;
 
 module.exports = function(set){
 	if(set == null) {
-		return set
+		return set;
 	} else {
 		var sorted = {};
 		forEach.call(keys(set).sort(), function(prop){

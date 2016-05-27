@@ -1,14 +1,15 @@
-
 var QUnit = require("steal-qunit");
 var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
 require("when/es6-shim/Promise");
-var map = require("can-connect/helpers/").map;
+var map = [].map;
 
 var set = require("can-set");
 
-var getId = function(d){ return d.id};
+var getId = function(d) {
+	return d.id;
+};
 
 QUnit.module("can-connect/cache-requests",{
 	setup: function(){

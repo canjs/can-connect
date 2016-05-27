@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var Map = require("can/map/map");
+var Map = require("can-map");
 var superMap = require("can-connect/can/super-map/");
 
 QUnit.module("can-connect/can/super-map");
@@ -54,4 +54,31 @@ QUnit.test("creates map if none is provided (#8)", function(){
 	});
 
 
+});
+
+QUnit.test("allow other caches (#59)", function(){
+
+	var cacheConnection = {
+		getData: function(){
+			ok(true, "called this cacheConnection");
+			return Promise.resolve({id: 5});
+		}
+	};
+
+	var connection = superMap({
+		url: "/api/restaurants",
+		name: "restaurant",
+		cacheConnection: cacheConnection
+	});
+
+	fixture({
+		"GET /api/restaurants/{_id}": function(request){
+			return {id: 5};
+		}
+	});
+
+	stop();
+	connection.getData({_id: 5}).then(function(data){
+		start();
+	});
 });

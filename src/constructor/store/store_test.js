@@ -1,13 +1,13 @@
 var QUnit = require("steal-qunit");
-var canSet = require("can-set");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 
 var constructor = require("can-connect/constructor/");
 var instanceStore = require("can-connect/constructor/store/");
 var connect = require("can-connect/can-connect");
-var forEach = require("can-connect/helpers/").forEach;
 var testHelpers = require("can-connect/test-helpers");
+var assign = require("can-util/js/assign/assign");
+
 require("when/es6-shim/Promise");
 
 
@@ -44,9 +44,9 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 	fixture.delay = 1;
 
 	var Person = function(values){
-		canSet.helpers.extend(this, values);
+		assign(this, values);
 	};
-	PersonList = function(people){
+	var PersonList = function(people){
 		var listed = people.slice(0);
 		listed.isList = true;
 		return listed;
@@ -85,7 +85,7 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 			peopleConnection.deleteInstanceReference(person);
 
 			peopleConnection.getList({}).then(function(people){
-				ok(people[0] != person, "not the same instances");
+				ok(people[0] !== person, "not the same instances");
 				equal(people[0].age, 32, "age property from data");
 				ok(!people[0].name, "does not have name");
 				start();
@@ -97,9 +97,9 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 
 QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	var Person = function(values){
-		canSet.helpers.extend(this, values);
+		assign(this, values);
 	};
-	PersonList = function(people, sets){
+	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
 		listed.__listSet = sets;
@@ -167,9 +167,9 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 
 QUnit.test("list's without a listSet are not added to the store", function(){
 	var Person = function(values){
-		canSet.helpers.extend(this, values);
+		assign(this, values);
 	};
-	PersonList = function(people, sets){
+	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
 		listed.__listSet = sets;
@@ -204,10 +204,10 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 	});
 
 	connection.addListReference([]);
-	forEach.call(connection.listStore, function(){
+	connection.listStore.forEach(function(){
 		ok(false);
 	});
-	QUnit.expect(0)
+	QUnit.expect(0);
 
 
 });

@@ -7,8 +7,7 @@ require("can-connect/data/callbacks/");
 require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
-var helpers = require("can-connect/helpers/");
-var indexOf = helpers.indexOf;
+var assign = require("can-util/js/assign/assign");
 
 require("when/es6-shim/Promise");
 
@@ -22,7 +21,6 @@ var later = function(fn){
 };
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -57,7 +55,6 @@ QUnit.test("basics", function(){
 				return base.updatedInstance.apply(this, arguments);
 			},
 			destroyedInstance: function(){
-				console.log("destroyInstance")
 				return base.destroyedInstance.apply(this, arguments);
 			},
 			updatedList: function(list, updated){
@@ -84,7 +81,6 @@ QUnit.test("basics", function(){
 					return testHelpers.asyncResolve({id: 10});
 				} else {
 					ok(false, "bad state!");
-					debugger;
 					start();
 				}
 
@@ -95,10 +91,9 @@ QUnit.test("basics", function(){
 				if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 					state.next();
 					// todo change to all props
-					return testHelpers.asyncResolve(helpers.extend({},props));
+					return testHelpers.asyncResolve(assign({},props));
 				} else {
 					ok(false, "bad state!");
-					debugger;
 					start();
 				}
 			},
@@ -106,7 +101,7 @@ QUnit.test("basics", function(){
 				if(state.get() === "destroyData-important-1") {
 					state.next();
 					// todo change to all props
-					return testHelpers.asyncResolve(helpers.extend({destroyed:  1},props));
+					return testHelpers.asyncResolve(assign({destroyed:  1},props));
 				}
 			}
 		};
@@ -144,18 +139,18 @@ QUnit.test("basics", function(){
 	var created;
 	function checkLists() {
 		created = connection.instanceStore.get(10);
-		ok( indexOf.call(importantList, created) >= 0, "in important");
-		ok( indexOf.call(todayList, created) >= 0, "in today");
+		ok( importantList.indexOf(created) >= 0, "in important");
+		ok( todayList.indexOf( created) >= 0, "in today");
 		setTimeout(serverSideDuplicateCreate, 1);
 
 	}
 
 	function serverSideDuplicateCreate(){
-		connection.createInstance({id: 10, due: "today", id: 10, type: "important"}).then(function(createdInstance){
+		connection.createInstance({id: 10, due: "today", type: "important"}).then(function(createdInstance){
 			equal(createdInstance, created);
 
-			ok( indexOf.call(importantList, created) >= 0, "in important");
-			ok( indexOf.call(todayList, created) >= 0, "in today");
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
 
 			equal(importantList.length, 3, "items stays the same");
 			setTimeout(update1, 1);
@@ -167,10 +162,10 @@ QUnit.test("basics", function(){
 		connection.save(created).then(later(checkLists2), logErrorAndStart);
 	}
 	function checkLists2() {
-		ok( indexOf.call(importantList, created) >= 0, "still in important");
-		equal( indexOf.call(todayList, created) , -1, "removed from today");
+		ok( importantList.indexOf(created) >= 0, "still in important");
+		equal( todayList.indexOf(created) , -1, "removed from today");
 		update2();
-	};
+	}
 
 	function update2() {
 		delete created.type;
@@ -178,8 +173,8 @@ QUnit.test("basics", function(){
 		connection.save(created).then(later(checkLists3), logErrorAndStart);
 	}
 	function checkLists3() {
-		equal( indexOf.call(importantList, created),  -1, "removed from important");
-		ok( indexOf.call(todayList, created) >= 1, "added to today");
+		equal( importantList.indexOf(created),  -1, "removed from important");
+		ok( todayList.indexOf(created) >= 1, "added to today");
 		serverSideUpdate();
 	}
 
@@ -192,8 +187,8 @@ QUnit.test("basics", function(){
 			id: 10
 		}).then(function(instance){
 			equal(created, instance);
-			ok( indexOf.call(importantList, created) >= 0, "in important");
-			ok( indexOf.call(todayList, created) >= 0, "in today");
+			ok( importantList.indexOf(created) >= 0, "in important");
+			ok( todayList.indexOf(created) >= 0, "in today");
 			destroyItem();
 		});
 
@@ -208,7 +203,7 @@ QUnit.test("basics", function(){
 	}
 
 	function checkLists4(){
-		equal( indexOf.call(importantList, firstImportant), -1, "in important");
+		equal( importantList.indexOf(firstImportant), -1, "in important");
 		serverSideDestroy();
 	}
 
@@ -219,8 +214,8 @@ QUnit.test("basics", function(){
 			createId: 1,
 			id: 10
 		}).then(function(instance){
-			equal( indexOf.call(importantList, created), -1, "still in important");
-			equal( indexOf.call(todayList, created) , -1, "removed from today");
+			equal( importantList.indexOf(created), -1, "still in important");
+			equal( todayList.indexOf(created) , -1, "removed from today");
 			start();
 		});
 
@@ -258,7 +253,7 @@ test("sorting by id works", function(){
 	function createInstance(){
 		connection.createInstance({id: 2, name: "a"}).then(function(){
 			setTimeout(checkList,1);
-		})
+		});
 	}
 	function checkList(){
 		var itemsCopy = items.slice(0);
@@ -294,7 +289,7 @@ test("sorting by sort clause works with updates", function(){
 		connection.addListReference(list);
 		list.forEach(function(instance){
 			connection.addInstanceReference(instance);
-		})
+		});
 		setTimeout(updateInstance,1);
 
 	});
@@ -302,7 +297,7 @@ test("sorting by sort clause works with updates", function(){
 	function updateInstance(){
 		connection.updateInstance({id: 3, name: "p"}).then(function(){
 			setTimeout(checkList,1);
-		})
+		});
 	}
 	function checkList(){
 		deepEqual(listItems, [{id: 1, name:"d"}, {id: 4, name:"m"}, {id: 3, name:"p"}, {id: 5, name:"s"}]);

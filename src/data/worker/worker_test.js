@@ -3,7 +3,6 @@ var workerBehavior = require("can-connect/data/worker/");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -11,17 +10,17 @@ var logErrorAndStart = function(e){
 
 QUnit.module("can-connect/data-worker",{
 	setup: function(){
-		
+
 	}
 });
 
 QUnit.test("getListData", function(){
-	
+
 	var connection = connect([workerBehavior],{
 		name: "todos",
 		worker: new Worker( System.stealURL+"?main=src/data/worker/worker-main_test" )
 	});
-	
+
 
 	stop();
 	connection.getListData({foo: "bar"})
@@ -29,7 +28,7 @@ QUnit.test("getListData", function(){
 			deepEqual(listData,{data: [{id: 1},{id: 2}]}, "got back data");
 			start();
 		}, logErrorAndStart);
-	
+
 });
 
 

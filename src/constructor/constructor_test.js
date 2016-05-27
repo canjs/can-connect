@@ -1,11 +1,11 @@
 var QUnit = require("steal-qunit");
-var canSet = require("can-set");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var connect = require("can-connect/can-connect");
 var constructor = require("can-connect/constructor/");
+var assign = require("can-util/js/assign/assign");
+
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -58,9 +58,9 @@ QUnit.module("can-connect/constructor",{
 QUnit.test("basics", function(){
 
 	var Person = function(values){
-		canSet.helpers.extend(this, values);
+		assign(this, values);
 	};
-	PersonList = function(people){
+	var PersonList = function(people){
 		var listed = people.slice(0);
 		listed.isList = true;
 		return listed;

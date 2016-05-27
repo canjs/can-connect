@@ -6,7 +6,6 @@ var canSet = require("can-set");
 require("when/es6-shim/Promise");
 
 var logErrorAndStart = function(e){
-	debugger;
 	ok(false,"Error "+e);
 	start();
 };
@@ -277,7 +276,7 @@ QUnit.test("using algebra (#72)", function(){
 				QUnit.equal(items.data.length, 1, "still have the item");
 				QUnit.start();
 			});
-		})
+		});
 	});
 });
 

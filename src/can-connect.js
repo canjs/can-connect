@@ -1,4 +1,4 @@
-var helpers = require("./helpers/");
+var assign = require("can-util/js/assign/assign");
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -7,10 +7,10 @@ var helpers = require("./helpers/");
  */
 var connect = function(behaviors, options){
 
-	behaviors = helpers.map.call(behaviors, function(behavior, index){
+	behaviors = behaviors.map(function(behavior, index){
 		var sortedIndex;
 		if(typeof behavior === "string") {
-			sortedIndex = helpers.indexOf.call(connect.order, behavior);
+			sortedIndex = connect.order.indexOf(behavior);
 			behavior = behaviorsMap[behavior];
 		} else if(behavior.isBehavior) {
 
@@ -30,15 +30,15 @@ var connect = function(behaviors, options){
 				return b1.sortedIndex - b2.sortedIndex;
 			}
 			return b1.originalIndex - b2.originalIndex;
-		})
+		});
 
-	behaviors = helpers.map.call(behaviors, function(b){
+	behaviors = behaviors.map(function(b){
 		return b.behavior;
 	});
 
 	var behavior = core( connect.behavior("options",function(){return options; })() );
 
-	helpers.forEach.call(behaviors, function(behave){
+	behaviors.forEach(function(behave){
 		behavior = behave(behavior);
 	});
 	if(behavior.init) {
@@ -67,10 +67,10 @@ connect.behavior = function(name, behavior){
 		var Behavior = function(){};
 		Behavior.name = name;
 		Behavior.prototype = base;
-		var newBehavior = new Behavior;
+		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function
 		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
-		helpers.extend(newBehavior, res);
+		assign(newBehavior, res);
 		newBehavior.__behaviorName = name;
 		return newBehavior;
 	};
@@ -118,7 +118,8 @@ var core = connect.behavior("base",function(base){
 		 *
 		 * @signature `connection.id(instance)`
 		 *
-		 *   Returns the [connect.base.idProp] if it exists, otherwise the `id` property.
+		 *   Returns the [connect.base.idProp] if it exists, otherwise the [connect.base.algebra]'s
+		 *   id values, otherwise the `id` property.
 		 *
 		 *   @param {Instance|Object} instance The instance or raw `props` for an instance.
 		 *
@@ -139,7 +140,17 @@ var core = connect.behavior("base",function(base){
 		 * {_id: 5, name: "do the dishes"}
 		 * ```
 		 *
-		 * In this case [connect.base.idProp] should be set to `"_id"`.  However,
+		 * In this case, [connect.base.algebra]'s `id` comparator should be set to
+		 * "_id" like:
+		 *
+		 * ```
+		 * var algebra = new set.Algebra({
+		 *   set.comparators.id("_id")
+	 	 * });
+		 * connect([...],{algebra: algebra});
+		 * ```
+		 *
+		 * However,
 		 * some data sources have compound ids.  For example, "Class Assignment"
 		 * connection might be represented by two properties, the `studentId` and the
 		 * `classId`.  For this kind of setup, you can provide your own id function as
@@ -153,14 +164,34 @@ var core = connect.behavior("base",function(base){
 		 *   }
 		 * });
 		 * ```
-		 *
 		 */
 		id: function(instance){
-			return instance[this.idProp || "id"];
+			var ids = [],
+				algebra = this.algebra;
+
+			if(algebra && algebra.clauses && algebra.clauses.id) {
+				for(var prop in algebra.clauses.id) {
+					ids.push(instance[prop]);
+				}
+			}
+
+			if(this.idProp && !ids.length) {
+				ids.push(instance[this.idProp]);
+			}
+			if(!ids.length) {
+				ids.push(instance.id);
+			}
+
+			// Join with something unlikely to be matched.
+			// TODO: provide a way to supply join
+			return ids.length > 1 ? ids.join("@|@"): ids[0];
 		},
 		/**
 		 * @property {String} connect.base.idProp idProp
 		 * @parent connect.base
+		 *
+		 * @deprecated {0.5.3} Instead of specifying hte idProp it should be
+		 * set on the algebra passed to the connection.
 		 *
 		 * Specifies the property that uniquely identifies an instance.
 		 *

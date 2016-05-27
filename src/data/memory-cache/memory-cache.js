@@ -34,21 +34,9 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 var overwrite = require("can-connect/helpers/overwrite");
-var helpers = require("can-connect/helpers/");
-
-var indexOf = function(connection, props, items){
-	var id = connection.id(props);
-	for(var i = 0; i < items.length; i++) {
-		if( id == connection.id(items[i]) ) {
-			return i;
-		}
-	}
-	return -1;
-};
-
-var setAdd = function(set, items, item, algebra){
-	return items.concat([item]);
-};
+var setAdd = require("can-connect/helpers/set-add");
+var indexOf = require("can-connect/helpers/get-index-by-id");
+var assign = require("can-util/js/assign/assign");
 
 module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
@@ -58,7 +46,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			return this._sets;
 		},
 
-		_getListData: function(set){
+		__getListData: function(set){
 			var setsData = this.getSetData();
 			var setData = setsData[sortedSetJSON(set)];
 			if(setData) {
@@ -98,7 +86,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 					var oldSetKey = setDatum.setKey;
 					sets[newSetKey] = setDatum;
 					setDatum.setKey = newSetKey;
-					setDatum.set = helpers.extend({},newSet);
+					setDatum.set = assign({},newSet);
 					// remove the old one
 					this.removeSet(oldSetKey);
 				}
@@ -109,7 +97,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			// save objects and ids
 			var self = this;
 
-			var ids = helpers.forEach.call(items, function(item){
+			items.forEach(function(item){
 				self.updateInstance(item);
 			});
 		},
@@ -121,12 +109,12 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			sets[setKey] = {
 				setKey: setKey,
 				items: items,
-				set: helpers.extend({},set)
+				set: assign({},set)
 			};
 
 			var self = this;
 
-			var ids = helpers.forEach.call(items, function(item){
+			items.forEach(function(item){
 				self.updateInstance(item);
 			});
 			this.updateSets();
@@ -217,20 +205,25 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 */
 		getListData: function(set){
 			set = set || {};
-			var sets = this._getSets();
-
-			for(var i = 0; i < sets.length; i++) {
-				var checkSet = sets[i];
-
-				if( canSet.subset(set, checkSet, this.algebra) ) {
-					var items = canSet.getSubset(set, checkSet, this._getListData(checkSet), this.algebra);
-					return Promise.resolve({data: items});
-				}
+			var listData = this._getListData(set);
+			if(listData) {
+				return Promise.resolve(listData);
 			}
 			return Promise.reject({message: "no data", error: 404});
 
 		},
+		// a sync method used by can-fixture.
+		_getListData: function(set){
+			var sets = this._getSets();
+			for(var i = 0; i < sets.length; i++) {
+				var checkSet = sets[i];
 
+				if( canSet.subset(set, checkSet, this.algebra) ) {
+					var items = canSet.getSubset(set, checkSet, this.__getListData(checkSet), this.algebra);
+					return {data: items};
+				}
+			}
+		},
 		/**
 		 * @function can-connect/data/memory-cache.updateListData updateListData
 		 * @parent can-connect/data/memory-cache.data-methods
@@ -257,7 +250,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				var union = canSet.union(setDatum.set, set, this.algebra);
 				if(union) {
 					// copies so we don't pass the same set object
-					var getSet = helpers.extend({},setDatum.set);
+					var getSet = assign({},setDatum.set);
 					return this.getListData(getSet).then(function(setData){
 
 						self.updateSet(setDatum, canSet.getUnion(getSet, set, getItems(setData), items, self.algebra), union);
@@ -315,11 +308,11 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
 			this._eachSet(function(setDatum, setKey, getItems){
 				if(canSet.has(setDatum.set, instance, this.algebra)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra), setDatum.set);
+					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra), setDatum.set);
 				}
 			});
 
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -346,17 +339,17 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				if( canSet.subset(instance, setDatum.set, this.algebra) ) {
 
 					// if it's not in, add it
-					if(index == -1) {
+					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), instance, this.algebra) );
+						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, instance);
 						self.updateSet(setDatum, items);
 					}
 
-				} else if(index != -1){
+				} else if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
@@ -364,7 +357,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			});
 
 
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -386,7 +379,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 				var items = getItems();
 				var index = indexOf(self, props, items);
 
-				if(index != -1){
+				if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
@@ -394,7 +387,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			});
 			var id = this.id(props);
 			delete this._instances[id];
-			return Promise.resolve({});
+			return Promise.resolve(assign({},props));
 		}
 	};
 

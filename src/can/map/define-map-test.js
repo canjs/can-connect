@@ -1,7 +1,7 @@
 var set = require("can-set");
 var $ = require("jquery");
-var Map = require("can-map");
-var List = require("can-list");
+var Map = require("can-define/map/map");
+var List = require("can-define/list/list");
 var compute = require("can-compute");
 
 // load connections
@@ -37,15 +37,32 @@ var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();
 };
+var cleanUndefineds = function(obj) {
+	if(Array.isArray(obj)) {
+		return obj.map(cleanUndefineds);
+	} else {
+		var res = {};
+		for(var prop in obj) {
+			if(obj[prop] !== undefined) {
+				res[prop] = obj[prop];
+			}
+		}
+		return res;
+	}
+};
 
-QUnit.module("can-connect/can/map",{
+QUnit.module("can-connect/can/map with define",{
 	setup: function(){
 
 		var Todo = Map.extend({
-
+			id: "*",
+			name: "*",
+			type: "*",
+			due: "*",
+			createdId: "*"
 		});
 		var TodoList = List.extend({
-			Map: Todo
+			"*": Todo
 		});
 		this.Todo = Todo;
 		this.TodoList = TodoList;
@@ -161,7 +178,7 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
-		
+
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);
 
@@ -177,6 +194,7 @@ QUnit.test("real-time super model", function(){
 			createId: 1
 		})).then( function(task){
 			created = task;
+			task.bind("type",bindFunc);
 			setTimeout(checkLists, 1);
 		}, logErrorAndStart);
 	}
@@ -186,7 +204,8 @@ QUnit.test("real-time super model", function(){
 		ok( importantList.indexOf(created) >= 0, "in important");
 		ok( todayList.indexOf(created) >= 0, "in today");
 
-		checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),serverSideDuplicateCreate );
+		checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),
+			serverSideDuplicateCreate );
 	}
 
 
@@ -210,15 +229,15 @@ QUnit.test("real-time super model", function(){
 		connection.createInstance({id: 11, due: "today", createdId: 2, type: "important"}).then(function(createdInstance){
 			serverCreatedInstance = createdInstance;
 
-			ok( importantList.indexOf(createdInstance) >= 0, "in important");
-			ok( todayList.indexOf(createdInstance) >= 0, "in today");
+			ok( importantList.indexOf(createdInstance) >= 0, "ss in important");
+			ok( todayList.indexOf(createdInstance) >= 0, "ss in today");
 
 			checkCache( "cache looks right afer SS create", {type: "important"}, firstItems.concat(created.serialize(), serverCreatedInstance.serialize()), update1 );
 		});
 	}
-
+	// remove due from created
 	function update1() {
-		created.removeAttr("due");
+		created.due = undefined;
 		connection.save(created).then(later(checkLists2), logErrorAndStart);
 	}
 	function checkLists2() {
@@ -226,10 +245,10 @@ QUnit.test("real-time super model", function(){
 		equal( todayList.indexOf(created) , -1, "removed from today");
 		update2();
 	}
-
+	// add due, remove type from created
 	function update2() {
-		created.removeAttr("type");
-		created.attr("due","today");
+		created.type = undefined;
+		created.due = "today";
 		connection.save(created).then(later(checkLists3), logErrorAndStart);
 	}
 	function checkLists3() {
@@ -240,7 +259,7 @@ QUnit.test("real-time super model", function(){
 
 		serverSideUpdate();
 	}
-
+	// an update that adds both
 	function serverSideUpdate(){
 
 		connection.updateInstance({
@@ -259,7 +278,7 @@ QUnit.test("real-time super model", function(){
 
 	}
 
-
+	// do a destroy and then a server-side destroy
 	var firstImportant;
 	function destroyItem(){
 		firstImportant = importantList[0];
@@ -281,7 +300,7 @@ QUnit.test("real-time super model", function(){
 			id: 10
 		}).then(function(instance){
 			equal(instance, created, "got back deleted instance");
-			equal( importantList.indexOf(created), -1, "still in important");
+			equal( importantList.indexOf(created), -1, "even still in important");
 			equal( todayList.indexOf(created) , -1, "removed from today");
 
 			checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
@@ -291,17 +310,18 @@ QUnit.test("real-time super model", function(){
 
 	}
 
+	//
 	function getListDueTodayAgainstCache(){
 		connection.getList({due: "today"}).then(function(updatedTodayList){
 			var added = serverCreatedInstance.serialize();
 			equal(todayList, updatedTodayList, "same todo list returned");
 
-			deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
+			deepEqual( cleanUndefineds(updatedTodayList.serialize()), cleanUndefineds( secondItems.concat([added]) ), "got initial items from cache");
 
 			var batchNum;
 			todayList.bind("length", function(ev){
 				if(!ev.batchNum || ev.batchNum !== batchNum) {
-					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
+					deepEqual( cleanUndefineds( updatedTodayList.serialize() ), secondItems.slice(1), "updated cache");
 					start();
 					batchNum = ev.batchNum;
 				}
@@ -454,9 +474,11 @@ test("findAll and findOne alias", function(){
 });
 
 QUnit.test("reads id from set algebra (#82)", function(){
-	var Todo = Map.extend({});
+	var Todo = Map.extend({
+		_id: "*"
+	});
 	var TodoList = List.extend({
-		Map: Todo
+		"*": Todo
 	});
 
 

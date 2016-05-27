@@ -12,7 +12,8 @@ var observer = new MutationObserver( function(mutations){
 });
 
 observer.observe(document.documentElement, {childList: true, subtree: true});
-var removeHandlers = new Map();
+
+var removeHandlers = new Map(); // jshint ignore:line
 
 module.exports = function(element, cb){
 	removeHandlers.set(element, cb);

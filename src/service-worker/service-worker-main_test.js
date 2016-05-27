@@ -1,1 +1,1 @@
-var serviceWorkerMain = require("can-connect/service-worker/service-worker-main");
+require("can-connect/service-worker/service-worker-main");

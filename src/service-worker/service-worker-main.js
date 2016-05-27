@@ -1,14 +1,14 @@
 console.log("WORKER - LISTENING");
 addEventListener("message", function(ev){
-	console.log("WORKER - got message")
-		
+	console.log("WORKER - got message");
+
 	postMessage({
 		type: "response",
 		requestId: ev.data.requestId,
 		response: {data: [{id: 1}, {id: 2}]}
 	});
-	
-	
+
+
 });
 postMessage({
 	type: "ready"

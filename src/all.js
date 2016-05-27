@@ -1,7 +1,6 @@
 var connect = window.connect = require("./can-connect");
 
 connect.cacheRequests = require("./cache-requests/");
-connect.canMap = require("./can/map/");
 
 connect.constructor = require("./constructor/");
 connect.constructorCallbacksOnce = require("./constructor/callbacks-once/");

@@ -3,7 +3,7 @@ var connect = require("can-connect");
 require("when/es6-shim/Promise");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
-var forEach = require("can-connect/helpers/").forEach;
+var forEach = [].forEach;
 
 
 /**
@@ -256,7 +256,3 @@ module.exports = connect.behavior("cache-requests",function(base){
 	};
 
 });
-
-
-
-

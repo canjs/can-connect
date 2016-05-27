@@ -1,16 +1,13 @@
 var QUnit = require("steal-qunit");
-var fallThroughCache = require("can-connect/fall-through-cache/");
-var constructor = require("can-connect/constructor/");
-var store = require("can-connect/constructor/store/");
 var connect = require("can-connect");
-var canSet = require("can-set");
+var map = [].map;
 var testHelpers = require("can-connect/test-helpers");
-var map = require("can-connect/helpers/").map;
 
 require("can-connect/data/callbacks/");
 
-var getId = function(d){ return d.id};
-
+var getId = function(d){
+	return d.id;
+};
 
 QUnit.module("can-connect/fall-through-cache");
 
@@ -34,7 +31,6 @@ QUnit.test("basics", function(){
 
 
 	var cacheConnection = connect([function(){
-		var calls = 0;
 		return {
 			getListData: function(){
 				// nothing here first time
@@ -62,7 +58,6 @@ QUnit.test("basics", function(){
 	}],{});
 
 	var base = function(base, options){
-		var calls = 0;
 		return {
 			getListData: function(){
 				if(state.get() === "base-getListData") {
@@ -132,7 +127,6 @@ QUnit.test("getInstance and getData", function(){
 
 
 	var cacheConnection = connect([function(){
-		var calls = 0;
 		return {
 			getData: function(){
 				// nothing here first time
@@ -160,7 +154,6 @@ QUnit.test("getInstance and getData", function(){
 	}],{});
 
 	var base = function(base, options){
-		var calls = 0;
 		return {
 			getData: function(){
 				if(state.get() === "base-getData") {

@@ -44,25 +44,12 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");
 require("when/es6-shim/Promise");
-var helpers = require("can-connect/helpers/");
-var forEach = helpers.forEach;
-var map = helpers.map;
-
-//
-var indexOf = function(connection, props, items){
-	var id = connection.id(props);
-	for(var i = 0; i < items.length; i++) {
-		if( id == connection.id(items[i]) ) {
-			return i;
-		}
-	}
-	return -1;
-};
-
-var setAdd = function(set, items, item, algebra){
-	return items.concat([item]);
-};
-
+var forEach = [].forEach;
+var map = [].map;
+var setAdd = require("can-connect/helpers/set-add");
+var indexOf = require("can-connect/helpers/get-index-by-id");
+var assign = require("can-util/js/assign/assign");
+var overwrite = require("can-connect/helpers/overwrite");
 
 module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
 
@@ -107,6 +94,18 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 				}
 			//}
 			//return this._instances[id];
+		},
+		updateInstance: function(props) {
+			var id = this.id(props);
+			var instance = this.getInstance(id);
+			if(!instance) {
+				instance = props;
+			} else {
+				overwrite(instance, props, this.idProp);
+			}
+			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(instance) );
+
+			return instance;
 		},
 		getInstances: function(ids){
 			var self = this;
@@ -390,15 +389,14 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 */
 		createData: function(props){
 			var self = this;
+			var instance = this.updateInstance(props);
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.has(setDatum.set, props, this.algebra)) {
-					self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra), setDatum.set);
+				if(canSet.has(setDatum.set, instance, this.algebra)) {
+					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra), setDatum.set);
 				}
 			});
-			var id = this.id(props);
-			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -414,36 +412,34 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 */
 		updateData: function(props){
 			var self = this;
+			var instance = this.updateInstance(props);
 			// for now go through every set, if this belongs, add it or update it, otherwise remove it
 			this._eachSet(function(setDatum, setKey, getItems){
-				// if props belongs
+				// if instance belongs
 				var items = getItems();
-				var index = indexOf(self, props, items);
+				var index = indexOf(self, instance, items);
 
-				if(canSet.has(setDatum.set, props, this.algebra)) {
+				if(canSet.has(setDatum.set, instance, this.algebra)) {
 
 					// if it's not in, add it
-					if(index == -1) {
+					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(setDatum.set,  getItems(), props, this.algebra) );
+						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra) );
 					} else {
 						// otherwise add it
-						items.splice(index,1, props);
+						items.splice(index,1, instance);
 						self.updateSet(setDatum, items);
 					}
 
-				} else if(index != -1){
+				} else if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
 				}
 			});
-			var id = this.id(props);
 
-			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(props));
-
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		},
 
 		/**
@@ -459,21 +455,22 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 */
 		destroyData: function(props){
 			var self = this;
+			var instance = this.updateInstance(props);
 			// for now go through every set, if this belongs, add it or update it, otherwise remove it
 			this._eachSet(function(setDatum, setKey, getItems){
 				// if props belongs
 				var items = getItems();
-				var index = indexOf(self, props, items);
+				var index = indexOf(self, instance, items);
 
-				if(index != -1){
+				if(index !== -1){
 					// otherwise remove it
 					items.splice(index,1);
 					self.updateSet(setDatum, items);
 				}
 			});
-			var id = this.id(props);
+			var id = this.id(instance);
 			localStorage.removeItem(this.name+"/instance/"+id);
-			return Promise.resolve({});
+			return Promise.resolve(assign({},instance));
 		}
 	};
 

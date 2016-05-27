@@ -14,7 +14,7 @@
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var helpers = require("can-connect/helpers/");
+var forEach = [].forEach;
 
 // wires up the following methods
 var callbacks = [
@@ -55,7 +55,7 @@ module.exports = connect.behavior("constructor-callbacks-once",function(baseConn
 	};
 
 	// overwrites createData to createdData
-	helpers.forEach.call(callbacks, function(name){
+	forEach.call(callbacks, function(name){
 		behavior[name] = function(instance, data ){
 
 			var lastSerialized = this.getInstanceMetaData(instance, "last-data");

@@ -1,5 +1,5 @@
-var helpers = require("can-connect/helpers/");
-
+ var each = require("can-util/js/each/each");
+ 
 module.exports = addToCanWaitData;
 
 function sortedSetJson(set){
@@ -13,7 +13,7 @@ function sortedSetJson(set){
 			keys.push(k);
 		}
 		keys.sort();
-		helpers.each(keys, function(prop){
+		each(keys, function(prop){
 			sorted[prop] = set[prop];
 		});
 		return JSON.stringify(sorted);

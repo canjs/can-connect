@@ -24,7 +24,11 @@ stealTools.export({
 			}
 		},
 		"+amd": {},
-		"+global-js": {}
+		"+global-js": {
+			exports: {
+				"jquery": "jQuery"
+			}
+		}
 	}
 }).then(function(){
 	

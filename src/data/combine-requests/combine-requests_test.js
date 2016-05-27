@@ -1,15 +1,16 @@
 
 var QUnit = require("steal-qunit");
-var persist = require("can-connect/data/url/");
 var combineRequests = require("can-connect/data/combine-requests/");
 var set = require("can-set");
 require("when/es6-shim/Promise");
-var map = require("can-connect/helpers/").map;
+var map = [].map;
 
-var getId = function(d){ return d.id};
+var getId = function(d){
+	return d.id;
+};
 
 
-QUnit.module("can-connect/combine_requests",{
+QUnit.module("can-connect/combine-requests",{
 	setup: function(){
 	}
 });
@@ -49,6 +50,9 @@ QUnit.test("basics", function(){
 		deepEqual(map.call(res1.data, getId), [1,3,5]);
 		deepEqual(map.call(res2.data, getId), [1,2]);
 		deepEqual(map.call(res3.data, getId), [1,2,3,4,5,6]);
+		start();
+	}, function(error){
+		ok(false, error);
 		start();
 	});
 });

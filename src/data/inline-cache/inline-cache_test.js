@@ -1,15 +1,12 @@
 var QUnit = require("steal-qunit");
-var fallThroughCache = require("can-connect/fall-through-cache/");
-var dataInlineCache = require("can-connect/data/inline-cache/");
-var constructor = require("can-connect/constructor/");
-var store = require("can-connect/constructor/store/");
 var connect = require("can-connect");
-var canSet = require("can-set");
 var testHelpers = require("can-connect/test-helpers");
 require("can-connect/data/callbacks/");
-var helpers = require("can-connect/helpers/");
+var map = [].map;
 
-var getId = function(d){ return d.id};
+var getId = function(d){
+	return d.id;
+};
 
 QUnit.module("can-connect/data-inline-cache");
 
@@ -39,7 +36,6 @@ QUnit.test("basics", function(){
 
 
 	var cacheConnection = connect([function(){
-		var calls = 0;
 		return {
 			getListData: function(){
 				// nothing here first time
@@ -67,7 +63,6 @@ QUnit.test("basics", function(){
 	}],{});
 
 	var base = function(base, options){
-		var calls = 0;
 		return {
 			getListData: function(){
 				state.check("base-getListData-2");
@@ -80,7 +75,7 @@ QUnit.test("basics", function(){
 		return {
 			updatedList: function(list, updated){
 				state.check("updatedList");
-				deepEqual( helpers.map.call(updated.data, getId), helpers.map.call(secondItems, getId) );
+				deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
 				start();
 			}
 		};
@@ -94,7 +89,7 @@ QUnit.test("basics", function(){
 	// first time, it takes the whole time
 	connection.getList().then(function( list ){
 		state.check("connection-foundAll");
-		deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
+		deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
@@ -102,7 +97,7 @@ QUnit.test("basics", function(){
 		state.check("connection-getList-2");
 		connection.getList().then(function(list){
 			state.check("connection-foundAll-2");
-			deepEqual( helpers.map.call(list, getId), helpers.map.call(firstItems, getId) );
+			deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);
 	}
 
@@ -113,5 +108,3 @@ QUnit.test("basics", function(){
 	// but then update the list as the request goes out
 
 });
-
-

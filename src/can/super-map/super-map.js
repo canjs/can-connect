@@ -2,7 +2,6 @@ var connect = require("can-connect");
 
 require("../../constructor/");
 require("../map/");
-require("../can");
 require("../../constructor/store/");
 require("../../constructor/callbacks-once/");
 require("../../data/callbacks/");
@@ -15,8 +14,7 @@ require("../../data/url/");
 require("../../fall-through-cache/");
 require("../../real-time/");
 
-var Map = require("can/map/map");
-var List = require("can/list/list");
+var $ = require("jquery");
 
 connect.superMap = function(options){
 
@@ -25,7 +23,6 @@ connect.superMap = function(options){
 		"can-map",
 		"constructor-store",
 		"data-callbacks",
-		"data-callbacks-cache",
 		"data-combine-requests",
 		"data-inline-cache",
 		"data-parse",
@@ -34,12 +31,14 @@ connect.superMap = function(options){
 		"constructor-callbacks-once"];
 
 	if(typeof localStorage !== "undefined") {
-		options.cacheConnection = connect(["data-localstorage-cache"],{
-			name: options.name+"Cache",
-			idProp: options.idProp,
-			algebra: options.algebra
-		});
-		behaviors.push("fall-through-cache");
+		if(!options.cacheConnection) {
+			options.cacheConnection = connect(["data-localstorage-cache"],{
+				name: options.name+"Cache",
+				idProp: options.idProp,
+				algebra: options.algebra
+			});
+		}
+		behaviors.push("data-callbacks-cache","fall-through-cache");
 	}
 	options.ajax = $.ajax;
 
@@ -47,6 +46,3 @@ connect.superMap = function(options){
 };
 
 module.exports = connect.superMap;
-
-
-
