@@ -142,7 +142,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		// if we do getListData, ... we need to register the list that is going to be created
 		// so that when the data is returned, it updates this
 		getListData: function(set){
-
+			set = set || {};
 			var self = this;
 			return this.cacheConnection.getListData(set).then(function(data){
 

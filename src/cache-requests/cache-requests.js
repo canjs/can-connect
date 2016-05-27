@@ -210,7 +210,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 		 * @param {Set} set
 		 */
 		getListData: function(set){
-
+			set = set || {};
 			var self = this;
 
 			return this.cacheConnection.getSets(set).then(function(sets){

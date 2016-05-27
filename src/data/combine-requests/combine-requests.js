@@ -213,6 +213,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 		 *   @param {Object} set
 		 */
 		getListData: function(set){
+			set = set || {};
 			var self = this;
 
 			if(!pendingRequests) {

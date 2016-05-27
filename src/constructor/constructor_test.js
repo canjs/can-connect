@@ -77,7 +77,7 @@ QUnit.test("basics", function(){
 	}) ));
 
 	stop();
-	peopleConnection.getList({}).then(function(people){
+	peopleConnection.getList().then(function(people){
 		ok(people.isList, "is a list");
 		equal(people.length, 1, "got a list");
 		ok(people[0] instanceof Person);
