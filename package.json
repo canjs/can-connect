@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.8",
+  "version": "0.6.0-pre.9",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -50,7 +50,7 @@
       "steal-qunit",
       "can-fixture",
       "can-wait",
-	  "can-define"
+      "can-define"
     ],
     "directories": {
       "lib": "src"
