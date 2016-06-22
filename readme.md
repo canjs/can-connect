@@ -1,4 +1,5 @@
 @page can-connect
+@parent can-core
 @group can-connect.behaviors 1 Behaviors
 @group can-connect.modules 2 Modules
 @group can-connect.types 3 Data Types
@@ -8,7 +9,7 @@
 
 [![Build Status](https://travis-ci.org/canjs/can-connect.png?branch=master)](https://travis-ci.org/canjs/can-connect)
 
-`can-connect` provides persisted data middleware. Use it to assemble powerful model layers for 
+`can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
 any JavaScript framework, not just CanJS.  [Play with it in a JSBin here.](http://jsbin.com/nazewa/edit?html,js)
 
 It currently can:
@@ -26,10 +27,10 @@ Convert data into special types:
 Real time:
 
  - [can-connect/real-time] - Update lists and instances with server side events.
- 
+
 Caching strategies:
 
- - [can-connect/fall-through-cache] - Respond with data from the [connection.cacheConnection] and 
+ - [can-connect/fall-through-cache] - Respond with data from the [connection.cacheConnection] and
    then update the response with data from the `raw CRUD Methods`.
  - [can-connect/data/inline-cache] - Use an inline cache for initial ajax requests.
  - [can-connect/cache-requests] - Save response data and use it for future requests.
@@ -43,19 +44,19 @@ Caching layers:
 The following modules glue certain methods together:
 
  - [can-connect/data/callbacks] - Glues the result of the `raw CRUD Methods` to callbacks.
- - [can-connect/data/callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called. 
+ - [can-connect/data/callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
 
 
 The following modules are useful to CanJS specifically:
 
- - [can-connect/can/map] - Create instances of a special can.Map or can.List type. 
+ - [can-connect/can/map] - Create instances of a special can.Map or can.List type.
  - [can-connect/can/super-map] - Create a connection for a can.Map or can.List that uses almost all the plugins.
  - [can-connect/can/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
  - [can-connect/can/tag] - Create a custom element that can load data into a template.
 
 ## Overview
 
-The "can-connect" module exports a `connect` function that is used to assemble different 
+The "can-connect" module exports a `connect` function that is used to assemble different
 behaviors and some options into a `connection`.  For example, the following uses `connect` and
 the [can-connect/constructor] and [can-connect/data-url] behaviors to create a `todoConnection`
 connection:
@@ -72,8 +73,8 @@ var todoConnection = connect(
   });
 ```
 
-A connection typically provides the ability to 
-create, read, update, or delete (CRUD) some data source. That data source is 
+A connection typically provides the ability to
+create, read, update, or delete (CRUD) some data source. That data source is
 usually accessed through the "Instance Interface" methods:
 
  - [connection.get]
@@ -89,13 +90,13 @@ todoConnection.getList({}).then(function(todos){ ... });
 
 __Behaviors__, like [can-connect/constructor] and [can-connect/data-url] implement,
 extend, or require some set of [interfaces](#section_Interfaces).  For example, data-url implements
-the "Data Interface" methods, and [can-connect/constructor] implements the 
+the "Data Interface" methods, and [can-connect/constructor] implements the
 "Instance Interface" methods.
 
 The `connect` method calls these behaviors in the right order to create a connection. For instance,
 the [can-connect/cache-requests] behavior must be applied after the [can-connect/data-url]
-connection.  This is because [can-connect/cache-requests], overwrites [can-connect/data-url]'s 
-[connection.getListData] first check a cache for the data.  Only if the data is not present, 
+connection.  This is because [can-connect/cache-requests], overwrites [can-connect/data-url]'s
+[connection.getListData] first check a cache for the data.  Only if the data is not present,
 does it call [can-connect/data-url]'s [connection.getListData]. So even if we write:
 
 ```
@@ -107,7 +108,7 @@ or
 ```
 connect(['data-url','cache-requests'])
 ```
- 
+
 ... our connection will be built in the right order!
 
 A __connection__ is just an object with each behavior object on its prototype chain and
@@ -268,28 +269,28 @@ var todo = new Todo({
 todoConnection.save( todo ).then(function(todo){
   todo.id //-> 5
   todo.name = 'take out garbage'
-  
+
   // PUTs to /api/todos/5 name=take out garbage
   // server returns {id: 5, "take out garbage"}
   todoConnection.save( todo ).then( function(todo){
-    
+
     // DELETEs to /api/todos/5
     // server returns {}
     todoConnection.destroy( todo ).then( function(todo){
-    
+
     });
-    
+
   });
-  
+
 });
 ```
 
 ### Configure behaviors
 
-Whenever `connect` creates a connection, it always adds the [connect.base] 
-behavior. This behavior defines configurable options that are used by almost 
-every other behavior.  For example, if your data uses an `_id` property 
-to uniquely identify todos, you 
+Whenever `connect` creates a connection, it always adds the [connect.base]
+behavior. This behavior defines configurable options that are used by almost
+every other behavior.  For example, if your data uses an `_id` property
+to uniquely identify todos, you
 can specify this with [connect.base.idProp] like:
 
 ```
@@ -305,9 +306,9 @@ Other behaviors list their configurable options in their own docs page.
 
 If configurable options are not enough, you can overwrite any behavior with your own behavior.
 
-For example, the `constructor`'s [can-connect/constructor.updatedInstance] behavior 
+For example, the `constructor`'s [can-connect/constructor.updatedInstance] behavior
 sets the instance's properties to match the result of [connection.updateData]. But if
-the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in 
+the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in
 a todo with only an `id` property:
 
 ```
@@ -315,7 +316,7 @@ var todo = new Todo({id: 5, name: "take out garbage"})
 // PUTs to /api/todos/5 name=take out garbage
 // server returns {}
 todoConnection.save( todo ).then( function(todo){
-     
+
   todo.id //-> 5
   todo.name //-> undefined
 });
@@ -333,7 +334,7 @@ var mergeDataBehavior = {
 
 var todoConnection = connect([
     "constructor",
-    "data-url", 
+    "data-url",
     mergeDataBehavior
   ],{
   url: "/api/todos"
@@ -350,7 +351,7 @@ If you are using CanJS, you can either:
 
 - use the [can-connect/can/map] behavior that overwrites
   many methods and settings to work with `can.Map` and `can.List`.
-- use the [can-connect/can/super-map] helper to create a connection that bundles "can/map" and 
+- use the [can-connect/can/super-map] helper to create a connection that bundles "can/map" and
   many of the other extensions.
 
 Using [can-connect/can/map] to create a connection looks like:
@@ -479,7 +480,7 @@ Implemented by [can-connect/constructor]. Overwritten by [data-connect/real-time
 Implemented by [can-connect/constructor]. Overwritten by [can-connect/constructor/store],
 [can-connect/fall-through-cache].
 
-### Data Interface 
+### Data Interface
 
 The raw-data connection methods.  
 
@@ -491,19 +492,19 @@ The raw-data connection methods.
 
 
 `.getData(params) -> Promise<Object>` - Retrieves data for a particular item.  
-`.createData(props, cid) -> Promise<props>` - Creates instance data given the serialized form of the data. 
-  A client ID is passed of the 
+`.createData(props, cid) -> Promise<props>` - Creates instance data given the serialized form of the data.
+  A client ID is passed of the
   instance that is being created.  
-`.updateData(props) -> Promise<props>` - Updates instance data given the 
+`.updateData(props) -> Promise<props>` - Updates instance data given the
   serialized form of the data.  
-`.destroyData(props) -> Promise<props>` - Destroys an instance given the seralized 
+`.destroyData(props) -> Promise<props>` - Destroys an instance given the seralized
 form of the data.  
 
 `.clear() -> Promise` - Clears all data in the connection.
 
-Implemented by [can-connect/data-url], 
-[can-connect/data/localstorage-cache], [can-connect/data/memory-cache]. 
-Overwritten by [can-connect/cache-requests], [can-connect/data/combine-requests], 
+Implemented by [can-connect/data-url],
+[can-connect/data/localstorage-cache], [can-connect/data/memory-cache].
+Overwritten by [can-connect/cache-requests], [can-connect/data/combine-requests],
 [can-connect/data/inline-cache], [can-connect/fall-through-cache].
 Consumed by [can-connect/constructor].  
 
@@ -570,7 +571,7 @@ connect.behavior("localstorage", function(baseBehavior){
     },
     createData: function(props){
       var id = localStorage.getItem(baseBehavior.name+"-ID") || "0";
-      
+
       var nextId = ++JSON.parse( id );
       localStorage.setItem(baseBehavior.name+"-ID"), nextId);
       var id = this.idProp;
