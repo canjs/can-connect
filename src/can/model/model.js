@@ -7,7 +7,7 @@ var $ = require("jquery"),
 	parseData = require("../../data/parse/"),
 	CanMap = require("can-map"),
 	CanList = require("can-list"),
-	ObserveInfo = require("can-observe-info"),
+	Observation = require("can-observation"),
 	canEvent = require("can-event");
 
 var each = require("can-util/js/each/each");
@@ -40,15 +40,15 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			var idProp = inst.constructor.id || "id";
 			if(inst instanceof CanMap) {
 				if(callCanReadingOnIdRead) {
-					ObserveInfo.observe(inst, idProp);
+					Observation.add(inst, idProp);
 				}
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObserveInfo.reading`.)
+				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `Observation.reading`.)
 				return inst.__get(idProp);
 			} else {
 				if(callCanReadingOnIdRead) {
 					return inst[idProp];
 				} else {
-					return ObserveInfo.notObserve(function(){
+					return Observation.ignore(function(){
 						return inst[idProp];
 					});
 				}

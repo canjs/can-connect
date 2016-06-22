@@ -8,7 +8,7 @@ var makeDeferred = require("can-connect/helpers/deferred");
 var canEvent = require("can-event");
 var CanMap = require("can-map");
 var CanList = require("can-list");
-var ObserveInfo = require("can-observe-info");
+var Observation = require("can-observation");
 
 var assign = require("can-util/js/assign/assign");
 
@@ -704,8 +704,8 @@ var logErrorAndStart = function(e){
 	});
 	test('uses attr with isNew', function () {
 		// TODO this does not seem to be consistent expect(2);
-		var old = ObserveInfo.observe;
-		ObserveInfo.observe = function (object, attribute) {
+		var old = Observation.add;
+		Observation.add = function (object, attribute) {
 			if (attribute === 'id') {
 				ok(true, 'used attr');
 			}
@@ -715,7 +715,7 @@ var logErrorAndStart = function(e){
 			id: 4
 		});
 		m.isNew();
-		ObserveInfo.observe = old;
+		Observation.add = old;
 	});
 
 	test('extends defaults by calling base method', function () {

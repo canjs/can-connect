@@ -37,7 +37,7 @@ var connect = require("can-connect");
 var compute = require('can-compute');
 var expression = require("can-stache/src/expression");
 var viewCallbacks = require("can-view-callbacks");
-var ObserveInfo = require("can-observe-info");
+var Observation = require("can-observation");
 var nodeLists = require("can-view-nodelist");
 var canEvent = require("can-event");
 
@@ -82,7 +82,7 @@ connect.tag = function(tagName, connection){
 
 
 		var addedToPageData = false;
-		var addToPageData = ObserveInfo.notObserve(function(set, promise){
+		var addToPageData = Observation.ignore(function(set, promise){
 			if(!addedToPageData) {
 				var root = tagData.scope.attr("%root") || tagData.scope.attr("@root");
 				if( root && root.pageData ) {

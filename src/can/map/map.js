@@ -4,7 +4,7 @@ var each = require("can-util/js/each/each");
 var connect = require("can-connect");
 var canBatch = require("can-event/batch/batch");
 var canEvent = require("can-event");
-var ObserveInfo = require("can-observe-info");
+var Observation = require("can-observation");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 var isArray = require("can-util/js/is-array/is-array");
@@ -74,7 +74,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 					ids.push(readObservabe(instance,"id"));
 				}
 
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObserveInfo.observe`.)
+				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `Observation.add`.)
 				return ids.length > 1 ? ids.join("@|@"): ids[0];
 			} else {
 				return baseConnect.id(instance);
@@ -483,7 +483,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 *   @return {Boolean}
 		 */
 		return function () {
-			ObserveInfo.observe(this,"_saving");
+			Observation.add(this,"_saving");
 			return !!getExpando(this, "_saving");
 		};
 	},
@@ -501,7 +501,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 *   @return {Boolean}
 		 */
 		return function () {
-			ObserveInfo.observe(this,"_destroying");
+			Observation.add(this,"_destroying");
 			return !!getExpando(this, "_destroying");
 		};
 	},
@@ -649,14 +649,14 @@ var listStaticOverwrites = {
 var readObservabe = function(instance, prop){
 	if("__get" in instance) {
 		if(callCanReadingOnIdRead) {
-			ObserveInfo.observe(instance, prop);
+			Observation.add(instance, prop);
 		}
 		return instance.__get(prop);
 	} else {
 		if(callCanReadingOnIdRead) {
 			return instance[prop];
 		} else {
-			return ObserveInfo.notObserve(function(){
+			return Observation.ignore(function(){
 				return instance[prop];
 			})();
 		}
