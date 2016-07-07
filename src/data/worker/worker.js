@@ -4,7 +4,7 @@ var makeDeferred = require("can-connect/helpers/deferred");
 
 require("when/es6-shim/Promise");
 
-module.exports = connect.behavior("data-worker",function(base){
+module.exports = connect.behavior("data/worker",function(base){
 
 
 	if(typeof document !== "undefined") {

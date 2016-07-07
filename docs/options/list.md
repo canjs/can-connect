@@ -5,4 +5,4 @@
 
   @param {{data: Array<Object>}} instancesData
 
-  @return {List}
+  @return {can-connect.List}

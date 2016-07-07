@@ -1,23 +1,23 @@
-@module can-connect/can/model can/model
+@module can-connect/can/model/model
 @parent can-connect.modules
 
 @description Exports a constructor that works very similar to [can.Model](http://canjs.com/docs/can.Model.html).
 
 @signature `Model.extend( static, prototype )`
 
-	Defines a [map](http://canjs.com/docs/can.Map.html) that has almost all of the functionality of 
+	Defines a [map](http://canjs.com/docs/can.Map.html) that has almost all of the functionality of
 	[can.Model](http://canjs.com/docs/can.Model.html).
 
 @body
 
 ## Use
 
-`can-connect/can/model` is for backwards compatability 
+`can-connect/can/model` is for backwards compatability
 with [can.Model](http://canjs.com/docs/can.Model.html) so that developers can migrate
 to `can-connect` without having to rewrite their models immediately.
 
 However, use of `can.Model` will be deprecated in CanJS 3.0. Instead of extending `can.Model`,
-extend `can.Map` and `can.List` and use the [can-connect/can/map] behavior to connect your Map and List to a connection:
+extend `can.Map` and `can.List` and use the [can-connect/can/map/map] behavior to connect your Map and List to a connection:
 
 ```
 var Todo = can.Map.extend({ ... });
@@ -33,7 +33,7 @@ var todoConnection = connect(["data-url","constructor","can/map"],{
 });
 ```
 
-Or, use the [can-connect/can/super-map] function to create a connection with the "standard" behaviors:
+Or, use the [can-connect/can/super-map/super-map] function to create a connection with the "standard" behaviors:
 
 ```
 var todoConnection = superMap({
@@ -55,7 +55,7 @@ Todo = Model.extend({
 },{});
 
 Todo.findAll({}).then(function(todos){
-  
+
 });
 ```
 
@@ -71,12 +71,12 @@ Todo = can.Model.extend({
   findOne: function(params){
     return $.get("/todos/"+params._id);
   },
-  
+
   parseModels: function(data){
     return data.todos;
   },
   parseModel: "todo",
-  
+
   id: "_id",
 },{
   method: function(){ ... },
@@ -111,12 +111,12 @@ connect(["data-url","data-parse",
         return $.get("/todos/"+params._id);
       }
     },
-  
+
     parseListData: function(data){
       return data.todos;
     },
     parseInstanceProp: "todo",
-    
+
     idProp: "_id"
   });
 ```
@@ -145,9 +145,9 @@ from property behavior.
 
 ### Connecting the Map and List to behaviors
 
-The next step is to connect the Map and List to the right behaviors.  The following 
-adds behaviors with similar functionality to legacy `can.Map` and uses the [can-connect/can/map] behavior
-(which makes use of [can-connect/constructor]) to connect the connection to the provided Map and List types:
+The next step is to connect the Map and List to the right behaviors.  The following
+adds behaviors with similar functionality to legacy `can.Map` and uses the [can-connect/can/map/map] behavior
+(which makes use of [can-connect/constructor/constructor]) to connect the connection to the provided Map and List types:
 
 ```
 connect(["data-url","data-parse",
@@ -162,7 +162,7 @@ connect(["data-url","data-parse",
 
 ### Connecting to urls
 
-The [can-connect/data-url] behavior supports CRUDing data from urls.  It can be configured like:
+The [can-connect/data/url/url] behavior supports CRUDing data from urls.  It can be configured like:
 
 ```
 connect(["data-url", ...],
@@ -181,7 +181,7 @@ connect(["data-url", ...],
 
 ### Correcting response data
 
-The [can-connect/data-parse] behavior supports correcting response data.  It can be configured like:
+The [can-connect/data/parse/parse] behavior supports correcting response data.  It can be configured like:
 
 ```
 connect([..., "data-parse", ...],
@@ -197,8 +197,8 @@ connect([..., "data-parse", ...],
 
 ### Specifying the id
 
-The id of a model is used in a variety of ways.  It's part of the [connect.base] behavior
-added to every connection.  You can customize which property represents the id with [connect.base.idProp].
+The id of a model is used in a variety of ways.  It's part of the [can-connect/base/base] behavior
+added to every connection.  You can customize which property represents the id with [can-connect/base/base.idProp].
 
 ```
 connect([...],
@@ -209,7 +209,7 @@ connect([...],
 
 ### Retrieving data
 
-The [can-connect/can/map] behavior adds a `getList` and `get` method to the `Map` option.  Use them in
+The [can-connect/can/map/map] behavior adds a `getList` and `get` method to the `Map` option.  Use them in
 place of `findAll` and `findOne`:
 
 ```

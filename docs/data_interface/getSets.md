@@ -1,3 +1,2 @@
-@typedef {function} connection.getSets getSets
-@parent can-connect.data_interface
-
+@typedef {function} can-connect/connection.getSets connection.getSets
+@parent can-connect/DataInterface

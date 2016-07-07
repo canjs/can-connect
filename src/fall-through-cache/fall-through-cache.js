@@ -1,15 +1,15 @@
 /**
- * @module can-connect/fall-through-cache fall-through-cache
+ * @module can-connect/fall-through-cache/fall-through-cache
  * @parent can-connect.behaviors
- * @group can-connect/fall-through-cache.data Data Callbacks
- * @group can-connect/fall-through-cache.hydrators Hydrators
+ * @group can-connect/fall-through-cache/fall-through-cache.data Data Callbacks
+ * @group can-connect/fall-through-cache/fall-through-cache.hydrators Hydrators
  *
  * A fall through cache that checks another `cacheConnection`.
  *
  * @signature `fallThroughCache( baseConnection )`
  *
  *   Implements a `getData` and `getListData` that
- *   check their [connect.base.cacheConnection] for data and then
+ *   check their [can-connect/base/base.cacheConnection] for data and then
  *   in the background update the instance or list with data
  *   retrieved using the base connection.
  *
@@ -18,8 +18,8 @@
  * ## Use
  *
  * To use the `fall-through-cache`, create a connection with a
- * [connect.base.cacheConnection] and a behavior that implements
- * [connection.getData] and [connection.getListData].
+ * [can-connect/base/base.cacheConnection] and a behavior that implements
+ * [can-connect/connection.getData] and [can-connect/connection.getListData].
  *
  * ```
  * var cache = connect(['data-localstorage-cache'],{
@@ -74,8 +74,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {
 		/**
-		 * @function can-connect/fall-through-cache.hydrateList hydrateList
-		 * @parent can-connect/fall-through-cache.hydrators
+		 * @function can-connect/fall-through-cache/fall-through-cache.hydrateList hydrateList
+		 * @parent can-connect/fall-through-cache/fall-through-cache.hydrators
 		 *
 		 * Returns a List instance given raw data.
 		 *
@@ -87,8 +87,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 *   calls them.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {Set} set
-		 *   @return {List}
+		 *   @param {can-set/Set} set
+		 *   @return {can-connect.List}
 		 */
 		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
@@ -112,15 +112,15 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			this._getHydrateListCallbacks[id].push(callback);
 		},
 		/**
-		 * @function can-connect/fall-through-cache.getListData getListData
-		 * @parent can-connect/fall-through-cache.data
+		 * @function can-connect/fall-through-cache/fall-through-cache.getListData getListData
+		 * @parent can-connect/fall-through-cache/fall-through-cache.data
 		 *
 		 * Get raw data from the cache if available, and then update
 		 * the list later with data from the base connection.
 		 *
 		 * @signature `connection.getListData(set)`
 		 *
-		 *   Checks the [connect.base.cacheConnection] for `set`'s data.
+		 *   Checks the [can-connect/base/base.cacheConnection] for `set`'s data.
 		 *
 		 *   If the cache connection has data, the cached data is returned. Prior to
 		 *   returning the data, the [can-connect/constructor.hydrateList] method
@@ -133,7 +133,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 *   is used to load the data and the cached connection is updated with that
 		 *   data.
 		 *
-		 *   @param {Set} set The set to load.
+		 *   @param {can-set/Set} set The set to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that returns the
 		 *   raw data.
@@ -180,8 +180,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			});
 		},
 		/**
-		 * @function can-connect/fall-through-cache.hydrateInstance hydrateInstance
-		 * @parent can-connect/fall-through-cache.hydrators
+		 * @function can-connect/fall-through-cache/fall-through-cache.hydrateInstance hydrateInstance
+		 * @parent can-connect/fall-through-cache/fall-through-cache.hydrators
 		 *
 		 * Returns an instance given raw data.
 		 *
@@ -189,11 +189,11 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 *
 		 *   Calls the base `hydrateInstance` to create an Instance for `props`.
 		 *
-		 *   Then, Looks for registered hydrateInstance callbacks for a given [connect.base.id] and
+		 *   Then, Looks for registered hydrateInstance callbacks for a given [can-connect/base/base.id] and
 		 *   calls them.
 		 *
 		 *   @param {Object} props
-		 *   @return {Instance}
+		 *   @return {can-connect/Instance}
 		 */
 		hydrateInstance: function(props){
 
@@ -216,15 +216,15 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			this._getMakeInstanceCallbacks[id].push(callback);
 		},
 		/**
-		 * @function can-connect/fall-through-cache.getData getData
-		 * @parent can-connect/fall-through-cache.data
+		 * @function can-connect/fall-through-cache/fall-through-cache.getData getData
+		 * @parent can-connect/fall-through-cache/fall-through-cache.data
 		 *
 		 * Get raw data from the cache if available, and then update
 		 * the instance later with data from the base connection.
 		 *
 		 * @signature `connection.getData(params)`
 		 *
-		 *   Checks the [connect.base.cacheConnection] for `params`'s data.
+		 *   Checks the [can-connect/base/base.cacheConnection] for `params`'s data.
 		 *
 		 *   If the cache connection has data, the cached data is returned. Prior to
 		 *   returning the data, the [can-connect/constructor.hydrateInstance] method
@@ -282,5 +282,3 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 	return behavior;
 
 });
-
-

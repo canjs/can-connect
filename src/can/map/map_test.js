@@ -5,18 +5,18 @@ var List = require("can-list");
 var compute = require("can-compute");
 
 // load connections
-require("can-connect/constructor/");
-require("can-connect/can/map/");
-require("can-connect/constructor/store/");
-require("can-connect/data/callbacks/");
-require("can-connect/data/callbacks-cache/");
-require("can-connect/data/combine-requests/");
-require("can-connect/data/localstorage-cache/");
-require("can-connect/data/parse/");
-require("can-connect/data/url/");
-require("can-connect/fall-through-cache/");
-require("can-connect/real-time/");
-require("can-connect/data/inline-cache/");
+var constructor = require("can-connect/constructor/");
+var canMap = require("can-connect/can/map/");
+var constructorStore = require("can-connect/constructor/store/");
+var dataCallbacks = require("can-connect/data/callbacks/");
+var callbacksCache = require("can-connect/data/callbacks-cache/");
+var combineRequests = require("can-connect/data/combine-requests/");
+var localCache = require("can-connect/data/localstorage-cache/");
+var dataParse = require("can-connect/data/parse/");
+var dataUrl = require("can-connect/data/url/");
+var fallThroughCache = require("can-connect/fall-through-cache/");
+var realTime = require("can-connect/real-time/");
+var inlineCache = require("can-connect/data/inline-cache/");
 require("when/es6-shim/Promise");
 
 
@@ -38,7 +38,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-QUnit.module("can-connect/can/map",{
+QUnit.module("can-connect/can/map/map",{
 	setup: function(){
 
 		var Todo = Map.extend({
@@ -50,7 +50,7 @@ QUnit.module("can-connect/can/map",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
-		var cacheConnection = connect(["data-localstorage-cache"],{
+		var cacheConnection = connect([localCache],{
 			name: "todos"
 		});
 		cacheConnection.clear();
@@ -59,17 +59,17 @@ QUnit.module("can-connect/can/map",{
 		this.Todo = Todo;
 
 		this.todoConnection = connect([
-			"constructor",
-			"can-map",
-			"constructor-store",
-			"data-callbacks",
-			"data-callbacks-cache",
-			"data-combine-requests",
-			"data-inline-cache",
-			"data-parse",
-			"data-url",
-			"fall-through-cache",
-			"real-time"],
+			constructor,
+			canMap,
+			constructorStore,
+			dataCallbacks,
+			callbacksCache,
+			combineRequests,
+			inlineCache,
+			dataParse,
+			dataUrl,
+			fallThroughCache,
+			realTime],
 			{
 				url: "/services/todos",
 				cacheConnection: cacheConnection,
@@ -161,7 +161,7 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
-		
+
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);
 
@@ -461,17 +461,17 @@ QUnit.test("reads id from set algebra (#82)", function(){
 
 
 	var todoConnection = connect([
-		"constructor",
-		"can-map",
-		"constructor-store",
-		"data-callbacks",
-		"data-callbacks-cache",
-		"data-combine-requests",
-		"data-inline-cache",
-		"data-parse",
-		"data-url",
-		"fall-through-cache",
-		"real-time"],
+		constructor,
+		canMap,
+		constructorStore,
+		dataCallbacks,
+		callbacksCache,
+		combineRequests,
+		inlineCache,
+		dataParse,
+		dataUrl,
+		fallThroughCache,
+		realTime],
 		{
 			url: "/services/todos",
 			Map: Todo,

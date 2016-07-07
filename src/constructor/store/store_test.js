@@ -124,7 +124,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 				list.splice.apply(list, [0, list.length].concat( updatedList.data ) );
 			}
 		};
-	},"constructor-store","constructor"],{
+	},instanceStore,constructor],{
 		instance: function(values){
 			return new Person(values);
 		},
@@ -194,7 +194,7 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 				list.splice.apply(list, [0, list.length].concat( updatedList.data ) );
 			}
 		};
-	},"constructor-store","constructor"],{
+	},instanceStore,constructor],{
 		instance: function(values){
 			return new Person(values);
 		},

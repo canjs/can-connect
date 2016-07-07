@@ -1,17 +1,17 @@
 /**
- * @module {connect.Behavior} can-connect/data-url data-url
+ * @module {connect.Behavior} can-connect/data/url/url
  * @parent can-connect.behaviors
- * @group can-connect/data-url.data-methods Data Methods
- * @group can-connect/data-url.option Options
+ * @group can-connect/data/url/url.data-methods Data Methods
+ * @group can-connect/data/url/url.option Options
  *
  * @option {connect.Behavior}
  *
- * Uses the [can-connect/data-url.url] option to implement the behavior of
- * [connection.getListData],
- * [connection.getData],
- * [connection.createData],
- * [connection.updateData], and
- * [connection.destroyData] to make an AJAX request
+ * Uses the [can-connect/data/url/url.url] option to implement the behavior of
+ * [can-connect/connection.getListData],
+ * [can-connect/connection.getData],
+ * [can-connect/connection.createData],
+ * [can-connect/connection.updateData], and
+ * [can-connect/connection.destroyData] to make an AJAX request
  * to urls.
  *
  * @body
@@ -98,10 +98,10 @@ var string = require("can-util/js/string/string");
 var connect = require("can-connect");
 
 
-// # can-connect/data-url
+// # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data-url",function(baseConnect){
+module.exports = connect.behavior("data/url",function(baseConnect){
 
 
 	var behavior = {};
@@ -131,8 +131,8 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 	return behavior;
 });
 /**
- * @property {String|Object} can-connect/data-url.url url
- * @parent can-connect/data-url.option
+ * @property {String|Object} can-connect/data/url/url.url url
+ * @parent can-connect/data/url/url.option
  *
  * Specify the url and methods that should be used for the "Data Methods".
  *
@@ -181,28 +181,28 @@ module.exports = connect.behavior("data-url",function(baseConnect){
 // - type - the default http method if one is not provided in the url
 var pairs = {
 	/**
-	 * @function can-connect/data-url.getListData getListData
-	 * @parent can-connect/data-url.data-methods
+	 * @function can-connect/data/url/url.getListData getListData
+	 * @parent can-connect/data/url/url.data-methods
 	 */
 	getListData: {prop: "getListData", type: "GET"},
 	/**
-	 * @function can-connect/data-url.getData getData
-	 * @parent can-connect/data-url.data-methods
+	 * @function can-connect/data/url/url.getData getData
+	 * @parent can-connect/data/url/url.data-methods
 	 */
 	getData: {prop: "getData", type: "GET"},
 	/**
-	 * @function can-connect/data-url.createData createData
-	 * @parent can-connect/data-url.data-methods
+	 * @function can-connect/data/url/url.createData createData
+	 * @parent can-connect/data/url/url.data-methods
 	 */
 	createData: {prop: "createData", type: "POST"},
 	/**
-	 * @function can-connect/data-url.updateData updateData
-	 * @parent can-connect/data-url.data-methods
+	 * @function can-connect/data/url/url.updateData updateData
+	 * @parent can-connect/data/url/url.data-methods
 	 */
 	updateData: {prop: "updateData", type: "PUT"},
 	/**
-	 * @function can-connect/data-url.destroyData destroyData
-	 * @parent can-connect/data-url.data-methods
+	 * @function can-connect/data/url/url.destroyData destroyData
+	 * @parent can-connect/data/url/url.data-methods
 	 */
 	destroyData: {prop: "destroyData", type: "DELETE"}
 };

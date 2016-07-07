@@ -1,8 +1,8 @@
 /**
- * @module can-connect/constructor/callbacks-once constructor-callbacks-once
+ * @module {function} can-connect/constructor/callbacks-once/callbacks-once
  * @parent can-connect.behaviors
  *
- * Unecessary calls to the instance callback methods.
+ * Prevents unecessary calls to the instance callback methods.
  *
  * @signature `constructorCallbacksOnce(baseBehavior)`
  *
@@ -19,29 +19,29 @@ var forEach = [].forEach;
 // wires up the following methods
 var callbacks = [
 	/**
-	 * @function can-connect/constructor/callbacks-once.createdData createdData
-	 * @parent can-connect/constructor/callbacks-once
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.createdData createdData
+	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
 	 * Called with the resolved response data
-	 * of [connection.createData]. The result of this function will be used
+	 * of [can-connect/connection.createData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	"createdInstance",
 	/**
-	 * @function can-connect/constructor/callbacks-once.updatedData updatedData
-	 * @parent can-connect/constructor/callbacks-once
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.updatedData updatedData
+	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
 	 * Called with the resolved response data
-	 * of [connection.updateData]. The result of this function will be used
+	 * of [can-connect/connection.updateData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	"updatedInstance",
 	/**
-	 * @function can-connect/constructor/callbacks-once.destroyedData destroyedData
-	 * @parent can-connect/constructor/callbacks-once
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.destroyedData destroyedData
+	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
 	 * Called with the resolved response data
-	 * of [connection.destroyData]. The result of this function will be used
+	 * of [can-connect/connection.destroyData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	"destroyedInstance"
@@ -49,7 +49,7 @@ var callbacks = [
 
 
 
-module.exports = connect.behavior("constructor-callbacks-once",function(baseConnect){
+module.exports = connect.behavior("constructor/callbacks-once",function(baseConnect){
 
 	var behavior = {
 	};

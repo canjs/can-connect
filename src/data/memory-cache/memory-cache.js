@@ -1,30 +1,30 @@
 /**
- * @module can-connect/data/memory-cache data-memory-cache
+ * @module can-connect/data/memory-cache/memory-cache
  * @parent can-connect.behaviors
- * @group can-connect/data/memory-cache.data-methods Data Methods
+ * @group can-connect/data/memory-cache/memory-cache.data-methods Data Methods
  *
  * Saves raw data in JavaScript memory that disappears when the page refreshes.
  *
  * @signature `memoryCache( baseConnection )`
  *
  *   Creates a cache of instances and a cache of sets of instances that is
- *   accessible to read via [can-connect/data/memory-cache.getSets],
- *   [can-connect/data/memory-cache.getData], and [can-connect/data/memory-cache.getListData].
- *   The caches are updated via [can-connect/data/memory-cache.createData],
- *   [can-connect/data/memory-cache.updateData], [can-connect/data/memory-cache.destroyData],
- *   and [can-connect/data/memory-cache.updateListData].
+ *   accessible to read via [can-connect/data/memory-cache/memory-cache.getSets],
+ *   [can-connect/data/memory-cache/memory-cache.getData], and [can-connect/data/memory-cache/memory-cache.getListData].
+ *   The caches are updated via [can-connect/data/memory-cache/memory-cache.createData],
+ *   [can-connect/data/memory-cache/memory-cache.updateData], [can-connect/data/memory-cache/memory-cache.destroyData],
+ *   and [can-connect/data/memory-cache/memory-cache.updateListData].
  *
- *   [can-connect/data/memory-cache.createData],
- *   [can-connect/data/memory-cache.updateData],
- *   [can-connect/data/memory-cache.destroyData] are able to move items in and out
+ *   [can-connect/data/memory-cache/memory-cache.createData],
+ *   [can-connect/data/memory-cache/memory-cache.updateData],
+ *   [can-connect/data/memory-cache/memory-cache.destroyData] are able to move items in and out
  *   of sets.
  *
  * @body
  *
  * ## Use
  *
- * `data-memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache] or
- * [can-connect/cache-requests].
+ * `data-memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache/fall-through-cache] or
+ * [can-connect/cache-requests/cache-requests].
  *
  *
  */
@@ -38,7 +38,7 @@ var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
 
-module.exports = connect.behavior("data-memory-cache",function(baseConnect){
+module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 
 	var behavior = {
 		_sets: {},
@@ -148,14 +148,14 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		// ## External interface
 
 		/**
-		 * @function can-connect/data/memory-cache.getSets getSets
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.getSets getSets
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Returns the sets contained within the cache.
 		 *
 		 * @signature `connection.getSets(set)`
 		 *
-		 *   Returns the sets added by [can-connect/data/memory-cache.updateListData].
+		 *   Returns the sets added by [can-connect/data/memory-cache/memory-cache.updateListData].
 		 *
 		 *   @return {Promise<Array<Set>>} A promise that resolves to the list of sets.
 		 *
@@ -174,8 +174,8 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		},
 
 		/**
-		 * @function can-connect/data/memory-cache.clear clear
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.clear clear
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Resets the memory cache so it contains nothing.
 		 *
@@ -187,20 +187,20 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			this._sets = {};
 		},
 		/**
-		 * @function can-connect/data/memory-cache.getListData getListData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.getListData getListData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Gets a set of data from the memory cache.
 		 *
 		 * @signature `connection.getListData(set)`
 		 *
-		 *   Goes through each set add by [can-connect/data/memory-cache.updateListData]. If
-		 *   `set` is a subset, uses [connect.base.algebra] to get the data for the requested `set`.
+		 *   Goes through each set add by [can-connect/data/memory-cache/memory-cache.updateListData]. If
+		 *   `set` is a subset, uses [can-connect/base/base.algebra] to get the data for the requested `set`.
 		 *
-		 *   @param {Set} set An object that represents the data to load.
+		 *   @param {can-set/Set} set An object that represents the data to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that resolves if `set` is a subset of
-		 *   some data added by [can-connect/data/memory-cache.updateListData].  If it is not,
+		 *   some data added by [can-connect/data/memory-cache/memory-cache.updateListData].  If it is not,
 		 *   the promise is rejected.
 		 */
 		getListData: function(set){
@@ -225,8 +225,8 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can-connect/data/memory-cache.updateListData updateListData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.updateListData updateListData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Saves a set of data in the cache.
 		 *
@@ -236,7 +236,7 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		 *   unable to merge this data, saves the set by itself.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {Set} set
+		 *   @param {can-set/Set} set
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){
@@ -264,8 +264,8 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		},
 
 		/**
-		 * @function can-connect/data/memory-cache.getData getData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.getData getData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Get an instance's data from the memory cache.
 		 *
@@ -292,8 +292,8 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 
 
 		/**
-		 * @function can-connect/data/memory-cache.createData createData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.createData createData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Called when an instance is created and should be added to cache.
 		 *
@@ -316,8 +316,8 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		},
 
 		/**
-		 * @function can-connect/data/memory-cache.updateData updateData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.updateData updateData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Called when an instance is updated.
 		 *
@@ -361,15 +361,15 @@ module.exports = connect.behavior("data-memory-cache",function(baseConnect){
 		},
 
 		/**
-		 * @function can-connect/data/memory-cache.destroyData destroyData
-		 * @parent can-connect/data/memory-cache.data-methods
+		 * @function can-connect/data/memory-cache/memory-cache.destroyData destroyData
+		 * @parent can-connect/data/memory-cache/memory-cache.data-methods
 		 *
 		 * Called when an instance should be removed from the cache.
 		 *
 		 * @signature `connection.destroyData(props)`
 		 *
 		 *   Goes through each set of data and removes any data that matches
-		 *   `props`'s [connect.base.id]. Finally removes this from the instance store.
+		 *   `props`'s [can-connect/base/base.id]. Finally removes this from the instance store.
 		 */
 		destroyData: function(props){
 			var self = this;

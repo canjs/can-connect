@@ -2,14 +2,15 @@
 	<button id='maker'>Create Todo Editor</button>
 
 <script src="../../../node_modules/steal/steal.js">
-import connect from "can-connect";
-import "can-connect/data/url/";
-import "can-connect/constructor/";
-import "can-connect/constructor/store/";
-import fixture from "can-fixture";
+var connect = require("can-connect");
+var fixture = require("can-fixture");
 
 // A connection that gets todos data
-var todosConnection = connect(["constructor-store","constructor","data-url"],{
+var todosConnection = connect([
+  require("can-connect/constructor/store/store"),
+  require("can-connect/constructor/constructor"),
+  require("can-connect/data/url/url")
+],{
   url: "/todos"
 });
 

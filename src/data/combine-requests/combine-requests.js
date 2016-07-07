@@ -6,7 +6,7 @@ var getItems = require("can-connect/helpers/get-items");
 var makeDeferred = require("can-connect/helpers/deferred");
 var forEach = [].forEach;
 /**
- * @module can-connect/data/combine-requests data-combine-requests
+ * @module can-connect/data/combine-requests/combine-requests
  * @parent can-connect.behaviors
  * @group can-connect/data/combine-requests.data-methods Data Methods
  * @group can-connect/data/combine-requests.options Options
@@ -29,10 +29,13 @@ var forEach = [].forEach;
  *
  * ## Use
  *
- * Create a connection with the `data-combine-requests` plugin like:
+ * Create a connection with the `combine-requests` plugin like:
  *
  * ```
- * var todosConnection = connect(["data-combine-requests","data-url"],{
+ * var todosConnection = connect([
+ *   require("can-connect/data/combine-requests/combine-requests"),
+ *   require("can-connect/data/url/url")
+ * ],{
  *   url: "/todos"
  * });
  * ```
@@ -52,9 +55,12 @@ var forEach = [].forEach;
  * combining ranges:
  *
  * ```
- * var todosConnection = connect(["data-combine-requests","data-url"],{
+ * var todosConnection = connect([
+ *   require("can-connect/data/combine-requests/combine-requests"),
+ *   require("can-connect/data/url/url")
+ * ],{
  *   url: "/todos",
- *   algebra: new Algebra(set.comparators.range("start","end"))
+ *   algebra: new Algebra(set.props.range("start","end"))
  * });
  * ```
  *
@@ -67,7 +73,7 @@ var forEach = [].forEach;
  * ```
  *
  */
-module.exports = connect.behavior("data-combine-requests",function(base){
+module.exports = connect.behavior("data/combine-requests",function(base){
 	var pendingRequests; //[{set, deferred}]
 
 	return {
@@ -175,10 +181,10 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 		 *
 		 * @signature `connection.getSubset( set, unionSet, data )`
 		 *
-		 *   This implementation uses [can-set's getSubset](https://github.com/canjs/can-set#setgetsubset) with [connect.base.algebra].
+		 *   This implementation uses [can-set.Algebra.prototype.getSubset] on the [can-connect/base/base.algebra].
 		 *
-		 *   @param {Set} set the subset initially requested
-		 *   @param {Set} unionSet the combined set that was actually requested
+		 *   @param {can-set/Set} set the subset initially requested
+		 *   @param {can-set/Set} unionSet the combined set that was actually requested
 		 *   @param {can-connect.listData} data the data from the combined set
 		 *   @return {can-connect.listData} the data that belongs to `set`
 		 */
@@ -207,10 +213,11 @@ module.exports = connect.behavior("data-combine-requests",function(base){
 		 *   some [can-connect/data/combine-requests.time].  Once that time has expired, it tries
 		 *   to take the [union](https://github.com/canjs/can-set#setunion) of those sets. It
 		 *   makes requests with those unioned sets. Once the unioned set data has returned,
-		 *   the original requests re satisified by taking
-		 *   [subsets](https://github.com/canjs/can-set#setgetSubset) of the unioned set data.
+		 *   the original requests rae satisified by taking
+		 *   [can-set.Algebra.prototype.getSubset] of the unioned set data.
 		 *
-		 *   @param {Object} set
+		 *   @param {can-set/Set} set The set used to request data.
+		 *   @return {can-connect.listData} The data for the requested set of data.
 		 */
 		getListData: function(set){
 			set = set || {};
@@ -265,7 +272,7 @@ module.exports = connect.behavior("data-combine-requests",function(base){
  * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest
  * @parent can-connect/data/combine-requests.types
  *
- * @option {Set} set A [can-set](https://github.com/canjs/can-set) set object.
+ * @option {can-set/Set} set A [can-set](https://github.com/canjs/can-set) set object.
  * @option {Deferred} deferred A defferred that can be used to resolve or reject a promise.
  */
 // ### doubleLoop

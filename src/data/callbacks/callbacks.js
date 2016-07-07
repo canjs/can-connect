@@ -1,10 +1,10 @@
 /**
- * @module can-connect/data/callbacks data-callbacks
+ * @module can-connect/data/callbacks/callbacks
  * @parent can-connect.behaviors
  *
- * Glues the result of the raw `Data Interface` methods to callbacks. This is
- * useful if you want something to happen with raw data anytime raw data is requested
- * or manipulated.
+ * Calls callback methods as a result of raw [can-connect/DataInterface] requests.
+ *
+ * @signature `dataCallbacks( baseConnection )`
  *
  *
  */
@@ -14,45 +14,53 @@ var each = require("can-util/js/each/each");
 // wires up the following methods
 var pairs = {
 	/**
-	 * @function can-connect/data/callbacks.gotListData gotListData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/data/callbacks/callbacks.gotListData gotListData
+	 * @parent can-connect/data/callbacks/callbacks
 	 *
 	 * Called with the resolved response data
-	 * of [connection.getListData]. The result of this function will be used
+	 * of [can-connect/connection.getListData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	getListData: "gotListData",
 	//getData: "gotInstanceData",
 	/**
-	 * @function can-connect/data/callbacks.createdData createdData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/data/callbacks/callbacks.createdData createdData
+	 * @parent can-connect/data/callbacks/callbacks
 	 *
-	 * Called with the resolved response data
-	 * of [connection.createData]. The result of this function will be used
-	 * as the new response data.
+	 * @signature `connection.createdData(props, params, cid)`
+	 *
+	 *   Called with the resolved response data
+	 *   of [can-connect/connection.createData]. The result of this function will be used
+	 *   as the new response data.
+	 *
+	 *
+	 *   @param {Object} props The raw data returned by the response.
+	 *   @param {Object} params The parameters used to make this request.
+	 *   @param {Number} cid The cid of the instance created.
+	 *   @return {Object} The raw data this request represents.
 	 */
 	createData: "createdData",
 	/**
-	 * @function can-connect/data/callbacks.updatedData updatedData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/data/callbacks/callbacks.updatedData updatedData
+	 * @parent can-connect/data/callbacks/callbacks
 	 *
 	 * Called with the resolved response data
-	 * of [connection.updateData]. The result of this function will be used
+	 * of [can-connect/connection.updateData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	updateData: "updatedData",
 	/**
-	 * @function can-connect/data/callbacks.destroyedData destroyedData
-	 * @parent can-connect/data/callbacks
+	 * @function can-connect/data/callbacks/callbacks.destroyedData destroyedData
+	 * @parent can-connect/data/callbacks/callbacks
 	 *
 	 * Called with the resolved response data
-	 * of [connection.destroyData]. The result of this function will be used
+	 * of [can-connect/connection.destroyData]. The result of this function will be used
 	 * as the new response data.
 	 */
 	destroyData: "destroyedData"
 };
 
-module.exports = connect.behavior("data-callbacks",function(baseConnect){
+module.exports = connect.behavior("data/callbacks",function(baseConnect){
 
 	var behavior = {
 	};

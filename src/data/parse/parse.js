@@ -1,5 +1,5 @@
 /**
- * @module {connect.Behavior} can-connect/data-parse data-parse
+ * @module {connect.Behavior} can-connect/data/parse/parse
  * @parent can-connect.behaviors
  *
  * Extract response data into a format needed for other extensions.
@@ -55,14 +55,14 @@
  var string = require("can-util/js/string/string");
 
 
-module.exports = connect.behavior("data-parse",function(baseConnect){
+module.exports = connect.behavior("data/parse",function(baseConnect){
 
 	var behavior = {
     /**
-     * @function connection.parseListData parseListData
-     * @parent can-connect/data-parse
+     * @function can-connect/data/parse/parse.parseListData parseListData
+     * @parent can-connect/data/parse/parse
      *
-     * @description Given the response of [connection.getListData] returns it in the
+     * @description Given the response of [can-connect/connection.getListData] returns it in the
      * [can-connect.listData] format.
      *
      * @signature `connection.parseListData(responseData, xhr, headers)`
@@ -151,12 +151,12 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 			return result;
 		},
     /**
-     * @function connection.parseInstanceData parseInstanceData
-     * @parent can-connect/data-parse
+     * @function can-connect/data/parse/parse.parseInstanceData parseInstanceData
+     * @parent can-connect/data/parse/parse
      *
      * @description Returns the properties that should be used to [connection.hydrateInstance make an instance]
-     * given the results of [connection.getData], [connection.createData], [connection.updateData],
-     * and [connection.destroyData].
+     * given the results of [can-connect/connection.getData], [can-connect/connection.createData], [can-connect/connection.updateData],
+     * and [can-connect/connection.destroyData].
      *
      * @signature `connection.parseInstanceData(responseData, xhr, headers)`
      *
@@ -216,13 +216,13 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 			return this.parseInstanceProp ? string.getObject(this.parseInstanceProp, props) || props : props;
 		}
 		/**
-		 * @property {String} connection.parseListProp parseListProp
-		 * @parent can-connect/data-parse
+		 * @property {String} can-connect/data/parse/parse.parseListProp parseListProp
+		 * @parent can-connect/data/parse/parse
 		 *
 		 * The property to find the array-like data that represents each instance item.
 		 *
-		 * @option {String} [connection.parseListData] uses this property to find an array-like data struture
-		 * on the result of [connection.getListData].
+		 * @option {String} [can-connect/data/parse/parse.parseListData] uses this property to find an array-like data struture
+		 * on the result of [can-connect/connection.getListData].
 		 *
 		 * @body
 		 *
@@ -230,7 +230,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 *
 		 * Set `parseListProp` if your response data does not look like: `{data: [props, props]}`.
 		 *
-		 * For example, if [connection.getListData] returns data like:
+		 * For example, if [can-connect/connection.getListData] returns data like:
 		 *
 		 * ```
 		 * {
@@ -250,7 +250,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 */
 		/**
 		 * @property {String} connection.parseInstanceProp parseInstanceProp
-		 * @parent can-connect/data-parse
+		 * @parent can-connect/data/parse/parse
 		 *
 		 * The property to find the data that represents an instance item.
 		 *
@@ -264,7 +264,7 @@ module.exports = connect.behavior("data-parse",function(baseConnect){
 		 * Set `parseInstanceData` if your response data does not directly contain the data you would like to pass to
 		 * [connection.hydrateInstance].
 		 *
-		 * For example, if [connection.getData] returns data like:
+		 * For example, if [can-connect/connection.getData] returns data like:
 		 *
 		 * ```
 		 * {

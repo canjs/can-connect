@@ -1,10 +1,10 @@
-@function connection.getList getList
-@parent can-connect.externalCRUD
+@function can-connect/connection.getList connection.getList
+@parent can-connect/InstanceInterface
 
-@signature `connection.findAll(set)`
+@signature `connection.getList(set)`
 
   Loads a List
 
-  @param {Set} set A set object that represents the list of data to load.
-  
+  @param {can-set/Set} set A set object that represents the list of data to load.
+
   @return {Promise<List<Instance>>}
