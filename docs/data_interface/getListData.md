@@ -1,4 +1,4 @@
-@typedef {function} can-connect/connection.getListData connection.getListData
+@typedef {function} can-connect/connection.getListData getListData
 @parent can-connect/DataInterface
 
 @description Retrieves list data for a particular set.
@@ -20,7 +20,9 @@ Extensions like [can-connect/data/url/url] make it easy to implement `getListDat
 ```
 var connection = connect([],{
   getListData: function(set){
-    return $.get(set)
+    return new Promise(function(resolve, reject){
+		$.get("/api/todos",set).then(resolve, reject)
+	});
   }
 })
 ```

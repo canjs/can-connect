@@ -18,13 +18,15 @@
  *
  * ## Use
  *
- * The `data-url` behavior implements many of the `data interface`
+ * The `data/url` behavior implements many of the [can-connect/DataInterface]
  * methods to send instance data to a URL.
  *
  * For example, the following `todoConnection`:
  *
  * ```js
- * var todoConnection = can.connect(["data-url"],{
+ * var todoConnection = connect([
+ *   require("can-connect/data/url/url")
+ * ],{
  *   url: {
  *     getListData: "GET /todos",
  *     getData: "GET /todos/{id}",
@@ -69,7 +71,7 @@
  * 1. URL values can include simple templates like `{id}`
  *    that replace that part of the URL with values in the data
  *    passed to the method.
- * 2. GET and DELETE request data is put in the URL using [jQuery.param](http://api.jquery.com/jquery.param/).
+ * 2. GET and DELETE request data is put in the URL using [can-util/js/param/param].
  * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
  *    as form encoded data.
  * 4. If a provided URL doesn't include the method, the following default methods are provided:
@@ -79,10 +81,12 @@
  *    - `updateData` - `PUT`
  *    - `destroyData` - `DELETE`
  *
- * If [connection.url] is provided as a string like:
+ * If [can-connect/data/url/url.url] is provided as a string like:
  *
  * ```js
- * var todoConnection = can.connect(["data-url"],{
+ * var todoConnection = connect([
+ *   require("can-connect/data/url/url")
+ * ],{
  *   url: "/todos"
  * });
  * ```
@@ -173,7 +177,45 @@ module.exports = connect.behavior("data/url",function(baseConnect){
  *   getListData: "GET /services/todos"
  * }
  * ```
+ *
+ * Finally, you can provide your own method to totally control how the request is made:
+ *
+ * ```
+ * url: {
+ *   resource: "/services/todo",
+ *   getListData: "GET /services/todos",
+ *   getData: function(param){
+ *     return new Promise(function(resolve, reject){
+ *       $.get("/services/todo", {identifier: param.id}).then(resolve, reject);
+ *     });
+ *   }
+ * }
+ * ```
  */
+
+
+ /**
+  * @property {function} can-connect/data/url/url.ajax ajax
+  * @parent can-connect/data/url/url.option
+  *
+  * Specify the ajax functionality that should be used to make the request.
+  *
+  * @option {function} Provides an alternate function to be used to make
+  * ajax requests.  By default [can-util/dom/ajax/ajax] provides the ajax
+  * functionality. jQuery's ajax method can be substituted as follows:
+  *
+  * ```js
+  * connect([
+  *   require("can-connect/data/url/url")
+  * ],{
+  *   url: "/things",
+  *   ajax: $.ajax
+  * });
+  * ```
+  *
+  *   @param {Object} settings Configuration options for the AJAX request.
+  *   @return {Promise} A Promise that resolves to the data.
+  */
 
 // ## pairs
 // The functions that will be created mapped to an object with:
@@ -183,26 +225,80 @@ var pairs = {
 	/**
 	 * @function can-connect/data/url/url.getListData getListData
 	 * @parent can-connect/data/url/url.data-methods
+	 *
+	 * @signature `getListData(set)`
+	 *
+	 *   Retrieves list data for a particular set given the [can-connect/data/url/url.url] settings.
+	 *   If `url.getListData` is a function, that function will be called.  If `url.getListData` is a
+	 *   string, a request to that string will be made. If `url` is a string, a `GET` request is made to
+	 *   `url`.
+	 *
+	 *   @param {can-set/Set} set A object that represents the set of data needed to be loaded.
+	 *   @return {Promise<can-connect.listData>} A promise that resolves to the ListData format.
 	 */
 	getListData: {prop: "getListData", type: "GET"},
 	/**
 	 * @function can-connect/data/url/url.getData getData
 	 * @parent can-connect/data/url/url.data-methods
+	 *
+	 * @signature `getData(params)`
+	 *
+	 *   Retrieves raw instance data given the [can-connect/data/url/url.url] settings.
+	 *   If `url.getData` is a function, that function will be called.  If `url.getData` is a
+	 *   string, a request to that string will be made. If `url` is a string, a `GET` request is made to
+	 *   `url+"/"+IDPROP`.
+	 *
+	 *   @param {Object} params A object that represents the set of data needed to be loaded.
+	 *   @return {Promise<Object>} A promise that resolves to the instance data.
 	 */
 	getData: {prop: "getData", type: "GET"},
 	/**
 	 * @function can-connect/data/url/url.createData createData
 	 * @parent can-connect/data/url/url.data-methods
+	 *
+	 * @signature `createData(instanceData, cid)`
+	 *
+	 *   Creates instance data given the serialized form of the data and
+	 *   the [can-connect/data/url/url.url] settings.
+	 *   If `url.createData` is a function, that function will be called.  If `url.createData` is a
+	 *   string, a request to that string will be made. If `url` is a string, a `POST` request is made to
+	 *   `url`.
+	 *
+	 *   @param {Object} instanceData The serialized data of the instance.
+	 *   @param {Number} cid A unique id that represents the instance that is being created.
+	 *   @return {Promise<Object>} A promise that resolves to the newly created instance data.
 	 */
 	createData: {prop: "createData", type: "POST"},
 	/**
 	 * @function can-connect/data/url/url.updateData updateData
 	 * @parent can-connect/data/url/url.data-methods
+	 *
+	 * @signature `updateData(instanceData)`
+	 *
+	 * Updates instance data given the serialized form of the data and
+	 *   the [can-connect/data/url/url.url] settings.
+	 *   If `url.updateData` is a function, that function will be called.  If `url.updateData` is a
+	 *   string, a request to that string will be made. If `url` is a string, a `PUT` request is made to
+	 *   `url+"/"+IDPROP`.
+	 *
+	 *   @param {Object} instanceData The serialized data of the instance.
+	 *   @return {Promise<Object>} A promise that resolves to the updated instance data.
 	 */
 	updateData: {prop: "updateData", type: "PUT"},
 	/**
 	 * @function can-connect/data/url/url.destroyData destroyData
 	 * @parent can-connect/data/url/url.data-methods
+	 *
+	 * @signature `destroyData(instanceData)`
+	 *
+	 * Deletes instance data given the serialized form of the data and
+	 *   the [can-connect/data/url/url.url] settings.
+	 *   If `url.destroyData` is a function, that function will be called.  If `url.destroyData` is a
+	 *   string, a request to that string will be made. If `url` is a string, a `DELETE` request is made to
+	 *   `url+"/"+IDPROP`.
+	 *
+	 *   @param {Object} instanceData The serialized data of the instance.
+	 *   @return {Promise<Object>} A promise that resolves to the deleted instance data.
 	 */
 	destroyData: {prop: "destroyData", type: "DELETE"}
 };

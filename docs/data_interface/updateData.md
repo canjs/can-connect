@@ -1,4 +1,4 @@
-@typedef {function} can-connect/connection.updateData connection.updateData
+@typedef {function} can-connect/connection.updateData updateData
 @parent can-connect/DataInterface
 
 @description Updates an instance's data.

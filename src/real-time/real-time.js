@@ -84,7 +84,7 @@
  * todosConnection.getList(set).then(function(retrievedTodos){
  * ```
  *
- * It then adds those `todos` to the [can.connect/constructor-store.listStore] so
+ * It then adds those `todos` to the [can-connect/constructor/store/store.listStore] so
  * they can be updated automatically.  And, it listens to changes in `todos` and calls an `update` function:
  *
  * ```
@@ -109,7 +109,7 @@
  *
  * The `todoItem` creates an element that updates with changes
  * in its `todo`.  It listens to changes in the `todo` and saves
- * the todo in the [can.connect/constructor-store.instanceStore] with the
+ * the todo in the [can-connect/constructor/store/store.instanceStore] with the
  * following:
  *
  * ```
@@ -144,8 +144,8 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		 *
 		 * @signature `connection.createInstance(props)`
 		 *
-		 *   If there is no instance in the [can.connect/constructor-store.instanceStore]
-		 *   for `props`'s [can-connect/base/base.id], an instance is [can-connect/constructor.hydrateInstance hydrated],
+		 *   If there is no instance in the [can-connect/constructor/store/store.instanceStore]
+		 *   for `props`'s [can-connect/base/base.id], an instance is [can-connect/constructor/constructor.hydrateInstance hydrated],
 		 *   added to the store, and then [can-connect/real-time/real-time.createdData] is called with
 		 *   `props` and the hydrated instance's serialized data. [can-connect/real-time/real-time.createdData]
 		 *   will add this instance to any lists the instance belongs to.
@@ -208,7 +208,7 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		 *   Gets the instance created for this request. Then, updates the instance with
 		 *   the response data `props`.
 		 *
-		 *   Next, it goes through every list in the [can.connect/constructor-store.listStore],
+		 *   Next, it goes through every list in the [can-connect/constructor/store/store.listStore],
 		 *   test if the instance's data belongs in that list.  If it does,
 		 *   adds the instance's data to the serialized list data and
 		 *   [can-connect/constructor/constructor.updatedList updates the list].

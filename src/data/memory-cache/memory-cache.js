@@ -23,10 +23,23 @@
  *
  * ## Use
  *
- * `data-memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache/fall-through-cache] or
+ * `data/memory-cache` is often used with a caching strategy like [can-connect/fall-through-cache/fall-through-cache] or
  * [can-connect/cache-requests/cache-requests].
  *
+ * ```js
+ * var cacheConnection = connect([
+ *   require("can-connect/data/memory-cache/memory-cache")
+ * ],{});
  *
+ * var todoConnection = connect([
+ *   require("can-connect/data/url/url"),
+ *   require("can-connect/fall-through-cache/fall-through-cache")
+ * ],
+ * {
+ *   url: "/services/todos",
+ *   cacheConnection: cacheConnection
+ * });
+ * ```
  */
 var getItems = require("can-connect/helpers/get-items");
 require("when/es6-shim/Promise");
@@ -153,11 +166,11 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 		 *
 		 * Returns the sets contained within the cache.
 		 *
-		 * @signature `connection.getSets(set)`
+		 * @signature `connection.getSets()`
 		 *
 		 *   Returns the sets added by [can-connect/data/memory-cache/memory-cache.updateListData].
 		 *
-		 *   @return {Promise<Array<Set>>} A promise that resolves to the list of sets.
+		 *   @return {Promise<Array<can-set/Set>>} A promise that resolves to the list of sets.
 		 *
 		 * @body
 		 *
@@ -235,8 +248,8 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 		 *   Tries to merge this set of data with any other saved sets of data. If
 		 *   unable to merge this data, saves the set by itself.
 		 *
-		 *   @param {can-connect.listData} listData
-		 *   @param {can-set/Set} set
+		 *   @param {can-connect.listData} listData The data that belongs to `set`.
+		 *   @param {can-set/Set} set The set `listData` belongs to.
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){

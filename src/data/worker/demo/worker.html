@@ -1,9 +1,9 @@
 <body>
 
 <div id='list'></div>
-	
+
 <script src="../../../../node_modules/steal/steal.js" id="demo-source">
-import todoConnection from "can-connect/data/worker/demo/todo_connection";
+var todoConnection = require("can-connect/data/worker/demo/todo_connection")
 
 todoConnection.getList({}).then(function(todos){
 	var html = "";

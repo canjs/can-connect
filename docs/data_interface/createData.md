@@ -1,4 +1,4 @@
-@typedef {function} can-connect/connection.createData connection.createData
+@typedef {function} can-connect/connection.createData createData
 @parent can-connect/DataInterface
 
 @description Creates instance data given the serialized form of the instance.

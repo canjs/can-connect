@@ -22,15 +22,17 @@
  * [can-connect/connection.getData] and [can-connect/connection.getListData].
  *
  * ```
- * var cache = connect(['data-localstorage-cache'],{
+ * var cache = connect([
+ *   require("can-connect/data/localstorage-cache/localstorage-cache")
+ * ],{
  *   name: "todos"
  * });
  *
  * var todoConnection = connect([
- *    'fall-through-cache',
- *    'data-url',
- *    'constructor',
- *    'constructor-store'
+ *    require("can-connect/fall-through-cache/fall-through-cache"),
+ *    require("can-connect/data/url/url"),
+ *    require("can-connect/constructor/constructor"),
+ *    require("can-connect/constructor/store/store")
  *   ], {
  *   url: "/todos",
  *   cacheConnection: cache
@@ -227,7 +229,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		 *   Checks the [can-connect/base/base.cacheConnection] for `params`'s data.
 		 *
 		 *   If the cache connection has data, the cached data is returned. Prior to
-		 *   returning the data, the [can-connect/constructor.hydrateInstance] method
+		 *   returning the data, the [can-connect/constructor/constructor.hydrateInstance] method
 		 *   is intercepted so we can get a handle on the instance that's being created
 		 *   for the returned data. Once the intercepted instance is retrieved,
 		 *   we use the base connection to get data and update the intercepted instance and

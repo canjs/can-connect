@@ -1,4 +1,4 @@
-@typedef {function} connection.updateListData connection.updateListData
+@typedef {function} can-connect/connection.updateListData updateListData
 @parent can-connect/DataInterface
 
 @description Updates list data for a particular set.
