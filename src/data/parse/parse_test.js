@@ -1,6 +1,8 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var connect = require("can-connect");
+var dataUrl = require("can-connect/data/url/"),
+	dataParse = require("can-connect/data/parse/");
 
 QUnit.module("can-connect/data-parse",{
 	setup: function(){
@@ -14,7 +16,7 @@ var logErrorAndStart = function(e){
 
 QUnit.test("basics", function(assert){
 
-	var connection = connect(["data-url","data-parse"],{
+	var connection = connect([dataUrl,dataParse],{
 		url: {
 			getListData: "POST /getList",
 			getData: "DELETE /getInstance",
@@ -74,7 +76,7 @@ QUnit.test("basics", function(assert){
 
 test("parseListData and parseInstanceData don't use options correctly (#27)", function(){
 
-	var connection = connect(["data-url","data-parse"],{
+	var connection = connect([dataUrl,dataParse],{
 		url: {
 			getListData: "POST /getList",
 			getData: "DELETE /getInstance",

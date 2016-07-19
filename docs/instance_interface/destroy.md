@@ -1,2 +1,2 @@
-@function connection.destroy destroy
-@parent can-connect.externalCRUD
+@function can-connect/connection.destroy connection.destroy
+@parent can-connect/InstanceInterface

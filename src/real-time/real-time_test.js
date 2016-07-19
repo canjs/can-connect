@@ -1,10 +1,10 @@
 var connect = require("can-connect/can-connect");
 var set = require("can-set");
-require("can-connect/real-time/");
-require("can-connect/constructor/");
-require("can-connect/constructor/store/");
-require("can-connect/data/callbacks/");
-require("can-connect/constructor/callbacks-once/");
+var realTime = require("can-connect/real-time/");
+var constructor = require("can-connect/constructor/");
+var constructorStore = require("can-connect/constructor/store/");
+var dataCallbacks = require("can-connect/data/callbacks/");
+var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
@@ -107,7 +107,7 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store","data-callbacks",callbackBehavior, "constructor-callbacks-once"],{
+	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,dataCallbacks,callbackBehavior, callbacksOnce],{
 
 	});
 
@@ -236,8 +236,8 @@ test("sorting by id works", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store",
-		"data-callbacks", "constructor-callbacks-once"],{
+	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+		dataCallbacks, callbacksOnce],{
 			algebra: algebra
 	});
 
@@ -277,8 +277,8 @@ test("sorting by sort clause works with updates", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, "real-time","constructor","constructor-store",
-		"data-callbacks", "constructor-callbacks-once"],{
+	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+		dataCallbacks, callbacksOnce],{
 			algebra: algebra
 	});
 

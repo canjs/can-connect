@@ -1,9 +1,9 @@
 /**
- * @module {connect.Behavior} can-connect/constructor/store constructor-store
+ * @module {connect.Behavior} can-connect/constructor/store/store
  * @parent can-connect.behaviors
- * @group can.connect/constructor-store.stores 0 Stores
- * @group can.connect/constructor-store.crud 1 CRUD Methods
- * @group can.connect/constructor-store.hydrators 2 Hydrators
+ * @group can-connect/constructor/store/store.stores 0 Stores
+ * @group can-connect/constructor/store/store.crud 1 CRUD Methods
+ * @group can-connect/constructor/store/store.hydrators 2 Hydrators
  *
  * Supports saving and retrieving lists and instances in a store.
  *
@@ -11,8 +11,8 @@
  *
  *   Overwrites baseConnection so it contains a store for
  *   instances and lists.  It traps calls to the
- *   [can.connect/constructor-store.hydrateInstance] and
- *   [can.connect/constructor-store.hydrateList] methods to
+ *   [can-connect/constructor/store/store.hydrateInstance] and
+ *   [can-connect/constructor/store/store.hydrateList] methods to
  *   use instances or lists in the store if available. It
  *   overwrites "CRUD METHODS" to make sure that while any request
  *   is pending, all lists and instances are added to the store.
@@ -25,18 +25,18 @@
  *
  * The `constructor-store` extension is used to:
  *  - provide a store of instances and lists used by the client.
- *  - prevent multiple instances from being hydrated for the same [connect.base.id] or multiple
- *    lists for the same [connect.base.listSet].
+ *  - prevent multiple instances from being hydrated for the same [can-connect/base/base.id] or multiple
+ *    lists for the same [can-connect/base/base.listSet].
  *
  * The stores provide access to an instance
- * by its [connect.base.id] or a list by its [connect.base.listSet]. These stores are
- * used by other extensions like [can-connect/real-time] and [can-connect/fall-through-cache].
+ * by its [can-connect/base/base.id] or a list by its [can-connect/base/base.listSet]. These stores are
+ * used by other extensions like [can-connect/real-time/real-time] and [can-connect/fall-through-cache/fall-through-cache].
  *
  * Lets see how `constructor-store`'s behavior be used to prevent multiple
  * instances from being hydrated.  This example allows you to create multiple instances of a `todoEditor` that loads
  * and edits a todo instance.
  *
- * @demo can-connect/src/constructor/store/store.html
+ * @demo ../../../demos/can-connect/constructor-store.html
  *
  * You'll notice that you can edit one todo's name and the other
  * todo editors update.  This is because each `todoEditor` gets the same instance in memory.  So that when it
@@ -55,19 +55,19 @@
  * todosConnection.addInstanceReference(todo);
  * ```
  *
- * Each `todoEditor` gets the same instance because they called [can.connect/constructor-store.addListReference]
+ * Each `todoEditor` gets the same instance because they called [can-connect/constructor/store/store.addListReference]
  * which makes it so anytime a todo with `id=5` is requested, the same instance is returned.
  *
  * Notice that if you change an input element, and click "Create Todo Editor", all the `todoEditor`
  * widgets are set back to the old text.  This is because whenever data is loaded from the server,
- * it is passed to [can-connect/constructor.updatedInstance] which defaults to overwriting any current
+ * it is passed to [can-connect/constructor/constructor.updatedInstance] which defaults to overwriting any current
  * properties with those from the server.
  *
  * To make sure the server has the latest, you can save a todo by hitting "ENTER".
  *
  * Finally, this widget cleans itself up nicely when it is removed by unobserving the
  * `todo` instance and
- * [can.connect/constructor-store.deleteInstanceReference deleting the instance reference]. Doing this
+ * [can-connect/constructor/store/store.deleteInstanceReference deleting the instance reference]. Doing this
  * prevents memory leaks.
  *
  * ```
@@ -82,20 +82,20 @@ var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
-module.exports = connect.behavior("constructor-store",function(baseConnect){
+module.exports = connect.behavior("constructor/store",function(baseConnect){
 
 	var behavior = {
 		/**
-		 * @property {WeakReferenceMap} can.connect/constructor-store.instanceStore instanceStore
-		 * @parent can.connect/constructor-store.stores
+		 * @property {WeakReferenceMap} can-connect/constructor/store/store.instanceStore instanceStore
+		 * @parent can-connect/constructor/store/store.stores
 		 *
-		 * A store of instances mapped by [connect.base.id].
+		 * A store of instances mapped by [can-connect/base/base.id].
 		 */
 		instanceStore: new WeakReferenceMap(),
 		/**
-		 * @property {WeakReferenceMap} can.connect/constructor-store.listStore listStore
-		 * @parent can.connect/constructor-store.stores
-		 * A store of lists mapped by [connect.base.listSet].
+		 * @property {WeakReferenceMap} can-connect/constructor/store/store.listStore listStore
+		 * @parent can-connect/constructor/store/store.stores
+		 * A store of lists mapped by [can-connect/base/base.listSet].
 		 */
 		listStore: new WeakReferenceMap(),
 		_requestInstances: {},
@@ -116,36 +116,36 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.addInstanceReference addInstanceReference
-		 * @parent can.connect/constructor-store.stores
+		 * @function can-connect/constructor/store/store.addInstanceReference addInstanceReference
+		 * @parent can-connect/constructor/store/store.stores
 		 *
 		 * Adds a reference to an instance so it can be easily looked up.
 		 *
 		 * @signature `connection.addInstanceReference( instance )`
 		 *
-		 *   Adds a reference to an instance in the [can.connect/constructor-store.instanceStore] by [connect.base.id].
+		 *   Adds a reference to an instance in the [can-connect/constructor/store/store.instanceStore] by [can-connect/base/base.id].
 		 *   The number of references are incremented.
 		 *
-		 *   @param {Instance} instance The instance to add.
+		 *   @param {can-connect/Instance} instance The instance to add.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * The [can.connect/constructor-store.instanceStore] contains a collection of instances
-		 * created for each [connect.base.id]. The `instanceStore` is used to prevent creating the
+		 * The [can-connect/constructor/store/store.instanceStore] contains a collection of instances
+		 * created for each [can-connect/base/base.id]. The `instanceStore` is used to prevent creating the
 		 * same instance multiple times.  Instances need to be added to this store for this behavior
 		 * to happen.  To do this, call `addInstanceReference` like the following:
 		 *
 		 * ```
 		 * // A basic connection:
 		 * var todoConnection = connect([
-		 *   'constructor-store',
-		 *   'constructor',
-		 *   'data-url'],
-		 *   {
-		 *     url: "/todos"
-		 *   });
+		 *   require("can-connect/constructor/store/store"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ], {
+		 *   url: "/todos"
+		 * });
 		 *
 		 * var originalTodo;
 		 *
@@ -168,11 +168,11 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * });
 		 * ```
 		 *
-		 * The `.getData`  response data is passed with `originalTodo` to [can-connect/constructor.updatedInstance]
+		 * The `.getData`  response data is passed with `originalTodo` to [can-connect/constructor/constructor.updatedInstance]
 		 * which can update the `originalTodo` with the new data.
 		 *
 		 *
-		 * All these instances stay in memory.  Use [can.connect/constructor-store.deleteInstanceReference]
+		 * All these instances stay in memory.  Use [can-connect/constructor/store/store.deleteInstanceReference]
 		 * to remove them.
 		 *
 		 * Typically, `addInstanceReference` is called when something expresses interest in the interest, such
@@ -200,28 +200,28 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			delete data[name];
 		},
 		/**
-		 * @function can.connect/constructor-store.deleteInstanceReference deleteInstanceReference
-		 * @parent can.connect/constructor-store.stores
+		 * @function can-connect/constructor/store/store.deleteInstanceReference deleteInstanceReference
+		 * @parent can-connect/constructor/store/store.stores
 		 *
-		 * Removes a reference to an instance by [connect.base.id] so it can be garbage collected.
+		 * Removes a reference to an instance by [can-connect/base/base.id] so it can be garbage collected.
 		 *
 		 * @signature `connection.addInstanceReference( instance )`
 		 *
-		 *   Decrements the number of references to an instance in the [can.connect/constructor-store.instanceStore].
+		 *   Decrements the number of references to an instance in the [can-connect/constructor/store/store.instanceStore].
 		 *   Removes the instance if there are no longer any references.
 		 *
-		 *   @param {Instance} instance The instance to remove.
+		 *   @param {can-connect/Instance} instance The instance to remove.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
 		 * `deleteInstanceReference` is called to remove references to instances in
-		 * the [can.connect/constructor-store.instanceStore] so the instances maybe garbage
+		 * the [can-connect/constructor/store/store.instanceStore] so the instances maybe garbage
 		 * collected.  It's usually called when the application or some part of the application no
 		 * longer is interested in an instance.
 		 *
-		 * [can.connect/constructor-store.addInstanceReference] has an example of adding
+		 * [can-connect/constructor/store/store.addInstanceReference] has an example of adding
 		 * an instance to the store.  The following continues that example to remove
 		 * the `originalTodo` from the store:
 		 *
@@ -234,38 +234,38 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			this.instanceStore.deleteReference( this.id(instance), instance );
 		},
 		/**
-		 * @property {WeakReferenceMap} can.connect/constructor-store.addListReference addListReference
-		 * @parent can.connect/constructor-store.stores
+		 * @property {WeakReferenceMap} can-connect/constructor/store/store.addListReference addListReference
+		 * @parent can-connect/constructor/store/store.stores
 		 *
 		 * Adds a reference to a list so it can be easily looked up.
 		 *
 		 * @signature `connection.addListReference( list[, set] )`
 		 *
-		 *   Adds a reference to a list in the [can.connect/constructor-store.listStore].  The number of
+		 *   Adds a reference to a list in the [can-connect/constructor/store/store.listStore].  The number of
 		 *   references are incremented.
 		 *
-		 *   @param {List} list The list to add.
+		 *   @param {can-connect.List} list The list to add.
 		 *
-		 *   @param {Set} [set] The set this list represents if it can't be identified with [connect.base.listSet].
+		 *   @param {can-set/Set} [set] The set this list represents if it can't be identified with [can-connect/base/base.listSet].
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * The [can.connect/constructor-store.listStore] contains a collection of lists
-		 * created for each [connect.base.listSet]. The `listStore` is used to prevent creating the
+		 * The [can-connect/constructor/store/store.listStore] contains a collection of lists
+		 * created for each [can-connect/base/base.listSet]. The `listStore` is used to prevent creating the
 		 * same list multiple times and for identifying a list for a given set. Lists need to be added to this store for this behavior
 		 * to happen.  To do this, call `addListReference` like the following:
 		 *
 		 * ```
 		 * // A basic connection:
 		 * var todoConnection = connect([
-		 *   'constructor-store',
-		 *   'constructor',
-		 *   'data-url'],
-		 *   {
-		 *     url: "/todos"
-		 *   });
+		 *   require("can-connect/constructor/store/store"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ], {
+		 *   url: "/todos"
+		 * });
 		 *
 		 * var dueToday;
 		 *
@@ -288,10 +288,10 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 		 * });
 		 * ```
 		 *
-		 * The `.getListData`  response data is passed with `dueToday` to [can-connect/constructor.updatedList]
+		 * The `.getListData`  response data is passed with `dueToday` to [can-connect/constructor/constructor.updatedList]
 		 * which can update `dueToday` with the new data.
 		 *
-		 * All these lists stay in memory.  Use [can.connect/constructor-store.deleteListReference]
+		 * All these lists stay in memory.  Use [can-connect/constructor/store/store.deleteListReference]
 		 * to remove them.
 		 *
 		 * Typically, `addListReference` is called when something expresses interest in the list, such
@@ -305,28 +305,28 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.deleteListReference deleteListReference
-		 * @parent can.connect/constructor-store.stores
+		 * @function can-connect/constructor/store/store.deleteListReference deleteListReference
+		 * @parent can-connect/constructor/store/store.stores
 		 *
-		 * Removes a reference to a list by [connect.base.listSet] so it can be garbage collected.
+		 * Removes a reference to a list by [can-connect/base/base.listSet] so it can be garbage collected.
 		 *
 		 * @signature `connection.addInstanceReference( instance )`
 		 *
-		 *   Decrements the number of references to an list in the [can.connect/constructor-store.listStore].
+		 *   Decrements the number of references to an list in the [can-connect/constructor/store/store.listStore].
 		 *   Removes the list if there are no longer any references.
 		 *
-		 *   @param {Instance} list The list to remove.
+		 *   @param {can-connect/Instance} list The list to remove.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
 		 * `deleteListReference` is called to remove references to lists in
-		 * the [can.connect/constructor-store.listStore] so the lists maybe garbage
+		 * the [can-connect/constructor/store/store.listStore] so the lists maybe garbage
 		 * collected.  It's usually called when the application or some part of the application no
 		 * longer is interested in an list.
 		 *
-		 * [can.connect/constructor-store.addListReference] has an example of adding
+		 * [can-connect/constructor/store/store.addListReference] has an example of adding
 		 * a list to the store.  The following continues that example to remove
 		 * the `dueToday` from the store:
 		 *
@@ -342,16 +342,16 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.hydratedInstance hydratedInstance
-		 * @parent can.connect/constructor-store.hydrators
+		 * @function can-connect/constructor/store/store.hydratedInstance hydratedInstance
+		 * @parent can-connect/constructor/store/store.hydrators
 		 *
-		 * Called whenever [can.connect/constructor-store.hydrateInstance] is called with the hydration result.
+		 * Called when [can-connect/constructor/store/store.hydrateInstance] is called and a new instance is created.
 		 *
 		 * @signature `hydratedInstance(instance)`
 		 *
-		 *   If there are pending requests, the instance is kept in the [can.connect/constructor-store.instanceStore].
+		 *   If there are pending requests, the instance is kept in the [can-connect/constructor/store/store.instanceStore].
 		 *
-		 *   @param {Instance} instance The hydrated instance.
+		 *   @param {can-connect/Instance} instance The hydrated instance.
 		 *
 		 */
 		// ## hydratedInstance
@@ -366,19 +366,19 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.hydrateInstance hydrateInstance
-		 * @parent can.connect/constructor-store.hydrators
+		 * @function can-connect/constructor/store/store.hydrateInstance hydrateInstance
+		 * @parent can-connect/constructor/store/store.hydrators
 		 *
 		 * Returns a instance given raw data.
 		 *
 		 * @signature `connection.hydrateInstance(props)`
 		 *
 		 *   Overwrites the base `hydratedInstance` so that if a matching instance is
-		 *   in the [can.connect/constructor-store.instanceStore], that instance will
-		 *   be [can-connect/constructor.updatedInstance updated] with `props` and returned.
+		 *   in the [can-connect/constructor/store/store.instanceStore], that instance will
+		 *   be [can-connect/constructor/constructor.updatedInstance updated] with `props` and returned.
 		 *   If there isn't a matching instance, the base `hydrateInstance` will be called.
 		 *
-		 *   No matter what, [can.connect/constructor-store.hydratedInstance] is called.
+		 *   No matter what, [can-connect/constructor/store/store.hydratedInstance] is called.
 		 */
 		// Overwrites hydrateInstance so it looks in the store and calls hydratedInstance.
 		hydrateInstance: function(props){
@@ -394,16 +394,16 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return instance;
 		},
 		/**
-		 * @function can.connect/constructor-store.hydratedList hydratedList
-		 * @parent can.connect/constructor-store.hydrators
+		 * @function can-connect/constructor/store/store.hydratedList hydratedList
+		 * @parent can-connect/constructor/store/store.hydrators
 		 *
-		 * Called whenever [can.connect/constructor-store.hydrateList] is called with the hydration result.
+		 * Called whenever [can-connect/constructor/store/store.hydrateList] is called with the hydration result.
 		 *
 		 * @signature `hydratedList(list)`
 		 *
-		 *   If there are pending requests, the list is kept in the [can.connect/constructor-store.listStore].
+		 *   If there are pending requests, the list is kept in the [can-connect/constructor/store/store.listStore].
 		 *
-		 *   @param {List} list The hydrated list.
+		 *   @param {can-connect.List} list The hydrated list.
 		 *
 		 *
 		 */
@@ -421,19 +421,19 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can.connect/constructor-store.hydrateList hydrateList
-		 * @parent can.connect/constructor-store.hydrators
+		 * @function can-connect/constructor/store/store.hydrateList hydrateList
+		 * @parent can-connect/constructor/store/store.hydrators
 		 *
 		 * Returns a list given raw data.
 		 *
 		 * @signature `connection.hydrateList(props)`
 		 *
 		 *   Overwrites the base `hydrateList` so that if a matching list is
-		 *   in the [can.connect/constructor-store.listStore], that list will
-		 *   be [can-connect/constructor.updatedList updated] with `listData` and returned.
+		 *   in the [can-connect/constructor/store/store.listStore], that list will
+		 *   be [can-connect/constructor/constructor.updatedList updated] with `listData` and returned.
 		 *   If there isn't a matching list, the base `hydrateList` will be called.
 		 *
-		 *   No matter what, [can.connect/constructor-store.hydratedList] is called.
+		 *   No matter what, [can-connect/constructor/store/store.hydratedList] is called.
 		 */
 		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
@@ -449,11 +449,11 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return list;
 		},
 		/**
-		 * @function can.connect/constructor-store.getList getList
-		 * @parent can.connect/constructor-store.crud
+		 * @function can-connect/constructor/store/store.getList getList
+		 * @parent can-connect/constructor/store/store.crud
 		 *
-		 * Overwrites [connection.getList] so any
-		 * [can.connect/constructor-store.hydrateInstance hydrated instances] or [can.connect/constructor-store.hydrateList hydrated lists]
+		 * Overwrites [can-connect/connection.getList] so any
+		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] or [can-connect/constructor/store/store.hydrateList hydrated lists]
 		 * are kept in the store until the response resolves.
 		 *
 		 */
@@ -470,11 +470,11 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return promise;
 		},
 		/**
-		 * @function can.connect/constructor-store.get get
-		 * @parent can.connect/constructor-store.crud
+		 * @function can-connect/constructor/store/store.get get
+		 * @parent can-connect/constructor/store/store.crud
 		 *
-		 * Overwrites [connection.get] so any
-		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the
+		 * Overwrites [can-connect/connection.get] so any
+		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
 		 */
 		get: function(params) {
@@ -491,11 +491,11 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 
 		},
 		/**
-		 * @function can.connect/constructor-store.save save
-		 * @parent can.connect/constructor-store.crud
+		 * @function can-connect/constructor/store/store.save save
+		 * @parent can-connect/constructor/store/store.crud
 		 *
-		 * Overwrites [connection.save] so any
-		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the
+		 * Overwrites [can-connect/connection.save] so any
+		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
 		 *
 		 */
@@ -521,11 +521,11 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 			return promise;
 		},
 		/**
-		 * @function can.connect/constructor-store.destroy destroy
-		 * @parent can.connect/constructor-store.crud
+		 * @function can-connect/constructor/store/store.destroy destroy
+		 * @parent can-connect/constructor/store/store.crud
 		 *
-		 * Overwrites [connection.destroy] so any
-		 * [can.connect/constructor-store.hydrateInstance hydrated instances] are kept in the
+		 * Overwrites [can-connect/connection.destroy] so any
+		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
 		 */
 		destroy: function(instance) {
@@ -546,5 +546,3 @@ module.exports = connect.behavior("constructor-store",function(baseConnect){
 	return behavior;
 
 });
-
-

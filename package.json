@@ -77,7 +77,7 @@
     "./constructor/store/store": "./dist/cjs/constructor/store/store",
     "./data/callbacks/callbacks": "./dist/cjs/data/callbacks/callbacks",
     "./data/callbacks-cache/callbacks-cache": "./dist/cjs/data/callbacks-cache/callbacks-cache",
-    "./data/combine-requests/combine-requests": "./dist/cjs/data/combine-requests/combine-requests",
+    "./data": "./dist/cjs/data",
     "./helpers/deferred": "./dist/cjs/helpers/deferred",
     "./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
     "./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",

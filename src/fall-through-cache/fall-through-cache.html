@@ -6,29 +6,58 @@
 <div id='list'></div>
 
 <script src="../../node_modules/steal/steal.js" id="demo-source">
-import connect from "can-connect";
-import "can-connect/data/url/";
-import "can-connect/constructor/";
-import "can-connect/constructor/store/";
-import "can-connect/data/localstorage-cache/";
-import "can-connect/fall-through-cache/";
-import fixture from "can-fixture";
-import $ from "jquery";
+var connect = require("can-connect");
+var canEvent = require("can-event");
+var fixture = require("can-fixture");
+var $ =  require("jquery");
 
-var cache = connect(['data-localstorage-cache'],{
+var cache = connect([
+	require("can-connect/data/localstorage-cache/localstorage-cache")
+],{
 	name: "todos"
 });
 
 // A connection that gets todos data
 var todosConnection = connect([
-	"fall-through-cache",
-	"constructor",
-	"constructor-store",
-	"data-url"],{
+	require("can-connect/fall-through-cache/fall-through-cache"),
+    require("can-connect/data/url/url"),
+    require("can-connect/constructor/constructor"),
+    require("can-connect/constructor/store/store")
+],{
   url: "/todos",
-  cacheConnection: cache
+  cacheConnection: cache,
+  instance: function(instanceProps){
+	  return makeObservable(instanceProps);
+  }
 });
 
+function makeObservable(instanceProps) {
+	var meta = Object.assign({}, canEvent);
+
+	var proxy = new Proxy(instanceProps, {
+		set: function(target, key, value) {
+			if (key in meta) {
+				meta[key] = value;
+			} else {
+				var old = target[key];
+				var change = old !== value;
+				target[key] = value;
+				canEvent.dispatch.call(meta, "change");
+			}
+			return true;
+		},
+		get: function(target, name) {
+			if (name === "serialized") {
+				return target;
+			} else if (name in meta) {
+				return meta[name]
+			} else {
+				return target[name];
+			}
+		}
+	});
+	return proxy;
+}
 
 
 var todoItem = function(todo) {
@@ -43,12 +72,17 @@ var todoItem = function(todo) {
 	};
 	update();
 
-	Object.observe(todo, update, ["add", "update", "delete"] );
+	todo.on("change", todo);
+	//Object.observe(todo, update, ["add", "update", "delete"] );
 	todosConnection.addInstanceReference(todo);
 
 	li.bind("removed", function(){
 		Object.unobserve(todo, update, ["add", "update", "delete"] );
 		todosConnection.deleteInstanceReference(todo);
+	});
+
+	li.bind("click", function(){
+		todo.complete = !todo.complete 
 	});
 	return li;
 };
@@ -100,7 +134,7 @@ var todoList = function(set){
 		todos = retrievedTodos;
 
 		todosConnection.addListReference(todos);
-		Object.observe(todos, update, ["add", "update", "delete"] );
+		//Object.observe(todos, update, ["add", "update", "delete"] );
 
 		update(todos.map(function(todo, i){
 			return {

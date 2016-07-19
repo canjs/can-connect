@@ -11,7 +11,7 @@ var getId = function(d) {
 	return d.id;
 };
 
-QUnit.module("can-connect/cache-requests",{
+QUnit.module("can-connect/cache-requests/",{
 	setup: function(){
 
 	}

@@ -1,2 +1,2 @@
-@function connection.get get
-@parent can-connect.externalCRUD
+@function can-connect/connection.get connection.get
+@parent can-connect/InstanceInterface

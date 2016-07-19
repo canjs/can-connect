@@ -9,6 +9,7 @@ require("./data/combine-requests/combine-requests_test");
 require("./data/inline-cache/inline-cache_test");
 require("./data/localstorage-cache/localstorage-cache_test");
 require("./data/memory-cache/memory-cache_test");
+require("./data/worker/worker_test");
 
 require("./fall-through-cache/fall-through-cache_test");
 require("./service-worker/service-worker_test");

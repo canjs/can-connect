@@ -2,17 +2,20 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
 /**
- * @module can-connect/data/inline-cache data-inline-cache
+ * @module can-connect/data/inline-cache/inline-cache
  * @parent can-connect.behaviors
- * @group can-connect/data/inline-cache.data-methods Data Methods
- * @group can-connect/data/inline-cache.globals Globals
+ * @group can-connect/data/inline-cache/inline-cache.data-methods Data Methods
+ * @group can-connect/data/inline-cache/inline-cache.globals Globals
+ * @hide
+ *
+ * @deprecated {0.6.0} [can-zone] can now do this without this plugin.
  *
  * Use data embedded in the page response instead of making a request.
  *
  * @signature `dataInlineCache( baseBehavior )`
  *
  *   Makes requests look for their data in a
- *   [can-connect/data/inline-cache.INLINE_CACHE] object.  If it is found,
+ *   [can-connect/data/inline-cache/inline-cache.INLINE_CACHE] object.  If it is found,
  *   that entry in the cache is deleted so future requests will pass through.
  *
  * @body
@@ -51,11 +54,11 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
  *
  *
  */
-module.exports = connect.behavior("data-inline-cache",function(baseConnect){
+module.exports = connect.behavior("data/inline-cache",function(baseConnect){
 
 	/**
-	 * @property {Object} can-connect/data/inline-cache.INLINE_CACHE INLINE_CACHE
-	 * @parent can-connect/data/inline-cache.globals
+	 * @property {Object} can-connect/data/inline-cache/inline-cache.INLINE_CACHE INLINE_CACHE
+	 * @parent can-connect/data/inline-cache/inline-cache.globals
 	 *
 	 * Contains response data for requests that should not be made.
 	 *
@@ -63,7 +66,7 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 	 *
 	 *   A mapping of a [connection.name] to an Object that contains the
 	 *   cached data for that connection.  That inner object is a mapping
-	 *   between either [connect.base.id ids] or [connect.base.listSet serialized sets] to
+	 *   between either [can-connect/base/base.id ids] or [can-connect/base/base.listSet serialized sets] to
 	 *   response data for those requests.
 	 *
 	 *
@@ -87,20 +90,20 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 
 	return {
 		/**
-		 * @function can-connect/data/inline-cache.getListData getListData
-		 * @parent can-connect/data/inline-cache.data-methods
+		 * @function can-connect/data/inline-cache/inline-cache.getListData getListData
+		 * @parent can-connect/data/inline-cache/inline-cache.data-methods
 		 *
-		 * Uses data in [can-connect/data/inline-cache.INLINE_CACHE] if available.
+		 * Uses data in [can-connect/data/inline-cache/inline-cache.INLINE_CACHE] if available.
 		 *
 		 * @signature `connection.getListData( set )`
 		 *
-		 *   Looks if there is a key in [can-connect/data/inline-cache.INLINE_CACHE]
+		 *   Looks if there is a key in [can-connect/data/inline-cache/inline-cache.INLINE_CACHE]
 		 *   that matches `set`.  If there is, it uses that key's value for the
 		 *   response data and deletes that key so it can not be reused.
 		 *
 		 *   If there is no matching `key`, the base `getListData` is used.
 		 *
-		 *   @param {Object} set
+		 *   @param {can-set/Set} set
 		 *
 		 *   @return {Promise<can-connect.listData>}
 		 */
@@ -118,15 +121,15 @@ module.exports = connect.behavior("data-inline-cache",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can-connect/data/inline-cache.getData getData
-		 * @parent can-connect/data/inline-cache.data-methods
+		 * @function can-connect/data/inline-cache/inline-cache.getData getData
+		 * @parent can-connect/data/inline-cache/inline-cache.data-methods
 		 *
-		 * Uses data in [can-connect/data/inline-cache.INLINE_CACHE] if available.
+		 * Uses data in [can-connect/data/inline-cache/inline-cache.INLINE_CACHE] if available.
 		 *
 		 * @signature `connection.getListData( set )`
 		 *
-		 *   Looks if there is a key in [can-connect/data/inline-cache.INLINE_CACHE]
-		 *   that matches the [connect.base.id] of `params`.  If there is, it uses that key's value for the
+		 *   Looks if there is a key in [can-connect/data/inline-cache/inline-cache.INLINE_CACHE]
+		 *   that matches the [can-connect/base/base.id] of `params`.  If there is, it uses that key's value for the
 		 *   response data and deletes that key so it can not be reused.
 		 *
 		 *   If there is no matching `key`, the base `getData` is used.

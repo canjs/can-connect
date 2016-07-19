@@ -1,33 +1,35 @@
-import connect from "can-connect";
-import "can-connect/data/url/";
-import "can-connect/constructor/";
-import "can-connect/constructor/store/";
-import "can-connect/data/memory-cache/";
-import "can-connect/cache-requests/";
-import "can-connect/data/worker/";
-import fixture from "can-fixture";
+var connect = require("can-connect");
+var fixture = require("can-fixture");
 
-var cache = connect(['data-memory-cache'],{
+// If we are in the main thread, see if we can load this same
+// connection in a worker thread.
+var worker;
+if(typeof document !== "undefined") {
+	worker = new Worker( System.stealURL+"?main=can-connect/data/worker/demo/todo_connection" );
+}
+
+
+// create cache connection
+var cache = connect([
+	require("can-connect/data/memory-cache/")
+],{
 	name: "todos"
 });
 
-var worker;
-if(typeof document !== "undefined") {
-	worker = new Worker( System.stealURL+"?main=src/data/worker/demo/todo_connection" );
-}
-
+// Create the main connection with everything you need.  If there is a worker,
+// all data interface methods will be sent to the worker.
 var todosConnection = connect([
-	"data-url",
-	"cache-requests",
-	"data-worker",
-	"constructor",
-	"constructor-store"],
-  {
+	require("can-connect/data/url/url"),
+	require("can-connect/cache-requests/cache-requests"),
+	require("can-connect/data/worker/worker"),
+	require("can-connect/constructor/constructor"),
+	require("can-connect/constructor/store/store")
+],{
     url: "/todos",
     cacheConnection: cache,
     worker: worker,
     name: "todos"
-  });
+});
 
 
 fixture.delay = 1000;
@@ -41,4 +43,4 @@ fixture({
 	}
 });
 
-export default todosConnection;
+module.exports = todosConnection;

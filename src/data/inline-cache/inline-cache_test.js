@@ -1,7 +1,14 @@
 var QUnit = require("steal-qunit");
 var connect = require("can-connect");
 var testHelpers = require("can-connect/test-helpers");
-require("can-connect/data/callbacks/");
+
+var constructor = require("can-connect/constructor/"),
+	fallThroughCache = require("can-connect/fall-through-cache/"),
+	inlineCache = require("can-connect/data/inline-cache/"),
+	constructorStore = require("can-connect/constructor/store/"),
+	dataCallbacks = require("can-connect/data/callbacks/");
+
+
 var map = [].map;
 
 var getId = function(d){
@@ -81,7 +88,7 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([base, "constructor","fall-through-cache","data-inline-cache","constructor-store", "data-callbacks",updater],{
+	var connection = connect([base, constructor, fallThroughCache, inlineCache, constructorStore, dataCallbacks,updater],{
 		cacheConnection: cacheConnection,
 		name: "items"
 	});

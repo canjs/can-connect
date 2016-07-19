@@ -1,38 +1,44 @@
 /**
- * @module can-connect/data/localstorage-cache data-localstorage-cache
+ * @module can-connect/data/localstorage-cache/localstorage-cache
  * @parent can-connect.behaviors
- * @group can-connect/data/localstorage-cache.identifiers 0 Indentifiers
- * @group can-connect/data/localstorage-cache.data-methods 1 Data Methods
+ * @group can-connect/data/localstorage-cache/localstorage-cache.identifiers 0 Indentifiers
+ * @group can-connect/data/localstorage-cache/localstorage-cache.data-methods 1 Data Methods
  *
  * Saves raw data in localStorage.
  *
  * @signature `localStorage( baseConnection )`
  *
  *   Creates a cache of instances and a cache of sets of instances that is
- *   accessible to read via [can-connect/data/localstorage-cache.getSets],
- *   [can-connect/data/localstorage-cache.getData], and [can-connect/data/localstorage-cache.getListData].
- *   The caches are updated via [can-connect/data/localstorage-cache.createData],
- *   [can-connect/data/localstorage-cache.updateData], [can-connect/data/localstorage-cache.destroyData],
- *   and [can-connect/data/localstorage-cache.updateListData].
+ *   accessible to read via [can-connect/data/localstorage-cache/localstorage-cache.getSets],
+ *   [can-connect/data/localstorage-cache/localstorage-cache.getData], and [can-connect/data/localstorage-cache/localstorage-cache.getListData].
+ *   The caches are updated via [can-connect/data/localstorage-cache/localstorage-cache.createData],
+ *   [can-connect/data/localstorage-cache/localstorage-cache.updateData], [can-connect/data/localstorage-cache/localstorage-cache.destroyData],
+ *   and [can-connect/data/localstorage-cache/localstorage-cache.updateListData].
  *
- *   [can-connect/data/localstorage-cache.createData],
- *   [can-connect/data/localstorage-cache.updateData],
- *   [can-connect/data/localstorage-cache.destroyData] are able to move items in and out
+ *   [can-connect/data/localstorage-cache/localstorage-cache.createData],
+ *   [can-connect/data/localstorage-cache/localstorage-cache.updateData],
+ *   [can-connect/data/localstorage-cache/localstorage-cache.destroyData] are able to move items in and out
  *   of sets.
  *
  * @body
  *
  * ## Use
  *
- * `data-localstorage-cache` is often used with a caching strategy like [can-connect/fall-through-cache] or
- * [can-connect/cache-requests].  Make sure you configure the connection's [can-connect/data/localstorage-cache.name].
+ * `data/localstorage-cache` is often used with a caching strategy like [can-connect/fall-through-cache/fall-through-cache] or
+ * [can-connect/cache-requests/cache-requests].  Make sure you configure the connection's [can-connect/data/localstorage-cache/localstorage-cache.name].
  *
  * ```
- * var cacheConnection = connect(["data-localstorage-cache"],{
+ * var cacheConnection = connect([
+ *   require("can-connect/data/localstorage-cache/localstorage-cache")
+ * ],{
  *   name: "todos"
  * });
  *
- * var todoConnection = connect(["data-url","fall-through-cache"],{
+ * var todoConnection = connect([
+ *   require("can-connect/data/url/url"),
+ *   require("can-connect/fall-through-cache/fall-through-cache")
+ * ],
+ * {
  *   url: "/services/todos",
  *   cacheConnection: cacheConnection
  * });
@@ -51,7 +57,7 @@ var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
 var overwrite = require("can-connect/helpers/overwrite");
 
-module.exports = connect.behavior("data-localstorage-cache",function(baseConnect){
+module.exports = connect.behavior("data/localstorage-cache",function(baseConnect){
 
 	var behavior = {
 		// ## Helpers
@@ -201,8 +207,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		// ## Identifiers
 
 		/**
-		 * @property {String} can-connect/data/localstorage-cache.name name
-		 * @parent can-connect/data/localstorage-cache.identifiers
+		 * @property {String} can-connect/data/localstorage-cache/localstorage-cache.name name
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.identifiers
 		 *
 		 * Specify a name to use when saving data in localstorage.
 		 *
@@ -225,8 +231,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		// ## External interface
 
 		/**
-		 * @function can-connect/data/localstorage-cache.clear clear
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.clear clear
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Resets the memory cache so it contains nothing.
 		 *
@@ -259,14 +265,14 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 
 
 		/**
-		 * @function can-connect/data/localstorage-cache.getSets getSets
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.getSets getSets
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Returns the sets contained within the cache.
 		 *
 		 * @signature `connection.getSets(set)`
 		 *
-		 *   Returns the sets added by [can-connect/data/localstorage-cache.updateListData].
+		 *   Returns the sets added by [can-connect/data/localstorage-cache/localstorage-cache.updateListData].
 		 *
 		 *   @return {Promise<Array<Set>>} A promise that resolves to the list of sets.
 		 *
@@ -283,17 +289,17 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			return Promise.resolve( this._getSets() );
 		},
 		/**
-		 * @function can-connect/data/localstorage-cache.getListData getListData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.getListData getListData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Gets a set of data from localstorage.
 		 *
 		 * @signature `connection.getListData(set)`
 		 *
 		 *   Goes through each set add by [can-connect/data/memory-cache.updateListData]. If
-		 *   `set` is a subset, uses [connect.base.algebra] to get the data for the requested `set`.
+		 *   `set` is a subset, uses [can-connect/base/base.algebra] to get the data for the requested `set`.
 		 *
-		 *   @param {Set} set An object that represents the data to load.
+		 *   @param {can-set/Set} set An object that represents the data to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that resolves if `set` is a subset of
 		 *   some data added by [can-connect/data/memory-cache.updateListData].  If it is not,
@@ -338,8 +344,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 			}
 		},
 		/**
-		 * @function can-connect/data/localstorage-cache.getData getData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.getData getData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Get an instance's data from localstorage.
 		 *
@@ -364,8 +370,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 
 		/**
-		 * @function can-connect/data/localstorage-cache.updateListData updateListData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.updateListData updateListData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Saves a set of data in the cache.
 		 *
@@ -375,7 +381,7 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		 *   unable to merge this data, saves the set by itself.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {Set} set
+		 *   @param {can-set/Set} set
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){
@@ -401,8 +407,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 
 		/**
-		 * @function can-connect/data/localstorage-cache.createData createData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.createData createData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Called when an instance is created and should be added to cache.
 		 *
@@ -424,8 +430,8 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 
 		/**
-		 * @function can-connect/data/localstorage-cache.updateData updateData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.updateData updateData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Called when an instance is updated.
 		 *
@@ -467,15 +473,15 @@ module.exports = connect.behavior("data-localstorage-cache",function(baseConnect
 		},
 
 		/**
-		 * @function can-connect/data/localstorage-cache.destroyData destroyData
-		 * @parent can-connect/data/localstorage-cache.data-methods
+		 * @function can-connect/data/localstorage-cache/localstorage-cache.destroyData destroyData
+		 * @parent can-connect/data/localstorage-cache/localstorage-cache.data-methods
 		 *
 		 * Called when an instance should be removed from the cache.
 		 *
 		 * @signature `connection.destroyData(props)`
 		 *
 		 *   Goes through each set of data and removes any data that matches
-		 *   `props`'s [connect.base.id]. Finally removes this from the instance store.
+		 *   `props`'s [can-connect/base/base.id]. Finally removes this from the instance store.
 		 */
 		destroyData: function(props){
 			var self = this;

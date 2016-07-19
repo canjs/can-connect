@@ -1,20 +1,20 @@
 var connect = require("can-connect");
-require("can-connect/data/worker/");
+var dataWorker = require("can-connect/data/worker/");
 
 
-connect(["data-worker", {
+connect([dataWorker, {
 	getListData: function(){
 		return Promise.resolve({data: [{id: 1},{id: 2}]});
 	},
-	
+
 	updateListData: function(){},
 	getSets: function(){},
 	clear: function(){},
-	
+
 	getData: function(){
 		return Promise.resolve({id: 3});
 	},
-	
+
 	createData: function(){
 		return Promise.resolve({id: 4, name: "createData"});
 	},

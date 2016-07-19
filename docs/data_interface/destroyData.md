@@ -1,5 +1,5 @@
-@typedef {function} connection.destroyData destroyData
-@parent can-connect.data_interface
+@typedef {function} can-connect/connection.destroyData destroyData
+@parent can-connect/DataInterface
 
 @description Destroys an instance given the serialized form of the instance.
 

@@ -1,5 +1,5 @@
 /**
- * @module can-connect/can/tag can/tag
+ * @module can-connect/can/tag/tag
  * @parent can-connect.modules
  *
  * Makes either getList or getInstance

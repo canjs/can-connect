@@ -3,7 +3,10 @@ var connect = require("can-connect");
 var map = [].map;
 var testHelpers = require("can-connect/test-helpers");
 
-require("can-connect/data/callbacks/");
+var constructor = require("can-connect/constructor/constructor");
+var fallThroughCache = require("can-connect/fall-through-cache/fall-through-cache");
+var constructorStore = require("can-connect/constructor/store/store");
+var dataCallbacks = require("can-connect/data/callbacks/");
 
 var getId = function(d){
 	return d.id;
@@ -80,7 +83,7 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
+	var connection = connect([base, constructor,fallThroughCache,constructorStore, dataCallbacks,updater],{
 		cacheConnection: cacheConnection
 	});
 
@@ -177,7 +180,7 @@ QUnit.test("getInstance and getData", function(){
 		};
 	};
 
-	var connection = connect([base, "constructor","fall-through-cache","constructor-store", "data-callbacks",updater],{
+	var connection = connect([base, constructor,fallThroughCache,constructorStore, dataCallbacks, updater],{
 		cacheConnection: cacheConnection
 	});
 

@@ -1,7 +1,7 @@
 @typedef {{data:Array<Object>}} can-connect.listData ListData
 @parent can-connect.types
 
-The data resolved by [connection.getListData].
+The data resolved by [can-connect/connection.getListData].
 
 @option {Array<Object>} data Foo
 
@@ -9,7 +9,7 @@ The data resolved by [connection.getListData].
 
 ## Use
 
-[connection.getListData] should return a promise that resolves
+[can-connect/connection.getListData] should return a promise that resolves
 an object that looks like:
 
 ```

@@ -28,7 +28,7 @@ var getExpando = function(map, prop) {
 	}
 };
 
-module.exports = connect.behavior("can-map",function(baseConnect){
+module.exports = connect.behavior("can/map",function(baseConnect){
 
 	// overwrite
 	var behavior = {
@@ -40,18 +40,18 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			baseConnect.init.apply(this, arguments);
 		},
 		/**
-		 * @function can-connect/can/map.id id
-		 * @parent can-connect/can/map.identifiers
+		 * @function can-connect/can/map/map.id id
+		 * @parent can-connect/can/map/map.identifiers
 		 *
 		 * Returns a unique identifier value for an instance.
 		 *
 		 * @signature `connection.id( instance )`
 		 *
-		 *   Reads [connect.base.idProp] so that it's observable unless
+		 *   Reads the [can-connect/base/base.algebra]'s id so that it's observable unless
 		 *   the id is being read as part of the map being bound or
 		 *   unbound.
 		 *
-		 *   @param {Instance} instance
+		 *   @param {can-connect/Instance} instance
 		 *
 		 *   @return {*}
 		 */
@@ -81,48 +81,59 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can-connect/can/map.serializeInstance serializeInstance
-		 * @parent can-connect/can/map.serializers
+		 * @function can-connect/can/map/map.serializeInstance serializeInstance
+		 * @parent can-connect/can/map/map.serializers
 		 *
 		 * Calls `instance.serialize()`.
 		 *
 		 * @signature `connection.serializeInstance( instance )`
+		 *
+		 *   Simply calls [can-define/map/map.prototype.serialize] on the underlying map.
 		 */
 		serializeInstance: function(instance){
 			return instance.serialize();
 		},
 		/**
-		 * @function can-connect/can/map.serializeList serializeList
-		 * @parent can-connect/can/map.serializers
+		 * @function can-connect/can/map/map.serializeList serializeList
+		 * @parent can-connect/can/map/map.serializers
 		 *
 		 * Calls `list.serialize()`.
 		 *
 		 * @signature `connection.serializeList( list )`
+		 *
+		 *   Simply calls [can-define/list/list.prototype.serialize] on the underlying list.
 		 */
 		serializeList: function(list){
 			return list.serialize();
 		},
 		/**
-		 * @property {CanMap} can-connect/can/map.Map Map
-		 * @parent can-connect/can/map.hydrators
+		 * @property {Map} can-connect/can/map/map._Map Map
+		 * @parent can-connect/can/map/map.hydrators
 		 *
-		 * Specify what type of `CanMap` should be hydrated.
+		 * Specify what type of `Map` should be hydrated.
 		 *
-		 * @option {CanMap} Defaults to `CanMap` if a Map is
+		 * @option {Map} Defaults to [can-util/js/types/types.DefaultMap] if a Map is
 		 * not specified.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * ```
-		 * var Todo = CanMap.extend({
+		 * ```js
+		 * var DefineMap = require("can-define/map/map");
+		 *
+		 * var Todo = DefineMap.extend({
+		 *   completed: "boolean",
 		 *   complete: function(){
-		 *     this.attr("complete", true);
+		 *     this.completed = true
 		 *   }
 		 * });
 		 *
-		 * var todoConnection = connect(["can/map","constructor","data-url"],{
+		 * var todoConnection = connect([
+		 *   require("can-connect/can/map/map"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ],{
 		 *   Map: Todo,
 		 *   url: "/todos"
 		 * })
@@ -130,33 +141,43 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 */
 		//
 		/**
-		 * @property {CanList} can-connect/can/map._List List
-		 * @parent can-connect/can/map.hydrators
+		 * @property {CanList} can-connect/can/map/map._List List
+		 * @parent can-connect/can/map/map.hydrators
 		 *
 		 * Specify what type of `CanList` should be hydrated.
 		 *
-		 * @option {CanList} Defaults to [can-connect/can/map.Map]'s `.List` and
-		 * then `CanList` if `connection.List` is not specified.
+		 * @option {CanList} Defaults to [can-connect/can/map/map._Map]'s `.List` and
+		 * then [can-util/js/types/types.DefaultList] if `connection.List` is not specified.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * ```
-		 * var Todo = CanMap.extend({
+		 * ```js
+		 * var DefineMap = require("can-define/map/map");
+		 * var DefineList = require("can-define/list/list");
+		 *
+		 * var Todo = DefineMap.extend({
+		 *   completed: "boolean",
 		 *   complete: function(){
-		 *     this.attr("complete", true);
+		 *     this.completed = true
 		 *   }
 		 * });
-		 * var Todo.List = CanList.extend({Map: Todo},{
+		 *
+		 * var Todo.List = DefineList.extend({
+		 *   "*": Todo,
 		 *   completed: function(){
 		 *     this.filter(function(todo){
-		 *       return todo.attr("complete");
+		 *       return todo.completed;
 		 *     });
 		 *   }
 		 * });
 		 *
-		 * var todoConnection = connect(["can/map","constructor","data-url"],{
+		 * var todoConnection = connect([
+		 *   require("can-connect/can/map/map"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ],{
 		 *   Map: Todo,
 		 *   List: Todo.List,
 		 *   url: "/todos"
@@ -165,37 +186,40 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 */
 		//
 		/**
-		 * @function can-connect/can/map.instance instance
-		 * @parent can-connect/can/map.hydrators
+		 * @function can-connect/can/map/map.instance instance
+		 * @parent can-connect/can/map/map.hydrators
 		 *
 		 * Creates a `Map` instance.
 		 *
 		 * @signature `connection.instance( props )`
 		 *
-		 *   Uses the [can-connect/can/map.Map] property if available, otherwise
-		 *   creates the base `CanMap`.
+		 *   Uses the [can-connect/can/map/map._Map] property if available, otherwise
+		 *   creates the [can-util/js/types/types.DefaultMap].
+		 *
+		 *   @param {Object} props The raw instance data.
+		 *   @return {Map} An observable map type.
 		 */
 		instance: function(props){
 			var _Map = this.Map || types.DefaultMap;
 			return new _Map(props);
 		},
 		/**
-		 * @function can-connect/can/map.list list
-		 * @parent can-connect/can/map.hydrators
+		 * @function can-connect/can/map/map.list list
+		 * @parent can-connect/can/map/map.hydrators
 		 *
-		 * Creates a `CanList` instance given raw data.
+		 * Creates a `List` instance given raw data.
 		 *
 		 * @signature `connection.list(listData, set)`
 		 *
-		 *   Uses the [can-connect/can/map._List] property if available, otherwise
-		 *   creates the [can-connect/can/map.Map].List if available, and then finally
-		 *   defaults to the base `CanList`.
+		 *   Uses the [can-connect/can/map/map._List] property if available, otherwise
+		 *   creates the [can-connect/can/map/map._Map].List if available, and then finally
+		 *   defaults to [can-util/js/types/types.DefaultList].
 		 *
 		 *   This will add properties on `listData` to the list too.
 		 *
-		 *   @param {Object} listData
-		 *   @param {Object} set
-		 *   @return {List}
+		 *   @param {can-connect.listData} listData The raw list data.
+		 *   @param {can-set/Set} set The set the data belongs to.
+		 *   @return {can-connect.List} An observable list.
 		 */
 		list: function(listData, set){
 			var _List = this.List || (this.Map && this.Map.List) || types.DefaultList;
@@ -205,18 +229,23 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 					list.attr(prop, val);
 				}
 			});
+			
 			list.__listSet = set;
 			return list;
 		},
 		/**
-		 * @function can-connect/can/map.updatedList updatedList
-		 * @parent can-connect/can/map.instance-callbacks
+		 * @function can-connect/can/map/map.updatedList updatedList
+		 * @parent can-connect/can/map/map.instance-callbacks
 		 *
 		 * Updates a list with response data.
 		 *
 		 * @signature `connection.updatedList( list, listData, set)`
 		 *
-		 *   Updates the list within a batch event.
+		 *   Updates the list within a batch event. Overwrite this if you want custom updating behavior.
+		 *
+		 *   @param {can-connect.List} list The list to be updated.
+		 *   @param {can-connect.listData} listData Raw list data.
+		 *   @param {can-set/Set} set The set of the list being updated.
 		 */
 		updatedList: function(){
 			canBatch.start();
@@ -250,23 +279,25 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 
 	each([
 		/**
-		 * @function can-connect/can/map.createdInstance createdInstance
-		 * @parent can-connect/can/map.instance-callbacks
+		 * @function can-connect/can/map/map.createdInstance createdInstance
+		 * @parent can-connect/can/map/map.instance-callbacks
 		 *
-		 * Updates the instance with the response from [connection.createData].
+		 * Updates the instance with the response from [can-connect/connection.createData].
 		 *
 		 * @signature `connection.createdInstance( instance, props )`
 		 *
 		 *   Updates the instance with `props` and dispatches a
 		 *   "created" event on the map and the map's constructor function.
 		 *
+		 *   @param {Map} instance a Map instance
+		 *   @param {Object} props the updated properties
 		 */
 		"created",
 		/**
-		 * @function can-connect/can/map.updatedInstance updatedInstance
-		 * @parent can-connect/can/map.instance-callbacks
+		 * @function can-connect/can/map/map.updatedInstance updatedInstance
+		 * @parent can-connect/can/map/map.instance-callbacks
 		 *
-		 * Updates the instance with the response from [connection.updateData].
+		 * Updates the instance with the response from [can-connect/connection.updateData].
 		 *
 		 * @signature `connection.createdInstance( instance, props )`
 		 *
@@ -275,10 +306,10 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 		 */
 		"updated",
 		/**
-		 * @function can-connect/can/map.destroyedInstance destroyedInstance
-		 * @parent can-connect/can/map.instance-callbacks
+		 * @function can-connect/can/map/map.destroyedInstance destroyedInstance
+		 * @parent can-connect/can/map/map.instance-callbacks
 		 *
-		 * Updates the instance with the response from [connection.destroyData].
+		 * Updates the instance with the response from [can-connect/connection.destroyData].
 		 *
 		 * @signature `connection.destroyedInstance( instance, props )`
 		 *
@@ -312,7 +343,7 @@ module.exports = connect.behavior("can-map",function(baseConnect){
 			canEvent.dispatch.call(instance, {type:funcName, target: instance});
 
 			//!steal-remove-start
-			dev.log("can-connect/can/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
+			dev.log("can-connect/can/map/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
 			//!steal-remove-end
 
 			// Call event on the instance's Class
@@ -332,13 +363,13 @@ var callCanReadingOnIdRead = true;
 var mapStaticOverwrites = {
 	/**
 	 * @function CanMap.getList getList
-	 * @parent can-connect/can/map.map-static
+	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Gets a list of instances of the map type.
 	 *
 	 * @signature `Map.getList(set)`
 	 *
-	 *   @param {Set} set
+	 *   @param {can-set/Set} set
 	 *   @return {Promise<CanList>}
 	 *
 	 * @body
@@ -348,7 +379,11 @@ var mapStaticOverwrites = {
 	 * ```
 	 * var Todo = CanMap.extend({});
 	 *
-	 * connect(["can/map","constructor","data-url"],{
+	 * connect([
+	 *   require("can-connect/can/map/map"),
+	 *   require("can-connect/constructor/constructor"),
+	 *   require("can-connect/data/url/url")
+	 * ],{
 	 *   Map: Todo,
 	 *   url: "/todos"
 	 * })
@@ -365,7 +400,7 @@ var mapStaticOverwrites = {
 	},
 	/**
 	 * @function CanMap.getList getList
-	 * @parent can-connect/can/map.map-static
+	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Alias of [CanMap.getList]. You should use `.getList()`.
 	 */
@@ -376,7 +411,7 @@ var mapStaticOverwrites = {
 	},
 	/**
 	 * @function CanMap.get get
-	 * @parent can-connect/can/map.map-static
+	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Gets an instance of the map type.
 	 *
@@ -389,10 +424,14 @@ var mapStaticOverwrites = {
 	 *
 	 * ## Use
 	 *
-	 * ```
+	 * ```js
 	 * var Todo = CanMap.extend({});
 	 *
-	 * connect(["can/map","constructor","data-url"],{
+	 * connect([
+	 *   require("can-connect/can/map/map"),
+	 *   require("can-connect/constructor/constructor"),
+	 *   require("can-connect/data/url/url")
+	 * ],{
 	 *   Map: Todo,
 	 *   url: "/todos"
 	 * })
@@ -410,7 +449,7 @@ var mapStaticOverwrites = {
 	},
 	/**
 	 * @function CanMap.findOne findOne
-	 * @parent can-connect/can/map.map-static
+	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Alias of [CanMap.get]. You should use `.get()`.
 	 */
@@ -452,13 +491,13 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	isNew: function (base, connection) {
 		/**
 		 * @function CanMap.prototype.isNew isNew
-		 * @parent can-connect/can/map.map
+		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map has not been persisted.
 		 *
 		 * @signature `map.isNew()`
 		 *
-		 *   Returns `true` if [connect.base.id] is 0 or truthy.
+		 *   Returns `true` if [can-connect/base/base.id] is 0 or truthy.
 		 *
 		 *   @return {Boolean}
 		 */
@@ -472,7 +511,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	isSaving: function (base, connection) {
 		/**
 		 * @function CanMap.prototype.isSaving isSaving
-		 * @parent can-connect/can/map.map
+		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map is currently being saved.
 		 *
@@ -490,7 +529,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	isDestroying: function (base, connection) {
 		/**
 		 * @function CanMap.prototype.isDestroying isDestroying
-		 * @parent can-connect/can/map.map
+		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map is currently being destroyed.
 		 *
@@ -508,13 +547,13 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	save: function (base, connection) {
 		/**
 		 * @function CanMap.prototype.save save
-		 * @parent can-connect/can/map.map
+		 * @parent can-connect/can/map/map.map
 		 *
 		 * Persists the map's data to the connection.
 		 *
 		 * @signature `map.save( [success], [error] )`
 		 *
-		 *   Calls [connection.save].
+		 *   Calls [can-connect/connection.save].
 		 *
 		 *   @param {function} [success] A function that is called if the save is successful.
 		 *   @param {function} [error] A function that is called if the save is rejected.
@@ -527,7 +566,11 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * ```
 		 * var Todo = CanMap.extend({});
 		 *
-		 * connect(["can/map","constructor","data-url"],{
+		 * connect([
+		 *   require("can-connect/can/map/map"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ],{
 		 *   Map: Todo,
 		 *   url: "/todos"
 		 * })
@@ -545,7 +588,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	destroy: function (base, connection) {
 		/**
 		 * @function CanMap.prototype.destroy destroy
-		 * @parent can-connect/can/map.map
+		 * @parent can-connect/can/map/map.map
 		 *
 		 * Delete's the instance with the connection.
 		 *
@@ -562,7 +605,11 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * ```
 		 * var Todo = CanMap.extend({});
 		 *
-		 * connect(["can/map","constructor","data-url"],{
+		 * connect([
+		 *   require("can-connect/can/map/map"),
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ],{
 		 *   Map: Todo,
 		 *   url: "/todos"
 		 * })

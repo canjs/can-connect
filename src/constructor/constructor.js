@@ -1,23 +1,32 @@
 
 
 /**
- * @module {connect.Behavior} can-connect/constructor constructor
+ * @module {connect.Behavior} can-connect/constructor/constructor
  * @parent can-connect.behaviors
- * @group can.connect/constructor.crud 0 CRUD Methods
- * @group can.connect/constructor.callbacks 1 CRUD Callbacks
- * @group can.connect/constructor.hydrators 2 Hydrators
- * @group can.connect/constructor.serializers 3 Serializers
- * @group can.connect/constructor.helpers 4 Helpers
+ * @group can-connect/constructor/constructor.crud 0 CRUD Methods
+ * @group can-connect/constructor/constructor.callbacks 1 CRUD Callbacks
+ * @group can-connect/constructor/constructor.hydrators 2 Hydrators
+ * @group can-connect/constructor/constructor.serializers 3 Serializers
+ * @group can-connect/constructor/constructor.helpers 4 Helpers
  *
- * Connect "data interface" methods to rich representations of data.
+ * Adds the ability to operate on special types instead of plain JavaScript Objects
+ * and Arrays.
  *
  * @signature `constructor(baseConnection)`
+ *
+ * Adds methods that allow the connection to operate on special types.
+ *
+ *
+ * @param {connection} baseConnection A connection with most of the
+ * [can-connect/DataInterface] implemented.
+ *
+ * @return {connection} A new connection with the additional methods.
  *
  * @body
  *
  * ## Use
  *
- * The `constructor` behavior allows you to hydrate the raw, serialized representation of
+ * The `can-connect/constructor/constructor` behavior allows you to hydrate the raw, serialized representation of
  * your application's data into a typed representation with additional methods and behaviors.
  *
  * For example, you might want to be able to load data as a particular JavaScript Constructor
@@ -44,7 +53,10 @@
  *   return new Date() - this.dueDate
  * };
  *
- * var todoConnection = connect("constructor","data-url",{
+ * var todoConnection = connect([
+ *   require("can-connect/constructor/constructor"),
+ *   require("can-connect/data/url/url")
+ * ],{
  *   url: "/todos"
  *   instance: function(data){
  *     return new Todo(data);
@@ -55,7 +67,7 @@
  * The `constructor` extension is still useful even if you want to keep your data as plain
  * JavaScript objects (which its default behavior).  The `constructor` extension describes
  * the in-memory representation of your data on the client.  Other extensions need to know this
- * representation for advanced behavior like [can-connect/real-time] or [can-connect/fall-through-cache].
+ * representation for advanced behavior like [can-connect/real-time/real-time] or [can-connect/fall-through-cache/fall-through-cache].
  *
  * ## CRUD Methods
  *
@@ -95,8 +107,8 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		// stores references to instances
 		// for now, only during create
 		/**
-		 * @property {WeakReferenceMap} can.connect/constructor.cidStore cidStore
-		 * @parent can.connect/constructor.helpers
+		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/constructor.cidStore cidStore
+		 * @parent can-connect/constructor/constructor.helpers
 		 *
 		 * A WeakReferenceMap that contains instances being created by their `._cid` property.
 		 */
@@ -104,15 +116,15 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		_cid: 0,
 
 		/**
-		 * @function can.connect/constructor.get get
-		 * @parent can.connect/constructor.crud
+		 * @function can-connect/constructor/constructor.get get
+		 * @parent can-connect/constructor/constructor.crud
 		 *
 		 * Get a single instance from the "data interface".
 		 *
 		 * @signature `connection.get(set)`
 		 *
-		 *   Gets an instance from [connection.getData] and runs the resulting data
-		 *   through [can-connect/constructor.hydrateInstance].
+		 *   Gets an instance from [can-connect/connection.getData] and runs the resulting data
+		 *   through [can-connect/constructor/constructor.hydrateInstance].
 		 *
 		 *   @param {Object} params Data specifying the instance to retrieve.  Normally, this
 		 *   looks like: `{id: 5}`.
@@ -140,17 +152,17 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		},
 
 		/**
-		 * @function can.connect/constructor.getList getList
-		 * @parent can.connect/constructor.crud
+		 * @function can-connect/constructor/constructor.getList getList
+		 * @parent can-connect/constructor/constructor.crud
 		 *
 		 * Get a single instance from the "data interface".
 		 *
 		 * @signature `connection.getList(set)`
 		 *
-		 *   Gets an instance from [connection.getListData] and runs the resulting data
+		 *   Gets an instance from [can-connect/connection.getListData] and runs the resulting data
 		 *   through [can-connect/constructor.hydrateList].
 		 *
-		 *   @param {Set} set Data specifying the instance to retrieve.  Normally, this
+		 *   @param {can-set/Set} set Data specifying the instance to retrieve.  Normally, this
 		 *   looks like: `{id: 5}`.
 		 *
 		 *   @return {Promise<List<Instance>>} An instance that represents the data that was loaded.
@@ -179,20 +191,20 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 
 		/**
 		 * @function can-connect/constructor.hydrateList hydrateList
-		 * @parent can.connect/constructor.hydrators
+		 * @parent can-connect/constructor/constructor.hydrators
 		 *
 		 * Makes a list type object given raw data.
 		 *
 		 * @signature `connection.hydrateList(listData, set)`
 		 *
-		 *   Calls [can-connect/constructor.hydrateInstance] with each raw instance data item and then
-		 *   calls [can-connect/constructor.list] with an array of the instances.  If [can-connect/constructor.list]
+		 *   Calls [can-connect/constructor/constructor.hydrateInstance] with each raw instance data item and then
+		 *   calls [can-connect/constructor/constructor.list] with an array of the instances.  If [can-connect/constructor/constructor.list]
 		 *   is not provided, a normal array is used.
 		 *
-		 *   @param {can-connect.listData} listData
-		 *   @param {Object} set
+		 *   @param {can-connect.listData} listData Raw list data.
+		 *   @param {can-set/Set} set The set used to retrieve the list.
 		 *
-		 *   @return {List} The data type used to represent the list.
+		 *   @return {can-connect.List} The data type used to represent the list.
 		 */
 		hydrateList: function(listData, set){
 			if(isArray(listData)) {
@@ -214,19 +226,19 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		},
 
 		/**
-		 * @function can-connect/constructor.hydrateInstance hydrateInstance
-		 * @parent can.connect/constructor.hydrators
+		 * @function can-connect/constructor/constructor.hydrateInstance hydrateInstance
+		 * @parent can-connect/constructor/constructor.hydrators
 		 *
 		 * Makes a type object given raw data.
 		 *
-		 * @signature `connection.hydrateInstance(listData)`
+		 * @signature `connection.hydrateInstance(props)`
 		 *
-		 *   If [can-connect/constructor.instance] is available passes `props` to that
+		 *   If [can-connect/constructor/constructor.instance] is available passes `props` to that
 		 *   and returns that value.  Otherwise, returns a clone of `props`.
 		 *
-		 *   @param {Object} props The properties returned by [connection.getData].
+		 *   @param {Object} props The properties returned by [can-connect/connection.getData].
 		 *
-		 *   @return {Instance} The data type used to represent the list.
+		 *   @return {can-connect/Instance} The data type used to represent the list.
 		 */
 		hydrateInstance: function(props){
 			if(this.instance) {
@@ -236,28 +248,28 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can-connect/constructor.save save
-		 * @parent can.connect/constructor.crud
+		 * @function can-connect/constructor/constructor.save save
+		 * @parent can-connect/constructor/constructor.crud
 		 *
 		 * @description Creates or updates an instance using the underlying data interface.
 		 *
 		 * @signature `connection.save( instance )`
 		 *
-		 *   Checks if the instance has an [connect.base.id] or not.  If it
+		 *   Checks if the instance has an [can-connect/base/base.id] or not.  If it
 		 *   has an id, the instance will be updated; otherwise, it will be created.
 		 *
 		 *   To create an instance, the instance is added to the [can-connect/constructor.cidStore],
-		 *   and its [can-connect/constructor.serializeInstance serialized data] is passed to
-		 *   [connection.createData].  If `createData`'s promise resolves to anything other than `undefined`,
-		 *   [can-connect/constructor.createdInstance] is called.
+		 *   and its [can-connect/constructor/constructor.serializeInstance serialized data] is passed to
+		 *   [can-connect/connection.createData].  If `createData`'s promise resolves to anything other than `undefined`,
+		 *   [can-connect/constructor/constructor.createdInstance] is called.
 		 *
-		 *   To update an instance, its [can-connect/constructor.serializeInstance serialized data] is passed to
-		 *   [connection.updateData]. If `updateData`'s promise resolves to anything other than `undefined`,
-		 *   [can-connect/constructor.updatedInstance] is called.
+		 *   To update an instance, its [can-connect/constructor/constructor.serializeInstance serialized data] is passed to
+		 *   [can-connect/connection.updateData]. If `updateData`'s promise resolves to anything other than `undefined`,
+		 *   [can-connect/constructor/constructor.updatedInstance] is called.
 		 *
-		 *   @param {Instance} instance The instance to create or save.
+		 *   @param {can-connect/Instance} instance The instance to create or save.
 		 *
-		 *   @return {Instance} resolves to the same instance that was passed to `save`.
+		 *   @return {can-connect/Instance} resolves to the same instance that was passed to `save`.
 		 *
 		 * @body
 		 *
@@ -267,7 +279,10 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *
 		 * ```
 		 * // Create a connection:
-		 * var todoConnection = connect(['constructor','data-url'],{
+		 * var todoConnection = connect([
+		 *   require('can-connect/constructor/constructor'),
+		 *   require('can-connect/data/url/url')
+		 * ],{
 		 *   url: "/todos"
 		 * })
 		 *
@@ -288,7 +303,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * }
 		 * ```
 		 *
-		 * This data will be passed to [can-connect/constructor.createdInstance] which will default
+		 * This data will be passed to [can-connect/constructor/constructor.createdInstance] which will default
 		 * to adding those properties to `todo`, resulting in `todo` looking like:
 		 *
 		 * ```
@@ -320,7 +335,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * }
 		 * ```
 		 *
-		 * This data will be passed to [can-connect/constructor.updatedInstance] which will default
+		 * This data will be passed to [can-connect/constructor/constructor.updatedInstance] which will default
 		 * to setting all of `todos` properties to look like the response data.
 		 */
 		save: function(instance){
@@ -354,83 +369,50 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			}
 		},
 		/**
-		 * @function can-connect/constructor.destroy destroy
-		 * @parent can.connect/constructor.crud
+		 * @function can-connect/constructor/constructor.destroy destroy
+		 * @parent can-connect/constructor/constructor.crud
 		 * @description Destroys an instance using the underlying data interface.
 		 *
 		 * @signature `connection.destroy( instance )`
 		 *
-		 *   To destroy an instance, its [can-connect/constructor.serializeInstance serialized data] is passed to
-		 *   [connection.destroyData]. If `destroyData`'s promise resolves to anything other than `undefined`,
-		 *   [can-connect/constructor.destroyedInstance] is called.
+		 *   To destroy an instance, its [can-connect/constructor/constructor.serializeInstance serialized data] is passed to
+		 *   [can-connect/connection.destroyData]. If `destroyData`'s promise resolves to anything other than `undefined`,
+		 *   [can-connect/constructor/constructor.destroyedInstance] is called.
 		 *
-		 *   @param {Instance} instance The instance to create or save.
+		 *   @param {can-connect/Instance} instance The instance to create or save.
 		 *
-		 *   @return {Instance} resolves to the same instance that was passed to `save`.
+		 *   @return {can-connect/Instance} resolves to the same instance that was passed to `save`.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * To use `save`, create a connection, then an instance, and call `.save()` with it.
+		 * To use `destroy`, create a connection, then retrieve an instance, and call `.destroy()` with it.
 		 *
 		 * ```
 		 * // Create a connection:
-		 * var todoConnection = connect(['constructor','data-url'],{
+		 * var todoConnection = connect([
+		 *   require('can-connect/constructor/constructor'),
+		 *   require('can-connect/data/url/url')
+		 * ],{
 		 *   url: "/todos"
 		 * })
 		 *
-		 * // Create an instance:
-		 * var todo = {name: "do dishes"};
-		 *
-		 * // Call .save():
-		 * todoConnection.save(todo)
+		 * // Get a todo instance
+		 * todoConnection.get({id: 5}).then(function(todo){
+		 *   // Call .destroy():
+		 *   todoConnection.destroy(todo)
+		 * });
 		 * ```
 		 *
-		 * This will POST to `/todos` with the `todo` data.  The server response data
+		 * This will DELETE to `/todos/5` with the `todo` data.  The server response data
 		 * might look something like:
 		 *
 		 * ```
-		 * {
-		 * 	id: 5,
-		 *  ownerId: 9
-		 * }
+		 * {}
 		 * ```
 		 *
-		 * This data will be passed to [can-connect/constructor.createdInstance] which will default
-		 * to adding those properties to `todo`, resulting in `todo` looking like:
-		 *
-		 * ```
-		 * {
-		 *  name: "do dishes",
-		 *  id: 5,
-		 *  ownerId: 9
-		 * }
-		 * ```
-		 *
-		 * To update the todo, change a property and call `.save()` again:
-		 *
-		 * ```
-		 * // Change a property:
-		 * todo.name = "Do dishes!!";
-		 *
-		 * // Call .save()
-		 * todoConnection.save(todo)
-		 * ```
-		 *
-		 * This will PUT to `/todos` with the `todo` data.  The server response data
-		 * should look something like:
-		 *
-		 * ```
-		 * {
-		 *  name: "Do dishes!!",
-		 *  id: 5,
-		 *  ownerId: 9
-		 * }
-		 * ```
-		 *
-		 * This data will be passed to [can-connect/constructor.updatedInstance] which will default
-		 * to setting all of `todos` properties to look like the response data.
+		 * This data will be passed to [can-connect/constructor/constructor.destroyedInstance].
 		 */
 		// ## destroy
 		// Calls the data interface `destroyData` and as long as it
@@ -447,57 +429,57 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			});
 		},
 		/**
-		 * @function can-connect/constructor.createdInstance createdInstance
-		 * @parent can.connect/constructor.callbacks
+		 * @function can-connect/constructor/constructor.createdInstance createdInstance
+		 * @parent can-connect/constructor/constructor.callbacks
 		 *
-		 * Updates the instance being created with the result of [connection.createData].
+		 * Updates the instance being created with the result of [can-connect/connection.createData].
 		 *
 		 * @signature `connection.createdInstance( instance, props )`
 		 *
 		 *   Adds every property and value in `props` to `instance`.
 		 *
-		 *   @param {Instance} instance The instance to update.
+		 *   @param {can-connect/Instance} instance The instance to update.
 		 *
-		 *   @param {Object} props The data from [connection.createData].
+		 *   @param {Object} props The data from [can-connect/connection.createData].
 		 */
 		createdInstance: function(instance, props){
 			assign(instance, props);
 		},
 		/**
-		 * @function can-connect/constructor.updatedInstance updatedInstance
-		 * @parent can.connect/constructor.callbacks
+		 * @function can-connect/constructor/constructor.updatedInstance updatedInstance
+		 * @parent can-connect/constructor/constructor.callbacks
 		 *
-		 * Updates the instance being updated with the result of [connection.updateData].
+		 * Updates the instance being updated with the result of [can-connect/connection.updateData].
 		 *
 		 * @signature `connection.updatedInstance( instance, props )`
 		 *
 		 *   Sets the properties in `instance` to match the properties and values in `props`
-		 *   with the exception of [connect.base.idProp], which it leaves alone.
+		 *   with the exception of [can-connect/base/base.idProp], which it leaves alone.
 		 *
-		 *   @param {Instance} instance The instance to update.
+		 *   @param {can-connect/Instance} instance The instance to update.
 		 *
-		 *   @param {Object} props The data from [connection.updateData].
+		 *   @param {Object} props The data from [can-connect/connection.updateData].
 		 */
 		updatedInstance: function(instance, data){
 			overwrite(instance, data, this.idProp);
 		},
 		/**
-		 * @function can-connect/constructor.updatedList updatedList
-		 * @parent can.connect/constructor.callbacks
+		 * @function can-connect/constructor/constructor.updatedList updatedList
+		 * @parent can-connect/constructor/constructor.callbacks
 		 *
 		 * Updates a list with new data.
 		 *
-		 * @signature `connection.updatedInstance( instance, props )`
+		 * @signature `connection.updatedList( list, listData, set )`
 		 *
-		 *   [can-connect/constructor.hydrateInstance Hydrates] instances with `listData`'s data
+		 *   [can-connect/constructor/constructor.hydrateInstance Hydrates] instances with `listData`'s data
 		 *   and attempts to merge them into `list`.  The merge is able to identify simple insertions
 		 *   and removals of elements instead of replacing the entire list.
 		 *
-		 *   @param {Instance} list The instance to update.
+		 *   @param {can-connect/Instance} list The instance to update.
 		 *
 		 *   @param {can-connect.listData} listData The raw data usd to update `list`.
 		 *
-		 *   @param {Set} set The set of data `listData` represents.
+		 *   @param {can-set/Set} set The set of data `listData` represents.
 		 */
 		updatedList: function(list, listData, set) {
 			var instanceList = [];
@@ -510,26 +492,26 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			idMerge(list, instanceList, this.id.bind(this), this.hydrateInstance.bind(this));
 		},
 		/**
-		 * @function can-connect/constructor.destroyedInstance destroyedInstance
-		 * @parent can.connect/constructor.callbacks
+		 * @function can-connect/constructor/constructor.destroyedInstance destroyedInstance
+		 * @parent can-connect/constructor/constructor.callbacks
 		 *
-		 * Updates the instance being destroyed with the result of [connection.destroyData].
+		 * Updates the instance being destroyed with the result of [can-connect/connection.destroyData].
 		 *
 		 * @signature `connection.destroyedInstance( instance, props )`
 		 *
 		 *   Sets the properties in `instance` to match the properties and values in `props`
-		 *   with the exception of [connect.base.idProp], which it leaves alone.
+		 *   with the exception of [can-connect/base/base.idProp], which it leaves alone.
 		 *
-		 *   @param {Instance} instance The instance to update.
+		 *   @param {can-connect/Instance} instance The instance to update.
 		 *
-		 *   @param {Object} props The data from [connection.destroyData].
+		 *   @param {Object} props The data from [can-connect/connection.destroyData].
 		 */
 		destroyedInstance: function(instance, data){
 			overwrite(instance, data, this.idProp);
 		},
 		/**
-		 * @function can-connect/constructor.serializeInstance serializeInstance
-		 * @parent can.connect/constructor.serializers
+		 * @function can-connect/constructor/constructor.serializeInstance serializeInstance
+		 * @parent can-connect/constructor/constructor.serializers
 		 *
 		 * @description Returns the serialized form of an instance.
 		 *
@@ -537,7 +519,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *
 		 *   This implementation simply clones the `instance` object.
 		 *
-		 *   @param {Instance} instance The instance to serialize.
+		 *   @param {can-connect/Instance} instance The instance to serialize.
 		 *
 		 *   @return {Object} A serialized representation of the instance.
 		 */
@@ -545,17 +527,17 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			return assign({}, instance);
 		},
 		/**
-		 * @function can-connect/constructor.serializeList serializeList
-		 * @parent can.connect/constructor.serializers
+		 * @function can-connect/constructor/constructor.serializeList serializeList
+		 * @parent can-connect/constructor/constructor.serializers
 		 *
 		 * @description Returns the serialized form of an list.
 		 *
 		 * @signature `connection.serializeList( list )`
 		 *
 		 *   This implementation simply returns an `Array` containing the result of
-		 *   [can-connect/constructor.serializeInstance] called on each item in the list.
+		 *   [can-connect/constructor/constructor.serializeInstance] called on each item in the list.
 		 *
-		 *   @param {List} list The instance to serialize.
+		 *   @param {can-connect.List} list The instance to serialize.
 		 *
 		 *   @return {Object|Array} A serialized representation of the list.
 		 *
@@ -567,14 +549,15 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			});
 		},
 		/**
-		 * @function can-connect/constructor.isNew isNew
-		 * @parent can.connect/constructor.helpers
+		 * @function can-connect/constructor/constructor.isNew isNew
+		 * @parent can-connect/constructor/constructor.helpers
 		 *
 		 * Returns if this instance has not been persisted.
 		 *
-		 * @param {Object} instance The instance to test.
+		 * @signature ``
 		 *
-		 * @return {Boolean} `true` if the instance has not been persisted.
+		 *   @param {Object} instance The instance to test.
+		 *   @return {Boolean} `true` if the instance has not been persisted.
 		 */
 		isNew: function(instance){
 			var id = this.id(instance);
@@ -582,23 +565,22 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		}
 
 		/**
-		 * @property can-connect/constructor.list list
-		 * @parent can.connect/constructor.hydrators
+		 * @property can-connect/constructor/constructor.list list
+		 * @parent can-connect/constructor/constructor.hydrators
 		 *
-		 * Returns the appropraite form of list.
+		 * Returns the data in its typed list form.
 		 *
 		 * @signature `connection.list( listInstanceData, set )`
 		 *
 		 *   Takes an object with a data property that is an array of instances returned by
-		 *   [can-connect/constructor.hydrateInstance] and should return the right type of list.
+		 *   [can-connect/constructor/constructor.hydrateInstance] and should return the right type of list.
 		 *
-		 *   @param {{data: Array<Instance>}} listInstanceData
+		 *   @param {{data: Array<Instance>}} listInstanceData An object that contains an array
+		 *   of instances.
 		 *
-		 *     @option {Array<Instance>} data
+		 *   @param {can-set/Set} set The set this list belongs to.
 		 *
-		 *   @param {{}} set
-		 *
-		 *   @return {List}
+		 *   @return {can-connect.List} The instances in the special list type.
 		 *
 		 * @body
 		 *
@@ -614,7 +596,10 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *   return this.filter(function(){ return this.completed });
 		 * };
 		 *
-		 * var todosConnection = connect(["constructor","data-url"], {
+		 * var todosConnection = connect([
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ], {
 		 *   url: "todos",
 		 *   list: function(listData, set){
 		 *     var collection = Object.create(MyList);
@@ -634,47 +619,48 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * ```
 		 *
 		 *
-		 * Notice that we added the `__listSet` data on the list. This is useful
+		 * Notice that we added the default [can-connect/base/base.listSetProp] (`__listSet`) data on the list. This is useful
 		 * for other extensions.
 		 *
 		 */
 
 		/**
-		 * @property can-connect/constructor.instance instance
-		 * @parent can.connect/constructor.hydrators
+		 * @property can-connect/constructor/constructor.instance instance
+		 * @parent can-connect/constructor/constructor.hydrators
 		 *
-		 * Returns the typed form of the serialized data.
+		 * Returns the typed form of the raw data.
 		 *
 		 * @signature `connection.instance( props )`
 		 *
-		 *   Takes an object with a data property that is an array of instances returned by
-		 *   [can-connect/constructor.hydrateInstance] and should return the right type of list.
+		 *   Takes raw data and runs it through [can-connect/constructor/constructor.hydrateInstance].
 		 *
 		 *   @param {Object} props
 		 *
-		 *   @return {Instance}
+		 *   @return {can-connect/Instance} The typed instance.
 		 *
 		 * @body
 		 *
 		 * ## Use
 		 *
-		 * If you have a special type of list with helper functions you'd like to have available,
-		 * you can do that in `list`.  The following makes it so `getList` resolves to array-like
-		 * objects that have a `completed` function.
+		 * If you have a special type with helper functions you'd like to have available,
+		 * you can convert raw data to that type in `instance`.  The following makes it so
+		 * [can-connect/constructor/constructor.get .get] resolves to objects with a `complete` method.
 		 *
 		 * ```
-		 * var MyList = Object.create(Array.prototype);
-		 * MyList.prototype.completed = function(){
-		 *   return this.filter(function(){ return this.completed });
+		 * Todo = function(props){
+		 *   Object.assign(this, props);
 		 * };
+		 * Todo.prototype.complete = function(){
+		 *   this.completed = true;
+		 * }
 		 *
-		 * var todosConnection = connect(["constructor","data-url"], {
+		 * var todosConnection = connect([
+		 *   require("can-connect/constructor/constructor"),
+		 *   require("can-connect/data/url/url")
+		 * ], {
 		 *   url: "todos",
-		 *   list: function(listData, set){
-		 *     var collection = Object.create(MyList);
-		 *     Array.apply(collection, listData.data);
-		 *     collection.__listSet = set;
-		 *     return collection;
+		 *   instance: function( props ) {
+		 *     return new Todo(props);
 		 *   }
 		 * });
 		 * ```
@@ -682,14 +668,10 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * This allows:
 		 *
 		 * ```
-		 * todosConnection.getList({}).then(function(todos){
-		 *   console.log("There are",todos.completed().length, "completed todos")
+		 * todosConnection.get({id: 5}).then(function(todo){
+		 *   todo.complete();
 		 * });
 		 * ```
-		 *
-		 *
-		 * Notice that we added the `__listSet` data on the list. This is useful
-		 * for other extensions.
 		 *
 		 */
 	};

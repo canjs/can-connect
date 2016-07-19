@@ -6,20 +6,20 @@
 
 <script src="../../node_modules/steal/steal.js" id="demo-source">
 import connect from "can-connect";
-import "can-connect/data/url/";
-import "can-connect/constructor/";
-import "can-connect/constructor/store/";
-import "can-connect/constructor/callbacks-once/";
-import "can-connect/real-time/"
+import dataUrl from "can-connect/data/url/";
+import constructor from "can-connect/constructor/";
+import constructorStore from "can-connect/constructor/store/";
+import callbacksOnce from "can-connect/constructor/callbacks-once/";
+import realTime from "can-connect/real-time/"
 import fixture from "can-fixture";
 import $ from "jquery";
 
 // A connection that gets todos data
-var todosConnection = connect(["real-time",
-	"constructor",
-	"constructor-store",
-	"constructor-callbacks-once",
-	"data-url"],{
+var todosConnection = connect([realTime,
+	constructor,
+	constructorStore,
+	callbacksOnce,
+	dataUrl],{
   url: "/todos"
 });
 

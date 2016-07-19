@@ -3,7 +3,7 @@ var connect = require("can-connect");
 var set = require("can-set");
 
 
-QUnit.module("can-connect/cache-requests",{
+QUnit.module("can-connect/core test",{
 	setup: function(){
 
 	}
