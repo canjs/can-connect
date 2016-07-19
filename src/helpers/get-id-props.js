@@ -15,4 +15,4 @@ module.exports = function(connection) {
 		ids.push('id');
 	}
 	return ids;
-}
+};
