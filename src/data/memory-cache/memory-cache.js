@@ -218,15 +218,22 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 		 */
 		getListData: function(set){
 			set = set || {};
-			var listData = this._getListData(set);
+			var listData = this.getListDataSync(set);
 			if(listData) {
 				return Promise.resolve(listData);
 			}
 			return Promise.reject({message: "no data", error: 404});
 
 		},
-		// a sync method used by can-fixture.
-		_getListData: function(set){
+		/**
+		 * @function can-connect/data/memory-cache.getListDataSync getListDataSync
+		 * @parent can-connect/data/memory-cache.data-methods
+		 *
+		 * Synchronously gets a set of data from the memory cache.
+		 *
+		 * @signature `connection.getListDataSync(set)`
+		 */
+		getListDataSync: function(set){
 			var sets = this._getSets();
 			for(var i = 0; i < sets.length; i++) {
 				var checkSet = sets[i];
@@ -236,6 +243,10 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 					return {data: items};
 				}
 			}
+		},
+		// a sync method used by can-fixture.
+		_getListData: function(set){
+			return this.getListDataSync(set);
 		},
 		/**
 		 * @function can-connect/data/memory-cache/memory-cache.updateListData updateListData

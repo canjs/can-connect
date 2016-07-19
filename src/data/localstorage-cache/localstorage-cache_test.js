@@ -280,7 +280,6 @@ QUnit.test("using algebra (#72)", function(){
 	});
 });
 
-
 QUnit.test("Support passing undefined as a set to mean passing {} (#54)", function(){
 	var connection = this.connection;
 
@@ -290,5 +289,20 @@ QUnit.test("Support passing undefined as a set to mean passing {} (#54)", functi
 		QUnit.equal(localStorage.getItem("todos-sets"),"[{}]", "contains universal set");
 		QUnit.equal(localStorage.getItem("todos/set/{}"),"[1,2,3]", "has set to id");
 		QUnit.start();
+	});
+});
+
+QUnit.test("subset data (#96)", function(){
+	var connection = this.connection;
+	QUnit.stop();
+
+	connection.updateListData({ data: [{id: 1, completed: true}, {id: 2, completed: false}] }, {}).then(function(){
+		connection.getListData({completed: true}).then(function(items){
+			QUnit.equal(items.data.length, 1, "should get completed items from cache");
+			QUnit.start();
+		}, function(){
+			ok(false, "should have gotten completed items from cache");
+			QUnit.start();
+		});
 	});
 });

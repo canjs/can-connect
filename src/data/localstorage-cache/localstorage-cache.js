@@ -307,17 +307,41 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 */
 		getListData: function(set){
 			set = set || {};
+			var listData = this.getListDataSync(set);
+			if(listData) {
+				return Promise.resolve(listData);
+			}
+			return Promise.reject({message: "no data", error: 404});
+		},
+		/**
+		 * @function can-connect/data/localstorage-cache.getListDataSync getListDataSync
+		 * @parent can-connect/data/localstorage-cache.data-methods
+		 *
+		 * Synchronously gets a set of data from localstorage.
+		 *
+		 * @signature `connection.getListDataSync(set)`
+		 */
+		getListDataSync: function(set){
+			var sets = this._getSets();
+			for(var i = 0; i < sets.length; i++) {
+				var checkSet = sets[i];
+
+				if( canSet.subset(set, checkSet, this.algebra) ) {
+					var items = canSet.getSubset(set, checkSet, this.__getListData(checkSet), this.algebra);
+					return {data: items};
+				}
+			}
+		},
+		__getListData: function(set){
 			var setKey = sortedSetJSON(set);
 
 			var setDatum = this.getSetData()[setKey];
 			if(setDatum) {
 				var localData = localStorage.getItem(this.name+"/set/"+setKey);
 				if(localData) {
-					return Promise.resolve( {data: this.getInstances( JSON.parse( localData ) )} );
+					return this.getInstances( JSON.parse( localData ) );
 				}
 			}
-			return Promise.reject({message: "no data", error: 404});
-
 		},
 		/**
 		 * @function can-connect/data/localstorage-cache/localstorage-cache.getData getData
