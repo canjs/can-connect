@@ -98,7 +98,7 @@ var assign = require("can-util/js/assign/assign");
 var each = require("can-util/js/each/each");
 var ajax = require("can-util/dom/ajax/ajax");
 var string = require("can-util/js/string/string");
-
+var getIdProps = require("../../helpers/get-id-props");
 var connect = require("can-connect");
 
 
@@ -122,9 +122,9 @@ module.exports = connect.behavior("data/url",function(baseConnect){
 				}
 			}
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
-			if( resource && this.idProp ) {
-
-				return makeAjax( createURLFromResource(resource, this.idProp , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax  );
+			if( resource ) {
+				var idProps = getIdProps(this);
+				return makeAjax( createURLFromResource(resource, idProps[0] , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax  );
 			}
 
 			return baseConnect[name].call(this, params);
