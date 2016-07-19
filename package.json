@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.10",
+  "version": "0.6.0-pre.11",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -65,6 +65,8 @@
   "browser": {
     "./all": "./dist/cjs/all",
     "./can-connect": "./dist/cjs/can-connect",
+    "./connect": "./dist/cjs/connect",
+    "./base/base": "./dist/cjs/base/base",
     "./cache-requests/cache-requests": "./dist/cjs/cache-requests/cache-requests",
     "./helpers/get-items": "./dist/cjs/helpers/get-items",
     "./constructor/constructor": "./dist/cjs/constructor/constructor",
@@ -77,7 +79,7 @@
     "./constructor/store/store": "./dist/cjs/constructor/store/store",
     "./data/callbacks/callbacks": "./dist/cjs/data/callbacks/callbacks",
     "./data/callbacks-cache/callbacks-cache": "./dist/cjs/data/callbacks-cache/callbacks-cache",
-    "./data": "./dist/cjs/data",
+    "./data/combine-requests/combine-requests": "./dist/cjs/data/combine-requests/combine-requests",
     "./helpers/deferred": "./dist/cjs/helpers/deferred",
     "./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
     "./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",
@@ -86,6 +88,7 @@
     "./data/memory-cache/memory-cache": "./dist/cjs/data/memory-cache/memory-cache",
     "./data/parse/parse": "./dist/cjs/data/parse/parse",
     "./data/url/url": "./dist/cjs/data/url/url",
+    "./helpers/get-id-props": "./dist/cjs/helpers/get-id-props",
     "./fall-through-cache/fall-through-cache": "./dist/cjs/fall-through-cache/fall-through-cache",
     "./real-time/real-time": "./dist/cjs/real-time/real-time",
     "./can/model/model": "./dist/cjs/can/model/model",
