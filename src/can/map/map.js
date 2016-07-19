@@ -229,6 +229,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 					list.attr(prop, val);
 				}
 			});
+			
 			list.__listSet = set;
 			return list;
 		},

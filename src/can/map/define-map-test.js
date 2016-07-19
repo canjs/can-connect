@@ -366,11 +366,11 @@ test("isSaving and isDestroying", function(){
 	isSaving.bind("change", function(ev, newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
-			equal(state,"hydrated");
-			equal(newVal, true);
-			equal(todo.isNew(), true);
+			equal(state,"hydrated","hydrated call");
+			equal(newVal, true, "is saving");
+			equal(todo.isNew(), true, "is new");
 		} else if(isSavingCalls === 2) {
-			equal(state,"hydrated");
+			equal(state,"hydrated", "still hydrated but no longer saving");
 			equal(newVal, false);
 			equal(todo.isNew(), false);
 		} else if(isSavingCalls === 3) {
@@ -427,6 +427,7 @@ test("listSet works", function(){
 			return {data: []};
 		}
 	});
+	
 	var Todo = this.Todo;
 	var TodoList = this.TodoList;
 	var todoConnection = this.todoConnection;
