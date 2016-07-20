@@ -82,7 +82,21 @@ var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 
-module.exports = connect.behavior("constructor/store",function(baseConnect){
+// shared across all connections
+var pendingRequests = 0;
+var requests = {
+	increment: function(connection){
+		pendingRequests++;
+	},
+	decrement: function(connection){
+		pendingRequests--;
+	},
+	count: function(){
+		return pendingRequests;
+	}
+};
+
+var constructorStore = connect.behavior("constructor/store",function(baseConnect){
 
 	var behavior = {
 		/**
@@ -100,11 +114,10 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		listStore: new WeakReferenceMap(),
 		_requestInstances: {},
 		_requestLists: {},
-		_pendingRequests: 0,
 		_finishedRequest: function(){
 			var id;
-			this._pendingRequests--;
-			if(this._pendingRequests === 0) {
+			requests.decrement(this);
+			if(requests.count() === 0) {
 				for(id in this._requestInstances) {
 					this.instanceStore.deleteReference(id);
 				}
@@ -356,7 +369,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 */
 		// ## hydratedInstance
 		hydratedInstance: function(instance){
-			if( this._pendingRequests > 0) {
+			if( requests.count() > 0) {
 				var id = this.id(instance);
 				if(! this._requestInstances[id] ) {
 					this.addInstanceReference(instance);
@@ -408,7 +421,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 *
 		 */
 		hydratedList: function(list, set){
-			if( this._pendingRequests > 0) {
+			if( requests.count() > 0) {
 				var id = sortedSetJSON( set || this.listSet(list) );
 				if(id) {
 					if(! this._requestLists[id] ) {
@@ -459,7 +472,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 */
 		getList: function(params) {
 			var self = this;
-			self._pendingRequests++;
+			requests.increment(this);
 			var promise = baseConnect.getList.call(this, params);
 
 			promise.then(function(instances){
@@ -479,7 +492,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 */
 		get: function(params) {
 			var self = this;
-			self._pendingRequests++;
+			requests.increment(this);
 			var promise = baseConnect.get.call(this, params);
 
 			promise.then(function(instance){
@@ -501,7 +514,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 */
 		save: function(instance) {
 			var self = this;
-			self._pendingRequests++;
+			requests.increment(this);
 
 			var updating = !this.isNew(instance);
 			if(updating) {
@@ -530,7 +543,7 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 		 */
 		destroy: function(instance) {
 			var self = this;
-			self._pendingRequests++;
+			requests.increment(this);
 			var promise = baseConnect.destroy.call(this, instance);
 
 			promise.then(function(instance){
@@ -546,3 +559,6 @@ module.exports = connect.behavior("constructor/store",function(baseConnect){
 	return behavior;
 
 });
+constructorStore.requests = requests;
+
+module.exports = constructorStore;

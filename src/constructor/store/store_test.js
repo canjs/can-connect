@@ -211,3 +211,56 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 
 
 });
+
+QUnit.test("pending requests should be shared by all connections (#115)", function(){
+	var Address = function(values){
+		assign(this, values);
+	};
+	var addressConnection = connect( [persist, constructor, instanceStore], {
+		instance: function(values){
+			return new Address(values);
+		}
+	});
+
+	var Person = function(values){
+		values.address = addressConnection.hydrateInstance(values.address);
+		assign(this, values);
+	};
+
+	var peopleConnection = connect( [persist, constructor, instanceStore], {
+		url: {
+			getListData: function(){
+				return Promise.resolve({
+					data: [
+						{
+							id: 1,
+							name: "Justin Meyer",
+							address: {
+								id: 5,
+								street: "2060 stave"
+							}
+						},
+						{
+							id: 2,
+							name: "Ramiya Meyer",
+							address: {
+								id: 5,
+								street: "2060 stave"
+							}
+						}
+					]
+				});
+			}
+		},
+		instance: function(values){
+			return new Person(values);
+		}
+	});
+
+	QUnit.stop();
+	peopleConnection.getList({}).then(function(people){
+		QUnit.ok(people[0].address === people[1].address);
+		QUnit.start();
+	});
+
+});

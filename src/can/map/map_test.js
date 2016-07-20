@@ -135,6 +135,9 @@ QUnit.test("real-time super model", function(){
 				state.next();
 				// todo change to all props
 				return assign({destroyed:  1},request.data);
+			} else {
+				ok(false, "bad state!");
+				start();
 			}
 		}
 	});
@@ -154,7 +157,7 @@ QUnit.test("real-time super model", function(){
 	var importantList,
 		todayList,
 		bindFunc = function(){
-			console.log("length changing");
+			//console.log("length changing");
 		};
 	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
 		.then(function(result){
@@ -237,8 +240,6 @@ QUnit.test("real-time super model", function(){
 		ok( todayList.indexOf(created) >= 1, "added to today");
 
 		checkCache("cache looks right after update2", {type: "important"}, firstItems.concat(serverCreatedInstance.serialize()),serverSideUpdate );
-
-		serverSideUpdate();
 	}
 
 	function serverSideUpdate(){

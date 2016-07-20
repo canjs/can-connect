@@ -257,8 +257,6 @@ QUnit.test("real-time super model", function(){
 		ok( todayList.indexOf(created) >= 1, "added to today");
 
 		checkCache("cache looks right after update2", {type: "important"}, firstItems.concat(serverCreatedInstance.serialize()),serverSideUpdate );
-
-		serverSideUpdate();
 	}
 	// an update that adds both
 	function serverSideUpdate(){
@@ -427,7 +425,7 @@ test("listSet works", function(){
 			return {data: []};
 		}
 	});
-	
+
 	var Todo = this.Todo;
 	var TodoList = this.TodoList;
 	var todoConnection = this.todoConnection;
