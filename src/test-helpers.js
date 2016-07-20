@@ -3,6 +3,7 @@ module.exports = {
 
 		return {
 			check: function(value){
+				console.log("STATE",value);
 				var state = names.shift();
 				QUnit.equal( state, value, "state check "+state );
 				if(state !== value) {
@@ -11,9 +12,11 @@ module.exports = {
 				return state;
 			},
 			get: function(){
+				console.log("STATE", names[0])
 				return names[0];
 			},
 			next: function(){
+				console.log("STATE", names[0])
 				return names.shift();
 			},
 			toString: function(){

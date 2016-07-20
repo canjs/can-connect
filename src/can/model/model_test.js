@@ -1393,7 +1393,9 @@ var logErrorAndStart = function(e){
 		var Foo = CanModel.extend({
 			findAll: function() {
 				count++;
-				return makeDeferred().promise;
+				var def = makeDeferred();
+				def.resolve([{id: 1},{id: 2}]);
+				return def.promise;
 			}
 		}, {});
 		new Foo.List(Foo.findAll());
