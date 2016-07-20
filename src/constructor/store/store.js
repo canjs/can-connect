@@ -81,7 +81,6 @@
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var cid = require("can-util/js/cid/");
 
 // shared across all connections
 var pendingRequests = 0;
@@ -93,9 +92,9 @@ var requests = {
 		pendingRequests--;
 	},
 	count: function(){
-		return pendingRequests
+		return pendingRequests;
 	}
-}
+};
 
 var constructorStore = connect.behavior("constructor/store",function(baseConnect){
 
@@ -515,7 +514,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 */
 		save: function(instance) {
 			var self = this;
-			requests.increment(this)
+			requests.increment(this);
 
 			var updating = !this.isNew(instance);
 			if(updating) {

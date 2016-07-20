@@ -249,7 +249,7 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 							}
 						}
 					]
-				})
+				});
 			}
 		},
 		instance: function(values){
@@ -263,4 +263,4 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 		QUnit.start();
 	});
 
-})
+});
