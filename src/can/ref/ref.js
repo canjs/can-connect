@@ -123,6 +123,10 @@ var makeRef = function(connection){
 		return baseTeardown.apply(this, arguments);
 	};
 
+	Ref.prototype.serialize = function() {
+		return this[idProp];
+	};
+
 	constructorStore.requests.on("end", function(){
 		for(var id in Ref._requestInstances) {
 			Ref.store.deleteReference(id);
