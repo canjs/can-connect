@@ -2,6 +2,7 @@ var connect = require("can-connect");
 
 var constructor = require("../../constructor/");
 var canMap = require("../map/");
+var canRef = require("../ref/");
 var constructorStore = require("../../constructor/store/");
 var dataCallbacks = require("../../data/callbacks/");
 var callbacksCache = require("../../data/callbacks-cache/");
@@ -14,6 +15,7 @@ var realTime = require("../../real-time/");
 var inlineCache = require("../../data/inline-cache/");
 var callbacksOnce = require("../../constructor/callbacks-once/");
 
+
 var $ = require("jquery");
 
 connect.superMap = function(options){
@@ -21,6 +23,7 @@ connect.superMap = function(options){
 	var behaviors = [
 		constructor,
 		canMap,
+		canRef,
 		constructorStore,
 		dataCallbacks,
 		combineRequests,

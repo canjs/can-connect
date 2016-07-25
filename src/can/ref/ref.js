@@ -73,7 +73,7 @@ var makeRef = function(connection){
 					return this._value;
 				} else if(resolve){
 					this.promise.then(function(value){
-						resolve(connection.hydrateInstance(value));
+						resolve(value);
 					});
 				}
 			}
