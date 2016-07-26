@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var DefineMap = require("can-define/map/");
-var DefineList = require("can-define/list/");
+//var DefineList = require("can-define/list/");
 var constructorStore = require("can-connect/constructor/store/");
 var constructor = require("can-connect/constructor/");
 var canMap = require("can-connect/can/map/");
@@ -76,7 +76,6 @@ QUnit.asyncTest("basics", function(){
 
 		});
 	}, function(error){
-		debugger;
 		QUnit.ok(false, "error");
 		QUnit.start();
 	});
