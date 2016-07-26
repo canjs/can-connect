@@ -32,7 +32,7 @@ var makeRef = function(connection){
 	Ref.store = new WeakReferenceMap();
 	Ref._requestInstances = {};
 	Ref.type = function(ref) {
-		if(ref && typeof ref != "object") {
+		if(ref && typeof ref !== "object") {
 			// get or make the existing reference from the store
 			return new Ref(ref);
 	    } else {
@@ -41,7 +41,7 @@ var makeRef = function(connection){
 			  ref[idProp],
 			  ref);
 	    }
-	}
+	};
 	var defs = {
 		promise: {
 			get: function(){
@@ -110,6 +110,9 @@ var makeRef = function(connection){
 	};
 	Ref.prototype.isPending = function(){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
+	};
+	Ref.prototype.serialize = function() {
+		return this.unobservedId();
 	};
 
 	var baseEventSetup = Ref.prototype._eventSetup;

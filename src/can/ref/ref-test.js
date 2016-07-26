@@ -76,7 +76,6 @@ QUnit.asyncTest("basics", function(){
 
 		});
 	}, function(error){
-		debugger;
 		QUnit.ok(false, "error");
 		QUnit.start();
 	});
