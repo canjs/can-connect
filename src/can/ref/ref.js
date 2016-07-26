@@ -111,6 +111,9 @@ var makeRef = function(connection){
 	Ref.prototype.isPending = function(){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
+	Ref.prototype.serialize = function() {
+		return this.unobservedId();
+	};
 
 	var baseEventSetup = Ref.prototype._eventSetup;
 	Ref.prototype._eventSetup = function(){
