@@ -32,7 +32,7 @@ var makeRef = function(connection){
 	Ref.store = new WeakReferenceMap();
 	Ref._requestInstances = {};
 	Ref.type = function(ref) {
-		if(ref && typeof ref != "object") {
+		if(ref && typeof ref !== "object") {
 			// get or make the existing reference from the store
 			return new Ref(ref);
 	    } else {
@@ -41,7 +41,7 @@ var makeRef = function(connection){
 			  ref[idProp],
 			  ref);
 	    }
-	}
+	};
 	var defs = {
 		promise: {
 			get: function(){
