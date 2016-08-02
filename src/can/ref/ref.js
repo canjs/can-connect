@@ -52,6 +52,12 @@
  *  	teamRef.value.name //-> Cubs
  * });
  * ```
+ *
+ * ### Checking for errors
+ * You can check if there was an error loading the reference object by calling the `isRejected` method
+ *
+ *
+ *
  */
 
 
