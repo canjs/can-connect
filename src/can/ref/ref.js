@@ -1,10 +1,15 @@
 /**
- * @module can-connect/can/ref/ref
- * @parent can-connect.modules
+ * @module {connect.Behavior} can-connect/can/ref/ref
+ * @parent can-connect.behaviors
+ * @group can-connect/can/ref/ref.hydrators Hydrators
+ * @group can-connect/can/ref/ref.methods Methods
  *
- * Makes a reference type that is smart enough to load the related type or hold onto an existing one
- * @param {String} property name
- * @param {Object} connection
+ * @signature `canRef( baseConnect )`
+ *
+ *   Makes a reference type that is smart enough to load the related type or hold onto an existing one.
+ *
+ *   @param {connection} baseConnect The base connection should have [can-connect/can/map/map]
+ *   already applied to it.
  *
  * @body
  *
@@ -70,7 +75,15 @@ var define = require("can-define");
 
 var makeRef = function(connection){
 	var idProp = getIdProps(connection)[0];
-
+	/**
+	 * @property {constructor} can-connect/can/ref/ref.Map.Ref Map.Ref
+	 * @parent can-connect/can/ref/ref.hydrators
+	 * @group can-connect/can/ref/ref.Map.Ref.static static
+	 * @group can-connect/can/ref/ref.Map.Ref.prototype prototype
+	 * @param  {[type]} id    [description]
+	 * @param  {[type]} value [description]
+	 * @return {[type]}       [description]
+	 */
 	var Ref = function(id, value){
 		// check if this is in the store
 		if(Ref.store.has(id)) {
@@ -92,8 +105,21 @@ var makeRef = function(connection){
 			}
 		}
 	};
+	/**
+	 * @property {can-connect/helpers/weak-reference-map} can-connect/can/ref/ref.Map.Ref.store store
+	 * @parent can-connect/can/ref/ref.Map.Ref.static
+	 */
 	Ref.store = new WeakReferenceMap();
 	Ref._requestInstances = {};
+	/**
+	 * @function can-connect/can/ref/ref.Map.Ref.type type
+	 * @parent can-connect/can/ref/ref.Map.Ref.static
+	 *
+	 * @signature `Map.Ref.type(ref)`
+	 *
+	 *   @param {Object|String|Number} ref
+	 *   @return {can-connect/can/ref/ref.Map.Ref}
+	 */
 	Ref.type = function(ref) {
 		if(ref && typeof ref !== "object") {
 			// get or make the existing reference from the store
@@ -107,6 +133,11 @@ var makeRef = function(connection){
 	};
 	var defs = {
 		//Check if promise has already been resolved, if not, return a new promise
+		/**
+		 * @property {Promise} can-connect/can/ref/ref.Map.Ref.prototype.promise promise
+		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 * Returns a promise.
+		 */
 		promise: {
 			get: function(){
 				if(this._value) {
@@ -132,6 +163,11 @@ var makeRef = function(connection){
 			}
 		},
 		//return the actual object that reference points to
+		/**
+		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.value value
+		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 * Returns a promise.
+		 */
 		value: {
 			get: function(lastSet, resolve) {
 				if(this._value) {
@@ -143,7 +179,11 @@ var makeRef = function(connection){
 				}
 			}
 		},
-
+		/**
+		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.reason reason
+		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 *
+		 */
 		reason: {
 			get: function(lastSet, resolve){
 				if(this._value) {
@@ -168,9 +208,19 @@ var makeRef = function(connection){
 	Ref.prototype.unobservedId = Observation.ignore(function(){
 		return this[idProp];
 	});
+	/**
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isResolved
+	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 * Returns a promise.
+	 */
 	Ref.prototype.isResolved = function(){
 		return !!this._value || this._state === "resolved";
 	};
+	/**
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isRejected
+	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 * Returns a promise.
+	 */
 	Ref.prototype.isRejected = function(){
 		return this._state === "rejected";
 	};
@@ -178,6 +228,11 @@ var makeRef = function(connection){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
 	//return the id of the reference object when being serialized
+	/**
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.serialize
+	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 * Returns a promise.
+	 */
 	Ref.prototype.serialize = function() {
 		return this[idProp];
 	};
@@ -207,6 +262,12 @@ var makeRef = function(connection){
 
 module.exports = connect.behavior("can/ref",function(baseConnect){
 	return {
+		/**
+		 * @can-connect/can/ref/ref.init init
+		 * @parent can-connect/can/ref/ref.methods
+		 *
+		 * Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
+		 */
 		init: function(){
 			baseConnect.init.apply(this, arguments);
 			this.Map.Ref = makeRef(this);
