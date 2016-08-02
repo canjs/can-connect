@@ -13,41 +13,35 @@
  * To use `can/ref`, first create a Map:
  *
  * ```
- * var OSProject =  DefineMap.extend("OSProject", {
- *  _id: "string",
- *  name: "string"
+ * var Team = DefineMap.extend({
+ * 	id: 'string'
+ * });
+ *
+ * ```
+ *
+ * We can then create a connection:
+ *
+ * ```
+ * connect([constructor, constructorStore, canMap,canRef,{
+ *	 getData: function(){
+ *		 return Promise.resolve({id: 3, name: "Bears"});
+ *	 }
+ * }],{
+ *	 Map: Team
  * });
  * ```
  *
- * Then we can create another Map which uses it as a Ref type:
+ * Now we can create a reference to the Team within a Game map:
  * ```
- * var MonthlyOSProject = DefineMap.extend("MonthlyOSProject",{
- *   significance: "number",
- *   commissioned: "boolean",
- *   osProjectRef: {
- *     type: OSProject.Ref.type
- *   }
+ * var Game = DefineMap.extend({
+ *	 id: 'string',
+ *	 teamRef: {type: Team.Ref.type},
+ *	 score: "number"
  * });
  * ```
- * This way we can create a new MonthlyOSProject by passing an "id" to OSProject:
- * ```
- * var monthlyOSProject = new MonthlyOSProject({
- *    significance: 0,
- *    commissioned: false,
- *    osProjectRef: "SOME_OS_PROJECT_ID"
- * });
- * ```
- * And when we call:
- * ```
- * monthlyOSProject.osProjectRef.value
- * ```
+ * 
+ * Whenever `teamRef` is accessed, a request is dispatched to the server to load the OSProject instance. If an instance already exists in memory it will be hydrated, instead of a server call.
  *
- * A  request is dispatched to the server to load the OSProject instance. If an instance already exists in memory it will be hydrated, instead of a server call.
- *
- * A promise object is accessible on every Ref object typeof
- * ```
- * monthlyOSProject.promise
- * ```
  *
  */
 
