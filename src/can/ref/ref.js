@@ -1,3 +1,57 @@
+/**
+ * @module can-connect/can/ref/ref
+ * @parent can-connect.modules
+ *
+ * Makes a reference type that is smart enough to load the related type or hold onto an existing one
+ * @param {String} property name
+ * @param {Object} connection
+ *
+ * @body
+ *
+ * ## Use
+ *
+ * To use `can/ref`, first create a Map:
+ *
+ * ```
+ * var OSProject =  DefineMap.extend("OSProject", {
+ *  _id: "string",
+ *  name: "string"
+ * });
+ * ```
+ *
+ * Then we can create another Map which uses it as a Ref type:
+ * ```
+ * var MonthlyOSProject = DefineMap.extend("MonthlyOSProject",{
+ *   significance: "number",
+ *   commissioned: "boolean",
+ *   osProjectRef: {
+ *     type: OSProject.Ref.type
+ *   }
+ * });
+ * ```
+ * This way we can create a new MonthlyOSProject by passing an "id" to OSProject:
+ * ```
+ * var monthlyOSProject = new MonthlyOSProject({
+ *    significance: 0,
+ *    commissioned: false,
+ *    osProjectRef: "SOME_OS_PROJECT_ID"
+ * });
+ * ```
+ * And when we call:
+ * ```
+ * monthlyOSProject.osProjectRef.value
+ * ```
+ *
+ * A  request is dispatched to the server to load the OSProject instance. If an instance already exists in memory it will be hydrated, instead of a server call.
+ *
+ * A promise object is accessible on every Ref object typeof
+ * ```
+ * monthlyOSProject.promise
+ * ```
+ *
+ */
+
+
 var connect = require("can-connect");
 var getIdProps = require("can-connect/helpers/get-id-props");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
