@@ -39,10 +39,19 @@
  *	 score: "number"
  * });
  * ```
- * 
+ *
  * Whenever `teamRef` is accessed, a request is dispatched to the server to load the OSProject instance. If an instance already exists in memory it will be hydrated, instead of a server call.
  *
+ * ### Retrieving value
+ * To get the value for the referenced object simply call the `value` property on the object
  *
+ * ```
+ *  Game.get({id: 1, populate: "teamRef"}).then(function(game){
+ *		var teamRef = game.teamRef;
+ *  	//access the team name
+ *  	teamRef.value.name //-> Cubs
+ * });
+ * ```
  */
 
 
@@ -91,6 +100,7 @@ var makeRef = function(connection){
 	    }
 	};
 	var defs = {
+		//Check if promise has already been resolved, if not, return a new promise
 		promise: {
 			get: function(){
 				if(this._value) {
@@ -115,6 +125,7 @@ var makeRef = function(connection){
 				return "pending";
 			}
 		},
+		//return the actual object that reference points to
 		value: {
 			get: function(lastSet, resolve) {
 				if(this._value) {
@@ -126,6 +137,7 @@ var makeRef = function(connection){
 				}
 			}
 		},
+
 		reason: {
 			get: function(lastSet, resolve){
 				if(this._value) {
@@ -159,6 +171,10 @@ var makeRef = function(connection){
 	Ref.prototype.isPending = function(){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
+	//return the id of the reference object when being serialized
+	Ref.prototype.serialize = function() {
+		return this[idProp];
+	};
 
 	var baseEventSetup = Ref.prototype._eventSetup;
 	Ref.prototype._eventSetup = function(){
@@ -171,9 +187,6 @@ var makeRef = function(connection){
 		return baseTeardown.apply(this, arguments);
 	};
 
-	Ref.prototype.serialize = function() {
-		return this[idProp];
-	};
 
 	constructorStore.requests.on("end", function(){
 		for(var id in Ref._requestInstances) {
