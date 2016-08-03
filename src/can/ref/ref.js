@@ -6,7 +6,7 @@
  *
  * @signature `canRef( baseConnect )`
  *
- *   Makes a reference type that is smart enough to load the related type or hold onto an existing one.
+ *   Makes a reference type that is loads the related type or hold onto an existing one. This allows us to create circular references and load relevant data as needed
  *
  *   @param {connection} baseConnect The base connection should have [can-connect/can/map/map]
  *   already applied to it.
@@ -57,11 +57,6 @@
  *  	teamRef.value.name //-> Cubs
  * });
  * ```
- *
- * ### Checking for errors
- * You can check if there was an error loading the reference object by calling the `isRejected` method
- *
- *
  *
  */
 
@@ -286,7 +281,7 @@ module.exports = connect.behavior("can/ref",function(baseConnect){
 		 * @can-connect/can/ref/ref.init init
 		 * @parent can-connect/can/ref/ref.methods
 		 *
-		 * Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
+		 * @body Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
 		 */
 		init: function(){
 			baseConnect.init.apply(this, arguments);
