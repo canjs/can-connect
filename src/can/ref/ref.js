@@ -27,16 +27,16 @@
  * We can then create a connection:
  *
  * ```
- * connect([constructor, constructorStore, canMap,canRef,{
- *	 getData: function(){
- *		 return Promise.resolve({id: 3, name: "Bears"});
- *	 }
- * }],{
- *	 Map: Team
- * });
+ * connect(["data-url","data-parse", "constructor","constructor-store", "can-map"],
+ *   {
+ *     Map: Team,
+ *     List: Team.List,
+ *     ...
+ *   })
  * ```
  *
  * Now we can create a reference to the Team within a Game map:
+ *
  * ```
  * var Game = DefineMap.extend({
  *	 id: 'string',
@@ -45,7 +45,7 @@
  * });
  * ```
  *
- * Whenever `teamRef` is accessed, a request is dispatched to the server to load the OSProject instance. If an instance already exists in memory it will be hydrated, instead of a server call.
+ * Whenever `teamRef` is accessed, a request is dispatched to the server to load the instance. If an instance already exists in memory it will be hydrated, instead of a server call.
  *
  * ### Retrieving value
  * To get the value for the referenced object simply call the `value` property on the object
@@ -80,9 +80,9 @@ var makeRef = function(connection){
 	 * @parent can-connect/can/ref/ref.hydrators
 	 * @group can-connect/can/ref/ref.Map.Ref.static static
 	 * @group can-connect/can/ref/ref.Map.Ref.prototype prototype
-	 * @param  {[type]} id    [description]
-	 * @param  {[type]} value [description]
-	 * @return {[type]}       [description]
+	 * @param  {string} id    string representing the record id
+	 * @param  {Object} value instance loaded / hydrated
+	 * @return {Object}       Instance for the id
 	 */
 	var Ref = function(id, value){
 		// check if this is in the store
@@ -108,6 +108,7 @@ var makeRef = function(connection){
 	/**
 	 * @property {can-connect/helpers/weak-reference-map} can-connect/can/ref/ref.Map.Ref.store store
 	 * @parent can-connect/can/ref/ref.Map.Ref.static
+	 * A WeakReferenceMap that contains instances being created by their `._cid` property.
 	 */
 	Ref.store = new WeakReferenceMap();
 	Ref._requestInstances = {};
@@ -132,11 +133,12 @@ var makeRef = function(connection){
 	    }
 	};
 	var defs = {
-		//Check if promise has already been resolved, if not, return a new promise
 		/**
 		 * @property {Promise} can-connect/can/ref/ref.Map.Ref.prototype.promise promise
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-		 * Returns a promise.
+		 * @signature `ref.promise`
+		 * 	returns a promise if it has already been resolved, if not, returns a new promise
+		 * @return {Promise}
 		 */
 		promise: {
 			get: function(){
@@ -162,11 +164,12 @@ var makeRef = function(connection){
 				return "pending";
 			}
 		},
-		//return the actual object that reference points to
 		/**
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.value value
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-		 * Returns a promise.
+		 * @signature `ref.value`
+		 * 	returns the actual object that reference points to
+		 * @return {object} actual object that reference points to
 		 */
 		value: {
 			get: function(lastSet, resolve) {
@@ -182,7 +185,9 @@ var makeRef = function(connection){
 		/**
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.reason reason
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-		 *
+		 * @signature `ref.reason`
+		 * 	handles the rejection case for the promise
+		 * @return {Object} error message if the promise is rejected
 		 */
 		reason: {
 			get: function(lastSet, resolve){
@@ -209,29 +214,44 @@ var makeRef = function(connection){
 		return this[idProp];
 	});
 	/**
-	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isResolved
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isResolved isResolved
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-	 * Returns a promise.
+	 *
+	 * @signature `ref.isResolved`
+	 * 	Returns a {boolean}
+	 * @return {boolean}
 	 */
 	Ref.prototype.isResolved = function(){
 		return !!this._value || this._state === "resolved";
 	};
 	/**
-	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isRejected
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isRejected isRejected
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-	 * Returns a promise.
+	 * @signature `ref.isRejected`
+	 * 	Returns boolean if the promise was rejected
+	 * @return {boolean}
 	 */
 	Ref.prototype.isRejected = function(){
 		return this._state === "rejected";
 	};
+
+	/**
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isPending isPending
+	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 * @signature `ref.isPending`
+	 * 	Returns true if the state is not 'resolved' or 'rejected'
+	 * @return {boolean}
+	 */
 	Ref.prototype.isPending = function(){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
 	//return the id of the reference object when being serialized
 	/**
-	 * @function can-connect/can/ref/ref.Map.Ref.prototype.serialize
+	 * @function can-connect/can/ref/ref.Map.Ref.prototype.serialize serialize
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
-	 * Returns a promise.
+	 * @signature `ref.serialize`
+	 * 	returns the `idProp`
+	 * @return {string} idProp
 	 */
 	Ref.prototype.serialize = function() {
 		return this[idProp];
