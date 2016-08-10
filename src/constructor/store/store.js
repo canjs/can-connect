@@ -81,20 +81,31 @@
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var canEvent = require("can-event");
+var assign = require("can-util/js/assign/assign");
 
 // shared across all connections
 var pendingRequests = 0;
+var noRequestsTimer = null;
 var requests = {
 	increment: function(connection){
 		pendingRequests++;
+		clearTimeout(noRequestsTimer);
 	},
 	decrement: function(connection){
 		pendingRequests--;
+		if(pendingRequests === 0) {
+			noRequestsTimer = setTimeout(function(){
+				requests.dispatch("end");
+			},10);
+		}
 	},
 	count: function(){
 		return pendingRequests;
 	}
 };
+assign(requests, canEvent);
+
 
 var constructorStore = connect.behavior("constructor/store",function(baseConnect){
 
