@@ -4,6 +4,8 @@
  * @group can-connect/can/ref/ref.hydrators Hydrators
  * @group can-connect/can/ref/ref.methods Methods
  *
+ * @description Handle references to instances in the raw data returned by the server.
+ *
  * @signature `canRef( baseConnect )`
  *
  *   Makes a reference type that is loads the related type or hold onto an existing one. This allows us to create circular references and load relevant data as needed
@@ -15,27 +17,53 @@
  *
  * ## Use
  *
- * To use `can/ref`, first create a Map:
+ * `can/ref` is useful when the server might return either a reference to
+ * a value or the value itself.  For example, in a MongoDB setup, it
+ * a request like `GET /game/5` might return:
+ *
+ * ```
+ * {
+ *   id: 5,
+ *   teamRef: 7,
+ *   score: 21
+ * }
+ * ```
+ *
+ * But a request like `GET /game/5?$populate=teamRef` might return:
+ *
+ * ```
+ * {
+ *   id: 5,
+ *   teamRef: {id: 7, name: "Cubs"},
+ *   score: 21
+ * }
+ * ```
+ *
+ * `can/ref` can handle this abigutity, and even make lazy loading possible.
+ *
+ * To use `can/ref`, first create a Map and a connection for the referenced type:
  *
  * ```
  * var Team = DefineMap.extend({
  * 	id: 'string'
  * });
  *
- * ```
- *
- * We can then create a connection:
- *
- * ```
- * connect(["data-url","data-parse", "constructor","constructor-store", "can-map"],
- *   {
+ * connect([
+ *   require("can-connect/constructor/constructor"),
+ *   require("can-connect/constructor/store/store"),
+ *   require("can-connect/constructor/can/map/map"),
+ *   require("can-connect/constructor/can/ref/ref")
+ * ],{
  *     Map: Team,
  *     List: Team.List,
  *     ...
- *   })
+ * })
  * ```
  *
- * Now we can create a reference to the Team within a Game map:
+ * The connection is necessary because it creates an instance store which will
+ * hold instances of `Team` that the `Team.Ref` type will be able to access.
+ *
+ * Now we can create a reference to the Team within a Game map and the Game's connection:
  *
  * ```
  * var Game = DefineMap.extend({
@@ -43,20 +71,74 @@
  *	 teamRef: {type: Team.Ref.type},
  *	 score: "number"
  * });
+ *
+ * superMap({
+ *   Map: Game,
+ *   List: Game.List
+ * })
  * ```
  *
- * Whenever `teamRef` is accessed, a request is dispatched to the server to load the instance. If an instance already exists in memory it will be hydrated, instead of a server call.
+ * Now, `teamRef` is a [can-connect/can/ref/ref.Map.Ref] type, which will
+ * house the id of the reference no matter how the server returns data like
+ * `game.teamRef.id`.
  *
- * ### Retrieving value
- * To get the value for the referenced object simply call the `value` property on the object
+ * For example, without populating the team data:
  *
  * ```
- *  Game.get({id: 1, populate: "teamRef"}).then(function(game){
- *		var teamRef = game.teamRef;
- *  	//access the team name
- *  	teamRef.value.name //-> Cubs
+ * Game.get({id: 5}).then(function(game){
+ *		game.teamRef.id //-> 7
  * });
  * ```
+ *
+ * With populating the team data:
+ *
+ * ```
+ * Game.get({id: 5, populate: "teamRef"}).then(function(game){
+ *		game.teamRef.id //-> 7
+ * });
+ * ```
+ *
+ * The values of other properties and methods on the [can-connect/can/ref/ref.Map.Ref] type
+ * are determined by if the reference was populated or the referenced item already exists
+ * in the [can-connect/constructor/store/store.instanceStore].
+ *
+ * For example, `value`, which points to the referenced instance will be populated if the reference was populated:
+ *
+ * ```
+ * Game.get({id: 5, $populate: "teamRef"}).then(function(game){
+ *		game.teamRef.value.name //-> 5
+ * });
+ * ```
+ *
+ * Or, it will be populated if that instance had loaded through another means and
+ * is in the instance store:
+ *
+ * ```
+ * Team.get({id: 7}).then(function(team){
+ *   // binding adds things to the store
+ *   team.on("name", function(){})
+ * }).then(function(){
+ *   Game.get({id: 5}).then(function(game){
+ *     game.teamRef.value.name //-> 5
+ *   });
+ * })
+ * ```
+ *
+ * `value` is an [can-define.types.get asynchrounos getter], which means that even if
+ * the referenced value isn't populated or loaded through the store, it can be lazy loaded. This
+ * is generally most useful in a template.
+ *
+ * The following will make an initial request for game `5`, but when the template
+ * tried to read and listen to `game.teamRef.value.name`, a request for team `7`
+ * will be made.
+ *
+ * ```
+ * var template = stache("{{game.teamRef.value.name}} scored {{game.score}} points");
+ * Game.get({id: 5}).then(function(game){
+ *    template({game: game});
+ * });
+ * ```
+ * 
  *
  */
 
