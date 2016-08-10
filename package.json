@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.12",
+  "version": "0.6.0-pre.13",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -94,6 +94,7 @@
     "./can/model/model": "./dist/cjs/can/model/model",
     "./can/super-map/super-map": "./dist/cjs/can/super-map/super-map",
     "./can/map/map": "./dist/cjs/can/map/map",
+    "./can/ref/ref": "./dist/cjs/can/ref/ref",
     "./can/tag/tag": "./dist/cjs/can/tag/tag"
   },
   "scripts": {
