@@ -66,7 +66,7 @@
  * connection will then update lists accordingly:
  *
  *
- * @demo can-connect/src/real-time/real-time.html
+ * @demo ../../demos/can-connect/real-time.html
  *
  * This example creates a `todoList` function and `todoItem` function
  * that manage the behavior of a list of todos and a single todo respectfully.
@@ -292,8 +292,14 @@ module.exports = connect.behavior("real-time",function(baseConnect){
 		 * @function can-connect/real-time/real-time.destroyedData destroyedData
 		 * @parent can-connect/real-time/real-time.callbacks
 		 *
-		 * @param {Object} props
-		 * @param {Object} params
+		 * @signature `connection.destroyedData(props, params)`
+		 *
+		 * Gets the instance for this request.  Then tests if the instance
+		 * is in any list in the [can-connect/constructor/store/store.listStore].  If
+		 * it is, removes the instance from the list.
+		 *
+		 * @param {Object} props The properties of the destroyed instance.
+		 * @param {Object} [params] The parameters used to destroy the data.
 		 */
 		destroyedData: function(props, params){
 			var id = this.id(params || props);

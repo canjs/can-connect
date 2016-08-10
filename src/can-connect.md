@@ -8,6 +8,26 @@
 @description `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
 any JavaScript project.
 
+@signature `connect(behaviors, options)`
+
+Goes through every behavior and assembles them into a final
+connection.
+
+```js
+var connect = require("can-connect");
+var todosConnection = connect([
+    require("can-connect/data/url/url"),
+    require("can-connect/data/constructor/constructor")    
+],{
+    url: "/api/todos"
+});
+```
+
+  @param {Array<can-connect/Behavior>} behaviors An array of
+  behaviors that will be used to compose the final connection.
+
+  @param {Object} options an object of configuration
+  options.
 
 @body
 
@@ -195,7 +215,7 @@ var render = function(todos) {
 
 The following demo shows the result:
 
-@demo can-connect/docs/demos/basics.html
+@demo demos/can-connect/basics.html
 
 This connection also lets you create, update, and destroy a Todo instance as follows:
 

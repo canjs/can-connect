@@ -229,7 +229,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 					list.attr(prop, val);
 				}
 			});
-			
+
 			list.__listSet = set;
 			return list;
 		},
@@ -362,7 +362,7 @@ var callCanReadingOnIdRead = true;
 
 var mapStaticOverwrites = {
 	/**
-	 * @function CanMap.getList getList
+	 * @function can-connect/can/map/map.getList getList
 	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Gets a list of instances of the map type.
@@ -377,7 +377,11 @@ var mapStaticOverwrites = {
 	 * ## Use
 	 *
 	 * ```
-	 * var Todo = CanMap.extend({});
+	 * var Todo = DefineMap.extend({
+	 *   id: "number",
+	 *   complete: "boolean",
+	 *   name: "string"
+	 * });
 	 *
 	 * connect([
 	 *   require("can-connect/can/map/map"),
@@ -399,10 +403,10 @@ var mapStaticOverwrites = {
 		};
 	},
 	/**
-	 * @function CanMap.getList getList
+	 * @function can-connect/can/map/map.findAll findAll
 	 * @parent can-connect/can/map/map.map-static
 	 *
-	 * Alias of [CanMap.getList]. You should use `.getList()`.
+	 * Alias of [can-connect/can/map/map.getList]. You should use `.getList()`.
 	 */
 	findAll: function (base, connection) {
 		return function(set) {
@@ -410,7 +414,7 @@ var mapStaticOverwrites = {
 		};
 	},
 	/**
-	 * @function CanMap.get get
+	 * @function can-connect/can/map/map.get get
 	 * @parent can-connect/can/map/map.map-static
 	 *
 	 * Gets an instance of the map type.
@@ -418,14 +422,18 @@ var mapStaticOverwrites = {
 	 * @signature `Map.get(params)`
 	 *
 	 *   @param {Object} [params]
-	 *   @return {Promise<CanMap>}
+	 *   @return {Promise<Map>}
 	 *
 	 * @body
 	 *
 	 * ## Use
 	 *
 	 * ```js
-	 * var Todo = CanMap.extend({});
+	 * var Todo = DefineMap.extend({
+	 *   id: "number",
+	 *   complete: "boolean",
+	 *   name: "string"
+	 * });
 	 *
 	 * connect([
 	 *   require("can-connect/can/map/map"),
@@ -448,10 +456,10 @@ var mapStaticOverwrites = {
 		};
 	},
 	/**
-	 * @function CanMap.findOne findOne
+	 * @function can-connect/can/map/map.findOne findOne
 	 * @parent can-connect/can/map/map.map-static
 	 *
-	 * Alias of [CanMap.get]. You should use `.get()`.
+	 * Alias of [can-connect/can/map/map.get]. You should use `.get()`.
 	 */
 	findOne: function (base, connection) {
 		return function(params) {
@@ -490,7 +498,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	},
 	isNew: function (base, connection) {
 		/**
-		 * @function CanMap.prototype.isNew isNew
+		 * @function can-connect/can/map/map.prototype.isNew isNew
 		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map has not been persisted.
@@ -510,7 +518,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	},
 	isSaving: function (base, connection) {
 		/**
-		 * @function CanMap.prototype.isSaving isSaving
+		 * @function can-connect/can/map/map.prototype.isSaving isSaving
 		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map is currently being saved.
@@ -528,16 +536,24 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	},
 	isDestroying: function (base, connection) {
 		/**
-		 * @function CanMap.prototype.isDestroying isDestroying
+		 * @function can-connect/can/map/map.prototype.isDestroying isDestroying
 		 * @parent can-connect/can/map/map.map
 		 *
 		 * Returns if the map is currently being destroyed.
 		 *
-		 * @signature `map.isSaving()`
+		 * @signature `map.isDestroying()`
 		 *
-		 *   Returns `true` if .destroy() has been called, but has not resolved yet.
+		 * Observes if the promise returned by `.destroy()` has completed.  This is
+		 * often used in template like:
 		 *
-		 *   @return {Boolean}
+		 * ```
+		 * <button ($click)="todo.destroy()"
+		 *    {{#todo.isDestroying}}disabled{{/todo.isDestroying}}>
+		 *   X
+		 * </button>
+		 * ```
+		 *
+		 *   @return {Boolean} `true` if `.destroy()` has been called but is not resolved yet.
 		 */
 		return function () {
 			Observation.add(this,"_destroying");
@@ -546,7 +562,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	},
 	save: function (base, connection) {
 		/**
-		 * @function CanMap.prototype.save save
+		 * @function can-connect/can/map/map.prototype.save save
 		 * @parent can-connect/can/map/map.map
 		 *
 		 * Persists the map's data to the connection.
@@ -564,7 +580,11 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * ## Use
 		 *
 		 * ```
-		 * var Todo = CanMap.extend({});
+		 * var Todo = DefineMap.extend({
+		 *   id: "number",
+		 *   complete: "boolean",
+		 *   name: "string"
+		 * });
 		 *
 		 * connect([
 		 *   require("can-connect/can/map/map"),
@@ -587,7 +607,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	},
 	destroy: function (base, connection) {
 		/**
-		 * @function CanMap.prototype.destroy destroy
+		 * @function can-connect/can/map/map.prototype.destroy destroy
 		 * @parent can-connect/can/map/map.map
 		 *
 		 * Delete's the instance with the connection.
@@ -603,7 +623,11 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * ## Use
 		 *
 		 * ```
-		 * var Todo = CanMap.extend({});
+		 * var Todo = DefineMap.extend({
+		 *   id: "number",
+		 *   complete: "boolean",
+		 *   name: "string"
+		 * });
 		 *
 		 * connect([
 		 *   require("can-connect/can/map/map"),

@@ -9,7 +9,7 @@
     "can-map": "^3.0.0-pre.7",
     "can-event": "^3.0.0-pre.3",
     "can-observation": "^3.0.0-pre.0",
-    "can-set": "^0.6.0-pre.3",
+    "can-set": "^0.6.0-pre.6",
     "can-stache": "^3.0.0-pre.8",
     "can-stache-bindings": "^3.0.0-pre.5",
     "can-util": "^3.0.0-pre.28",

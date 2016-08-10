@@ -111,6 +111,11 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 * @parent can-connect/constructor/constructor.helpers
 		 *
 		 * A WeakReferenceMap that contains instances being created by their `._cid` property.
+		 *
+		 * @type {can-connect/helpers/weak-reference-map}
+		 *
+		 *   The `cidStore` is used to temporarily hold references to instances by [can-util/js/cid/cid] that don't
+		 *   yet have an id which are in the process of being created.
 		 */
 		cidStore: new WeakReferenceMap(),
 		_cid: 0,
@@ -554,7 +559,9 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 		 *
 		 * Returns if this instance has not been persisted.
 		 *
-		 * @signature ``
+		 * @signature `connection.isNew(instance)`
+		 *
+		 *   Checks that the instance has an [can-connect/base/base.id].
 		 *
 		 *   @param {Object} instance The instance to test.
 		 *   @return {Boolean} `true` if the instance has not been persisted.

@@ -194,6 +194,24 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 		 *
 		 * @signature `connection.clear()`
 		 *
+		 *   Removes all instances and lists being stored in memory.
+		 *
+		 *   ```
+		 *   var cacheConnection = connect([
+		 *     require("can-connect/data/memory-cache/memory-cache")
+		 *   ],{});
+		 *
+		 *   cacheConnection.updateInstance({id: 5, name: "justin"});
+		 *
+		 *   cacheConnection.getData({id: 5}).then(function(data){
+		 *     data //-> {id: 5, name: "justin"}
+		 *     cacheConnection.clear();
+		 *     cacheConnection.getData({id: 5}).catch(function(err){
+		 *       err -> {message: "no data", error: 404}
+		 *     });
+		 *   });
+		 *   ```
+		 *
 		 */
 		clear: function(){
 			this._instances = {};

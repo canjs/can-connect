@@ -100,16 +100,38 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 
 	var behavior = {
 		/**
-		 * @property {WeakReferenceMap} can-connect/constructor/store/store.instanceStore instanceStore
+		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/store/store.instanceStore instanceStore
 		 * @parent can-connect/constructor/store/store.stores
 		 *
 		 * A store of instances mapped by [can-connect/base/base.id].
+		 *
+		 * @type {can-connect/helpers/weak-reference-map}
+		 *
+		 *   Stores instances by their [can-connect/base/base.id] which have had
+		 *   [can-connect/constructor/store/store.addInstanceReference] called more
+		 *   times than [can-connect/constructor/store/store.deleteInstanceReference].
+		 *
+		 *   ```js
+		 *   connection.addInstanceReference(todo5);
+		 *   connection.instanceStore.get("5") //-> todo5
+		 *   ```
 		 */
 		instanceStore: new WeakReferenceMap(),
 		/**
-		 * @property {WeakReferenceMap} can-connect/constructor/store/store.listStore listStore
+		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/store/store.listStore listStore
 		 * @parent can-connect/constructor/store/store.stores
 		 * A store of lists mapped by [can-connect/base/base.listSet].
+		 *
+		 * @type {can-connect/helpers/weak-reference-map}
+		 *
+		 *   Stores lists by their [can-connect/base/base.listSet] which have had
+		 *   [can-connect/constructor/store/store.addListReference] called more
+		 *   times than [can-connect/constructor/store/store.deleteListReference].
+		 *
+		 *   ```js
+		 *   connection.addInstanceReference(allTodos,{});
+		 *   connection.instanceStore.get({}) //-> allTodos
+		 *   ```
 		 */
 		listStore: new WeakReferenceMap(),
 		_requestInstances: {},
@@ -391,7 +413,8 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *   be [can-connect/constructor/constructor.updatedInstance updated] with `props` and returned.
 		 *   If there isn't a matching instance, the base `hydrateInstance` will be called.
 		 *
-		 *   No matter what, [can-connect/constructor/store/store.hydratedInstance] is called.
+		 *   @param {Object} props The raw data used to create an instance.
+		 *   @return {Instance} A typed instance created or updated from `props`.
 		 */
 		// Overwrites hydrateInstance so it looks in the store and calls hydratedInstance.
 		hydrateInstance: function(props){
@@ -439,14 +462,16 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *
 		 * Returns a list given raw data.
 		 *
-		 * @signature `connection.hydrateList(props)`
+		 * @signature `connection.hydrateList( listData, set )`
 		 *
 		 *   Overwrites the base `hydrateList` so that if a matching list is
 		 *   in the [can-connect/constructor/store/store.listStore], that list will
 		 *   be [can-connect/constructor/constructor.updatedList updated] with `listData` and returned.
 		 *   If there isn't a matching list, the base `hydrateList` will be called.
 		 *
-		 *   No matter what, [can-connect/constructor/store/store.hydratedList] is called.
+		 *   @param {can-connect.listData} listData List data to hyrate into a list type.
+		 *   @param {can-set/Set} set The set that represents the data in `listData`.
+		 *   @return {List} A list from either the store or a newly created instance.
 		 */
 		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
@@ -469,6 +494,14 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] or [can-connect/constructor/store/store.hydrateList hydrated lists]
 		 * are kept in the store until the response resolves.
 		 *
+		 * @signature `connection.getList( set )`
+		 *
+		 *   Increments the request counter so these instances will be stored
+		 *   and then decrements it after the request is complete.
+		 *
+		 *
+		 *   @param {can-set/Set} set Params used to specify which list to retrieve.
+		 *   @return {Promise<instance>} The promise returned by the base connection's [can-connect/connection.getList].
 		 */
 		getList: function(params) {
 			var self = this;
@@ -489,6 +522,15 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * Overwrites [can-connect/connection.get] so any
 		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
+		 *
+		 * @signature `connection.get( params )`
+		 *
+		 *   Increments the request counter so this instance will be stored
+		 *   and then decrements it after the request is complete.
+		 *
+		 *
+		 *   @param {Object} params Params used to specify which instance to retrieve.
+		 *   @return {Promise<instance>} The promise returned by the base connection's [can-connect/connection.get].
 		 */
 		get: function(params) {
 			var self = this;
@@ -511,6 +553,21 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
 		 *
+		 * @signature `connection.save( instance )`
+		 *
+		 *   Increments the request counter so this instance will be stored
+		 *   and then decrements it after the request is complete.
+		 *
+		 *   ```
+		 *   var promise = connection.save(todo5);
+		 *   connection.instanceStore.get("5") //-> todo5
+		 *   promise.then(function(){
+		 *     connection.instanceStore.has("5") //-> false
+		 *   })
+		 *   ```
+		 *
+		 *   @param {Object} instance An typed instance.
+		 *   @return {Promise<instance>} The promise returned by the base connection's [can-connect/connection.save].
 		 */
 		save: function(instance) {
 			var self = this;
@@ -540,6 +597,22 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * Overwrites [can-connect/connection.destroy] so any
 		 * [can-connect/constructor/store/store.hydrateInstance hydrated instances] are kept in the
 		 * store until the response resolves.
+		 *
+		 * @signature `connection.destroy( instance )`
+		 *
+		 *   Increments the request counter so this instance will be stored
+		 *   and then decrements it after the request is complete.
+		 *
+		 *   ```
+		 *   var promise = connection.destroy(todo5);
+		 *   connection.instanceStore.get("5") //-> todo5
+		 *   promise.then(function(){
+		 *     connection.instanceStore.has("5") //-> false
+		 *   })
+		 *   ```
+		 *
+		 *   @param {Object} instance An typed instance.
+		 *   @return {Promise<instance>} The promise returned by the base connection's [can-connect/connection.destroy].
 		 */
 		destroy: function(instance) {
 			var self = this;

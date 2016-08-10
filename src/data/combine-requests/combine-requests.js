@@ -198,7 +198,18 @@ module.exports = connect.behavior("data/combine-requests",function(base){
 		 * Specifies the amount of time to wait to combine requests.
 		 *
 		 * @option {Number} Defaults to `1` which means that only requests made within the same
-		 * "thread of execution" will be combined.
+		 * "thread of execution" will be combined.  Increasing this number will mean
+		 * that requests are going to be delayed that length of time in case other requests
+		 * are made.  Generally speaking, there's no good reason to increase the amount of time.
+		 *
+		 * ```
+		 * connect([
+		 *   require("can-connect/data/combine-requests/combine-requests"),
+		 *   ...
+		 * ],{
+		 *   time: 100
+		 * })
+		 * ```
 		 */
 		time:1,
 		/**

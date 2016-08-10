@@ -1,6 +1,6 @@
 @module can-connect/data/worker/worker
 @parent can-connect.behaviors
-@group can-connect/data/worker/worker.identifiers Identifiers
+@group can-connect/data/worker/worker.identifiers Options
 @group can-connect/data/worker/worker.data Data Methods
 
 Connects a connection to another connection in a worker thread.

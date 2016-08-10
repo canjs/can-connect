@@ -73,6 +73,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `getListData` is overwritten
 		 * to forward calling [can-connect/connection.getListData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.getListData] for more information.
 		 */
 		["getListData",
 		/**
@@ -84,6 +86,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `updateListData` is overwritten
 		 * to forward calling [can-connect/connection.updateListData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.updateListData] for more information.
 		 */
 		"updateListData",
 		/**
@@ -95,6 +99,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `getSets` is overwritten
 		 * to forward calling [can-connect/connection.getSets] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.getSets] for more information.
 		 */
 		"getSets",
 		/**
@@ -106,6 +112,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `clear` is overwritten
 		 * to forward calling [can-connect/connection.clear] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.clear] for more information.
 		 */
 		"clear",
 		/**
@@ -117,6 +125,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `getData` is overwritten
 		 * to forward calling [can-connect/connection.getData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.getData] for more information.
 		 */
 		"getData",
 		/**
@@ -128,6 +138,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `createData` is overwritten
 		 * to forward calling [can-connect/connection.createData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.createData] for more information.
 		 */
 		"createData",
 		/**
@@ -139,6 +151,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `updateData` is overwritten
 		 * to forward calling [can-connect/connection.updateData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.updateData] for more information.
 		 */
 		"updateData",
 		/**
@@ -150,6 +164,8 @@ module.exports = connect.behavior("data/worker",function(base){
 		 * If passed a [can-connect/data/worker/worker.worker] option, `destroyData` is overwritten
 		 * to forward calling [can-connect/connection.destroyData] on a connection in the worker that
 		 * shares this connection's [can-connect/data/worker/worker.name].
+		 *
+		 * See [can-connect/connection.destroyData] for more information.
 		 */
 		"destroyData"].forEach(function(name){
 

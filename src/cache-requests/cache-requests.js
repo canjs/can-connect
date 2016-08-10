@@ -14,7 +14,7 @@ var forEach = [].forEach;
  *
  * Caches reponse data and uses it to prevent future requests or make future requests smaller.
  *
- * @signature `cacheRequests( baseConnction )`
+ * @signature `cacheRequests( baseConnection )`
  *
  *   Overwrites [can-connect/cache-requests/cache-requests.getListData] to use set logic to
  *   determine which data is already in [can-connect/base/base.cacheConnection] or needs to be loaded from the base connection.

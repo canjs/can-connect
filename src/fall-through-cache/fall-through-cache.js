@@ -53,7 +53,7 @@
  *
  * The following shows the `fall-through-cache` behavior.
  *
- * @demo can-connect/src/fall-through-cache/fall-through-cache.html
+ * @demo ../../demos/can-connect/fall-through-cache.html
  *
  * Clicking
  * "Completed" or "Incomplete" will make one of the following requests and
