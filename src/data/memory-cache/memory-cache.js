@@ -257,8 +257,9 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnect){
 				var checkSet = sets[i];
 
 				if( canSet.subset(set, checkSet, this.algebra) ) {
-					var items = canSet.getSubset(set, checkSet, this.__getListData(checkSet), this.algebra);
-					return {data: items};
+					var source = this.__getListData(checkSet);
+					var items = canSet.getSubset(set, checkSet, source, this.algebra);
+					return {data: items, count: source.length};
 				}
 			}
 		},
