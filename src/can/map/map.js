@@ -226,7 +226,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 			var list = new _List(listData.data);
 			each(listData, function (val, prop) {
 				if (prop !== 'data') {
-					list.attr(prop, val);
+					list[list.set ? "set" : "attr"](prop, val);
 				}
 			});
 
@@ -324,7 +324,9 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
-				if("attr" in instance) {
+				if("set" in instance) {
+					instance.set(isFunction(props.get) ? props.get() : props, this.constructor.removeAttr || false);
+				} else if("attr" in instance) {
 					instance.attr(isFunction(props.attr) ? props.attr() : props, this.constructor.removeAttr || false);
 				} else {
 					canBatch.start();
@@ -333,7 +335,6 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 					});
 					canBatch.stop();
 				}
-
 			}
 
 			// triggers change event that bubble's like

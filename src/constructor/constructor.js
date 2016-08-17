@@ -226,6 +226,7 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			} else {
 				var list = listData.data.slice(0);
 				list[this.listSetProp || "__listSet"] = set;
+				copyMetadata(listData, list);
 				return list;
 			}
 		},
@@ -495,6 +496,8 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 			// update and assume the instance is already updated
 			// this could be overwritten so that if the ids match, then a merge of properties takes place
 			idMerge(list, instanceList, this.id.bind(this), this.hydrateInstance.bind(this));
+
+			copyMetadata(listData, list);
 		},
 		/**
 		 * @function can-connect/constructor/constructor.destroyedInstance destroyedInstance
@@ -686,3 +689,19 @@ module.exports = connect.behavior("constructor",function(baseConnect){
 	return behavior;
 
 });
+
+function copyMetadata(listData, list){
+	for(var prop in listData) {
+		if(prop !== "data") {
+			// this is map infultrating constructor, but it's alright here.
+			if(typeof list.set === "function") {
+				list.set(prop, listData[prop]);
+			} else if(typeof list.attr === "function") {
+				list.attr(prop, listData[prop]);
+			} else {
+				list[prop] = listData[prop];
+			}
+
+		}
+	}
+}

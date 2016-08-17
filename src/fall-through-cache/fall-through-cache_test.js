@@ -200,3 +200,32 @@ QUnit.test("getInstance and getData", function(){
 	}
 
 });
+
+asyncTest("metadata transfered through fall through cache (#125)", function(){
+	var cacheConnection = {
+		getListData: function(){
+			return testHelpers.asyncResolve({data: [{id: 1}]});
+		},
+		updateListData: function(){}
+	};
+
+	var getDataBehavior = function(base, options){
+		return {
+			getListData: function(){
+				return testHelpers.asyncResolve({data: [{id: 1}], count: 5});
+			}
+		};
+	};
+
+	var connection = connect([getDataBehavior, constructor,fallThroughCache,constructorStore, dataCallbacks],{
+		cacheConnection: cacheConnection
+	});
+
+	connection.getList({}).then(function(list){
+		setTimeout(function(){
+			QUnit.equal(list.count, 5, "expando added");
+			QUnit.start();
+		},10);
+	});
+
+});
