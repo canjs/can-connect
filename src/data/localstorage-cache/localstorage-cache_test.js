@@ -306,3 +306,38 @@ QUnit.test("subset data (#96)", function(){
 		});
 	});
 });
+
+
+QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
+	var todosAlgebra = new canSet.Algebra(
+		canSet.props.offsetLimit("offset","limit")
+	);
+
+	var connection = connect([dataLocalStorage],{
+		name: "todos",
+		algebra: todosAlgebra
+	});
+
+	connection.updateListData(
+		{ data: [{id: 0},{id: 1}] },
+		{ offset: 0, limit: 2}).then(function(){
+
+		return connection.updateListData(
+			{ data: [{id: 2},{id: 3}] },
+			{ offset: 2, limit: 2});
+	}).then(function(){
+		connection.getListData({ offset: 0, limit: 2}).then(function(listData){
+			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}] });
+			QUnit.start();
+		}, function(){
+			QUnit.ok(false, "no data");
+			QUnit.start();
+		});
+	}).catch(function(e){
+		debugger;
+		QUnit.ok(false, "something broke");
+		QUnit.start();
+	});
+
+
+});
