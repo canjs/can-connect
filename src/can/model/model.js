@@ -8,7 +8,8 @@ var $ = require("jquery"),
 	CanMap = require("can-map"),
 	CanList = require("can-list"),
 	Observation = require("can-observation"),
-	canEvent = require("can-event");
+	canEvent = require("can-event"),
+	ns = require("can-util/namespace");
 
 var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
@@ -344,5 +345,9 @@ CanModel.List = CanList.extend({
 		}
 	}
 });
+
+if(!ns.Model) {
+	ns.Model = CanModel;
+}
 
 module.exports = CanModel;
