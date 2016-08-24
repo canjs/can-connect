@@ -65,6 +65,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 
 		// a map of each id to an instance
 		_instances: {},
+		// Returns the sets stored in localstorage like:
+		// `{setKey: {set: set, setKey: setKey}}`
 		getSetData: function(){
 
 			var sets = {};
@@ -83,11 +85,12 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 
 			return sets;
 		},
+		// returns an array of sets
 		_getSets: function(setData){
 			var sets = [];
 			setData = setData || this.getSetData();
 			for(var setKey in setData) {
-				sets.push(setData[setKey].set);
+				sets.push(JSON.parse(setKey));
 			}
 			return sets;
 		},
@@ -119,14 +122,13 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 				return self.getInstance(id);
 			});
 		},
-		removeSet: function(setKey, noUpdate) {
+		// Removes one particular set
+		removeSet: function(setKey) {
 			var sets = this.getSetData();
 			localStorage.removeItem(this.name+"/set/"+setKey);
 			delete sets[setKey];
-			if(noUpdate !== true) {
-				this.updateSets(sets);
-			}
 		},
+		// updates the available sets to what's provided in sets.
 		updateSets: function(sets){
 			var setData = this._getSets(sets);
 			localStorage.setItem(this.name+"-sets", JSON.stringify( setData ) );
@@ -138,13 +140,16 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			if(newSet) {
 				// if the setKey is changing
 				if(newSetKey !== setDatum.setKey) {
-					// add the new one
+					// get current sets
 					var sets = this.getSetData();
-					var oldSetKey = setDatum.setKey;
-					sets[newSetKey] = setDatum;
-					setDatum.setKey = newSetKey;
+
 					// remove the old one
-					this.removeSet(oldSetKey);
+					localStorage.removeItem(this.name+"/set/"+setDatum.setKey);
+					delete sets[setDatum.setKey];
+
+					// add the new one
+					sets[newSetKey] = {setKey: newSetKey, set: newSet};
+					this.updateSets(sets);
 				}
 			}
 
@@ -389,13 +394,13 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			var items = getItems(data);
 			var sets = this.getSetData();
 			var self = this;
-
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
 				var union = canSet.union(setDatum.set, set, this.algebra);
 				if(union) {
+					// Get the data for the old set we can union with.
 					return this.getListData(setDatum.set).then(function(setData){
-
+						// update the old set to the new set
 						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.algebra), union);
 					});
 				}
