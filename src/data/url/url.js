@@ -99,6 +99,7 @@ var each = require("can-util/js/each/each");
 var ajax = require("can-util/dom/ajax/ajax");
 var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
+var dev = require("can-util/js/dev/dev");
 var connect = require("can-connect");
 
 
@@ -118,13 +119,13 @@ module.exports = connect.behavior("data/url",function(baseConnect){
 					return this.url[reqOptions.prop](params);
 				}
 				else if(this.url[reqOptions.prop]) {
-					return makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax);
+					return makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax, findContentType(this.url) );
 				}
 			}
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
 				var idProps = getIdProps(this);
-				return makeAjax( createURLFromResource(resource, idProps[0] , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax  );
+				return makeAjax( createURLFromResource(resource, idProps[0] , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax, findContentType(this.url) );
 			}
 
 			return baseConnect[name].call(this, params);
@@ -303,7 +304,21 @@ var pairs = {
 	destroyData: {prop: "destroyData", type: "DELETE"}
 };
 
-var makeAjax = function ( ajaxOb, data, type, ajax ) {
+var findContentType = function( url ) {
+	if ( typeof url === 'object' && url.contentType ) {
+		var acceptableType = url.contentType === 'application/x-www-form-urlencoded' ||
+			url.contentType === 'application/json';
+		if ( acceptableType ) {
+			return url.contentType;
+		} else {
+			dev.warn("Unacceptable contentType on can-connect request. " + 
+				"Use 'application/json' or 'application/x-www-form-urlencoded'");
+		}
+	}
+	return 'application/json';
+};
+
+var makeAjax = function ( ajaxOb, data, type, ajax, contentType ) {
 
 	var params = {};
 
@@ -326,6 +341,15 @@ var makeAjax = function ( ajaxOb, data, type, ajax ) {
 
 	// Substitute in data for any templated parts of the URL.
 	params.url = string.sub(params.url, params.data, true);
+	
+	// Default to JSON encoding, if contentType is not form-urlencoded
+	var encodeJSON = contentType !== 'application/x-www-form-urlencoded' &&
+		(type && (type === 'POST' || type === 'PUT'));
+	if (encodeJSON) {
+		params.data = JSON.stringify(params.data);
+		params.contentType = contentType;
+	}
+
 	return ajax(assign({
 		type: type || 'post',
 		dataType: 'json'
