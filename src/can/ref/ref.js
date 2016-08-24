@@ -138,7 +138,7 @@
  *    template({game: game});
  * });
  * ```
- * 
+ *
  *
  */
 
@@ -222,9 +222,7 @@ var makeRef = function(connection){
 				if(this._value) {
 					return Promise.resolve(this._value);
 				} else {
-					var props = {};
-					props[idProp] = this[idProp];
-					return connection.Map.get(props);
+					return connection.Map.get(this[idProp]);
 				}
 			}
 		},
