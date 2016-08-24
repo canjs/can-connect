@@ -222,7 +222,9 @@ var makeRef = function(connection){
 				if(this._value) {
 					return Promise.resolve(this._value);
 				} else {
-					return connection.Map.get(this[idProp]);
+					var props = {};
+					props[idProp] = this[idProp];
+					return connection.Map.get(props);
 				}
 			}
 		},
