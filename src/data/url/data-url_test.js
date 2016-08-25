@@ -95,6 +95,7 @@ QUnit.test("destroyData()", function(){
 
 	fixture("DELETE /api/todos/3", function(req) {
 		notEqual(req.data.other, "prop", "don't include it");
+		return {};
 	});
 
 	stop();
