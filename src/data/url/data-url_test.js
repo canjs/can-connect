@@ -86,3 +86,20 @@ QUnit.test('idProp is not part of the parameters', function() {
 	});
 
 });
+
+QUnit.test("destroyData()", function(){
+	var connection = persist({
+		idProp: "id",
+		url: "/api/todos"
+	});
+
+	fixture("DELETE /api/todos/3", function(req) {
+		notEqual(req.data.other, "prop", "don't include it");
+		return {};
+	});
+
+	stop();
+	connection.destroyData({ id: 3, other: "prop" }).then(function(){
+		start();
+	});
+});

@@ -118,13 +118,18 @@ module.exports = connect.behavior("data/url",function(baseConnect){
 					return this.url[reqOptions.prop](params);
 				}
 				else if(this.url[reqOptions.prop]) {
-					return makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax);
+					return makeAjax(this.url[reqOptions.prop], params,
+									reqOptions.type, this.ajax || ajax, reqOptions);
 				}
 			}
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
 				var idProps = getIdProps(this);
-				return makeAjax( createURLFromResource(resource, idProps[0] , reqOptions.prop ),  params, reqOptions.type, this.ajax || ajax  );
+				return makeAjax( createURLFromResource(resource, idProps[0] ,
+													  reqOptions.prop ),
+													  params, reqOptions.type,
+													  this.ajax || ajax,
+													  reqOptions);
 			}
 
 			return baseConnect[name].call(this, params);
@@ -300,10 +305,10 @@ var pairs = {
 	 *   @param {Object} instanceData The serialized data of the instance.
 	 *   @return {Promise<Object>} A promise that resolves to the deleted instance data.
 	 */
-	destroyData: {prop: "destroyData", type: "DELETE"}
+	destroyData: {prop: "destroyData", type: "DELETE", includeData: false}
 };
 
-var makeAjax = function ( ajaxOb, data, type, ajax ) {
+var makeAjax = function ( ajaxOb, data, type, ajax, reqOptions ) {
 
 	var params = {};
 
@@ -326,6 +331,9 @@ var makeAjax = function ( ajaxOb, data, type, ajax ) {
 
 	// Substitute in data for any templated parts of the URL.
 	params.url = string.sub(params.url, params.data, true);
+	if(reqOptions.includeData === false) {
+		delete params.data;
+	}
 	return ajax(assign({
 		type: type || 'post',
 		dataType: 'json'
