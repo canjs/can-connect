@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.18",
+  "version": "0.6.0-pre.19",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -85,7 +85,6 @@
     "./helpers/get-id-props": "./dist/cjs/helpers/get-id-props",
     "./fall-through-cache/fall-through-cache": "./dist/cjs/fall-through-cache/fall-through-cache",
     "./real-time/real-time": "./dist/cjs/real-time/real-time",
-    "./can/model/model": "./dist/cjs/can/model/model",
     "./can/super-map/super-map": "./dist/cjs/can/super-map/super-map",
     "./can/map/map": "./dist/cjs/can/map/map",
     "./can/ref/ref": "./dist/cjs/can/ref/ref",
