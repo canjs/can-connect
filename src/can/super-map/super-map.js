@@ -43,8 +43,10 @@ connect.superMap = function(options){
 		}
 		behaviors.push(callbacksCache,fallThroughCache);
 	}
-	options.ajax = $.ajax;
-
+	// Handles if jQuery isn't provided.
+	if($ && $.ajax) {
+		options.ajax = $.ajax;
+	}
 	return connect(behaviors,options);
 };
 
