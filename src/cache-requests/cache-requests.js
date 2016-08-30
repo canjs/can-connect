@@ -1,6 +1,5 @@
 
 var connect = require("can-connect");
-require("when/es6-shim/Promise");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
 var forEach = [].forEach;

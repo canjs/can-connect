@@ -42,7 +42,6 @@
  * ```
  */
 var getItems = require("can-connect/helpers/get-items");
-require("when/es6-shim/Promise");
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canSet = require("can-set");

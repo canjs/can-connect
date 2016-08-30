@@ -9,8 +9,6 @@ var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
 
-require("when/es6-shim/Promise");
-
 
 QUnit.module("can-connect/real-time",{});
 

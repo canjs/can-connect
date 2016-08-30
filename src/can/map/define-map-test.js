@@ -17,7 +17,6 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 var inlineCache = require("can-connect/data/inline-cache/");
-require("when/es6-shim/Promise");
 
 
 

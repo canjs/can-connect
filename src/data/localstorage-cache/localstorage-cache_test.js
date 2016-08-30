@@ -3,8 +3,6 @@ var dataLocalStorage = require("can-connect/data/localstorage-cache/");
 var connect = require("can-connect");
 var canSet = require("can-set");
 
-require("when/es6-shim/Promise");
-
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();

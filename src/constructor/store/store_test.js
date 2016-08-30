@@ -8,8 +8,6 @@ var connect = require("can-connect/can-connect");
 var testHelpers = require("can-connect/test-helpers");
 var assign = require("can-util/js/assign/assign");
 
-require("when/es6-shim/Promise");
-
 
 
 // connects the "raw" data to a a constructor function

@@ -1,7 +1,6 @@
 
 var connect = require("can-connect");
 var makeDeferred = require("can-connect/helpers/deferred");
-require("when/es6-shim/Promise");
 
 /**
  * @module can-connect/service-worker

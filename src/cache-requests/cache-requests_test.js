@@ -2,7 +2,6 @@ var QUnit = require("steal-qunit");
 var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
-require("when/es6-shim/Promise");
 var map = [].map;
 
 var set = require("can-set");

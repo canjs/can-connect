@@ -2,7 +2,6 @@
 var QUnit = require("steal-qunit");
 var combineRequests = require("can-connect/data/combine-requests/");
 var set = require("can-set");
-require("when/es6-shim/Promise");
 var map = [].map;
 
 var getId = function(d){
