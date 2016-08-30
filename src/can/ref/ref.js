@@ -51,8 +51,8 @@
  * connect([
  *   require("can-connect/constructor/constructor"),
  *   require("can-connect/constructor/store/store"),
- *   require("can-connect/constructor/can/map/map"),
- *   require("can-connect/constructor/can/ref/ref")
+ *   require("can-connect/can/map/map"),
+ *   require("can-connect/can/ref/ref")
  * ],{
  *     Map: Team,
  *     List: Team.List,
