@@ -225,7 +225,7 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 		setTimeout(function(){
 			QUnit.equal(list.count, 5, "expando added");
 			QUnit.start();
-		},10);
+		},30);
 	});
 
 });
