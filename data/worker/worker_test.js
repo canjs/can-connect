@@ -18,7 +18,7 @@ QUnit.test("getListData", function(){
 
 	var connection = connect([workerBehavior],{
 		name: "todos",
-		worker: new Worker( System.stealURL+"?main=src/data/worker/worker-main_test" )
+		worker: new Worker( System.stealURL+"?main=data/worker/worker-main_test" )
 	});
 
 

@@ -6,6 +6,8 @@ QUnit.module("helpers");
 
 QUnit.test("id-merge", function(){
 
+	console.log("In helpers_test.js:9");
+
 	var onSplice = function(arr, fn) {
 		var splice = arr.splice;
 		arr.splice = function() {

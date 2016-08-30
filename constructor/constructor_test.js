@@ -14,7 +14,7 @@ var makeIframe = function(src){
 	var href = window.location.href.split("/");
 	href.pop();
 	if(href.pop() !== "constructor") {
-		src = "src/constructor/" + src;
+		src = "constructor/" + src;
 	}
 
 	var iframe = document.createElement('iframe');
