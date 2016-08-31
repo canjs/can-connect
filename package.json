@@ -26,19 +26,11 @@
   "devDependencies": {
     "can-fixture": "^0.1.0",
     "can-wait": "^0.2.0",
-    "documentjs": "^0.4.4",
     "jshint": "^2.9.1",
     "steal": "^0.15.8",
     "steal-qunit": "^0.1.1",
     "steal-tools": "^0.15.5",
     "testee": "^0.2.5"
-  },
-  "docDependencies": {
-    "can": "^2.3.0",
-    "steal": "^0.15.8",
-    "can-set": "^0.5.5",
-    "when": "^3.7.3",
-    "steal-qunit": "^0.1.1"
   },
   "system": {
     "ignoreBrowser": true,
@@ -51,9 +43,6 @@
       "can-wait",
       "can-define"
     ],
-    "directories": {
-      "lib": "src"
-    },
     "npmAlgorithm": "flat"
   },
   "browser": {
@@ -91,7 +80,7 @@
     "./can/tag/tag": "./dist/cjs/can/tag/tag"
   },
   "scripts": {
-    "jshint": "jshint src --config .jshintrc",
+    "jshint": "jshint --config .jshintrc",
     "test": "npm run jshint && testee --browsers firefox test.html",
     "preversion": "npm test && npm run build",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
@@ -100,7 +89,6 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "document": "documentjs",
     "build": "node build.js"
   },
   "keywords": [
