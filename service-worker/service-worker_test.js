@@ -15,7 +15,7 @@ QUnit.module("can-connect/service-worker",{
 	setup: function(){
 		this.connection = connect([serviceWorkerCache],{
 			name: "todos",
-			workerURL: System.stealURL+"?main=src/service-worker/service-worker-main_test"
+			workerURL: System.stealURL+"?main=service-worker/service-worker-main_test"
 		});
 	}
 });
