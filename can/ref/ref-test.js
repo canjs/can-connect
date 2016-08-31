@@ -7,10 +7,17 @@ var canMap = require("can-connect/can/map/");
 var canRef = require("can-connect/can/ref/");
 var connect = require("can-connect");
 
+// connects the "raw" data to a a constructor function
+// creates ways to CRUD the instances
+QUnit.module("can-connect/can/ref",{
+	setup: function(){
+
+	}
+});
 
 QUnit.asyncTest("basics", function(){
 
-	var Team = new DefineMap({
+	var Team = DefineMap.extend({
 		id: 'string'
 	});
 
@@ -23,7 +30,7 @@ QUnit.asyncTest("basics", function(){
 		Map: Team
 	});
 
-	var Game = new DefineMap({
+	var Game = DefineMap.extend({
 		id: 'string',
 		teamRef: {type: Team.Ref.type},
 		score: "number"
