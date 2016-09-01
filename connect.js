@@ -54,8 +54,8 @@ connect.order = ["data/localstorage-cache","data/url","data/parse","cache-reques
 	"constructor","constructor/store","can/map","can/ref",
 	"fall-through-cache","data/inline-cache",
 
-	"data/worker",
-
+	"data/worker","real-time",
+	
 	"data/callbacks-cache","data/callbacks","constructor/callbacks-once"
 	];
 
