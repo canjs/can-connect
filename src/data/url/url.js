@@ -73,7 +73,8 @@
  *    passed to the method.
  * 2. GET and DELETE request data is put in the URL using [can-util/js/param/param].
  * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
- *    as form encoded data.
+ *    as JSON-encoded data.  To use form-encoded requests instead, add the property
+ *    `contentType:'application/x-www-form-urlencoded'` to your [can-connect/data/url/url.url].
  * 4. If a provided URL doesn't include the method, the following default methods are provided:
  *    - `getListData` - `GET`
  *    - `getData` - `GET`
