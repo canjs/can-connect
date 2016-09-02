@@ -1,0 +1,92 @@
+var QUnit = require("steal-qunit");
+var DefineMap = require("can-define/map/");
+var DefineList = require("can-define/list/");
+var constructorStore = require("can-connect/constructor/store/");
+var constructor = require("can-connect/constructor/");
+var canMap = require("can-connect/can/map/");
+var canRef = require("can-connect/can/ref/");
+var connect = require("can-connect");
+
+// connects the "raw" data to a a constructor function
+// creates ways to CRUD the instances
+QUnit.module("can-connect/can/ref",{
+	setup: function(){
+
+	}
+});
+
+QUnit.asyncTest("basics", function(){
+
+	var Team = DefineMap.extend({
+		id: 'string'
+	});
+
+	connect([constructor, constructorStore, canMap, canRef, {
+		getData: function() {
+			return Promise.resolve({ id: 3, name: "Bears" });
+		}
+	}],
+	{
+		Map: Team
+	});
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRef: {type: Team.Ref.type},
+		score: "number"
+	});
+
+	connect([constructor, constructorStore, canMap, canRef,
+	{
+		getListData: function() {
+			return Promise.resolve({data: [
+	 			{id: 1, score: 50, teamRef: 2},
+				{id: 2, score: 100, teamRef: 3},
+				{id: 3, score: 200, teamRef: 2}
+	 		]});
+	 	},
+		getData: function(params) {
+			return Promise.resolve({
+				id: 1,
+				score: 50,
+				teamRef: {id: 2, name: "Cubs"}
+			});
+		}
+	}],
+	{
+		Map: Game
+  	});
+
+	var handler = function(){};
+	Game.get({id: 1, populate: "teamRef"}).then(function(game){
+		game.on("teamRef", handler);
+		game.teamRef.on("value", handler);
+		var teamRef = game.teamRef;
+		QUnit.ok( teamRef.value instanceof Team);
+		QUnit.equal(teamRef.value.name, "Cubs");
+		QUnit.equal(teamRef.id, 2);
+
+		Game.getList({}).then(function(games){
+			QUnit.ok( games[0].teamRef === teamRef, "same team ref");
+			QUnit.ok( games[2].teamRef === teamRef, "same team ref on a different object");
+			QUnit.ok( teamRef.value instanceof Team);
+			QUnit.equal(teamRef.id, 2);
+			QUnit.equal(teamRef.value.name, "Cubs");
+			QUnit.equal(games[1].teamRef.id, 3);
+
+			QUnit.equal(games[0].teamRef.isResolved(), true);
+
+			games[1].teamRef.on("value", function(ev, newVal){
+				QUnit.ok(newVal instanceof Team);
+				QUnit.equal(newVal.name, "Bears");
+				QUnit.start();
+			});
+
+			QUnit.equal(games[1].teamRef.isResolved(), false);
+
+		});
+	}, function(error){
+		QUnit.ok(false, "error");
+		QUnit.start();
+	});
+});

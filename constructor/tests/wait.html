@@ -1,0 +1,68 @@
+<script>
+	window.QUnit = window.parent.QUnit;
+	window.removeMyself = window.parent.removeMyself;
+</script>
+
+<script src="../../node_modules/steal/steal.js" main="@empty">
+	var wait = require("can-wait");
+
+	function hasQUnit() {
+		return typeof QUnit !== "undefined";
+	}
+
+	wait(function(){
+		Promise.all([
+			System["import"]("can-connect/constructor/"),
+			System["import"]("can-connect/data/url/"),
+			System["import"]("can-connect/can-connect"),
+			System["import"]("can-set"),
+			System["import"]("can-fixture"),
+			System["import"]("can-util/js/assign/assign")
+		]).then(function(mods){
+			var constructor = mods[0];
+			var persist = mods[1];
+			var connect = mods[2];
+			var canSet = mods[3];
+			var fixture = mods[4];
+			var assign = mods[5]
+
+			var Todo = function(values){
+				assign(this, values);
+			};
+			var TodoList = function(todos){
+				var listed = todos.slice(0);
+				listed.isList = true;
+				return listed;
+			};
+			var connection = constructor( persist( connect.base({
+				instance: function(values){
+					return new Todo(values);
+				},
+				list: function(arr){
+					return new TodoList(arr.data);
+				},
+				url: "/constructor/todos",
+				name: "todos"
+			}) ));
+
+			fixture({
+				"GET /constructor/todos/2": function(req) {
+					return [{id:2}];
+				}
+			});
+
+			connection.get({ id: 2 });
+		});
+	}).then(function(responses){
+		if(hasQUnit()) {
+			QUnit.equal(responses.length, 1, "There was one piece of data added");
+			QUnit.ok(responses[0].pageData.todos, "data added to the response");
+
+			removeMyself();
+		} else {
+			console.log("responses", responses);
+		}
+	}, function(errors){
+		console.error("oh noes", errors);
+	});
+</script>

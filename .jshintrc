@@ -35,6 +35,7 @@
 		"canWait": true,
 		"asyncTest": true,
 		"deepEqual": true,
+		"notEqual": true,
 		"postMessage": true,
 		"INLINE_CACHE": true,
 		"ActiveXObject": true
