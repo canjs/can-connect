@@ -1,31 +1,26 @@
-@module {function} can-connect/can/super-map/super-map
+@module {function} can-connect/can/base-map/base-map
 @parent can-connect.modules
 
 Create connection with many of the best behaviors in can-connect and hook it up to
 a [can.Map](http://canjs.com/docs/can.Map.html).
 
-@signature `superMap(options)`
+@signature `baseMap(options)`
 
   Creates a connection with the following behaviors: [can-connect/constructor/constructor],
   [can-connect/can/map/map],
   [can-connect/constructor/store/store],
   [can-connect/data/callbacks/callbacks],
   [can-connect/data/callbacks-cache/callbacks-cache],
-  [can-connect/data/combine-requests/combine-requests],
-  [can-connect/data/inline-cache/inline-cache],
   [can-connect/data/parse/parse],
   [can-connect/data/url/url],
   [can-connect/real-time/real-time],
-  [can-connect/fall-through-cache/fall-through-cache],
   [can-connect/constructor/callbacks-once/callbacks-once].
-
-  And creates a [can-connect/data/localstorage-cache/localstorage-cache] to use as a [can-connect/base/base.cacheConnection].
 
 @body
 
 ## Use
 
-The `can-connect/can/super-map` module exports a helper function that creates a connection
+The `can-connect/can/base-map` module exports a helper function that creates a connection
 with the "standard" behaviors in can-connect and hooks it up to a
 [can.Map](http://canjs.com/docs/can.Map.html) and [can.List](http://canjs.com/docs/can.List.html).
 
@@ -39,10 +34,10 @@ var Todo = can.Map.extend({ ... });
 var TodoList = can.List.extend({Map: Todo},{ ... });
 ```
 
-Next, call `superMap` with all of the options needed by the behaviors that `superMap` adds:
+Next, call `baseMap` with all of the options needed by the behaviors that `baseMap` adds:
 
 ```
-var todoConnection = superMap({
+var todoConnection = baseMap({
   idProp: "_id",
   Map: Todo,
   List: TodoList,
