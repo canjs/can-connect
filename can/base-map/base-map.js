@@ -14,7 +14,7 @@ var callbacksOnce = require("../../constructor/callbacks-once/");
 
 var $ = require("jquery");
 
-connect.superMap = function(options){
+connect.baseMap = function(options){
 
 	var behaviors = [
 		constructor,
@@ -36,4 +36,4 @@ connect.superMap = function(options){
 	return connect(behaviors,options);
 };
 
-module.exports = connect.superMap;
+module.exports = connect.baseMap;
