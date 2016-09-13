@@ -105,7 +105,7 @@ var connect = require("can-connect");
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data/url",function(baseConnect){
+module.exports = connect.behavior("data/url", function(baseConnect){
 
 
 	var behavior = {};
@@ -115,7 +115,8 @@ module.exports = connect.behavior("data/url",function(baseConnect){
 			if(typeof this.url === "object") {
 
 				if(typeof this.url[reqOptions.prop] === "function"){
-					return this.url[reqOptions.prop](params);
+					let res = this.url[reqOptions.prop](params);
+					return (res instanceof Promise) ? res : new Promise((resolve, reject) => res.then(resolve).fail(reject));
 				}
 				else if(this.url[reqOptions.prop]) {
 					return makeAjax(this.url[reqOptions.prop], params,
@@ -334,6 +335,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, reqOptions ) {
 	if(reqOptions.includeData === false) {
 		delete params.data;
 	}
+
 	return ajax(assign({
 		type: type || 'post',
 		dataType: 'json'
