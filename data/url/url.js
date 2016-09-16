@@ -101,39 +101,39 @@ var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
 var connect = require("can-connect");
 
+var makePromise = require("can-util/js/make-promise/make-promise");
 
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data/url",function(baseConnect){
+module.exports = connect.behavior("data/url", function(baseConnect) {
 
 
 	var behavior = {};
-	each(pairs, function(reqOptions, name){
-		behavior[name] = function(params){
+	each(pairs, function(reqOptions, name) {
+		behavior[name] = function(params) {
 
 			if(typeof this.url === "object") {
+				if(typeof this.url[reqOptions.prop] === "function") {
 
-				if(typeof this.url[reqOptions.prop] === "function"){
-					return this.url[reqOptions.prop](params);
+					return makePromise(this.url[reqOptions.prop](params));
 				}
 				else if(this.url[reqOptions.prop]) {
-					return makeAjax(this.url[reqOptions.prop], params,
-									reqOptions.type, this.ajax || ajax, reqOptions);
+					return makePromise(makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax, reqOptions));
 				}
 			}
+
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
 				var idProps = getIdProps(this);
-				return makeAjax( createURLFromResource(resource, idProps[0] ,
-													  reqOptions.prop ),
-													  params, reqOptions.type,
-													  this.ajax || ajax,
-													  reqOptions);
+				return makePromise(makeAjax( createURLFromResource(resource, idProps[0] ,
+					reqOptions.prop ),
+					params, reqOptions.type,
+					this.ajax || ajax,
+					reqOptions));
 			}
 
 			return baseConnect[name].call(this, params);
-
 		};
 	});
 
@@ -334,6 +334,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, reqOptions ) {
 	if(reqOptions.includeData === false) {
 		delete params.data;
 	}
+
 	return ajax(assign({
 		type: type || 'post',
 		dataType: 'json'
