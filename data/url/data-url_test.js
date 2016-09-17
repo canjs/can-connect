@@ -1,6 +1,7 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
+var $ = require("jquery");
 
 QUnit.module("can-connect/data/url",{
 	setup: function(){
@@ -123,7 +124,7 @@ QUnit.test("Ajax requests should default to 'application/json' (#134)", function
 
 	stop();
 	connection.createData({foo: "bar"}).then(function() {
-		start();	
+		start();
 	});
 });
 
@@ -148,6 +149,97 @@ QUnit.test("contentType can be form-urlencoded (#134)", function() {
 
 	stop();
 	connection.createData({foo: "bar"}).then(function() {
-		start();	
+		start();
 	});
+});
+
+QUnit.test("getting a real Promise back with functions", function() {
+	var connection = persist({
+		url: {
+			getListData: function() {
+				return $.get("GET /getList");
+			},
+			getData: function() {
+				return $.get("GET /getInstance/{id}");
+			}
+		}
+	});
+
+	fixture({
+		"GET /getList": function(){
+			return [{id: 1}];
+		},
+		"GET /getInstance/{id}": function(){
+			return {id: 2};
+		}
+	});
+
+	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+
+	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+
+});
+
+QUnit.test("getting a real Promise back with object using makeAjax", function() {
+	var connection = persist({
+		url: {
+			getListData: {
+				type: "get",
+				url: "/getList"
+			},
+			getData: {
+				type: "get",
+				url: "/getList"
+			}
+		}
+	});
+	fixture({
+		"GET /getList": function(){
+			return [{id: 1}];
+		},
+		"GET /getInstance/{id}": function(){
+			return {id: 2};
+		}
+	});
+
+	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+
+	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+
+});
+
+QUnit.test("getting a real Promise back with objects using makeAjax setting this.ajax", function() {
+	var connection = persist({
+		url: {
+			getListData: {
+				type: "get",
+				url: "/getList"
+			},
+			getData: {
+				type: "get",
+				url: "/getList"
+			}
+		},
+		ajax: $.ajax
+	});
+
+	fixture({
+		"GET /getList": function(){
+			return [{id: 1}];
+		},
+		"GET /getInstance/{id}": function(){
+			return {id: 2};
+		}
+	});
+
+	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+
+	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+
 });

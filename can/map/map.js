@@ -255,10 +255,10 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 		},
 		save: function(instance){
 			setExpando(instance, "_saving", true);
-			canBatch.trigger.call(instance, "_saving", [true, false]);
+			canEvent.dispatch.call(instance, "_saving", [true, false]);
 			var done = function(){
 				setExpando(instance, "_saving", false);
-				canBatch.trigger.call(instance, "_saving", [false, true]);
+				canEvent.dispatch.call(instance, "_saving", [false, true]);
 			};
 			var base = baseConnect.save.apply(this, arguments);
 			base.then(done,done);
@@ -266,10 +266,10 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 		},
 		destroy: function(instance){
 			setExpando(instance, "_destroying", true);
-			canBatch.trigger.call(instance, "_destroying", [true, false]);
+			canEvent.dispatch.call(instance, "_destroying", [true, false]);
 			var done = function(){
 				setExpando(instance, "_destroying", false);
-				canBatch.trigger.call(instance, "_destroying", [false, true]);
+				canEvent.dispatch.call(instance, "_destroying", [false, true]);
 			};
 			var base = baseConnect.destroy.apply(this, arguments);
 			base.then(done,done);
