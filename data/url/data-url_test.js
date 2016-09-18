@@ -105,6 +105,54 @@ QUnit.test("destroyData()", function(){
 	});
 });
 
+QUnit.test("Ajax requests should default to 'application/json' (#134)", function() {
+	var connection = persist({
+		url: "/api/restaurants",
+		idProp: '_id',
+	});
+
+	fixture({
+		"POST /api/restaurants": function(request) {
+			if (typeof request.data === "object") {
+				ok(true);
+			} else {
+				ok(false);
+			}
+			return request.data;
+		}
+	});
+
+	stop();
+	connection.createData({foo: "bar"}).then(function() {
+		start();
+	});
+});
+
+QUnit.test("contentType can be form-urlencoded (#134)", function() {
+	var connection = persist({
+		url: {
+			createData: "POST /api/restaurants",
+			contentType: "application/x-www-form-urlencoded"
+		}
+	});
+
+	fixture({
+		"POST /api/restaurants": function(request) {
+			if (typeof request.data === "object") {
+				ok(true);
+			} else {
+				ok(false);
+			}
+			return request.data;
+		}
+	});
+
+	stop();
+	connection.createData({foo: "bar"}).then(function() {
+		start();
+	});
+});
+
 QUnit.test("getting a real Promise back with functions", function() {
 	var connection = persist({
 		url: {
@@ -147,7 +195,6 @@ QUnit.test("getting a real Promise back with object using makeAjax", function() 
 			}
 		}
 	});
-
 	fixture({
 		"GET /getList": function(){
 			return [{id: 1}];

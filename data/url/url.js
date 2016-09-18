@@ -73,7 +73,8 @@
  *    passed to the method.
  * 2. GET and DELETE request data is put in the URL using [can-util/js/param/param].
  * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
- *    as form encoded data.
+ *    as JSON-encoded data.  To use form-encoded requests instead, add the property
+ *    `contentType:'application/x-www-form-urlencoded'` to your [can-connect/data/url/url.url].
  * 4. If a provided URL doesn't include the method, the following default methods are provided:
  *    - `getListData` - `GET`
  *    - `getData` - `GET`
@@ -99,6 +100,7 @@ var each = require("can-util/js/each/each");
 var ajax = require("can-util/dom/ajax/ajax");
 var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
+var dev = require("can-util/js/dev/dev");
 var connect = require("can-connect");
 
 var makePromise = require("can-util/js/make-promise/make-promise");
@@ -119,7 +121,7 @@ module.exports = connect.behavior("data/url", function(baseConnect) {
 					return makePromise(this.url[reqOptions.prop](params));
 				}
 				else if(this.url[reqOptions.prop]) {
-					return makePromise(makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax, reqOptions));
+					return makePromise(makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax, findContentType(this.url), reqOptions));
 				}
 			}
 
@@ -130,6 +132,7 @@ module.exports = connect.behavior("data/url", function(baseConnect) {
 					reqOptions.prop ),
 					params, reqOptions.type,
 					this.ajax || ajax,
+					findContentType(this.url),
 					reqOptions));
 			}
 
@@ -308,7 +311,21 @@ var pairs = {
 	destroyData: {prop: "destroyData", type: "DELETE", includeData: false}
 };
 
-var makeAjax = function ( ajaxOb, data, type, ajax, reqOptions ) {
+var findContentType = function( url ) {
+	if ( typeof url === 'object' && url.contentType ) {
+		var acceptableType = url.contentType === 'application/x-www-form-urlencoded' ||
+			url.contentType === 'application/json';
+		if ( acceptableType ) {
+			return url.contentType;
+		} else {
+			dev.warn("Unacceptable contentType on can-connect request. " +
+				"Use 'application/json' or 'application/x-www-form-urlencoded'");
+		}
+	}
+	return 'application/json';
+};
+
+var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 
 	var params = {};
 
@@ -331,6 +348,15 @@ var makeAjax = function ( ajaxOb, data, type, ajax, reqOptions ) {
 
 	// Substitute in data for any templated parts of the URL.
 	params.url = string.sub(params.url, params.data, true);
+
+	// Default to JSON encoding, if contentType is not form-urlencoded
+	var encodeJSON = contentType !== 'application/x-www-form-urlencoded' &&
+		(type && (type === 'POST' || type === 'PUT'));
+	if (encodeJSON) {
+		params.data = JSON.stringify(params.data);
+		params.contentType = contentType;
+	}
+
 	if(reqOptions.includeData === false) {
 		delete params.data;
 	}
