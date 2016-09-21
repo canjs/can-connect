@@ -56,7 +56,6 @@ QUnit.test("basics", function(){
 	});
 });
 
-
 QUnit.test("ranges", function(){
 	stop();
 	var count = 0;
@@ -108,4 +107,39 @@ QUnit.test("Rejects when getListData rejects", function(){
 		equal(err.message, "didn't work", "promise was rejected");
 		start();
 	});
+});
+
+QUnit.test("getListData mutates the set #139", function(assert) {
+	var count = 0;
+	var done = assert.async();
+
+	var res = combineRequests({
+		getListData: function(set) {
+			if (!set.$sort) {
+				set.$sort = { type: "critical" };
+			}
+
+			count += 1;
+			assert.equal(count, 1, "should be called only once");
+
+			return Promise.resolve([
+				{ id: 1, type: "critical", due: "today" },
+				{ id: 3, type: "critical", due: "yesterday" },
+				{ id: 5, type: "critical" }
+			]);
+		}
+	});
+
+	var p1 = res.getListData({});
+	var p2 = res.getListData({});
+
+	Promise.all([ p1, p2 ])
+		.then(function(result) {
+			var p1Data = result[0].data;
+			var p2Data = result[1].data;
+
+			assert.ok(Array.isArray(p1Data), "should be an array");
+			assert.ok(Array.isArray(p2Data), "should be an array");
+		})
+		.then(done, done);
 });
