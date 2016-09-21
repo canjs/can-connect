@@ -8,7 +8,7 @@ var assign = require("can-util/js/assign/assign");
 var connect = function(behaviors, options){
 
 	behaviors = behaviors.map(function(behavior, index){
-		var sortedIndex;
+		var sortedIndex = -1;
 		if(typeof behavior === "string") {
 			sortedIndex = connect.order.indexOf(behavior);
 			behavior = behaviorsMap[behavior];
@@ -26,7 +26,7 @@ var connect = function(behaviors, options){
 	})
 		.sort(function(b1, b2){
 			// if both have a sorted index
-			if(b1.sortedIndex != null && b2.sortedIndex != null) {
+			if(~b1.sortedIndex && ~b2.sortedIndex) {
 				return b1.sortedIndex - b2.sortedIndex;
 			}
 			return b1.originalIndex - b2.originalIndex;
@@ -54,8 +54,8 @@ connect.order = ["data/localstorage-cache","data/url","data/parse","cache-reques
 	"constructor","constructor/store","can/map","can/ref",
 	"fall-through-cache","data/inline-cache",
 
-	"data/worker",
-
+	"data/worker","real-time",
+	
 	"data/callbacks-cache","data/callbacks","constructor/callbacks-once"
 	];
 
