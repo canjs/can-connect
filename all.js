@@ -18,3 +18,4 @@ connect.realTime = require("./real-time/");
 
 connect.superMap = require("./can/super-map/");
 require("./can/tag/");
+require('./can/base-map/');
