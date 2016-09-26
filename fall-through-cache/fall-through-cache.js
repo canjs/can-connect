@@ -72,9 +72,65 @@
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
 
+var canEvent = require("can-event");
+var Observation = require("can-observation");
+
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
+	var setExpando = function(map, prop, value) {
+		if("attr" in map) {
+			map[prop] = value;
+		} else {
+			map._data[prop] = value;
+		}
+	};
+	var getExpando = function(map, prop) {
+		if("attr" in map) {
+			return map[prop];
+		} else {
+			return map._data[prop];
+		}
+	};
+
+	var overwrite = function( connection, Constructor, prototype, statics) {
+		var prop;
+
+		for(prop in prototype) {
+			Constructor.prototype[prop] = prototype[prop](Constructor.prototype[prop], connection);
+		}
+		if(statics) {
+			for(prop in statics) {
+				Constructor[prop] = statics[prop](Constructor[prop], connection);
+			}
+		}
+	};
+
+	var addIsConsistent = function(connection, Constructor) {
+		overwrite(connection, Constructor, {
+			_setIsConsistent: function(base, connection) {
+				return function(isConsistent) {
+					setExpando(this, "_isConsistent", isConsistent);
+					canEvent.dispatch.call(this, "_isConsistent", [isConsistent, !isConsistent]);
+				};
+			},
+			isConsistent: function(base, connection) {
+				return function() {
+					Observation.add(this,"_isConsistent");
+		    	return !!getExpando(this, "_isConsistent");
+				};
+			}
+		});
+	};
 
 	var behavior = {
+		init: function() {
+			this.List && addIsConsistent(this, this.List);
+			this.Map && addIsConsistent(this, this.Map);
+		},
+		_setIsConsistent: function(instance, isConsistent) {
+			if(instance._setIsConsistent) {
+				instance._setIsConsistent(isConsistent);
+			}
+		},
 		/**
 		 * @function can-connect/fall-through-cache/fall-through-cache.hydrateList hydrateList
 		 * @parent can-connect/fall-through-cache/fall-through-cache.hydrators
@@ -147,17 +203,19 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			set = set || {};
 			var self = this;
 			return this.cacheConnection.getListData(set).then(function(data){
-
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
 				self._getHydrateList(set, function(list){
+
+					self._setIsConsistent(list, false);
 					self.addListReference(list, set);
 
 					setTimeout(function(){
 						baseConnect.getListData.call(self, set).then(function(listData){
-
+;
 							self.cacheConnection.updateListData(listData, set);
 							self.updatedList(list, listData, set);
+							self._setIsConsistent(list, true)
 							self.deleteListReference(list, set);
 
 						}, function(e){
@@ -254,11 +312,14 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				self._getMakeInstance(self.id(instanceData) || self.id(params), function(instance){
 					self.addInstanceReference(instance);
 
+					self._setIsConsistent(instance, false)
+
 					setTimeout(function(){
 						baseConnect.getData.call(self, params).then(function(instanceData2){
 
 							self.cacheConnection.updateData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
+							self._setIsConsistent(instance, true);
 							self.deleteInstanceReference(instance);
 
 						}, function(e){
