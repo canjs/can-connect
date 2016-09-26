@@ -123,8 +123,12 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var behavior = {
 		init: function() {
-			this.List && addIsConsistent(this, this.List);
-			this.Map && addIsConsistent(this, this.Map);
+			if(this.List) {
+				addIsConsistent(this, this.List);
+			}
+			if(this.Map) {
+				addIsConsistent(this, this.Map);
+			}
 		},
 		_setIsConsistent: function(instance, isConsistent) {
 			if(instance._setIsConsistent) {
@@ -212,10 +216,10 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 					setTimeout(function(){
 						baseConnect.getListData.call(self, set).then(function(listData){
-;
+
 							self.cacheConnection.updateListData(listData, set);
 							self.updatedList(list, listData, set);
-							self._setIsConsistent(list, true)
+							self._setIsConsistent(list, true);
 							self.deleteListReference(list, set);
 
 						}, function(e){
@@ -312,7 +316,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				self._getMakeInstance(self.id(instanceData) || self.id(params), function(instance){
 					self.addInstanceReference(instance);
 
-					self._setIsConsistent(instance, false)
+					self._setIsConsistent(instance, false);
 
 					setTimeout(function(){
 						baseConnect.getData.call(self, params).then(function(instanceData2){
