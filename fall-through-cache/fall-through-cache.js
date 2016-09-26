@@ -129,6 +129,8 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			if(this.Map) {
 				addIsConsistent(this, this.Map);
 			}
+
+			baseConnect.init.apply(this, arguments);
 		},
 		_setIsConsistent: function(instance, isConsistent) {
 			if(instance._setIsConsistent) {
