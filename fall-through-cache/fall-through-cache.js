@@ -3,7 +3,7 @@
  * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache/fall-through-cache.data Data Callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators Hydrators
- * @group can-connect/fall-through-cache/fall-through-cache.can-map can/map Mixins
+ * @group can-connect/fall-through-cache/fall-through-cache.mixins can/map Mixins
  *
  * A fall through cache that checks another `cacheConnection`.
  *
@@ -123,18 +123,19 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					canEvent.dispatch.call(this, "_isConsistent", [isConsistent, !isConsistent]);
 				};
 			},
-      /* 
+      /**
        * @function can-connect/fall-through-cache/fall-through-cache.isConsistent isConsistent
-       * @parent can-connect/fall-through-cache/fall-through-cache.can-map
+       * @parent can-connect/fall-through-cache/fall-through-cache.mixins
        *
        * Returns whether or not the data is consistent between the server and 
        * the fall-through-cache data.
        *
-       * @signature `map.isConsistent()` or `list.isConsistent()`
+       * @signature `[map|list].isConsistent()`
        *
        *   Returns true if the data has been successfully returned from the 
        *   server and in sync with the fall-through-cache. Returns false if the
        *   data is from the cache.
+       *   
        *   @return {Boolean}
        */
 			isConsistent: function(base, connection) {
@@ -143,17 +144,18 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		    	return !!getExpando(this, "_isConsistent");
 				};
 			}
-      /* 
+      /**
        * @function can-connect/fall-through-cache/fall-through-cache.inconsistencyReason inconsistencyReason
-       * @parent can-connect/fall-through-cache/fall-through-cache.can-map
+       * @parent can-connect/fall-through-cache/fall-through-cache.mixins
        *
        * Returns the error of the AJAX call from the base data layer.
        *
-       * @signature `map.inconsistencyReason` or `list.inconsistencyReason`
+       * @signature `[map|list].inconsistencyReason`
        *
        *   Returns the error fo the base data layer's AJAX call if it's promise
        *   was rejected. If there isn't an inconsistency issue between the server
        *   and fall-through-cache layer, this will be undefined.
+       *   
        *   @return {Object}
        */
 		});
