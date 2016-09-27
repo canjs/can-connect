@@ -317,3 +317,61 @@ asyncTest("isConsistent works on data immediately from cache for get (#144)", 2,
 		QUnit.notOk(isConsistent(), "Data is from cache and not consistent");
 	});
 });
+
+
+
+asyncTest("inconsistencyReason properly set if the data layer errors out (#144)", function() {
+	var errorReason = "Rejected the promise.";
+	var state = testHelpers.makeStateChecker(QUnit, ["reject-first", "resolve-second"]);
+	var cacheConnection = {
+		getData: function() {
+			return testHelpers.asyncResolve({
+					id: 1
+			});
+		},
+		updateData: function() { }
+	};
+
+	var getDataBehavior = function(base, options){
+		return {
+			getData: function() {
+				if(state.get() === "reject-first") {
+					return testHelpers.asyncReject(errorReason);
+				} else {
+					return testHelpers.asyncResolve({
+							id: 1
+					});
+				}
+				
+			}
+		};
+	};
+
+	var connection = connect([getDataBehavior, constructor, canMap, fallThroughCache, constructorStore, dataCallbacks], {
+		cacheConnection: cacheConnection,
+		Map: Map,
+		List: List
+	});
+
+	connection.get({}).then(function(data) {
+		data.bind("inconsistencyReason", function(ev, newVal) {
+			if(state.get() === "reject-first") {
+				state.next();
+
+				QUnit.notOk(data.isConsistent(), "data is no longer conistent with server");
+				QUnit.equal(newVal, errorReason, "inconsistencyReason is the error data");
+				
+			}
+			else {
+				setTimeout(function() {
+					QUnit.ok(data.isConsistent(), "data is conistent with server");
+					QUnit.equal(newVal, undefined, "inconsistencyReason no longer set");
+					QUnit.start();
+				}, 30);
+				
+			}
+
+		});
+		connection.get({});
+	});
+});

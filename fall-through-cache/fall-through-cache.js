@@ -3,6 +3,7 @@
  * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache/fall-through-cache.data Data Callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators Hydrators
+ * @group can-connect/fall-through-cache/fall-through-cache.can-map can/map Mixins
  *
  * A fall through cache that checks another `cacheConnection`.
  *
@@ -106,23 +107,62 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 	var addIsConsistent = function(connection, Constructor) {
 		overwrite(connection, Constructor, {
+
+			_setInconsistencyReason: function(base, connection) {
+				return function(error) {
+					var oldError = getExpando(this, "inconsistencyReason");
+
+					setExpando(this, "inconsistencyReason", error);
+					canEvent.dispatch.call(this, "inconsistencyReason", [error, oldError]);	
+				}
+			},
+
 			_setIsConsistent: function(base, connection) {
 				return function(isConsistent) {
 					setExpando(this, "_isConsistent", isConsistent);
 					canEvent.dispatch.call(this, "_isConsistent", [isConsistent, !isConsistent]);
 				};
 			},
+      /* 
+       * @function can-connect/fall-through-cache/fall-through-cache.isConsistent isConsistent
+       * @parent can-connect/fall-through-cache/fall-through-cache.can-map
+       *
+       * Returns whether or not the data is consistent between the server and 
+       * the fall-through-cache data.
+       *
+       * @signature `map.isConsistent()` or `list.isConsistent()`
+       *
+       *   Returns true if the data has been successfully returned from the 
+       *   server and in sync with the fall-through-cache. Returns false if the
+       *   data is from the cache.
+       *   @return {Boolean}
+       */
 			isConsistent: function(base, connection) {
 				return function() {
 					Observation.add(this,"_isConsistent");
 		    	return !!getExpando(this, "_isConsistent");
 				};
 			}
+      /* 
+       * @function can-connect/fall-through-cache/fall-through-cache.inconsistencyReason inconsistencyReason
+       * @parent can-connect/fall-through-cache/fall-through-cache.can-map
+       *
+       * Returns the error of the AJAX call from the base data layer.
+       *
+       * @signature `map.inconsistencyReason` or `list.inconsistencyReason`
+       *
+       *   Returns the error fo the base data layer's AJAX call if it's promise
+       *   was rejected. If there isn't an inconsistency issue between the server
+       *   and fall-through-cache layer, this will be undefined.
+       *   @return {Object}
+       */
 		});
 	};
 
 	var behavior = {
 		init: function() {
+      // If List and Map are on the behavior, then we go ahead and add the 
+      // isConsistent API information.
 			if(this.List) {
 				addIsConsistent(this, this.List);
 			}
@@ -219,14 +259,15 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					setTimeout(function(){
 						baseConnect.getListData.call(self, set).then(function(listData){
 
+							self._setInconsistencyReason(list, undefined);
 							self.cacheConnection.updateListData(listData, set);
 							self.updatedList(list, listData, set);
 							self._setIsConsistent(list, true);
 							self.deleteListReference(list, set);
 
 						}, function(e){
-							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							console.error("baseConnect.getListData rejected", e);
+							self.rejectedUpdatedInstance(list, e);
 						});
 					},1);
 				});
@@ -323,14 +364,16 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					setTimeout(function(){
 						baseConnect.getData.call(self, params).then(function(instanceData2){
 
+
+							self._setInconsistencyReason(instance, undefined);
 							self.cacheConnection.updateData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
 							self._setIsConsistent(instance, true);
 							self.deleteInstanceReference(instance);
 
 						}, function(e){
-							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							console.error("baseConnect.getData rejected", e);
+							self.rejectedUpdatedInstance(instance, e);
 						});
 					},1);
 				});
@@ -344,6 +387,16 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 				return listData;
 			});
+		},
+		rejectedUpdatedInstance: function(instance, error) {
+			this._setIsConsistent(instance, false);
+			this._setInconsistencyReason(instance, error);
+		},
+
+		_setInconsistencyReason: function(instance, error) {
+			if(instance._setInconsistencyReason) {
+				instance._setInconsistencyReason(error);
+			}
 		}
 
 	};
