@@ -4,6 +4,7 @@
 @group can-connect.modules 2 Modules
 @group can-connect.types 3 Data Types
 @outline 2
+@package ./package.json
 
 @description `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
 any JavaScript project.
