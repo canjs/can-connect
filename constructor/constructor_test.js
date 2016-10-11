@@ -11,12 +11,6 @@ var logErrorAndStart = function(e){
 };
 
 var makeIframe = function(src){
-	var href = window.location.href.split("/");
-	href.pop();
-	if(href.pop() !== "constructor") {
-		src = "constructor/" + src;
-	}
-
 	var iframe = document.createElement('iframe');
 	window.removeMyself = function(){
 		delete window.removeMyself;
@@ -31,7 +25,6 @@ var makeIframe = function(src){
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
 	setup: function(){
-
 		fixture({
 			"GET /constructor/people": function(){
 				return [{id: 1}];
@@ -118,5 +111,5 @@ QUnit.test("basics", function(){
 });
 
 asyncTest("Adds data to canWait.data", function(){
-	makeIframe("tests/wait.html");
+	makeIframe(__dirname + "/tests/wait.html");
 });
