@@ -7,18 +7,14 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-
-QUnit.module("can-connect/data-worker",{
-	setup: function(){
-
-	}
-});
+QUnit.module("can-connect/data-worker");
 
 QUnit.test("getListData", function(){
+	var workerMainURL = __dirname.split('/').slice(3).join('/') + '/worker-main_test';
 
 	var connection = connect([workerBehavior],{
 		name: "todos",
-		worker: new Worker( System.stealURL+"?main=data/worker/worker-main_test" )
+		worker: new Worker(System.stealURL + "?main=" + workerMainURL)
 	});
 
 

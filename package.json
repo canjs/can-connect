@@ -82,7 +82,7 @@
   },
   "scripts": {
     "jshint": "jshint --config .jshintrc",
-    "test": "npm run jshint && testee --browsers firefox test.html",
+    "test": "npm run jshint && testee --browsers firefox test/test.html",
     "preversion": "npm test && npm run build",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
     "postversion": "git push --tags && git checkout master && git branch -D release && git push",
