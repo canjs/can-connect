@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "0.6.0-pre.24",
+  "version": "0.6.0-pre.25",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
