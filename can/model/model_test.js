@@ -536,24 +536,24 @@ var logErrorAndStart = function(e){
 				}
 			}];
 			updateCount++;
-			console.log(updateCount);
 			return guys;
 		});
 		stop();
+
 		Guy.findAll({}, function (guys) {
-			start();
 			guys[0].bind('updated', function () {});
 			ok(Guy.store.has(1), 'instance stored');
 			equal(Guy.store.get(1).updateCount, 0, 'updateCount is 0');
 			equal(Guy.store.get(1).nested.count, 0, 'nested.count is 0');
-		},function(){
-			ok(false, "error");
-		});
 
-		Guy.findAll({}, function (guys) {
-			equal(Guy.store.get(1).updateCount, 1, 'updateCount is 1');
-			equal(Guy.store.get(1).nested.count, 1, 'nested.count is 1');
-		}, function(){
+			Guy.findAll({}, function (guys) {
+				equal(Guy.store.get(1).updateCount, 1, 'updateCount is 1');
+				equal(Guy.store.get(1).nested.count, 1, 'nested.count is 1');
+				start();
+			}, function(){
+				ok(false, "error");
+			});
+		},function(){
 			ok(false, "error");
 		});
 	});
