@@ -338,3 +338,33 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 
 
 });
+
+
+
+
+QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
+	var todosAlgebra = new canSet.Algebra({});
+
+	var connection = connect([dataLocalStorage],{
+		name: "todos",
+		algebra: todosAlgebra
+	});
+
+	connection.updateListData(
+		{ data: [{id: 0, group: "house"},{id: 1, group: "house"}] }, {group: "house"}).then(function(){
+
+
+		return connection.updateData({id: 0, group: "lawn"})
+
+
+	}).then(function(){
+		return connection.updateListData(
+			{ data: [{id: 2, group: "house"},{id: 3, group: "house"}] },
+			{group: "house"});
+	}).catch(function(e){
+		QUnit.ok(false, "something broke");
+		QUnit.start();
+	});
+
+
+});
