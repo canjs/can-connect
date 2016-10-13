@@ -13,11 +13,9 @@ var logErrorAndStart = function(e){
 
 QUnit.module("can-connect/service-worker",{
 	setup: function(){
-		var workerMainURL = __dirname.split('/').slice(3).join('/') + '/service-worker-main_test';
-
 		this.connection = connect([serviceWorkerCache],{
 			name: "todos",
-			workerURL: System.stealURL + "?main=" + workerMainURL
+			workerURL: System.stealURL + "?main=can-connect/service-worker/service-worker-main_test"
 		});
 	}
 });
