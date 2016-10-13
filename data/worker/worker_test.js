@@ -10,11 +10,10 @@ var logErrorAndStart = function(e){
 QUnit.module("can-connect/data-worker");
 
 QUnit.test("getListData", function(){
-	var workerMainURL = __dirname.split('/').slice(3).join('/') + '/worker-main_test';
 
 	var connection = connect([workerBehavior],{
 		name: "todos",
-		worker: new Worker(System.stealURL + "?main=" + workerMainURL)
+		worker: new Worker(System.stealURL + "?main=can-connect/data/worker/worker-main_test")
 	});
 
 
@@ -26,5 +25,3 @@ QUnit.test("getListData", function(){
 		}, logErrorAndStart);
 
 });
-
-

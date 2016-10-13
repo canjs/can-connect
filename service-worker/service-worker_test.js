@@ -13,7 +13,7 @@ var logErrorAndStart = function(e){
 
 QUnit.module("can-connect/service-worker",{
 	setup: function(){
-		var workerMainURL = __dirname.split('/').slice(3).join('/') + '/service-worker-main_test';
+		var workerMainURL = 'can-connect/service-worker/service-worker-main_test';
 
 		this.connection = connect([serviceWorkerCache],{
 			name: "todos",
@@ -33,5 +33,3 @@ QUnit.test("updateListData", function(){
 		}, logErrorAndStart);
 
 });
-
-
