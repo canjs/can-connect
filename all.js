@@ -1,4 +1,4 @@
-var connect = window.connect = require("./can-connect");
+var connect = require("./can-connect");
 
 connect.cacheRequests = require("./cache-requests/");
 
@@ -19,3 +19,5 @@ connect.realTime = require("./real-time/");
 connect.superMap = require("./can/super-map/");
 connect.tag = require("./can/tag/");
 connect.baseMap = require('./can/base-map/');
+
+module.exports = connect;
