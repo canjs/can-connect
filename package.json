@@ -16,7 +16,7 @@
     "can-util": "^3.0.1",
     "can-view-callbacks": "^3.0.0",
     "can-view-nodelist": "^3.0.0",
-    "jquery": "^3.1.1",
+    "jquery": "^2.1.4",
     "steal-stache": "^3.0.0"
   },
   "repository": {
