@@ -109,7 +109,3 @@ QUnit.test("basics", function(){
 	}, logErrorAndStart);
 
 });
-
-asyncTest("Adds data to canWait.data", function(){
-	makeIframe(__dirname + "/tests/wait.html");
-});
