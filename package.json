@@ -39,7 +39,6 @@
     "npmDependencies": [
       "steal-qunit",
       "can-fixture",
-      "can-wait",
       "can-define"
     ],
     "npmAlgorithm": "flat"
