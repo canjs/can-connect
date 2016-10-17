@@ -17,7 +17,6 @@ var dataParse = require("can-connect/data/parse/");
 var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
-var inlineCache = require("can-connect/data/inline-cache/");
 
 
 
@@ -82,7 +81,6 @@ QUnit.module("can-connect/can/map/map with define",{
 			dataCallbacks,
 			callbacksCache,
 			combineRequests,
-			inlineCache,
 			dataParse,
 			dataUrl,
 			fallThroughCache,
@@ -489,7 +487,6 @@ QUnit.test("reads id from set algebra (#82)", function(){
 		dataCallbacks,
 		callbacksCache,
 		combineRequests,
-		inlineCache,
 		dataParse,
 		dataUrl,
 		fallThroughCache,

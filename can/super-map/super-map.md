@@ -12,7 +12,6 @@ a [can.Map](http://canjs.com/docs/can.Map.html).
   [can-connect/data/callbacks/callbacks],
   [can-connect/data/callbacks-cache/callbacks-cache],
   [can-connect/data/combine-requests/combine-requests],
-  [can-connect/data/inline-cache/inline-cache],
   [can-connect/data/parse/parse],
   [can-connect/data/url/url],
   [can-connect/real-time/real-time],

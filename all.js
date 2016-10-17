@@ -8,7 +8,6 @@ connect.constructorStore = require("./constructor/store/");
 connect.dataCallbacks = require("./data/callbacks/");
 connect.dataCallbacksCache = require("./data/callbacks-cache/");
 connect.dataCombineRequests = require("./data/combine-requests/");
-connect.dataInlineCache = require("./data/inline-cache/");
 connect.dataLocalStorageCache = require("./data/localstorage-cache/");
 connect.dataMemoryCache = require("./data/memory-cache/");
 connect.dataParse = require("./data/parse/");

@@ -12,7 +12,6 @@ var dataParse = require("../../data/parse/");
 var dataUrl = require("../../data/url/");
 var fallThroughCache = require("../../fall-through-cache/");
 var realTime = require("../../real-time/");
-var inlineCache = require("../../data/inline-cache/");
 var callbacksOnce = require("../../constructor/callbacks-once/");
 
 
@@ -27,7 +26,6 @@ connect.superMap = function(options){
 		constructorStore,
 		dataCallbacks,
 		combineRequests,
-		inlineCache,
 		dataParse,
 		dataUrl,
 		realTime,

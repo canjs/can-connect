@@ -31,7 +31,6 @@ QUnit.test("Everything available at can-connect/all", function(){
 		'dataCallbacks',
 		'dataCallbacksCache',
 		'dataCombineRequests',
-		'dataInlineCache',
 		'dataLocalStorageCache',
 		'dataMemoryCache',
 		'dataParse',

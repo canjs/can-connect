@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "can-fixture": "^0.1.0",
-    "can-wait": "^0.2.0",
     "jshint": "^2.9.1",
     "steal": "^0.15.8",
     "steal-qunit": "^0.1.3",
@@ -64,7 +63,6 @@
     "./data/callbacks-cache/callbacks-cache": "./dist/cjs/data/callbacks-cache/callbacks-cache",
     "./data/combine-requests/combine-requests": "./dist/cjs/data/combine-requests/combine-requests",
     "./helpers/deferred": "./dist/cjs/helpers/deferred",
-    "./data/inline-cache/inline-cache": "./dist/cjs/data/inline-cache/inline-cache",
     "./data/localstorage-cache/localstorage-cache": "./dist/cjs/data/localstorage-cache/localstorage-cache",
     "./helpers/set-add": "./dist/cjs/helpers/set-add",
     "./helpers/get-index-by-id": "./dist/cjs/helpers/get-index-by-id",

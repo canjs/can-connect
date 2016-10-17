@@ -52,7 +52,6 @@ Caching strategies:
 
  - [can-connect/fall-through-cache/fall-through-cache] - Respond with data from the [connection.cacheConnection] and
    then update the response with data from the `raw CRUD Methods`.
- - [can-connect/data/inline-cache/inline-cache] - Use an inline cache for initial ajax requests.
  - [can-connect/cache-requests/cache-requests] - Save response data and use it for future requests.
  - [can-connect/data/combine-requests/combine-requests] - Combine overlapping or reduntant requests.
 
@@ -465,8 +464,7 @@ form of the data.
 
 Implemented by [can-connect/data/url/url],
 [can-connect/data/localstorage-cache/localstorage-cache], [can-connect/data/memory-cache/memory-cache].
-Overwritten by [can-connect/cache-requests/cache-requests], [can-connect/data/combine-requests/combine-requests],
-[can-connect/data/inline-cache/inline-cache], [can-connect/fall-through-cache/fall-through-cache].
+Overwritten by [can-connect/cache-requests/cache-requests], [can-connect/data/combine-requests/combine-requests], [can-connect/fall-through-cache/fall-through-cache].
 Consumed by [can-connect/constructor/constructor].  
 
 #### Data Callbacks
