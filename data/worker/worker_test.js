@@ -1,3 +1,7 @@
+if(typeof Worker === "undefined") {
+	return;
+}
+
 var QUnit = require("steal-qunit");
 var workerBehavior = require("can-connect/data/worker/");
 var connect = require("can-connect");
