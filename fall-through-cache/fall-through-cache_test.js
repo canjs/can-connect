@@ -7,6 +7,10 @@ var constructor = require("can-connect/constructor/constructor");
 var fallThroughCache = require("can-connect/fall-through-cache/fall-through-cache");
 var constructorStore = require("can-connect/constructor/store/store");
 var dataCallbacks = require("can-connect/data/callbacks/");
+var Map = require("can-map");
+var List = require("can-list");
+var compute = require("can-compute");
+var canMap = require("can-connect/can/map/map");
 
 var getId = function(d){
 	return d.id;
@@ -228,4 +232,146 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 		},30);
 	});
 
+});
+
+asyncTest("isFromCache works on data immediately from cache for get and getList (#144)", 2, function() {
+	var cacheConnection = {
+		getListData: function() {
+			return testHelpers.asyncResolve({
+				data: [{
+					id: 1
+				}]
+			});
+		},
+		updateListData: function() { }
+	};
+
+	var getDataBehavior = function(base, options){
+		return {
+			getListData: function(){
+				return testHelpers.asyncResolve({
+					data: [{
+						id: 1
+					}]
+				});
+			}
+		};
+	};
+
+	var connection = connect([getDataBehavior, constructor, canMap, fallThroughCache, constructorStore, dataCallbacks], {
+		cacheConnection: cacheConnection,
+		Map: Map,
+		List: List
+	});
+
+	connection.getList({}).then(function(list) {
+		var isConsistent = compute(function() {
+			return list.isConsistent();
+		});
+
+		isConsistent.bind("change", function(ev, newVal, oldVal){
+			QUnit.ok(newVal, "Data is conistent and not from cache");
+			QUnit.start();
+		});
+
+		QUnit.notOk(isConsistent(), "Data is from cache and not consistent");
+	});
+});
+
+asyncTest("isConsistent works on data immediately from cache for get (#144)", 2, function() {
+	var cacheConnection = {
+		getData: function() {
+			return testHelpers.asyncResolve({
+					id: 1
+			});
+		},
+		updateData: function() { }
+	};
+
+	var getDataBehavior = function(base, options){
+		return {
+			getData: function() {
+				return testHelpers.asyncResolve({
+						id: 1
+				});
+			}
+		};
+	};
+
+	var connection = connect([getDataBehavior, constructor, canMap, fallThroughCache, constructorStore, dataCallbacks], {
+		cacheConnection: cacheConnection,
+		Map: Map,
+		List: List
+	});
+
+	connection.get({}).then(function(data) {
+		var isConsistent = compute(function() {
+			return data.isConsistent();
+		});
+
+		isConsistent.bind("change", function(ev, newVal, oldVal){
+			QUnit.ok(newVal, "Data is conistent and not from cache");
+			QUnit.start();
+		});
+
+		QUnit.notOk(isConsistent(), "Data is from cache and not consistent");
+	});
+});
+
+
+
+asyncTest("inconsistencyReason properly set if the data layer errors out (#144)", function() {
+	var errorReason = "Rejected the promise.";
+	var state = testHelpers.makeStateChecker(QUnit, ["reject-first", "resolve-second"]);
+	var cacheConnection = {
+		getData: function() {
+			return testHelpers.asyncResolve({
+					id: 1
+			});
+		},
+		updateData: function() { }
+	};
+
+	var getDataBehavior = function(base, options){
+		return {
+			getData: function() {
+				if(state.get() === "reject-first") {
+					return testHelpers.asyncReject(errorReason);
+				} else {
+					return testHelpers.asyncResolve({
+							id: 1
+					});
+				}
+				
+			}
+		};
+	};
+
+	var connection = connect([getDataBehavior, constructor, canMap, fallThroughCache, constructorStore, dataCallbacks], {
+		cacheConnection: cacheConnection,
+		Map: Map,
+		List: List
+	});
+
+	connection.get({}).then(function(data) {
+		data.bind("inconsistencyReason", function(ev, newVal) {
+			if(state.get() === "reject-first") {
+				state.next();
+
+				QUnit.notOk(data.isConsistent(), "data is no longer conistent with server");
+				QUnit.equal(newVal, errorReason, "inconsistencyReason is the error data");
+				
+			}
+			else {
+				setTimeout(function() {
+					QUnit.ok(data.isConsistent(), "data is conistent with server");
+					QUnit.equal(newVal, undefined, "inconsistencyReason no longer set");
+					QUnit.start();
+				}, 30);
+				
+			}
+
+		});
+		connection.get({});
+	});
 });

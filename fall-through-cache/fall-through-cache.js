@@ -3,6 +3,7 @@
  * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache/fall-through-cache.data Data Callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators Hydrators
+ * @group can-connect/fall-through-cache/fall-through-cache.mixins mixins Mixins
  *
  * A fall through cache that checks another `cacheConnection`.
  *
@@ -72,9 +73,112 @@
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
 
+var canEvent = require("can-event");
+var Observation = require("can-observation");
+
 module.exports = connect.behavior("fall-through-cache",function(baseConnect){
+	var setExpando = function(map, prop, value) {
+		if("attr" in map) {
+			map[prop] = value;
+		} else {
+			map._data[prop] = value;
+		}
+	};
+	var getExpando = function(map, prop) {
+		if("attr" in map) {
+			return map[prop];
+		} else {
+			return map._data[prop];
+		}
+	};
+
+	var overwrite = function( connection, Constructor, prototype, statics) {
+		var prop;
+
+		for(prop in prototype) {
+			Constructor.prototype[prop] = prototype[prop](Constructor.prototype[prop], connection);
+		}
+		if(statics) {
+			for(prop in statics) {
+				Constructor[prop] = statics[prop](Constructor[prop], connection);
+			}
+		}
+	};
+
+	var addIsConsistent = function(connection, Constructor) {
+		overwrite(connection, Constructor, {
+
+			_setInconsistencyReason: function(base, connection) {
+				return function(error) {
+					var oldError = getExpando(this, "inconsistencyReason");
+
+					setExpando(this, "inconsistencyReason", error);
+					canEvent.dispatch.call(this, "inconsistencyReason", [error, oldError]);	
+				}
+			},
+
+			_setIsConsistent: function(base, connection) {
+				return function(isConsistent) {
+					setExpando(this, "_isConsistent", isConsistent);
+					canEvent.dispatch.call(this, "_isConsistent", [isConsistent, !isConsistent]);
+				};
+			},
+      /**
+       * @function can-connect/fall-through-cache/fall-through-cache.isConsistent isConsistent
+       * @parent can-connect/fall-through-cache/fall-through-cache.mixins
+       *
+       * Returns whether or not the data is consistent between the server and 
+       * the fall-through-cache data.
+       *
+       * @signature `[map|list].isConsistent()`
+       *
+       *   Returns true if the data has been successfully returned from the 
+       *   server and in sync with the fall-through-cache. Returns false if the
+       *   data is from the cache.
+       *   
+       *   @return {Boolean}
+       */
+			isConsistent: function(base, connection) {
+				return function() {
+					Observation.add(this,"_isConsistent");
+		    	return !!getExpando(this, "_isConsistent");
+				};
+			}
+      /**
+       * @function can-connect/fall-through-cache/fall-through-cache.inconsistencyReason inconsistencyReason
+       * @parent can-connect/fall-through-cache/fall-through-cache.mixins
+       *
+       * Returns the error of the AJAX call from the base data layer.
+       *
+       * @signature `[map|list].inconsistencyReason`
+       *
+       *   Returns the error fo the base data layer's AJAX call if it's promise
+       *   was rejected. If there isn't an inconsistency issue between the server
+       *   and fall-through-cache layer, this will be undefined.
+       *   
+       *   @return {Object}
+       */
+		});
+	};
 
 	var behavior = {
+		init: function() {
+      // If List and Map are on the behavior, then we go ahead and add the 
+      // isConsistent API information.
+			if(this.List) {
+				addIsConsistent(this, this.List);
+			}
+			if(this.Map) {
+				addIsConsistent(this, this.Map);
+			}
+
+			baseConnect.init.apply(this, arguments);
+		},
+		_setIsConsistent: function(instance, isConsistent) {
+			if(instance._setIsConsistent) {
+				instance._setIsConsistent(isConsistent);
+			}
+		},
 		/**
 		 * @function can-connect/fall-through-cache/fall-through-cache.hydrateList hydrateList
 		 * @parent can-connect/fall-through-cache/fall-through-cache.hydrators
@@ -147,22 +251,25 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 			set = set || {};
 			var self = this;
 			return this.cacheConnection.getListData(set).then(function(data){
-
 				// get the list that is going to be made
 				// it might be possible that this never gets called, but not right now
 				self._getHydrateList(set, function(list){
+
+					self._setIsConsistent(list, false);
 					self.addListReference(list, set);
 
 					setTimeout(function(){
 						baseConnect.getListData.call(self, set).then(function(listData){
 
+							self._setInconsistencyReason(list, undefined);
 							self.cacheConnection.updateListData(listData, set);
 							self.updatedList(list, listData, set);
+							self._setIsConsistent(list, true);
 							self.deleteListReference(list, set);
 
 						}, function(e){
-							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							console.error("baseConnect.getListData rejected", e);
+							self.rejectedUpdatedInstance(list, e);
 						});
 					},1);
 				});
@@ -254,16 +361,21 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				self._getMakeInstance(self.id(instanceData) || self.id(params), function(instance){
 					self.addInstanceReference(instance);
 
+					self._setIsConsistent(instance, false);
+
 					setTimeout(function(){
 						baseConnect.getData.call(self, params).then(function(instanceData2){
 
+
+							self._setInconsistencyReason(instance, undefined);
 							self.cacheConnection.updateData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
+							self._setIsConsistent(instance, true);
 							self.deleteInstanceReference(instance);
 
 						}, function(e){
-							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							console.error("baseConnect.getData rejected", e);
+							self.rejectedUpdatedInstance(instance, e);
 						});
 					},1);
 				});
@@ -277,6 +389,16 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 				return listData;
 			});
+		},
+		rejectedUpdatedInstance: function(instance, error) {
+			this._setIsConsistent(instance, false);
+			this._setInconsistencyReason(instance, error);
+		},
+
+		_setInconsistencyReason: function(instance, error) {
+			if(instance._setInconsistencyReason) {
+				instance._setInconsistencyReason(error);
+			}
 		}
 
 	};
