@@ -19,11 +19,7 @@
  *
  *   An instance is put in a list if it is a
  *   [set.subset](https://github.com/canjs/can-set#setsubset)
- *   of the [can-connect/base/base.listSet].
- *
- *   Currently, all items are added at the end of the list
- *   until [set.add](https://github.com/canjs/can-set/issues/2)
- *   is in `can-set`.
+ *   of the [can-connect/base/base.listSet].  The item is inserted using [can-set.Algebra.prototype.index].
  *
  * @body
  *
