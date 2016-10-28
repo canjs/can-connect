@@ -318,8 +318,10 @@ var findContentType = function( url ) {
 		if ( acceptableType ) {
 			return url.contentType;
 		} else {
+			//!steal-remove-start
 			dev.warn("Unacceptable contentType on can-connect request. " +
 				"Use 'application/json' or 'application/x-www-form-urlencoded'");
+			//!steal-remove-end
 		}
 	}
 	return 'application/json';
