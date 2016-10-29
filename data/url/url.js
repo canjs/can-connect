@@ -1,8 +1,8 @@
 /**
  * @module {connect.Behavior} can-connect/data/url/url
  * @parent can-connect.behaviors
- * @group can-connect/data/url/url.data-methods Data Methods
- * @group can-connect/data/url/url.option Options
+ * @group can-connect/data/url/url.data-methods data methods
+ * @group can-connect/data/url/url.option options
  *
  * @option {connect.Behavior}
  *

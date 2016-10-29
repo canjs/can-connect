@@ -1,8 +1,8 @@
 /**
  * @module can-connect/fall-through-cache/fall-through-cache
  * @parent can-connect.behaviors
- * @group can-connect/fall-through-cache/fall-through-cache.data Data Callbacks
- * @group can-connect/fall-through-cache/fall-through-cache.hydrators Hydrators
+ * @group can-connect/fall-through-cache/fall-through-cache.data data callbacks
+ * @group can-connect/fall-through-cache/fall-through-cache.hydrators hydrators
  *
  * A fall through cache that checks another `cacheConnection`.
  *

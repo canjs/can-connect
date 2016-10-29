@@ -1,8 +1,8 @@
 /**
  * @module can-connect/real-time/real-time
  * @parent can-connect.behaviors
- * @group can-connect/real-time/real-time.methods 0 Methods
- * @group can-connect/real-time/real-time.callbacks 1 Data Callbacks
+ * @group can-connect/real-time/real-time.methods 0 methods
+ * @group can-connect/real-time/real-time.callbacks 1 data callbacks
  *
  * Update lists to include or exclude instances based
  * on set logic.

@@ -1,8 +1,8 @@
 /**
  * @module can-connect/data/localstorage-cache/localstorage-cache
  * @parent can-connect.behaviors
- * @group can-connect/data/localstorage-cache/localstorage-cache.identifiers 0 Indentifiers
- * @group can-connect/data/localstorage-cache/localstorage-cache.data-methods 1 Data Methods
+ * @group can-connect/data/localstorage-cache/localstorage-cache.identifiers 0 identifiers
+ * @group can-connect/data/localstorage-cache/localstorage-cache.data-methods 1 data methods
  *
  * Saves raw data in localStorage.
  *

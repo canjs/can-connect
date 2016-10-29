@@ -9,10 +9,10 @@ var forEach = [].forEach;
 /**
  * @module can-connect/data/combine-requests/combine-requests
  * @parent can-connect.behaviors
- * @group can-connect/data/combine-requests.data-methods Data Methods
- * @group can-connect/data/combine-requests.options Options
- * @group can-connect/data/combine-requests.algebra Algebra Methods
- * @group can-connect/data/combine-requests.types Types
+ * @group can-connect/data/combine-requests.data-methods data methods
+ * @group can-connect/data/combine-requests.options options
+ * @group can-connect/data/combine-requests.algebra algebra methods
+ * @group can-connect/data/combine-requests.types types
  *
  * Combines multiple incoming requests into one if possible.
  *

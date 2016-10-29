@@ -1,8 +1,8 @@
 /**
  * @module {connect.Behavior} can-connect/can/ref/ref
  * @parent can-connect.behaviors
- * @group can-connect/can/ref/ref.hydrators Hydrators
- * @group can-connect/can/ref/ref.methods Methods
+ * @group can-connect/can/ref/ref.hydrators hydrators
+ * @group can-connect/can/ref/ref.methods methods
  *
  * @description Handle references to instances in the raw data returned by the server.
  *

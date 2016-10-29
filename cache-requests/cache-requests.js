@@ -8,8 +8,8 @@ var forEach = [].forEach;
 /**
  * @module can-connect/cache-requests/cache-requests
  * @parent can-connect.behaviors
- * @group can-connect/cache-requests/cache-requests.data Data Interface
- * @group can-connect/cache-requests/cache-requests.algebra Algebra
+ * @group can-connect/cache-requests/cache-requests.data data interface
+ * @group can-connect/cache-requests/cache-requests.algebra algebra
  *
  * Caches reponse data and uses it to prevent future requests or make future requests smaller.
  *

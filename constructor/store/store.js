@@ -1,9 +1,9 @@
 /**
  * @module {connect.Behavior} can-connect/constructor/store/store
  * @parent can-connect.behaviors
- * @group can-connect/constructor/store/store.stores 0 Stores
- * @group can-connect/constructor/store/store.crud 1 CRUD Methods
- * @group can-connect/constructor/store/store.hydrators 2 Hydrators
+ * @group can-connect/constructor/store/store.stores 0 stores
+ * @group can-connect/constructor/store/store.crud 1 crud methods
+ * @group can-connect/constructor/store/store.hydrators 2 hydrators
  *
  * Supports saving and retrieving lists and instances in a store.
  *

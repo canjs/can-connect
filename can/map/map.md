@@ -1,10 +1,10 @@
 @module {connect.Behavior} can-connect/can/map/map
-@group can-connect/can/map/map.map-static 0 Map Static Methods
-@group can-connect/can/map/map.map 1 Map Instance Methods
-@group can-connect/can/map/map.hydrators 2 Hydrators
-@group can-connect/can/map/map.serializers 3 Serializers
-@group can-connect/can/map/map.identifiers 4 Identifiers
-@group can-connect/can/map/map.instance-callbacks 5 Instance Callbacks
+@group can-connect/can/map/map.map-static 0 map static methods
+@group can-connect/can/map/map.map 1 map instance methods
+@group can-connect/can/map/map.hydrators 2 hydrators
+@group can-connect/can/map/map.serializers 3 serializers
+@group can-connect/can/map/map.identifiers 4 identifiers
+@group can-connect/can/map/map.instance-callbacks 5 instance callbacks
 @parent can-connect.behaviors
 
 Connects a [can.Map](http://canjs.com/docs/can.Map.html) to everything that needs to be connected to

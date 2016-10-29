@@ -3,11 +3,11 @@
 /**
  * @module {connect.Behavior} can-connect/constructor/constructor
  * @parent can-connect.behaviors
- * @group can-connect/constructor/constructor.crud 0 CRUD Methods
- * @group can-connect/constructor/constructor.callbacks 1 CRUD Callbacks
- * @group can-connect/constructor/constructor.hydrators 2 Hydrators
- * @group can-connect/constructor/constructor.serializers 3 Serializers
- * @group can-connect/constructor/constructor.helpers 4 Helpers
+ * @group can-connect/constructor/constructor.crud 0 crud methods
+ * @group can-connect/constructor/constructor.callbacks 1 crud callbacks
+ * @group can-connect/constructor/constructor.hydrators 2 hydrators
+ * @group can-connect/constructor/constructor.serializers 3 serializers
+ * @group can-connect/constructor/constructor.helpers 4 helpers
  *
  * Adds the ability to operate on special types instead of plain JavaScript Objects
  * and Arrays.
