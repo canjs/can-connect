@@ -1,8 +1,8 @@
 @module {function} can-connect
 @parent can-core
-@group can-connect.behaviors 1 Behaviors
-@group can-connect.modules 2 Modules
-@group can-connect.types 3 Data Types
+@group can-connect.behaviors 1 behaviors
+@group can-connect.modules 2 modules
+@group can-connect.types 3 data types
 @outline 2
 @package ./package.json
 
