@@ -36,7 +36,7 @@
  * instances from being hydrated.  This example allows you to create multiple instances of a `todoEditor` that loads
  * and edits a todo instance.
  *
- * @demo ../../../demos/can-connect/constructor-store.html
+ * @demo demos/can-connect/constructor-store.html
  *
  * You'll notice that you can edit one todo's name and the other
  * todo editors update.  This is because each `todoEditor` gets the same instance in memory.  So that when it
