@@ -30,7 +30,7 @@ This pattern tends to work even if workers are not supported.
 The following creates a connection that does the work of [can-connect/cache-requests/cache-requests],
 [can-connect/data/url/url], and [can-connect/data/memory-cache/memory-cache] in a worker thread.  
 
-@demo ../../../demos/can-connect/data-worker.html
+@demo demos/can-connect/data-worker.html
 
 The `todo_connection` module can be found [here](https://github.com/canjs/can-connect/blob/master/src/data/worker/demo/todo_connection.js)
 and looks like the following:
