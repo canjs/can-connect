@@ -342,3 +342,38 @@ QUnit.asyncTest("pagination loses the bigger set (#128)", function(){
 
 
 });
+
+QUnit.test("should not mutate data passed from the outside", function(assert) {
+	var done = assert.async();
+	var connection = this.connection;
+
+	assert.expect(1);
+
+	var items = [
+		{ "_id": 1, role: "admin" },
+		{ "_id": 2, role: "editor" },
+		{ "_id": 3, role: "nurse" }
+	];
+
+	connection.updateListData({ data: items }, {})
+	.then(function(listData) {
+		return connection.updateListData({
+			data: [
+				{ "_id": 1, role: "nurse" },
+				{ "_id": 2, role: "admin" }
+			]
+		});
+	})
+	.then(function() {
+		assert.deepEqual(items, [
+			{ "_id": 1, role: "admin" },
+			{ "_id": 2, role: "editor" },
+			{ "_id": 3, role: "nurse" }
+		], "outside data should not be mutated");
+
+		done();
+	})
+	.then(null, function(error) {
+		assert.ok(false, error);
+	});
+});
