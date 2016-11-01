@@ -2,7 +2,7 @@
 @parent can-connect.modules
 
 Create connection with many of the best behaviors in can-connect and hook it up to
-a [can.Map](http://canjs.com/docs/can.Map.html).
+a [can-define/map/map].
 
 @signature `superMap(options)`
 
@@ -25,17 +25,22 @@ a [can.Map](http://canjs.com/docs/can.Map.html).
 ## Use
 
 The `can-connect/can/super-map` module exports a helper function that creates a connection
-with the "standard" behaviors in can-connect and hooks it up to a
-[can.Map](http://canjs.com/docs/can.Map.html) and [can.List](http://canjs.com/docs/can.List.html).
+with the "advanced" behaviors in can-connect and hooks it up to a [can-define/map/map]
+and [can-define/list/list].
 
 If you are using CanJS, this is an easy way to create a connection that can be useful and
 fast in most circumstances.
 
 To use it, first define a Map and List constructor function:
 
-```
-var Todo = can.Map.extend({ ... });
-var TodoList = can.List.extend({Map: Todo},{ ... });
+```js
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
+
+var Todo = DefineMap.extend({ ... });
+var TodoList = DefineList.extend({
+	"#": Todo
+});
 ```
 
 Next, call `superMap` with all of the options needed by the behaviors that `superMap` adds:
@@ -50,7 +55,7 @@ var todoConnection = superMap({
 });
 ```
 
-As, [can-connect/can/map/map] adds CRUD methods to the `Map` option, you can use those to create,
+[can-connect/can/map/map] adds CRUD methods to the `Map` option, you can use those to create,
 read, update and destroy todos:
 
 ```
@@ -58,7 +63,7 @@ Todo.getList({}).then(function(todos){ ... });
 Todo.get({}).then(function(todo){ ... });
 
 new Todo({name: "dishes"}).save().then(function(todo){
-  todo.attr({
+  todo.set({
       name: "Do the dishes"
     })
     .save()

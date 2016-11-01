@@ -406,6 +406,7 @@ var mapStaticOverwrites = {
 	/**
 	 * @function can-connect/can/map/map.findAll findAll
 	 * @parent can-connect/can/map/map.map-static
+	 * @hide
 	 *
 	 * Alias of [can-connect/can/map/map.getList]. You should use `.getList()`.
 	 */
@@ -459,6 +460,7 @@ var mapStaticOverwrites = {
 	/**
 	 * @function can-connect/can/map/map.findOne findOne
 	 * @parent can-connect/can/map/map.map-static
+	 * @hide
 	 *
 	 * Alias of [can-connect/can/map/map.get]. You should use `.get()`.
 	 */

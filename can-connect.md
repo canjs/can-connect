@@ -68,9 +68,9 @@ The following modules glue certain methods together:
 
 The following modules are useful to CanJS specifically:
 
- - [can-connect/can/map/map] - Create instances of a special can.Map or can.List type.
- - [can-connect/can/super-map/super-map] - Create a connection for a can.Map or can.List that uses almost all the plugins.
- - [can-connect/can/model/model] - Inherit from a highly compatable [can.Model](http://canjs.com/docs/can.Model.html) implementation.
+ - [can-connect/can/map/map] - Create instances of a special [can-define/map/map] or [can-define/list/list] type.
+ - [can-connect/can/super-map/super-map] - Create a connection for a [can-define/map/map] or [can-define/list/list] that uses almost all the plugins.
+ - [can-connect/can/model/model] - Inherit from a highly compatible [can.Model](http://canjs.com/docs/can.Model.html) implementation.
  - [can-connect/can/tag/tag] - Create a custom element that can load data into a template.
 
 ## Overview
@@ -310,15 +310,20 @@ it to the end of the behaviors list.
 If you are using CanJS, you can either:
 
 - use the [can-connect/can/map/map] behavior that overwrites
-  many methods and settings to work with `can.Map` and `can.List`.
+  many methods and settings to work with [can-define/map/map] and [can-define/list/list].
 - use the [can-connect/can/super-map/super-map] helper to create a connection that bundles "can/map" and
   many of the other extensions.
 
 Using [can-connect/can/map/map] to create a connection looks like:
 
 ```js
-var Todo = can.Map.extend({ ... });
-Todo.List = can.List.extend({Map: Todo},{});
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
+
+var Todo = DefineMap.extend({ ... });
+Todo.List = DefineList.extend({
+    "#": Todo
+});
 
 var todoConnection = connect([
     require("can-connect/data/url/url"),
@@ -336,13 +341,18 @@ When you bind on a `Todo` instance or `Todo.List` list, they will automatically 
 
 Using [can-connect/can/super-map/super-map] to create a connection looks like:
 
-```
-var Todo = can.Map.extend({ ... });
-Todo.List = can.List.extend({Map: Todo},{});
+```js
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
+
+var Todo = DefineMap.extend({ ... });
+Todo.List = DefineList.extend({
+    "#": Todo
+});
 
 var todoConnection = superMap({
-  Map: Todo,
-  url: "/todos"
+    Map: Todo,
+    url: "/todos"
 });
 ```
 

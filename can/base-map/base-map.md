@@ -2,7 +2,7 @@
 @parent can-connect.modules
 
 Create connection with many of the best behaviors in can-connect and hook it up to
-a [can.Map](http://canjs.com/docs/can.Map.html).
+a [can-define/map/map].
 
 @signature `baseMap(options)`
 
@@ -22,16 +22,19 @@ a [can.Map](http://canjs.com/docs/can.Map.html).
 
 The `can-connect/can/base-map` module exports a helper function that creates a connection
 with the "standard" behaviors in can-connect and hooks it up to a
-[can.Map](http://canjs.com/docs/can.Map.html) and [can.List](http://canjs.com/docs/can.List.html).
+[can-define/map/map] and [can-define/list/list].
 
 If you are using CanJS, this is an easy way to create a connection that can be useful and
 fast in most circumstances.
 
 To use it, first define a Map and List constructor function:
 
-```
-var Todo = can.Map.extend({ ... });
-var TodoList = can.List.extend({Map: Todo},{ ... });
+```js
+var Todo = DefineMap.extend({ ... });
+var TodoList = DefineList.extend({
+	"#": Todo,
+	...
+});
 ```
 
 Next, call `baseMap` with all of the options needed by the behaviors that `baseMap` adds:
