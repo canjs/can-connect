@@ -674,18 +674,7 @@ var listPrototypeOverwrites = {
 			} else {
 				// Otherwise, set up the list like normal.
 				base.apply(this, arguments);
-			}
-			this.addEventListener('destroyed', this._destroyed.bind(this));
-		};
-	},
-	_destroyed: function(){
-		return function (ev, attr) {
-			if (/\w+/.test(attr)) {
-				var index;
-				while((index = this.indexOf(ev.target)) > -1) {
-					this.splice(index, 1);
-				}
-			}
+			}			
 		};
 	},
 	_eventSetup: function (base, connection) {
