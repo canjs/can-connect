@@ -1,7 +1,3 @@
-if(typeof Worker === "undefined") {
-	return;
-}
-
 var QUnit = require("steal-qunit");
 var workerBehavior = require("can-connect/data/worker/");
 var connect = require("can-connect");
@@ -11,22 +7,20 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-QUnit.module("can-connect/data-worker");
+if(typeof Worker !== "undefined") {
+	QUnit.module("can-connect/data-worker");
 
-QUnit.test("getListData", function(){
-	var connection = connect([workerBehavior],{
-		name: "todos",
-		worker: new Worker(System.stealURL + "?main=can-connect/data/worker/worker-main_test")
+	QUnit.test("getListData", function(){
+		var connection = connect([workerBehavior],{
+			name: "todos",
+			worker: new Worker(System.stealURL + "?main=can-connect/data/worker/worker-main_test")
+		});
+
+		stop();
+		connection.getListData({foo: "bar"})
+			.then(function(listData){
+				deepEqual(listData,{data: [{id: 1},{id: 2}]}, "got back data");
+				start();
+			}, logErrorAndStart);
 	});
-
-
-	stop();
-	connection.getListData({foo: "bar"})
-		.then(function(listData){
-			deepEqual(listData,{data: [{id: 1},{id: 2}]}, "got back data");
-			start();
-		}, logErrorAndStart);
-
-});
-
-
+}
