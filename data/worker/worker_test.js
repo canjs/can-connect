@@ -7,7 +7,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-if(typeof Worker !== "undefined") {
+if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 	QUnit.module("can-connect/data-worker");
 
 	QUnit.test("getListData", function(){
