@@ -7,7 +7,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
-if(typeof Worker !== "undefined") {
+if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 	QUnit.module("can-connect/service-worker",{
 		setup: function(){
 			this.connection = connect([serviceWorkerCache],{
