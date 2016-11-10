@@ -202,6 +202,7 @@ QUnit.test("getInstance and getData", function(){
 });
 
 asyncTest("metadata transfered through fall through cache (#125)", function(){
+	var getDataBehaviorDataPromise;
 	var cacheConnection = {
 		getListData: function(){
 			return testHelpers.asyncResolve({data: [{id: 1}]});
@@ -212,7 +213,8 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 	var getDataBehavior = function(base, options){
 		return {
 			getListData: function(){
-				return testHelpers.asyncResolve({data: [{id: 1}], count: 5});
+				getDataBehaviorDataPromise = testHelpers.asyncResolve({data: [{id: 1}], count: 5});
+				return getDataBehaviorDataPromise;
 			}
 		};
 	};
@@ -223,9 +225,11 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 
 	connection.getList({}).then(function(list){
 		setTimeout(function(){
-			QUnit.equal(list.count, 5, "expando added");
-			QUnit.start();
-		},30);
+			getDataBehaviorDataPromise.then(function() {
+				QUnit.equal(list.count, 5, "expando added");
+				QUnit.start();
+			});
+		}, 50);
 	});
 
 });
