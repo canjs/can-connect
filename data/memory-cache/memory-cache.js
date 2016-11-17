@@ -50,7 +50,7 @@ var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
 
-module.exports = connect.behavior("data/memory-cache",function(baseConnect){
+module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 
 	var behavior = {
 		_sets: {},

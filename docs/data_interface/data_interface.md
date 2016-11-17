@@ -30,7 +30,7 @@ For example, [can-connect/data/url/url] implements these behaviors to
 make an Ajax request like:
 
 ```js
-connect.behavior("data/url", function(base) {
+connect.behavior("data/url", function(baseConnection) {
 	return {
 		getListData: function(set){
 			return ajax({
@@ -45,15 +45,15 @@ connect.behavior("data/url", function(base) {
 });
 ```
 
-The [can-connect/data/parse/parse] overwrites the `base` connection's methods to
+The [can-connect/data/parse/parse] overwrites the `baseConnection` connection's methods to
 perform cleanup on the response data:
 
 ```js
-connect.behavior("data/parse", function(base) {
+connect.behavior("data/parse", function(baseConnection) {
 	return {
 		getListData: function(set){
 			var self = this;
-			return base.getListData(set).then(function(response){
+			return baseConnection.getListData(set).then(function(response){
 				return self.parseListData(response);
 			});
 		},

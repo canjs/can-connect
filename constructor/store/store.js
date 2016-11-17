@@ -7,7 +7,7 @@
  *
  * Supports saving and retrieving lists and instances in a store.
  *
- * @signature `constructorStore(baseConnection)`
+ * @signature `constructorStore( baseConnection )`
  *
  *   Overwrites baseConnection so it contains a store for
  *   instances and lists.  It traps calls to the
@@ -107,7 +107,7 @@ var requests = {
 assign(requests, canEvent);
 
 
-var constructorStore = connect.behavior("constructor/store",function(baseConnect){
+var constructorStore = connect.behavior("constructor/store",function(baseConnection){
 
 	var behavior = {
 		/**
@@ -436,7 +436,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 				this.updatedInstance(storeInstance, props);
 				return storeInstance;
 			}
-			var instance = baseConnect.hydrateInstance.call(this, props);
+			var instance = baseConnection.hydrateInstance.call(this, props);
 			this.hydratedInstance(instance);
 			return instance;
 		},
@@ -493,7 +493,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 				this.updatedList(storeList, listData, set);
 				return storeList;
 			}
-			var list = baseConnect.hydrateList.call(this, listData, set);
+			var list = baseConnection.hydrateList.call(this, listData, set);
 			this.hydratedList(list, set);
 			return list;
 		},
@@ -517,7 +517,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		getList: function(params) {
 			var self = this;
 			requests.increment(this);
-			var promise = baseConnect.getList.call(this, params);
+			var promise = baseConnection.getList.call(this, params);
 
 			promise.then(function(instances){
 				self._finishedRequest();
@@ -546,7 +546,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		get: function(params) {
 			var self = this;
 			requests.increment(this);
-			var promise = baseConnect.get.call(this, params);
+			var promise = baseConnection.get.call(this, params);
 
 			promise.then(function(instance){
 				self._finishedRequest();
@@ -589,7 +589,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 				this.addInstanceReference(instance);
 			}
 
-			var promise = baseConnect.save.call(this, instance);
+			var promise = baseConnection.save.call(this, instance);
 
 			promise.then(function(instances){
 				if(updating) {
@@ -628,7 +628,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		destroy: function(instance) {
 			var self = this;
 			requests.increment(this);
-			var promise = baseConnect.destroy.call(this, instance);
+			var promise = baseConnection.destroy.call(this, instance);
 
 			promise.then(function(instance){
 				self._finishedRequest();

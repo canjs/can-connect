@@ -35,7 +35,7 @@ var resolveSingleExport = function(originalPromise){
 	return promise;
 };
 
-var mapBehavior = connect.behavior(function(baseConnect){
+var mapBehavior = connect.behavior(function(baseConnection){
 	var behavior = {
 		id: function(inst) {
 			var idProp = inst.constructor.id || "id";
@@ -59,18 +59,18 @@ var mapBehavior = connect.behavior(function(baseConnect){
 		listSet: function(){
 			return undefined;
 		},
-		idProp: baseConnect.constructor.id || "id",
+		idProp: baseConnection.constructor.id || "id",
 		serializeInstance: function(instance){
 			return instance.serialize();
 		},
 		findAll: function(params, success, error) {
-			var promise = resolveSingleExport( baseConnect.getList.call(this, params) );
+			var promise = resolveSingleExport( baseConnection.getList.call(this, params) );
 			promise.then(success, error);
 			return promise;
 		},
 		findOne: function(params, success, error) {
 			// adds .then for compat
-			var promise = resolveSingleExport( baseConnect.get.call(this, params) );
+			var promise = resolveSingleExport( baseConnection.get.call(this, params) );
 			promise.then(success, error);
 			return promise;
 		},
@@ -78,14 +78,14 @@ var mapBehavior = connect.behavior(function(baseConnect){
 			if(typeof this.parseModel === "function") {
 				return this.parseModel.apply(this.constructor, arguments);
 			} else {
-				return baseConnect.parseInstanceData.apply(baseConnect, arguments);
+				return baseConnection.parseInstanceData.apply(baseConnection, arguments);
 			}
 		},
 		parseListData: function(props){
 			if(typeof this.parseModels === "function") {
 				return this.parseModels.apply(this.constructor, arguments);
 			} else {
-				return baseConnect.parseListData.apply(baseConnect, arguments);
+				return baseConnection.parseListData.apply(baseConnection, arguments);
 			}
 		}
 

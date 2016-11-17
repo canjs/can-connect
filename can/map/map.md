@@ -9,7 +9,7 @@
 
 Make a connection use a [can-define/map/map] type.
 
-@signature `canMap( baseConnect )`
+@signature `canMap( baseConnection )`
 
   Implements the hydrators, serializers, identifiers, and instance
   callback interfaces of [can-connect/constructor/constructor] so they work with a [can-define/map/map] and [can-define/list/list].

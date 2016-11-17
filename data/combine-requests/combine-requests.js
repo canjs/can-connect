@@ -16,7 +16,7 @@ var forEach = [].forEach;
  *
  * Combines multiple incoming requests into one if possible.
  *
- * @signature `dataCombineRequests(baseConnection)`
+ * @signature `dataCombineRequests( baseConnection )`
  *
  *   Overwrites [can-connect/data/combine-requests.getListData] to collect the requested
  *   sets for
@@ -74,7 +74,7 @@ var forEach = [].forEach;
  * ```
  *
  */
-module.exports = connect.behavior("data/combine-requests",function(base){
+module.exports = connect.behavior("data/combine-requests",function(baseConnection){
 	var pendingRequests; //[{set, deferred}]
 
 	return {
@@ -246,16 +246,16 @@ module.exports = connect.behavior("data/combine-requests",function(base){
 					combineDataPromise.then(function(combinedData){
 						// farm out requests
 						forEach.call(combinedData, function(combined){
-							// clone combine.set to prevent mutations by base.getListData
+							// clone combine.set to prevent mutations by baseConnection.getListData
 							var combinedSet = deepAssign({}, combined.set);
 
-							base.getListData(combinedSet).then(function(data){
+							baseConnection.getListData(combinedSet).then(function(data){
 								if(combined.pendingRequests.length === 1) {
 									combined.pendingRequests[0].deferred.resolve(data);
 								} else {
 									forEach.call(combined.pendingRequests, function(pending){
 										// get the subset using the combine.set property before being passed down
-										// to base.getListData which might mutate it causing combinedRequests
+										// to baseConnection.getListData which might mutate it causing combinedRequests
 										// to resolve with an `undefined` value instead of an actual set
 										// https://github.com/canjs/can-connect/issues/139
 										pending.deferred.resolve( {data: self.getSubset(pending.set, combined.set, getItems(data) )} );

@@ -2,7 +2,7 @@
 var connect = require("can-connect");
 var makeDeferred = require("can-connect/helpers/deferred");
 
-module.exports = connect.behavior("data/worker",function(base){
+module.exports = connect.behavior("data/worker",function(baseConnection){
 
 
 	if(typeof document !== "undefined") {

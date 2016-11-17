@@ -130,7 +130,7 @@ var canSet = require("can-set");
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 
-module.exports = connect.behavior("real-time",function(baseConnect){
+module.exports = connect.behavior("real-time",function(baseConnection){
 	return {
 		/**
 		 * @function can-connect/real-time/real-time.createInstance createInstance

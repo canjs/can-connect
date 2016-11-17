@@ -7,7 +7,7 @@ var makeDeferred = require("can-connect/helpers/deferred");
  * @parent can-connect.behaviors
  * @hide
  */
-module.exports = connect.behavior("service-worker",function(base){
+module.exports = connect.behavior("service-worker",function(baseConnection){
 
 	var worker = new Worker(this.workerURL);
 	var requestId = 0;

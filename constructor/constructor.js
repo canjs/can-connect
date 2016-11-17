@@ -12,7 +12,7 @@
  * Adds the ability to operate on special types instead of plain JavaScript Objects
  * and Arrays.
  *
- * @signature `constructor(baseConnection)`
+ * @signature `constructor( baseConnection )`
  *
  * Adds methods that allow the connection to operate on special types.
  *
@@ -100,7 +100,7 @@ var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var overwrite = require("can-connect/helpers/overwrite");
 var idMerge = require("can-connect/helpers/id-merge");
 
-module.exports = connect.behavior("constructor",function(baseConnect){
+module.exports = connect.behavior("constructor",function(baseConnection){
 
 	var behavior = {
 		// stores references to instances

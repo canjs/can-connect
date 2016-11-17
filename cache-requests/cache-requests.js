@@ -96,7 +96,7 @@ var forEach = [].forEach;
  * Notice that `cacheConnection`s often share many of the same options as the
  * primary connection.
  */
-module.exports = connect.behavior("cache-requests",function(base){
+module.exports = connect.behavior("cache-requests",function(baseConnection){
 
 	return {
 
@@ -229,7 +229,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 				if(!diff.needed) {
 					return self.cacheConnection.getListData(diff.cached);
 				} else if(!diff.cached) {
-					return base.getListData(diff.needed).then(function(data){
+					return baseConnection.getListData(diff.needed).then(function(data){
 
 						return self.cacheConnection.updateListData(getItems(data), diff.needed ).then(function(){
 							return data;
@@ -238,7 +238,7 @@ module.exports = connect.behavior("cache-requests",function(base){
 					});
 				} else {
 					var cachedPromise = self.cacheConnection.getListData(diff.cached);
-					var needsPromise = base.getListData(diff.needed);
+					var needsPromise = baseConnection.getListData(diff.needed);
 
 					var savedPromise = needsPromise.then(function(data){
 						return self.cacheConnection.updateListData(  getItems(data), diff.needed ).then(function(){
