@@ -519,7 +519,7 @@ To create your own behavior, call `connect.behavior` with the name of your behav
 returns an object that defines the hooks you want to overwrite or provide:
 
 ```js
-connect.behavior("my-behavior", function(baseBehavior){
+connect.behavior("my-behavior", function(baseConnection){
   return {
     // Hooks here
   };
@@ -529,24 +529,24 @@ connect.behavior("my-behavior", function(baseBehavior){
 For example, creating a simple localStorage behavior might look like:
 
 ```js
-connect.behavior("localstorage", function(baseBehavior){
+connect.behavior("localstorage", function(baseConnection){
   return {
     getData: function(params){
       var id = this.id(params);
       return new Promise(function(resolve){
-        var data = localStorage.getItem(baseBehavior.name+"/"+id);
+        var data = localStorage.getItem(baseConnection.name+"/"+id);
         resolve( JSON.parse(data) )
       });
     },
     createData: function(props){
-      var id = localStorage.getItem(baseBehavior.name+"-ID") || "0";
+      var id = localStorage.getItem(baseConnection.name+"-ID") || "0";
 
       var nextId = ++JSON.parse( id );
-      localStorage.setItem(baseBehavior.name+"-ID"), nextId);
+      localStorage.setItem(baseConnection.name+"-ID"), nextId);
       var id = this.idProp;
       return new Promise(function(resolve){
         props[id] = nextId;
-        localStorage.setItem(baseBehavior.name+"/"+nextId, props);
+        localStorage.setItem(baseConnection.name+"/"+nextId, props);
         resolve( props )
       });
     },

@@ -4,7 +4,7 @@
  *
  * Extract response data into a format needed for other extensions.
  *
- * @signature `dataParse(baseConnection)`
+ * @signature `dataParse( baseConnection )`
  *
  *   Overwrites the [can-connect/DataInterface] methods to run their results through
  *   either [can-connect/data/parse/parse.parseInstanceData] or [can-connect/data/parse/parse.parseListData].
@@ -59,7 +59,7 @@
  var string = require("can-util/js/string/string");
 
 
-module.exports = connect.behavior("data/parse",function(baseConnect){
+module.exports = connect.behavior("data/parse",function(baseConnection){
 
 	var behavior = {
     /**
@@ -132,8 +132,8 @@ module.exports = connect.behavior("data/parse",function(baseConnect){
 		parseListData: function( responseData ) {
 
 			// call any base parseListData
-			if(baseConnect.parseListData) {
-			   responseData = baseConnect.parseListData.apply(this, arguments);
+			if(baseConnection.parseListData) {
+			   responseData = baseConnection.parseListData.apply(this, arguments);
 			}
 
 			var result;
@@ -231,10 +231,10 @@ module.exports = connect.behavior("data/parse",function(baseConnect){
      */
 		parseInstanceData: function( props ) {
 			// call any base parseInstanceData
-			if(baseConnect.parseInstanceData) {
+			if(baseConnection.parseInstanceData) {
 				// It's possible this might be looking for a property that only exists in some
 				// responses. So if it doesn't return anything, go back to using props.
-			   props = baseConnect.parseInstanceData.apply(this, arguments) || props;
+			   props = baseConnection.parseInstanceData.apply(this, arguments) || props;
 			}
 			return this.parseInstanceProp ? string.getObject(this.parseInstanceProp, props) || props : props;
 		}
@@ -319,7 +319,7 @@ module.exports = connect.behavior("data/parse",function(baseConnect){
 	each(pairs, function(parseFunction, name){
 		behavior[name] = function(params){
 			var self = this;
-			return baseConnect[name].call(this, params).then(function(){
+			return baseConnection[name].call(this, params).then(function(){
 				return self[parseFunction].apply(self, arguments);
 			});
 		};

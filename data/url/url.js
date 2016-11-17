@@ -108,7 +108,7 @@ var makePromise = require("can-util/js/make-promise/make-promise");
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data/url", function(baseConnect) {
+module.exports = connect.behavior("data/url", function(baseConnection) {
 
 
 	var behavior = {};
@@ -136,7 +136,7 @@ module.exports = connect.behavior("data/url", function(baseConnect) {
 					reqOptions));
 			}
 
-			return baseConnect[name].call(this, params);
+			return baseConnection[name].call(this, params);
 		};
 	});
 

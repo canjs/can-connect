@@ -46,7 +46,7 @@ var pairs = {
 
 
 
-module.exports = connect.behavior("data/callbacks-cache",function(baseConnect){
+module.exports = connect.behavior("data/callbacks-cache",function(baseConnection){
 
 	var behavior = {};
 
@@ -56,7 +56,7 @@ module.exports = connect.behavior("data/callbacks-cache",function(baseConnect){
 			// update the data in the cache
 			this.cacheConnection[cacheCallback]( assign(assign({}, set), data) );
 
-			return baseConnect[dataCallbackName].call(this,  data, set, cid);
+			return baseConnection[dataCallbackName].call(this,  data, set, cid);
 		};
 	});
 	return behavior;

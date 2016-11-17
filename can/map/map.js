@@ -28,7 +28,7 @@ var getExpando = function(map, prop) {
 	}
 };
 
-module.exports = connect.behavior("can/map",function(baseConnect){
+module.exports = connect.behavior("can/map",function(baseConnection){
 
 	// overwrite
 	var behavior = {
@@ -37,7 +37,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 			this.List = this.List || types.DefaultList.extend({});
 			overwrite(this, this.Map, mapOverwrites, mapStaticOverwrites);
 			overwrite(this, this.List, listPrototypeOverwrites, listStaticOverwrites);
-			baseConnect.init.apply(this, arguments);
+			baseConnection.init.apply(this, arguments);
 		},
 		/**
 		 * @function can-connect/can/map/map.id id
@@ -77,7 +77,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `Observation.add`.)
 				return ids.length > 1 ? ids.join("@|@"): ids[0];
 			} else {
-				return baseConnect.id(instance);
+				return baseConnection.id(instance);
 			}
 		},
 		/**
@@ -249,7 +249,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 		 */
 		updatedList: function(){
 			canBatch.start();
-			var res = baseConnect.updatedList.apply(this, arguments);
+			var res = baseConnection.updatedList.apply(this, arguments);
 			canBatch.stop();
 			return res;
 		},
@@ -260,7 +260,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 				setExpando(instance, "_saving", false);
 				canEvent.dispatch.call(instance, "_saving", [false, true]);
 			};
-			var base = baseConnect.save.apply(this, arguments);
+			var base = baseConnection.save.apply(this, arguments);
 			base.then(done,done);
 			return base;
 		},
@@ -271,7 +271,7 @@ module.exports = connect.behavior("can/map",function(baseConnect){
 				setExpando(instance, "_destroying", false);
 				canEvent.dispatch.call(instance, "_destroying", [false, true]);
 			};
-			var base = baseConnect.destroy.apply(this, arguments);
+			var base = baseConnection.destroy.apply(this, arguments);
 			base.then(done,done);
 			return base;
 		}

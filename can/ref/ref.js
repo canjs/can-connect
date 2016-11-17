@@ -6,11 +6,11 @@
  *
  * @description Handle references to instances in the raw data returned by the server.
  *
- * @signature `canRef( baseConnect )`
+ * @signature `canRef( baseConnection )`
  *
  *   Makes a reference type that is loads the related type or hold onto an existing one. This allows us to create circular references and load relevant data as needed
  *
- *   @param {connection} baseConnect The base connection should have [can-connect/can/map/map]
+ *   @param {connection} baseConnection The base connection should have [can-connect/can/map/map]
  *   already applied to it.
  *
  * @body
@@ -357,7 +357,7 @@ var makeRef = function(connection){
 };
 
 
-module.exports = connect.behavior("can/ref",function(baseConnect){
+module.exports = connect.behavior("can/ref",function(baseConnection){
 	return {
 		/**
 		 * @can-connect/can/ref/ref.init init
@@ -366,7 +366,7 @@ module.exports = connect.behavior("can/ref",function(baseConnect){
 		 * @body Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
 		 */
 		init: function(){
-			baseConnect.init.apply(this, arguments);
+			baseConnection.init.apply(this, arguments);
 			this.Map.Ref = makeRef(this);
 		}
 	};

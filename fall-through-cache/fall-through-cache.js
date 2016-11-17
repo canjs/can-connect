@@ -72,7 +72,7 @@
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
 
-module.exports = connect.behavior("fall-through-cache",function(baseConnect){
+module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 
 	var behavior = {
 		/**
@@ -95,7 +95,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		hydrateList: function(listData, set){
 			set = set || this.listSet(listData);
 			var id = sortedSetJSON( set );
-			var list = baseConnect.hydrateList.call(this, listData, set);
+			var list = baseConnection.hydrateList.call(this, listData, set);
 
 			if(this._getHydrateListCallbacks[id]) {
 				this._getHydrateListCallbacks[id].shift()(list);
@@ -154,7 +154,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					self.addListReference(list, set);
 
 					setTimeout(function(){
-						baseConnect.getListData.call(self, set).then(function(listData){
+						baseConnection.getListData.call(self, set).then(function(listData){
 
 							self.cacheConnection.updateListData(listData, set);
 							self.updatedList(list, listData, set);
@@ -172,7 +172,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 				return data;
 			}, function(){
 
-				var listData = baseConnect.getListData.call(self, set);
+				var listData = baseConnection.getListData.call(self, set);
 				listData.then(function(listData){
 
 					self.cacheConnection.updateListData(listData, set);
@@ -200,7 +200,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 		hydrateInstance: function(props){
 
 			var id = this.id( props );
-			var instance = baseConnect.hydrateInstance.apply(this, arguments);
+			var instance = baseConnection.hydrateInstance.apply(this, arguments);
 
 			if(this._getMakeInstanceCallbacks[id]) {
 				this._getMakeInstanceCallbacks[id].shift()(instance);
@@ -255,7 +255,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 					self.addInstanceReference(instance);
 
 					setTimeout(function(){
-						baseConnect.getData.call(self, params).then(function(instanceData2){
+						baseConnection.getData.call(self, params).then(function(instanceData2){
 
 							self.cacheConnection.updateData(instanceData2);
 							self.updatedInstance(instance, instanceData2);
@@ -270,7 +270,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnect){
 
 				return instanceData;
 			}, function(){
-				var listData = baseConnect.getData.call(self, params);
+				var listData = baseConnection.getData.call(self, params);
 				listData.then(function(instanceData){
 					self.cacheConnection.updateData(instanceData);
 				});

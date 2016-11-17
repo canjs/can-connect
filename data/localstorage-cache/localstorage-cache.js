@@ -56,7 +56,7 @@ var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
 var overwrite = require("can-connect/helpers/overwrite");
 
-module.exports = connect.behavior("data/localstorage-cache",function(baseConnect){
+module.exports = connect.behavior("data/localstorage-cache",function(baseConnection){
 
 	var behavior = {
 		// ## Helpers

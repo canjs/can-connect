@@ -23,7 +23,7 @@ var connect = require("can-connect/connect");
  * connection.id({id: 1}) //-> 1
  * ```
  */
-module.exports = connect.behavior("base",function(base){
+module.exports = connect.behavior("base",function(baseConnection){
 	return {
 		/**
 		 * @function can-connect/base/base.id id
@@ -126,7 +126,7 @@ module.exports = connect.behavior("base",function(base){
 		 * ```
 		 *
 		 */
-		idProp: base.idProp || "id",
+		idProp: baseConnection.idProp || "id",
 		/**
 		 * @function can-connect/base/base.listSet listSet
 		 * @parent can-connect/base/base

@@ -5,7 +5,7 @@
 
 Connects a connection to another connection in a worker thread.
 
-@signature `dataWorker(baseConnection)`
+@signature `dataWorker( baseConnection )`
 
 If a [Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
 is provided, overwrites the "data interface methods" to package the arguments and send them as

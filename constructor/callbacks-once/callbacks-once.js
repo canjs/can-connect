@@ -4,11 +4,11 @@
  *
  * Prevents unecessary calls to the instance callback methods.
  *
- * @signature `constructorCallbacksOnce(baseBehavior)`
+ * @signature `constructorCallbacksOnce( baseConnection )`
  *
  *   Prevents duplicate calls to the instance callback methods by tracking
  *   the last data the methods were called with.  If called with the
- *   same data again, it does not call the base behavior's instance callback.
+ *   same data again, it does not call the base connection's instance callback.
  *
  *
  */
@@ -49,7 +49,7 @@ var callbacks = [
 
 
 
-module.exports = connect.behavior("constructor/callbacks-once",function(baseConnect){
+module.exports = connect.behavior("constructor/callbacks-once",function(baseConnection){
 
 	var behavior = {
 	};
@@ -63,7 +63,7 @@ module.exports = connect.behavior("constructor/callbacks-once",function(baseConn
 			var serialize = sortedSetJSON(data),
 				serialized = sortedSetJSON( this.serializeInstance( instance ) );
 			if(lastSerialized !== serialize && serialized !== serialize) {
-				var result =  baseConnect[name].apply(this, arguments);
+				var result =  baseConnection[name].apply(this, arguments);
 				this.addInstanceMetaData(instance, "last-data", serialize);
 				return result;
 			}
