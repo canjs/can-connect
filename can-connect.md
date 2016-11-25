@@ -18,7 +18,7 @@ connection.
 var connect = require("can-connect");
 var todosConnection = connect([
     require("can-connect/data/url/url"),
-    require("can-connect/data/constructor/constructor")    
+    require("can-connect/constructor/constructor")    
 ],{
     url: "/api/todos"
 });
@@ -120,7 +120,7 @@ does it call [can-connect/data/url/url]'s [can-connect/connection.getListData]. 
 
 ```js
 var dataUrl = require("can-connect/data/url/url");
-var cacheRequests = require("can-connect/cache-requests/cache-requests/cache-requests");
+var cacheRequests = require("can-connect/cache-requests/cache-requests");
 connect([cacheRequests,dataUrl])
 ```
 
@@ -254,7 +254,10 @@ to uniquely identify todos, you
 can specify this with [can-connect/base/base.idProp] like:
 
 ```js
-var todoConnection = connect(["constructor","data-url"],{
+var todoConnection = connect([
+    require("can-connect/constructor/constructor"),
+    require("can-connect/data/url/url")
+],{
   url: "/api/todos",
   idProp: "_id"
 });
@@ -289,12 +292,11 @@ var mergeDataBehavior = {
   updateData: function(instance, data){
     Object.assign(instance, data);
   }
-}
-
+};
 
 var todoConnection = connect([
-    "constructor",
-    "data-url",
+    require("can-connect/constructor/can-connect/constructor"),
+    require("can-connect/data/url/url")
     mergeDataBehavior
   ],{
   url: "/api/todos"
