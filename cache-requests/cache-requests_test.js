@@ -17,9 +17,9 @@ QUnit.module("can-connect/cache-requests/",{
 });
 
 
-QUnit.test("Get everything and all future requests should hit cache", function(){
-	stop();
+QUnit.test("Get everything and all future requests should hit cache", function(assert) {
 	var count = 0;
+	var done = assert.async();
 
 	var res = cacheRequests( {
 		getListData: function(params){
@@ -39,21 +39,19 @@ QUnit.test("Get everything and all future requests should hit cache", function()
 	} );
 
 	res.getListData({}).then(function(list){
+		assert.deepEqual(map.call(list, getId), [1,2,3,4,5,6]);
 
-		deepEqual(map.call(list, getId), [1,2,3,4,5,6]);
+		return res.getListData({type: "critical"});
+	}).then(function(list) {
+		assert.deepEqual(map.call(list.data, getId), [1,3,5]);
 
-		res.getListData({type: "critical"}).then(function(list){
-			deepEqual(map.call(list.data, getId), [1,3,5]);
-
-			res.getListData({due: "today"}).then(function(list){
-				deepEqual(map.call(list.data, getId), [1,2]);
-				start();
-			});
-
-		});
-
+		return res.getListData({due: "today"});
+	}).then(function(list) {
+		deepEqual(map.call(list.data, getId), [1,2]);
+		done();
+	}).then(null, function(error) {
+		assert.ok(false, error);
 	});
-
 });
 
 

@@ -49,6 +49,7 @@ var overwrite = require("can-connect/helpers/overwrite");
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
+var cloneData = require("can-connect/helpers/clone-data");
 
 module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 
@@ -283,7 +284,9 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 		 */
 		updateListData: function(data, set){
 			set = set || {};
-			var items = getItems(data);
+
+			var clonedData = cloneData(data);
+			var items = getItems(clonedData);
 			var sets = this.getSetData();
 			var self = this;
 
@@ -300,7 +303,7 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 				}
 			}
 
-			this.addSet(set, data);
+			this.addSet(set, clonedData);
 			// setData.push({set: set, items: data});
 			return Promise.resolve();
 		},
