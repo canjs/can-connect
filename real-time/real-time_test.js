@@ -8,6 +8,7 @@ var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
+var canDev = require('can-util/js/dev/dev');
 
 
 QUnit.module("can-connect/real-time",{});
@@ -302,3 +303,39 @@ test("sorting by sort clause works with updates", function(){
 		start();
 	}
 });
+
+//!steal-remove-start
+if (canDev) {
+	test("dev mode warning when listSet algebra doesn't match an item", function () {
+		var algebra = new set.Algebra(set.comparators.id("id"));
+		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
+		var dataBehavior = function(){
+			return {
+				getListData: function(){
+					// nothing here first time
+					return testHelpers.asyncResolve({ data: items.slice(0) });
+				}
+			};
+		};
+
+		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+			dataCallbacks, callbacksOnce],{
+				algebra: algebra
+		});
+
+		var oldlog = canDev.warn;
+		canDev.warn = function () {
+			clearTimeout(failSafeTimer);
+			ok(true, 'warns about item not being in list');
+			canDev.warn = oldlog;
+			start();
+		};
+
+		stop();
+		var failSafeTimer = setTimeout(function () {
+			notOk(true, 'canDev.warn was never called!');
+		}, 500);
+		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
+	});
+}
+//!steal-remove-end

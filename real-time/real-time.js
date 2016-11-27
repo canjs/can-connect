@@ -129,6 +129,7 @@ var connect = require("../can-connect");
 var canSet = require("can-set");
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
+var canDev = require('can-util/js/dev/dev');
 
 module.exports = connect.behavior("real-time",function(baseConnection){
 	return {
@@ -340,6 +341,29 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				return instance;
 			});
 		}
+
+		//!steal-remove-start
+		,gotListData: function(items, set) {
+			var self = this;
+			if (this.algebra) {
+				for(var item, i = 0, l = items.data.length; i < l; i++) {
+					item = items.data[i];
+					if( !self.algebra.has(set, item) ) {
+						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
+							+ "Read the docs for more information: http://v3.canjs.com/doc/can-set.html#SolvingCommonIssues"
+							+ "\n\nBelow are the 'Set' parameters:"
+							+ "\n" + JSON.stringify(set, null, "  ")
+							+ "\n\nAnd below is an item which does not match those parameters:"
+							+ "\n" + JSON.stringify(item, null, "  ");
+						canDev.warn(msg);
+						break;
+					}
+				}
+			}
+
+			return Promise.resolve(items);
+		}
+		//!steal-remove-end
 	};
 });
 
