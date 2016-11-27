@@ -17,12 +17,12 @@
  * ```
  * <order-model get-list="{type=orderType}">
  *   <ul>
- *   \{{#isPending}}<li>Loading</li>\{{/isPending}}
- *   \{{#isResolved}}
- *     \{{#each value}}
- *       <li>\{{name}}</li>
- *     \{{/each}}
- *   \{{/isResolved}}
+ *   {{#isPending}}<li>Loading</li>{{/isPending}}
+ *   {{#isResolved}}
+ *     {{#each value}}
+ *       <li>{{name}}</li>
+ *     {{/each}}
+ *   {{/isResolved}}
  *   </ul>
  * </order-model>
  * ```
