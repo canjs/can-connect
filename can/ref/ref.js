@@ -8,7 +8,7 @@
  *
  * @signature `canRef( baseConnection )`
  *
- *   Makes a reference type that is loads the related type or hold onto an existing one. This allows us to create circular references and load relevant data as needed
+ *   Makes a reference type that loads the related type or holds onto an existing one. This handles circular references and loads relevant data as needed.
  *
  *   @param {connection} baseConnection The base connection should have [can-connect/can/map/map]
  *   already applied to it.
@@ -18,7 +18,7 @@
  * ## Use
  *
  * `can/ref` is useful when the server might return either a reference to
- * a value or the value itself.  For example, in a MongoDB setup, it
+ * a value or the value itself.  For example, in a MongoDB setup,
  * a request like `GET /game/5` might return:
  *
  * ```
@@ -39,13 +39,13 @@
  * }
  * ```
  *
- * `can/ref` can handle this abigutity, and even make lazy loading possible.
+ * `can/ref` can handle this ambiguity and even make lazy loading possible.
  *
  * To use `can/ref`, first create a Map and a connection for the referenced type:
  *
  * ```
  * var Team = DefineMap.extend({
- * 	id: 'string'
+ *   id: 'string'
  * });
  *
  * connect([
@@ -67,9 +67,9 @@
  *
  * ```
  * var Game = DefineMap.extend({
- *	 id: 'string',
- *	 teamRef: {type: Team.Ref.type},
- *	 score: "number"
+ *   id: 'string',
+ *   teamRef: {type: Team.Ref.type},
+ *   score: "number"
  * });
  *
  * superMap({
@@ -79,14 +79,14 @@
  * ```
  *
  * Now, `teamRef` is a [can-connect/can/ref/ref.Map.Ref] type, which will
- * house the id of the reference no matter how the server returns data like
+ * house the id of the reference no matter how the server returns data, e.g.
  * `game.teamRef.id`.
  *
  * For example, without populating the team data:
  *
  * ```
  * Game.get({id: 5}).then(function(game){
- *		game.teamRef.id //-> 7
+ *   game.teamRef.id //-> 7
  * });
  * ```
  *
@@ -94,7 +94,7 @@
  *
  * ```
  * Game.get({id: 5, populate: "teamRef"}).then(function(game){
- *		game.teamRef.id //-> 7
+ *   game.teamRef.id //-> 7
  * });
  * ```
  *
@@ -102,16 +102,16 @@
  * are determined by if the reference was populated or the referenced item already exists
  * in the [can-connect/constructor/store/store.instanceStore].
  *
- * For example, `value`, which points to the referenced instance will be populated if the reference was populated:
+ * For example, `value`, which points to the referenced instance, will be populated if the reference was populated:
  *
  * ```
  * Game.get({id: 5, $populate: "teamRef"}).then(function(game){
- *		game.teamRef.value.name //-> 5
+ *   game.teamRef.value.name //-> 5
  * });
  * ```
  *
- * Or, it will be populated if that instance had loaded through another means and
- * is in the instance store:
+ * Or, it will be populated if that instance had been loaded through another means and
+ * it’s in the instance store:
  *
  * ```
  * Team.get({id: 7}).then(function(team){
@@ -124,7 +124,7 @@
  * })
  * ```
  *
- * `value` is an [can-define.types.get asynchrounos getter], which means that even if
+ * `value` is an [can-define.types.get asynchronous getter], which means that even if
  * the referenced value isn't populated or loaded through the store, it can be lazy loaded. This
  * is generally most useful in a template.
  *
@@ -135,7 +135,7 @@
  * ```
  * var template = stache("{{game.teamRef.value.name}} scored {{game.score}} points");
  * Game.get({id: 5}).then(function(game){
- *    template({game: game});
+ *   template({game: game});
  * });
  * ```
  *
