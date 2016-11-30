@@ -544,7 +544,7 @@ connect.behavior("localstorage", function(baseConnection){
       var id = localStorage.getItem(baseConnection.name+"-ID") || "0";
 
       var nextId = ++JSON.parse( id );
-      localStorage.setItem(baseConnection.name+"-ID"), nextId);
+      localStorage.setItem(baseConnection.name+"-ID", nextId);
       var id = this.idProp;
       return new Promise(function(resolve){
         props[id] = nextId;
