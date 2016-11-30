@@ -30,21 +30,4 @@ stealTools.export({
 			}
 		}
 	}
-}).then(function(){
-	
-	var packageJSON = require("./package.json");
-	
-	var browser = {};
-	modules.forEach(function(name){
-		browser["./"+name] = "./dist/cjs/"+name;
-	});
-	
-	packageJSON.browser = browser;
-	
-	fs.writeFile(
-		__dirname+"/package.json", 
-		JSON.stringify(packageJSON, null, "  "),
-		function(){});
-	
-	
 });
