@@ -1,15 +1,15 @@
 var connect = require("can-connect");
 
-var constructor = require("../../constructor/");
-var canMap = require("../map/");
-var canRef = require("../ref/");
-var constructorStore = require("../../constructor/store/");
-var dataCallbacks = require("../../data/callbacks/");
-var callbacksCache = require("../../data/callbacks-cache/");
-var dataParse = require("../../data/parse/");
-var dataUrl = require("../../data/url/");
-var realTime = require("../../real-time/");
-var callbacksOnce = require("../../constructor/callbacks-once/");
+var constructor = require("../../constructor/constructor");
+var canMap = require("../map/map");
+var canRef = require("../ref/ref");
+var constructorStore = require("../../constructor/store/store");
+var dataCallbacks = require("../../data/callbacks/callbacks");
+var callbacksCache = require("../../data/callbacks-cache/callbacks-cache");
+var dataParse = require("../../data/parse/parse");
+var dataUrl = require("../../data/url/url");
+var realTime = require("../../real-time/real-time");
+var callbacksOnce = require("../../constructor/callbacks-once/callbacks-once");
 
 
 var $ = require("jquery");
