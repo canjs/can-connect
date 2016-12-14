@@ -8,7 +8,7 @@ var Observation = require("can-observation");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 var isArray = require("can-util/js/is-array/is-array");
-var types = require("can-util/js/types/types");
+var types = require("can-types");
 var each = require("can-util/js/each/each");
 var isFunction = require("can-util/js/is-function/is-function");
 var dev = require("can-util/js/dev/dev");
