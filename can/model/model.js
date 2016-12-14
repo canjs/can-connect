@@ -9,12 +9,12 @@ var $ = require("jquery"),
 	CanList = require("can-list"),
 	Observation = require("can-observation"),
 	canEvent = require("can-event"),
-	ns = require("can-util/namespace");
+	ns = require("can-namespace");
 
 var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
 var makeArray = require("can-util/js/make-array/make-array");
-var types = require("can-util/js/types/types");
+var types = require("can-types");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 var callCanReadingOnIdRead = true;
