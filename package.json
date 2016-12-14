@@ -28,7 +28,7 @@
     "jshint": "^2.9.4",
     "steal": "^0.16.43",
     "steal-qunit": "^0.1.4",
-    "steal-tools": "^0.16.8",
+    "steal-tools": "^1.0.0",
     "testee": "^0.3.0"
   },
   "system": {
