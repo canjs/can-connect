@@ -56,7 +56,7 @@
  var connect = require("can-connect");
  var each = require("can-util/js/each/each");
  var isArray = require("can-util/js/is-array/is-array");
- var string = require("can-util/js/string/string");
+ var getObject = require("can-util/js/get/get");
 
 
 module.exports = connect.behavior("data/parse",function(baseConnection){
@@ -142,7 +142,7 @@ module.exports = connect.behavior("data/parse",function(baseConnection){
 			} else {
 				var prop = this.parseListProp || 'data';
 
-				responseData.data = string.getObject(prop, responseData);
+				responseData.data = getObject(responseData, prop);
 				result = responseData;
 				if(prop !== "data") {
 					delete responseData[prop];
@@ -236,7 +236,7 @@ module.exports = connect.behavior("data/parse",function(baseConnection){
 				// responses. So if it doesn't return anything, go back to using props.
 			   props = baseConnection.parseInstanceData.apply(this, arguments) || props;
 			}
-			return this.parseInstanceProp ? string.getObject(this.parseInstanceProp, props) || props : props;
+			return this.parseInstanceProp ? getObject(props, this.parseInstanceProp) || props : props;
 		}
 		/**
 		 * @property {String} can-connect/data/parse/parse.parseListProp parseListProp

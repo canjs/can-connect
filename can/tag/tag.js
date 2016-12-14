@@ -84,7 +84,7 @@ connect.tag = function(tagName, connection){
 		var addedToPageData = false;
 		var addToPageData = Observation.ignore(function(set, promise){
 			if(!addedToPageData) {
-				var root = tagData.scope.attr("%root") || tagData.scope.attr("@root");
+				var root = tagData.scope.peek("%root") || tagData.scope.peek("@root");
 				if( root && root.pageData ) {
 					if(method === "get"){
 						set = connection.id(set);
