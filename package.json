@@ -28,7 +28,7 @@
   "devDependencies": {
     "can-fixture": "^1.0.10",
     "jshint": "^2.9.4",
-    "steal": "^0.16.43",
+    "steal": "^1.0.2",
     "steal-qunit": "^0.1.4",
     "steal-tools": "^1.0.0",
     "testee": "^0.3.0"
