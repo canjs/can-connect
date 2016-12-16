@@ -222,8 +222,8 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 * A connection used for caching.
 		 *
 		 * @option {can-connect/DataInterface} A connection that can be used for
-		 * "Data Interface" requests. Several behaviors
-		 * look for this property.  By `cacheConnection` is null.
+		 * [can-connect/DataInterface] requests. Several behaviors
+		 * look for this property.
 		 *
 		 * @body
 		 *

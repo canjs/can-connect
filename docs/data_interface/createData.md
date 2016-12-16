@@ -19,7 +19,7 @@ var CID = require("can-util/js/cid/cid");
 // Create an instance of a special type
 var myInstance = new MyType({ ... });
 
-// get it's CID
+// get its CID
 var cid = CID(myInstance);
 
 // get its raw data
