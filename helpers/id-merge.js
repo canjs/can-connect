@@ -1,6 +1,6 @@
 var map = [].map;
 
-module.exports = function(list, update, id, make){
+module.exports = function(list, update, id, make, mergeFn){
 	var listIndex = 0,
 		updateIndex =  0;
 
@@ -12,6 +12,9 @@ module.exports = function(list, update, id, make){
 		if( id(listItem) === id(updateItem) ) {
 			listIndex++;
 			updateIndex++;
+			if (typeof mergeFn === 'function') {
+				listItem = mergeFn(listItem, updateItem);
+			}
 			continue;
 		}
 		// look for single insert or removal, does the next update item equal the current list.
