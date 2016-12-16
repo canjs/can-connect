@@ -5,7 +5,7 @@ var fs = require("fs");
 var modules = [];
 
 stealTools.export({
-	system: {
+	steal: {
 		config: "package.json!npm",
 		main: "can-connect/all"
 	},
