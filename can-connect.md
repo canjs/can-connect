@@ -108,7 +108,7 @@ todoConnection.getList({}).then(function(todos){ ... });
 ```
 
 __Behaviors__, like [can-connect/constructor/constructor] and [can-connect/data/url/url] implement,
-extend, or require some set of [interfaces](#section_Interfaces).  For example, [can-connect/data/url/url] implements
+extend, or require some set of [interfaces](#Interfaces).  For example, [can-connect/data/url/url] implements
 the "Data Interface" methods, and [can-connect/constructor/constructor] implements the
 "Instance Interface" methods.
 
@@ -361,17 +361,17 @@ var todoConnection = superMap({
 ### ReactJS use
 
 Help us create a special ReactJS behavior that integrates
-a connection with React's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with React's observable life-cycle. Read more [here](#Otheruse).
 
 ### Angular use
 
 Help us create a special AngularJS behavior that integrates
-a connection with Angular's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with Angular's observable life-cycle. Read more [here](#Otheruse).
 
 ### Backbone use
 
 Help us create a special BackboneJS behavior that integrates
-a connection with Backbone's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with Backbone's observable life-cycle. Read more [here](#Otheruse).
 
 ### Other use
 
