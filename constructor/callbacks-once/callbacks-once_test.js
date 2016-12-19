@@ -11,31 +11,31 @@ var DefineMap = require('can-define/map/');
 QUnit.module("can-connect/callbacks-once");
 
 QUnit.test('createInstance triggers a "created" event', function(assert){
-  var done = assert.async();
+	var done = assert.async();
 
-  var Session = DefineMap.extend({
-    id: 'any',
-    email: 'string'
-  });
+	var Session = DefineMap.extend({
+		id: 'any',
+		email: 'string'
+	});
 
-  var connection = connect([
-    constructor,
-    canMap,
-    constructorStore,
-    dataCallbacks,
-    realTime,
-    callbacksOnce
-  ], {
-    Map: Session
-  });
+	var connection = connect([
+		constructor,
+		canMap,
+		constructorStore,
+		dataCallbacks,
+		realTime,
+		callbacksOnce
+	], {
+		Map: Session
+	});
 
-  Session.on('created', function (event) {
-    assert.ok(event, 'createInstance triggered the "created" event');
-    done();
-  });
+	Session.on('created', function (event) {
+		assert.ok(event, 'createInstance triggered the "created" event');
+		done();
+	});
 
-  connection.createInstance({
-    id: 5,
-    email: 'marshall@bitovi.com'
-  });
+	connection.createInstance({
+		id: 5,
+		email: 'marshall@bitovi.com'
+	});
 });
