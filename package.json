@@ -5,7 +5,7 @@
   "main": "can-connect.js",
   "dependencies": {
     "can-compute": "^3.0.4",
-    "can-define": "^1.0.5",
+    "can-define": "^1.0.9",
     "can-event": "^3.0.1",
     "can-list": "^3.0.1",
     "can-map": "^3.0.3",
