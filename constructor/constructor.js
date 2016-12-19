@@ -80,7 +80,7 @@
  * the "data interface" response data. These callbacks update the state of
  * the typed representation.
  *
- * ## Instantaitors
+ * ## Instantiators
  *
  * These methods are used to create a typed instance or typed list given raw "data interface"
  * objects.
