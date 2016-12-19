@@ -62,7 +62,7 @@ module.exports = connect.behavior("constructor/callbacks-once",function(baseConn
 
 			var serialize = sortedSetJSON(data),
 				serialized = sortedSetJSON( this.serializeInstance( instance ) );
-			if(lastSerialized !== serialize && serialized !== serialize) {
+			if(lastSerialized !== serialize) {
 				var result =  baseConnection[name].apply(this, arguments);
 				this.addInstanceMetaData(instance, "last-data", serialize);
 				return result;
