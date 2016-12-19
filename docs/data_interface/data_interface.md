@@ -8,7 +8,7 @@
 The `DataInterface` methods are the methods most used most commonly
 by `can-connect` behaviors to get or mutate information in some form of
 persisted storage.  The `DataInterface` methods only operate on __raw__
-data comprised of plain JavaScript Objects, Arrays and primitive types.  
+data comprised of plain JavaScript Objects, Arrays and primitive types.
 This is in contrast to the [can-connect/InstanceInterface] methods that
 operate on typed data.
 
@@ -45,7 +45,7 @@ connect.behavior("data/url", function(baseConnection) {
 });
 ```
 
-The [can-connect/data/parse/parse] overwrites the `baseConnection` connection's methods to
+The [can-connect/data/parse/parse] behavior overwrites the `baseConnection`’s methods to
 perform cleanup on the response data:
 
 ```js

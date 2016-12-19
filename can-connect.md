@@ -36,46 +36,46 @@ var todosConnection = connect([
 
 Load data:
 
- - [can-connect/data/url/url] - Persist data to restful or other types of services.
- - [can-connect/data/parse/parse] - Extract response data into a format needed for other extensions.
+ - [can-connect/data/url/url] — Persist data to restful or other types of services.
+ - [can-connect/data/parse/parse] — Extract response data into a format needed for other extensions.
 
 Convert data into special types:
 
- - [can-connect/constructor/constructor] - Create instances of a constructor function or list type.
- - [can-connect/constructor/store/store] - Create only a single instance for a given id or a single list for a set.
+ - [can-connect/constructor/constructor] — Create instances of a constructor function or list type.
+ - [can-connect/constructor/store/store] — Create only a single instance for a given id or a single list for a set.
 
 Real time:
 
- - [can-connect/real-time/real-time] - Update lists and instances with server side events.
+ - [can-connect/real-time/real-time] — Update lists and instances with server side events.
 
 Caching strategies:
 
- - [can-connect/fall-through-cache/fall-through-cache] - Respond with data from the [connection.cacheConnection] and
+ - [can-connect/fall-through-cache/fall-through-cache] — Respond with data from the [connection.cacheConnection] and
    then update the response with data from the `raw CRUD Methods`.
- - [can-connect/cache-requests/cache-requests] - Save response data and use it for future requests.
- - [can-connect/data/combine-requests/combine-requests] - Combine overlapping or reduntant requests.
+ - [can-connect/cache-requests/cache-requests] — Save response data and use it for future requests.
+ - [can-connect/data/combine-requests/combine-requests] — Combine overlapping or reduntant requests.
 
 Caching layers:
 
- - [can-connect/data/localstorage-cache/localstorage-cache] - LocalStorage caching connection.
- - [can-connect/data/memory-cache/memory-cache] - LocalStorage caching connection.
+ - [can-connect/data/localstorage-cache/localstorage-cache] — LocalStorage caching connection.
+ - [can-connect/data/memory-cache/memory-cache] — LocalStorage caching connection.
 
 The following modules glue certain methods together:
 
- - [can-connect/data/callbacks/callbacks] - Glues the result of the `raw CRUD Methods` to callbacks.
- - [can-connect/data/callbacks-cache/callbacks-cache] - Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
+ - [can-connect/data/callbacks/callbacks] — Glues the result of the `raw CRUD Methods` to callbacks.
+ - [can-connect/data/callbacks-cache/callbacks-cache] — Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
 
 
 The following modules are useful to CanJS specifically:
 
- - [can-connect/can/map/map] - Create instances of a special [can-define/map/map] or [can-define/list/list] type.
- - [can-connect/can/super-map/super-map] - Create a connection for a [can-define/map/map] or [can-define/list/list] that uses almost all the plugins.
- - [can-connect/can/model/model] - Inherit from a highly compatible [can.Model](http://canjs.com/docs/can.Model.html) implementation.
- - [can-connect/can/tag/tag] - Create a custom element that can load data into a template.
+ - [can-connect/can/map/map] — Create instances of a special [can-define/map/map] or [can-define/list/list] type.
+ - [can-connect/can/super-map/super-map] — Create a connection for a [can-define/map/map] or [can-define/list/list] that uses almost all the plugins.
+ - [can-connect/can/model/model] — Inherit from a highly compatible [can.Model](http://v2.canjs.com/docs/can.Model.html) implementation.
+ - [can-connect/can/tag/tag] — Create a custom element that can load data into a template.
 
 ## Overview
 
-The "can-connect" module exports a `connect` function that is used to assemble different
+The `can-connect` module exports a `connect` function that is used to assemble different
 behaviors and some options into a `connection`.  For example, the following uses `connect` and
 the [can-connect/constructor/constructor] and [can-connect/data/url/url] behaviors to create a `todoConnection`
 connection:
@@ -94,7 +94,7 @@ var todoConnection = connect(
 
 A connection typically provides the ability to
 create, read, update, or delete (CRUD) some data source. That data source is
-usually accessed through the "Instance Interface" methods:
+usually accessed through the “Instance Interface” methods:
 
  - [can-connect/connection.get]
  - [can-connect/connection.getList]
@@ -108,15 +108,15 @@ todoConnection.getList({}).then(function(todos){ ... });
 ```
 
 __Behaviors__, like [can-connect/constructor/constructor] and [can-connect/data/url/url] implement,
-extend, or require some set of [interfaces](#section_Interfaces).  For example, [can-connect/data/url/url] implements
-the "Data Interface" methods, and [can-connect/constructor/constructor] implements the
-"Instance Interface" methods.
+extend, or require some set of [interfaces](#Interfaces).  For example, [can-connect/data/url/url] implements
+the “Data Interface” methods, and [can-connect/constructor/constructor] implements the
+“Instance Interface” methods.
 
 The `connect` method calls these behaviors in the right order to create a connection. For instance,
 the [can-connect/cache-requests/cache-requests] behavior must be applied after the [can-connect/data/url/url]
-connection.  This is because [can-connect/cache-requests/cache-requests], overwrites [can-connect/data/url/url]'s
+connection.  This is because [can-connect/cache-requests/cache-requests], overwrites [can-connect/data/url/url]’s
 [can-connect/connection.getListData] first check a cache for the data.  Only if the data is not present,
-does it call [can-connect/data/url/url]'s [can-connect/connection.getListData]. So even if we write:
+does it call [can-connect/data/url/url]’s [can-connect/connection.getListData]. So even if we write:
 
 ```js
 var dataUrl = require("can-connect/data/url/url");
@@ -138,10 +138,10 @@ its options object at the end of the prototype chain.
 
 ### Basic Use
 
-To use `can-connect`, it's typically best to start out with the most basic
+To use `can-connect`, it’s typically best to start out with the most basic
 behaviors: [can-connect/data/url/url] and [can-connect/constructor/constructor]. [can-connect/data/url/url]
-connects the "Data Interface" to a restful service. [can-connect/constructor/constructor] adds
-an "Instance Interface" that can create, read, update and delete (CRUD) typed data
+connects the “Data Interface” to a restful service. [can-connect/constructor/constructor] adds
+an “Instance Interface” that can create, read, update and delete (CRUD) typed data
 using the lower-level "Data Interface".
 
 By `typed` data we mean data that is more than just plain JavaScript objects.  For
@@ -269,8 +269,8 @@ Other behaviors list their configurable options in their own docs page.
 
 If configurable options are not enough, you can overwrite any behavior with your own behavior.
 
-For example, the `constructor`'s [can-connect/constructor/constructor.updatedInstance] behavior
-sets the instance's properties to match the result of [can-connect/connection.updateData]. But if
+For example, the `constructor`’s [can-connect/constructor/constructor.updatedInstance] behavior
+sets the instance’s properties to match the result of [can-connect/connection.updateData]. But if
 the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in
 a todo with only an `id` property:
 
@@ -313,7 +313,7 @@ If you are using CanJS, you can either:
 
 - use the [can-connect/can/map/map] behavior that overwrites
   many methods and settings to work with [can-define/map/map] and [can-define/list/list].
-- use the [can-connect/can/super-map/super-map] helper to create a connection that bundles "can/map" and
+- use the [can-connect/can/super-map/super-map] helper to create a connection that bundles [can-connect/can/map/map can/map] and
   many of the other extensions.
 
 Using [can-connect/can/map/map] to create a connection looks like:
@@ -361,24 +361,24 @@ var todoConnection = superMap({
 ### ReactJS use
 
 Help us create a special ReactJS behavior that integrates
-a connection with React's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with React’s observable life-cycle. Read more [here](#Otheruse).
 
 ### Angular use
 
 Help us create a special AngularJS behavior that integrates
-a connection with Angular's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with Angular’s observable life-cycle. Read more [here](#Otheruse).
 
 ### Backbone use
 
 Help us create a special BackboneJS behavior that integrates
-a connection with Backbone's observable life-cycle. Read more [here](#section_Otheruse).
+a connection with Backbone’s observable life-cycle. Read more [here](#Otheruse).
 
 ### Other use
 
 Integrating `can-connect` with your framework is typically pretty easy.  In general,
-the pattern involves creating a behavior that integrates with your framework's
+the pattern involves creating a behavior that integrates with your framework’s
 observable instances. The [can-connect/can/map/map]
-behavior can serve as a good guide. You'll typically want to implement the following
+behavior can serve as a good guide. You’ll typically want to implement the following
 in your behavior:
 
 `.instance` - Creates the appropriate observable object type.  
@@ -394,10 +394,10 @@ in your behavior:
 And, in most frameworks you know when a particular observable is being used, typically
 observed, and when it can be discarded.  In those places, you should call:
 
-[can-connect/constructor/store/store.addInstanceReference] - Call when an instance is being used.  
-[can-connect/constructor/store/store.deleteInstanceReference] - Call when an instance is no longer being used.  
-[can-connect/constructor/store/store.addListReference] - Call when a list is being used.  
-[can-connect/constructor/store/store.deleteListReference] - Called when a list is no longer being used.  
+[can-connect/constructor/store/store.addInstanceReference] — Call when an instance is being used.
+[can-connect/constructor/store/store.deleteInstanceReference] — Call when an instance is no longer being used.
+[can-connect/constructor/store/store.addListReference] — Call when a list is being used.
+[can-connect/constructor/store/store.deleteListReference] — Called when a list is no longer being used.
 
 
 ## Interfaces
@@ -459,7 +459,7 @@ The raw-data connection methods.
 #### CRUD methods
 
 `.getListData(set) -> Promise<ListData>` - Retrieves list data.  
-`.updateListData(listData[, set]) -> Promise<ListData>` - Update a list's data.  
+`.updateListData(listData[, set]) -> Promise<ListData>` - Update a list’s data.
 `.getSets() -> Promise<Array<Set>>` - Returns the sets available to the connection.  
 
 
@@ -483,9 +483,9 @@ Consumed by [can-connect/constructor/constructor].
 
 `.gotListData(listData, set) -> ListaData` - List data is retrieved.  
 `.gotData( props, params) -> props` - Instance data is retreived.  
-`.createdData( props, params, cid) -> props` - An instance's data is created.  
-`.updatedData( props, params) -> props` - An instance's data is updated.  
-`.destroyedData( props, params) -> props` - An instance's data is destroyed.  
+`.createdData( props, params, cid) -> props` - An instance’s data is created.
+`.updatedData( props, params) -> props` - An instance’s data is updated.
+`.destroyedData( props, params) -> props` - An instance’s data is destroyed.
 
 Implemented by [can-connect/data/callbacks/callbacks].  Overwritten by [can-connect/data/callbacks-cache/callbacks-cache],
 [can-connect/real-time/real-time].
