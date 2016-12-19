@@ -6,6 +6,7 @@ require("../cache-requests/cache-requests_test");
 
 require("../can/test");
 
+require("../constructor/callbacks-once/callbacks-once_test");
 require("../constructor/constructor_test");
 require("../constructor/store/store_test");
 
