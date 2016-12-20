@@ -305,6 +305,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				instance = this.hydrateInstance(props);
 			}
 			var serialized = this.serializeInstance(instance);
+			this.destroyedInstance(instance, props);
 			// we can pre-register it so everything else finds it
 			destroy.call(this, serialized);
 			return undefined;

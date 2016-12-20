@@ -106,9 +106,15 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,dataCallbacks,callbackBehavior, callbacksOnce],{
-
-	});
+	var connection = connect([
+		dataBehavior,
+		realTime,
+		constructor,
+		constructorStore,
+		dataCallbacks,
+		callbackBehavior,
+		callbacksOnce
+		],{});
 
 	var importantList,
 		todayList;
@@ -222,7 +228,7 @@ QUnit.test("basics", function(){
 
 });
 
-test("sorting by id works", function(){
+QUnit.test("sorting by id works", function(){
 	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
 
 	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
@@ -263,7 +269,7 @@ test("sorting by id works", function(){
 });
 
 
-test("sorting by sort clause works with updates", function(){
+QUnit.test("sorting by sort clause works with updates", function(){
 	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
 
 	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
@@ -302,6 +308,27 @@ test("sorting by sort clause works with updates", function(){
 		deepEqual(listItems, [{id: 1, name:"d"}, {id: 4, name:"m"}, {id: 3, name:"p"}, {id: 5, name:"s"}]);
 		start();
 	}
+});
+
+QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
+	var destructionForeman = function(){
+		return {
+			destroyedInstance: function (instance, props) {
+				assert.ok(instance, "destroyedInstance was called.");
+				return testHelpers.asyncResolve({});
+			}
+		};
+	};
+	var connection = connect([
+		// dataBehavior,
+		realTime,
+		constructor,
+		constructorStore,
+		dataCallbacks,
+		destructionForeman,
+		callbacksOnce
+		],{});
+	connection.destroyInstance({id: 1});
 });
 
 //!steal-remove-start
