@@ -320,7 +320,6 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 		};
 	};
 	var connection = connect([
-		// dataBehavior,
 		realTime,
 		constructor,
 		constructorStore,
