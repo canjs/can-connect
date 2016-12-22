@@ -299,7 +299,7 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * Updates the instance with the response from [can-connect/connection.updateData].
 		 *
-		 * @signature `connection.createdInstance( instance, props )`
+		 * @signature `connection.updatedInstance( instance, props )`
 		 *
 		 *   Updates the instance with `props` and dispatches a
 		 *   "updated" event on the map and the map's constructor function.
