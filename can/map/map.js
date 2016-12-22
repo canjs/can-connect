@@ -279,13 +279,13 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 
 	// Customize ~Instance actions:
 	var customAction = {
-		// @return Boolean Whether to execute the regular update actions.
+		// @return Boolean Whether to skip the regular update actions.
 		updatedInstance: function(){
 			if (this.updateMap){
 				this.updateMap.apply(this, arguments);
-				return false;
+				return true;
 			}
-			return true;
+			return false;
 		}
 	};
 
