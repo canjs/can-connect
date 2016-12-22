@@ -305,7 +305,15 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 		 *   "updated" event on the map and the map's constructor function.
 		 *
 		 * The update action can be customized by providing connection with `updatedMap` option which
-		 * takes the same two arguments.
+		 * takes the same two arguments:
+		 *
+		 * ```
+		 * connect( [ canMap ], {
+		 *     updatedMap: function( instance, props ){
+		 *         return smartMerge( instance, props );
+		 *     }
+		 * } )
+		 * ```
 		 */
 		"updated",
 		/**
