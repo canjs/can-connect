@@ -277,6 +277,18 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 		}
 	};
 
+	// Customize ~Instance actions:
+	var customAction = {
+		// @return Boolean Whether to execute the regular update actions.
+		updatedInstance: function(){
+			if (this.updateMap){
+				this.updateMap.apply(this, arguments);
+				return false;
+			}
+			return true;
+		}
+	};
+
 	each([
 		/**
 		 * @function can-connect/can/map/map.createdInstance createdInstance
@@ -322,8 +334,13 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 		behavior[funcName+"Instance"] = function (instance, props) {
 			var constructor = instance.constructor;
 
+			var skipUpdate = false;
+			if (customAction[funcName + "Instance"]){
+				skipUpdate = customAction[funcName + "Instance"](instance, props);
+			}
+
 			// Update attributes if attributes have been passed
-			if(props && typeof props === 'object') {
+			if(!skipUpdate && props && typeof props === 'object') {
 				if("set" in instance) {
 					instance.set(isFunction(props.get) ? props.get() : props, this.constructor.removeAttr || false);
 				} else if("attr" in instance) {
