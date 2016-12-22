@@ -28,7 +28,7 @@ var getExpando = function(map, prop) {
 	}
 };
 
-module.exports = connect.behavior("can/map",function(baseConnection){
+var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
 
 	// overwrite
 	var behavior = {
@@ -320,7 +320,6 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 	], function (funcName) {
 		// Each of these is pretty much the same, except for the events they trigger.
 		behavior[funcName+"Instance"] = function (instance, props) {
-			var constructor = instance.constructor;
 
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
@@ -337,18 +336,7 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 				}
 			}
 
-			// triggers change event that bubble's like
-			// handler( 'change','1.destroyed' ). This is used
-			// to remove items on destroyed from Model Lists.
-			// but there should be a better way.
-			canEvent.dispatch.call(instance, {type:funcName, target: instance});
-
-			//!steal-remove-start
-			dev.log("can-connect/can/map/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
-			//!steal-remove-end
-
-			// Call event on the instance's Class
-			canEvent.dispatch.call(constructor, funcName, [instance]);
+			canMapBehaviour.callbackInstanceEvents(funcName, instance);
 		};
 	});
 
@@ -357,6 +345,47 @@ module.exports = connect.behavior("can/map",function(baseConnection){
 
 });
 
+/**
+ * @function can-connect/can/map/map.callbackInstanceEvents callbackInstanceEvents
+ * @parent can-connect/can/map/map.static
+ *
+ * Dispatch events for instance callbacks, e.g. [can-connect/can/map/map.updatedInstance].
+ *
+ * @signature `canMapBehaviour.callbackInstanceEvents( cbName, instance )`
+ *
+ *   Dispatches events in the end of instance callbacks. This static method could be useful for overriding
+ *   instance callbacks. E.g.: to override `updatedInstance` callback:
+ *
+ *   ```
+ *   connect( [ canMap, {
+ *       updatedInstance: function( instance, props ) {
+ *           instance = smartMerge( instance, props );
+ *           canMapBehaviour.callbackInstanceEvents( "updated", instance );
+ *       }
+ *   } ], {} )
+ *   ```
+ *
+ *   @param {String} cbName Callback name prefix, e.g. ("created" | "updated" | "destroyed") to form a string "createdInstance", etc.
+ *   @param {Map} instance A Map instance.
+ */
+canMapBehaviour.callbackInstanceEvents = function (funcName, instance) {
+	var constructor = instance.constructor;
+
+	// triggers change event that bubble's like
+	// handler( 'change','1.destroyed' ). This is used
+	// to remove items on destroyed from Model Lists.
+	// but there should be a better way.
+	canEvent.dispatch.call(instance, {type: funcName, target: instance});
+
+	//!steal-remove-start
+	if (this.id) {
+		dev.log("can-connect/can/map/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
+	}
+	//!steal-remove-end
+
+	// Call event on the instance's Class
+	canEvent.dispatch.call(constructor, funcName, [instance]);
+};
 
 var callCanReadingOnIdRead = true;
 
@@ -737,3 +766,5 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 		}
 	}
 };
+
+module.exports = canMapBehaviour;

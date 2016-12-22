@@ -5,6 +5,7 @@
 @group can-connect/can/map/map.serializers 3 serializers
 @group can-connect/can/map/map.identifiers 4 identifiers
 @group can-connect/can/map/map.instance-callbacks 5 instance callbacks
+@group can-connect/can/map/map.static 6 behaviour static methods
 @parent can-connect.behaviors
 
 Make a connection use a [can-define/map/map] type.
