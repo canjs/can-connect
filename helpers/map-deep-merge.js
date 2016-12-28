@@ -4,16 +4,16 @@ var DefineList = require('can-define/list/list');
 function smartMerge( instance, props ) {
 	console.log('smartMerge here !!!');
 
-	if ( instance instanceof DefineList ) {
+	if( instance instanceof DefineList ) {
 		mergeList( instance, props );
 	} else {
 		mergeInstance( instance, props );
 	}
 }
 
-function mergeInstance (instance, data) {
+function mergeInstance( instance, data ) {
 
-	instance.forEach(function(value, prop){
+	instance.forEach( function( value, prop ){
 		var newValue = data[prop];
 
 		// cases:
@@ -22,12 +22,12 @@ function mergeInstance (instance, data) {
 		// c. primitive
 
 		if( value instanceof DefineList ) { // isArray(newValue)
-			mergeList(value, newValue);
+			mergeList( value, newValue );
 		} else if( typeof newValue === 'object' || typeof value === 'object' ) {
 			var Type = value.constructor;
-			var id = idFromType(Type);
-			var hydrate = Type && Type.connection && Type.connection.makeInstance || function(data){ return new Type(data) };
-			if( id && id(instance) === id(data) ) {
+			var id = idFromType( Type );
+			var hydrate = Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
+			if( id && id( value ) === id( newValue ) ) {
 				mergeInstance( value, newValue )
 			} else {
 				instance[prop] = hydrate( newValue );

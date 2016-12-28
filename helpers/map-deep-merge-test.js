@@ -19,16 +19,16 @@ var QUnit = require('steal-qunit');
 // Orig data:
 var origData = {
 	id: 1,
-	name: 'Feb',
-	osProjects: [ { id: 1, name: 'canjs' }, {id: 2, name: 'jQuery++'} ],
+	month: 'Feb',
+	osProjects: [ { id: 1, title: 'canjs' }, {id: 2, title: 'jQuery++'} ],
 	author: {id: 5, name: 'ilya'}
 };
 
 // Updated data:
 var updatedData = {
 	id: 1,
-	name: 'February',
-	osProjects: [ { id: 1, name: 'CanJS' }, {id: 3, name: 'StealJS'}, {id: 2, name: 'jQuery++'} ],
+	month: 'February',
+	osProjects: [ { id: 1, title: 'CanJS' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ],
 	author: {id: 6, name: 'ilya'}
 };
 
@@ -62,7 +62,7 @@ QUnit.module('helpers map-deep-merge', {
 
 		OSProject = DefineMap.extend({
 			id: {type: 'number'},
-			name: {type: 'string'}
+			title: {type: 'string'}
 		});
 		OSProject.List = DefineList.extend({ '#' : OSProject });
 		OSProject.algebra = new set.Algebra( set.props.id('id') );
@@ -81,12 +81,9 @@ QUnit.module('helpers map-deep-merge', {
 		events = [];
 		canEvent.dispatch = function(ev){
 			console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
-			events.push(JSON.stringify(ev));
+			events.push({type: ev.type, target: ev.target.serialize()});
 			return origEventDispatch.apply(this, arguments);
 		};
-
-		//var item = new ContributionMonth(origData);
-		//debugger
 	},
 	teardown: function(){
 		canEvent.dispatch = origEventDispatch;
@@ -95,21 +92,21 @@ QUnit.module('helpers map-deep-merge', {
 
 QUnit.noop = function(){};
 QUnit.test('smartMerge simple object', function(assert) {
-	events = [];
 	var item = new ContributionMonth({
 		id: 1,
-		name: 'canjs'
+		month: 'feb'
 	});
 	var data = {
 		id: 1,
-		name: 'CanJS'
+		month: 'February'
 	};
 
+	events = [];
 	smartMerge(item, data);
 
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
-	//assert.equal(events.length, 4);
-	console.log('events::', events);
+	assert.equal(events.length, 1, 'should dispatch only one event');
+	assert.deepEqual(events[0].type, 'month', 'should dispatch only "month" event: ' + JSON.stringify(events));
 });
 
 QUnit.test('smartMerge nested objects', function(assert) {
@@ -128,13 +125,17 @@ QUnit.test('smartMerge nested objects', function(assert) {
 
 	events = [];
 	smartMerge(item, data1);
-	assert.deepEqual(item.serialize(), data1, 'nested object merged');
-	//assert.equal(events.length, 4);
+	assert.deepEqual(item.serialize(), data1, 'nested object MERGE');
+	assert.equal(events.length, 1, 'should dispatch only one event: ' + JSON.stringify(events));
+	assert.deepEqual(events[0].type, 'name', 'should dispatch only "name" event');
 
 	events = [];
 	smartMerge(item, data2);
-	assert.deepEqual(item.serialize(), data2, 'nested object replaced');
-	//assert.equal(events.length, 4);
+	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
+	assert.equal(events.length, 3, 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
+	assert.deepEqual(events[0].type, 'id', 'should dispatch "id" event on new Author');
+	assert.deepEqual(events[1].type, 'name', 'should dispatch "name" event on new Author');
+	assert.deepEqual(events[2].type, 'author', 'should dispatch "author" event on contributionMonth');
 
 	console.log('events::', events);
 });
