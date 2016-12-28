@@ -2,7 +2,7 @@ var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var set = require('can-set');
 var fixture = require('can-fixture');
-var event = require("can-event");
+var canEvent = require("can-event");
 
 var connect = require('can-connect');
 var canMap = require('can-connect/can/map/map');
@@ -38,7 +38,7 @@ var updatedData = {
 //contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: 'StealJS'}) ) // 3
 //contributionMonth.author = hydrateInstance( {id: 6, name: 'ilya'} ) // 4
 
-var OSProject, ContributionMonth, origEventDispatch;
+var OSProject, ContributionMonth, origEventDispatch, events;
 
 fixture('PUT /contribution-month/{id}', function(){
 	console.log('fixture here');
@@ -46,17 +46,14 @@ fixture('PUT /contribution-month/{id}', function(){
 });
 
 var canMapMerge = {
-	updatedInstance: function(instance, data){
-		console.log('canMapMerge !!!');
-		smartMerge( instance, data );
-		canMap.callbackInstanceEvents(instance);
+	updatedInstance: function(instance, props){
+		smartMerge( instance, props );
+		canMap.callbackInstanceEvents('updated', instance);
 	}
 };
 
 QUnit.module('helpers map-deep-merge', {
 	setup: function(){
-		console.log('setup!');
-
 		OSProject = DefineMap.extend({
 			id: {type: 'number'},
 			name: {type: 'string'}
@@ -69,41 +66,85 @@ QUnit.module('helpers map-deep-merge', {
 			osProjects: OSProject.List
 		});
 
-		connect([dataUrl, constructor, constructorStore, canMap], {
+		connect([dataUrl, constructor, constructorStore, canMap, canMapMerge], {
 			Map: ContributionMonth,
 			url: 'http://localhost:8080/contribution-month'
 		});
+
+		origEventDispatch = canEvent.dispatch;
+		events = [];
+		canEvent.dispatch = function(ev){
+			console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
+			events.push(JSON.stringify(ev));
+			return origEventDispatch.apply(this, arguments);
+		};
+
+		//var item = new ContributionMonth(origData);
+		//debugger
 	},
 	teardown: function(){
+		canEvent.dispatch = origEventDispatch;
 	}
 });
 
+QUnit.test('smartMerge simple object', function(assert) {
+	events = [];
+	var item = new ContributionMonth({
+		id: 1,
+		name: 'canjs'
+	});
+	var data = {
+		id: 1,
+		name: 'CanJS'
+	};
 
-QUnit.test('smartMerge', function(assert) {
+	smartMerge(item, data);
+
+	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
+	assert.equal(events.length, 4);
+	console.log('events::', events);
+});
+
+QUnit.noop = function(){};
+QUnit.noop('smartMerge', function(assert) {
 	var done = assert.async();
+
+	// Orig data:
+	var origData = {
+		id: 1,
+		name: 'Feb',
+		osProjects: [ { id: 1, name: 'canjs' }, {id: 2, name: 'jQuery++'} ],
+		author: {id: 5, name: 'ilya'}
+	};
+
+	// Updated data:
+	var updatedData = {
+		id: 1,
+		name: 'February',
+		osProjects: [ { id: 1, name: 'CanJS' }, {id: 3, name: 'StealJS'}, {id: 2, name: 'jQuery++'} ],
+		author: {id: 6, name: 'ilya'}
+	};
 
 	var item = new ContributionMonth(origData);
 
-	var events = [];
+	debugger
 
-	var origEventDispatch = event.dispatch;
-	event.dispatch = function(ev){
-		console.log('!!! event.dispatch !!! ' + JSON.stringify(ev), arguments);
-		events.push(JSON.stringify(ev));
-		return origEventDispatch.apply(this, arguments);
-	};
+	events = [];
 
 	//item.set(origData);
 
-	item.save().then(function(a){
-		console.log('saved!', a);
-		event.dispatch = origEventDispatch;
-
+	item.save().then(function(updated){
+		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
 		assert.equal(events.length, 4);
 		console.log('events::', events);
 		done();
+	}).catch(function(e){
+		console.log('Error: ', e);
+		assert.ok(false, 'should not throw an exception');
+		done();
 	});
 });
+
 //QUnit.test('mergeInstance', function(assert) {
 //	var done = assert.async();
 //	assert.ok(false);
