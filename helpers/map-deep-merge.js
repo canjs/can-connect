@@ -53,6 +53,7 @@ function mergeList (list, data) {
 	var identity = function(a, b){
 		var eq = id(a) === id(b);
 		if(eq) {
+			// on the instances that weren't "patched" we need to call mergeInstance(). Case #2
 			mergeInstance( a, b );
 		}
 		return eq;
@@ -65,30 +66,54 @@ function mergeList (list, data) {
 	}
 
 	// apply patches #3
-	// any insertion ... use hydrator probably?
-
-	// on the instances that weren't "patched" ... we need to call mergeInstance(). Case #2
+	// for any insertion use hydrator
+	patches.forEach(function(patch){
+		applyPatch( list, patch, hydrate );
+	});
 }
 
-function typeFromList(list){
+function typeFromList( list ){
 	return list && list._define && list._define.definitions["#"] && list._define.definitions["#"].Type;
 }
-function idFromType(Type){
+function idFromType( Type ){
 	return Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id && function(o){
 			return o[Type.algebra.clauses.id.id];
 		} || function(o){
 			return o.id || o._id;
 		};
 }
-function isArray(o){
+function isArray( o ){
 	return Object.prototype.toString.call(o) === '[object Array]';
 }
 function hydratorFromType( Type ){
 	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
 }
 
+
+// TODO: move this to can-util
+function applyPatch( list, patch, makeInstance ){
+	// array.splice(start, deleteCount, item1, item2, ...)
+	// patch = {index: 1, deleteCount: 0, insert: [1.5]}
+	var insert = makeInstance && patch.insert.map( makeInstance ) || patch.insert;
+
+	// TODO: Without spread operator ?
+	// var args = [patch.index, patch.deleteCount].concat( insert );
+	// list.splice.apply(list, args);
+
+	list.splice( patch.index, patch.deleteCount, ...insert );
+
+	return list;
+}
+// TODO: maybe name this method just `patch`?
+function applyPatchPure( list, patch, makeInstance ){
+	var copy = list.slice();
+	return applyPatch( copy, patch, makeInstance );
+}
+
 module.exports = {
 	smartMerge,
 	mergeInstance,
-	mergeList
+	mergeList,
+	applyPatch,
+	applyPatchPure
 };
