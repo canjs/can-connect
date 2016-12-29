@@ -48,69 +48,53 @@ QUnit.test('applyPatchPure', function(assert) {
 	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
 });
 
-// Orig data:
-var origData = {
-	id: 1,
-	month: 'Feb',
-	osProjects: [ { id: 1, title: 'canjs' }, {id: 2, title: 'jQuery++'} ],
-	author: {id: 5, name: 'ilya'}
-};
-
-// Updated data:
-var updatedData = {
-	id: 1,
-	month: 'February',
-	osProjects: [ { id: 1, title: 'CanJS' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ],
-	author: {id: 6, name: 'ilya'}
-};
-
+//  Orig data:
+//	var origData = {
+//		id: 1,
+//		month: 'Feb',
+//		osProjects: [ { id: 1, title: 'canjs' }, {id: 2, title: 'jQuery++'} ],
+//		author: {id: 5, name: 'ilya'}
+//	};
+//
+//  Updated data:
+//	var updatedData = {
+//		id: 1,
+//		month: 'February',
+//		osProjects: [ { id: 1, title: 'CanJS' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ],
+//		author: {id: 6, name: 'ilya'}
+//	};
+//
 // List of changes that should be applied on update:
-//contributionMonth.name = 'February'; // 1
-//contributionMonth.osProjects[0].name = 'CanJS'; // 2
-//contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: 'StealJS'}) ) // 3
-//contributionMonth.author = hydrateInstance( {id: 6, name: 'ilya'} ) // 4
+//	contributionMonth.name = 'February'; // 1
+//	contributionMonth.osProjects[0].name = 'CanJS'; // 2
+//	contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: 'StealJS'}) ) // 3
+//	contributionMonth.author = hydrateInstance( {id: 6, name: 'ilya'} ) // 4
 
 var OSProject, Author, ContributionMonth, origEventDispatch, events;
 
-fixture('PUT /contribution-month/{id}', function(){
-	console.log('fixture here');
-	return updatedData;
+// Setup:
+Author = DefineMap.extend({
+	id: {type: 'number'},
+	name: {type: 'string'}
 });
+Author.algebra = new set.Algebra( set.props.id('id') );
 
-var canMapMerge = {
-	updatedInstance: function(instance, props){
-		smartMerge( instance, props );
-		canMap.callbackInstanceEvents('updated', instance);
-	}
-};
+OSProject = DefineMap.extend({
+	id: {type: 'number'},
+	title: {type: 'string'}
+});
+OSProject.List = DefineList.extend({ '#' : OSProject });
+OSProject.algebra = new set.Algebra( set.props.id('id') );
+
+ContributionMonth = DefineMap.extend({
+	author: Author,
+	osProjects: OSProject.List
+});
 
 QUnit.module('helpers map-deep-merge', {
 	setup: function(){
-		Author = DefineMap.extend({
-			id: {type: 'number'},
-			name: {type: 'string'}
-		});
-		Author.algebra = new set.Algebra( set.props.id('id') );
-
-		OSProject = DefineMap.extend({
-			id: {type: 'number'},
-			title: {type: 'string'}
-		});
-		OSProject.List = DefineList.extend({ '#' : OSProject });
-		OSProject.algebra = new set.Algebra( set.props.id('id') );
-
-		ContributionMonth = DefineMap.extend({
-			author: Author,
-			osProjects: OSProject.List
-		});
-
-		connect([dataUrl, constructor, constructorStore, canMap, canMapMerge], {
-			Map: ContributionMonth,
-			url: 'http://localhost:8080/contribution-month'
-		});
-
-		origEventDispatch = canEvent.dispatch;
 		events = [];
+		origEventDispatch = canEvent.dispatch;
 		canEvent.dispatch = function(ev){
 			console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
 			var eventInfo = {
@@ -161,16 +145,12 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	events = [];
 	smartMerge(item, data1);
 	assert.deepEqual(item.serialize(), data1, 'nested object MERGE');
-	assert.equal(events.length, 1, 'should dispatch only one event: ' + JSON.stringify(events));
-	assert.deepEqual(events[0].type, 'name', 'should dispatch only "name" event');
+	assert.deepEqual(events.map(e => e.type), ['name'], 'should dispatch only "name" event');
 
 	events = [];
 	smartMerge(item, data2);
 	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
-	assert.equal(events.length, 3, 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
-	assert.deepEqual(events[0].type, 'id', 'should dispatch "id" event on new Author');
-	assert.deepEqual(events[1].type, 'name', 'should dispatch "name" event on new Author');
-	assert.deepEqual(events[2].type, 'author', 'should dispatch "author" event on contributionMonth');
+	assert.deepEqual(events.map(e => e.type), ['id','name','author'], 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
 
 	console.log('events::', events);
 });
@@ -186,8 +166,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	events = [];
 	smartMerge(item, data);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
-	assert.equal(events.length, 1, 'should dispatch only one event');
-	assert.deepEqual(events[0].type, 'title', 'should dispatch only "title" event: ' + JSON.stringify(events));
+	assert.deepEqual(events.map(e => e.type), ['title'], 'should dispatch only "title" event: ' + JSON.stringify(events));
 
 	item = new ContributionMonth({
 		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
@@ -199,12 +178,26 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	smartMerge(item, data);
 	console.log('events after smartMerge: ', events);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
-	assert.equal(events.length, 4, 'should dispatch 4 events: id, title (for the new item); add, length (for insertion)');
-	assert.deepEqual(events.map(a => a.type), ['id','title','add','length'], 'should dispatch correct events: ' + JSON.stringify(events));
+	assert.deepEqual(events.map(a => a.type), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
 });
+
 
 QUnit.noop('smartMerge can-connect behaviour', function(assert) {
 	var done = assert.async();
+
+	// Fixtures for connection
+	fixture('PUT /contribution-month/{id}', function(){
+		console.log('fixture here');
+		return updatedData;
+	});
+
+	// Behaviour that uses the smartMerge
+	var canMapMergeBehaviour = {
+		updatedInstance: function(instance, props){
+			smartMerge( instance, props );
+			canMap.callbackInstanceEvents('updated', instance);
+		}
+	};
 
 	// Orig data:
 	var origData = {
@@ -222,13 +215,14 @@ QUnit.noop('smartMerge can-connect behaviour', function(assert) {
 		author: {id: 6, name: 'ilya'}
 	};
 
+	connect([dataUrl, constructor, constructorStore, canMap, canMapMergeBehaviour], {
+		Map: ContributionMonth,
+		url: 'http://localhost:8080/contribution-month'
+	});
+
 	var item = new ContributionMonth(origData);
 
-	debugger
-
 	events = [];
-
-	//item.set(origData);
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
