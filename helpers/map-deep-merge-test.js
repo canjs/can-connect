@@ -81,7 +81,11 @@ QUnit.module('helpers map-deep-merge', {
 		events = [];
 		canEvent.dispatch = function(ev){
 			console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
-			events.push({type: ev.type, target: ev.target.serialize()});
+			var eventInfo = {
+				type: ev.type || ev,
+				target: ev.target && ev.target.serialize()
+			};
+			events.push(eventInfo);
 			return origEventDispatch.apply(this, arguments);
 		};
 	},
@@ -140,7 +144,26 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	console.log('events::', events);
 });
 
-QUnit.noop('smartMerge', function(assert) {
+QUnit.test('smartMerge list of maps', function(assert) {
+	var item = new ContributionMonth({
+		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
+	});
+	var data1 = {
+		osProjects: [ { id: 1, title: 'CanJS' }, {id: 2, title: 'jQuery++'} ]
+	};
+	var data2 = {
+		osProjects: [ { id: 1, title: 'CanJS' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ]
+	};
+
+	events = [];
+	smartMerge(item, data1);
+
+	assert.deepEqual(item.serialize(), data1, 'updated data should be correct');
+	assert.equal(events.length, 1, 'should dispatch only one event');
+	assert.deepEqual(events[0].type, 'title', 'should dispatch only "title" event: ' + JSON.stringify(events));
+});
+
+QUnit.noop('smartMerge can-connect behaviour', function(assert) {
 	var done = assert.async();
 
 	// Orig data:

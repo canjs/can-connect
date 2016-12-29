@@ -1,9 +1,8 @@
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
+var diff = require('can-util/js/diff/diff');
 
 function smartMerge( instance, props ) {
-	console.log('smartMerge here !!!');
-
 	if( instance instanceof DefineList ) {
 		mergeList( instance, props );
 	} else {
@@ -21,19 +20,25 @@ function mergeInstance( instance, data ) {
 		// b. map
 		// c. primitive
 
-		if( value instanceof DefineList ) { // isArray(newValue)
+		if( value instanceof DefineList || isArray( newValue ) ) {
+
 			mergeList( value, newValue );
+
 		} else if( typeof newValue === 'object' || typeof value === 'object' ) {
+
 			var Type = value.constructor;
 			var id = idFromType( Type );
-			var hydrate = Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
+			var hydrate = hydratorFromType( Type );
 			if( id && id( value ) === id( newValue ) ) {
 				mergeInstance( value, newValue )
 			} else {
 				instance[prop] = hydrate( newValue );
 			}
+
 		} else {
+
 			instance[prop] = newValue;
+
 		}
 
 		// handle #4
@@ -43,8 +48,6 @@ function mergeInstance( instance, data ) {
 }
 
 function mergeList (list, data) {
-	return data;
-
 	var Type = typeFromList(list);
 	var id = idFromType(Type);
 	var identity = function(a, b){
@@ -54,8 +57,12 @@ function mergeList (list, data) {
 		}
 		return eq;
 	};
-	var hydrator = Type && Type.connection.makeInstance || function(data){ return new Type(data) };
-	var patches = typeof diff !== 'undefined' && diff( list, data , identity );
+	var hydrate = hydratorFromType( Type );
+	var patches = diff( list, data , identity );
+
+	if (!patches.length){
+		return list;
+	}
 
 	// apply patches #3
 	// any insertion ... use hydrator probably?
@@ -75,6 +82,9 @@ function idFromType(Type){
 }
 function isArray(o){
 	return Object.prototype.toString.call(o) === '[object Array]';
+}
+function hydratorFromType( Type ){
+	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
 }
 
 module.exports = {
