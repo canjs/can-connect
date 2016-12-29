@@ -226,11 +226,11 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
-		var eventTypes = events.map(e => e.type).filter(notEq('_saving')).filter(notEq('updated'));
+		var eventTypes = events.map(e => e.type).filter(notEq('_saving')).filter(notEq('updated')).sort();
 		assert.equal(eventTypes.length, 9, 'Should dispatch 9 events');
 		assert.deepEqual(
 			eventTypes,
-			['id','name','author','name','id','name','add','length','name'],
+			['id','name',   'name','author',   'name',   'id','name',   'add','length'].sort(),
 			'should dispatch the correct events: ' +
 				'id, name (new Author); ' +
 				'name, author (month update); ' +
