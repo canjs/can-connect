@@ -165,8 +165,8 @@ QUnit.test('smartMerge list of maps', function(assert) {
 
 	events = [];
 	smartMerge(item, data);
-	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
-	assert.deepEqual(events.map(e => e.type), ['title'], 'should dispatch only "title" event: ' + JSON.stringify(events));
+	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the UPDATE');
+	assert.deepEqual(events.map(e => e.type), ['title'], 'should dispatch only "title" event');
 
 	item = new ContributionMonth({
 		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
@@ -177,7 +177,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	events = [];
 	smartMerge(item, data);
 	console.log('events after smartMerge: ', events);
-	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
+	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the INSERT');
 	assert.deepEqual(events.map(a => a.type), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
 });
 
