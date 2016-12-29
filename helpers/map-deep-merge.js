@@ -29,9 +29,12 @@ function mergeInstance( instance, data ) {
 			var Type = value.constructor;
 			var id = idFromType( Type );
 			var hydrate = hydratorFromType( Type );
+
+			// Merge if id is the same:
 			if( id && id( value ) === id( newValue ) ) {
 				mergeInstance( value, newValue )
 			} else {
+				// Instantiate if id is different:
 				instance[prop] = hydrate( newValue );
 			}
 
@@ -40,11 +43,7 @@ function mergeInstance( instance, data ) {
 			instance[prop] = newValue;
 
 		}
-
-		// handle #4
 	});
-
-	// delete properties not in data
 }
 
 function mergeList (list, data) {
@@ -53,7 +52,7 @@ function mergeList (list, data) {
 	var identity = function(a, b){
 		var eq = id(a) === id(b);
 		if(eq) {
-			// on the instances that weren't "patched" we need to call mergeInstance(). Case #2
+			// If id is the same we merge data in. Case #2
 			mergeInstance( a, b );
 		}
 		return eq;
@@ -61,12 +60,12 @@ function mergeList (list, data) {
 	var hydrate = hydratorFromType( Type );
 	var patches = diff( list, data , identity );
 
-	// There are no patches if data contains only updates for all of the existing items:
+	// If there are no patches then data contains only updates for all of the existing items, and we just leave.
 	if (!patches.length){
 		return list;
 	}
 
-	// Apply patches #3. For any insertion use a hydrator.
+	// Apply patches (add new, remove) #3. For any insertion use a hydrator.
 	patches.forEach(function(patch){
 		applyPatch( list, patch, hydrate );
 	});
