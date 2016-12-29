@@ -175,29 +175,32 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	console.log('events::', events);
 });
 
-QUnit.noop('smartMerge list of maps', function(assert) {
+QUnit.test('smartMerge list of maps', function(assert) {
 	var item = new ContributionMonth({
 		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
 	});
-	var data1 = {
+	var data = {
 		osProjects: [ { id: 1, title: 'CanJS' }, {id: 2, title: 'jQuery++'} ]
 	};
-	var data2 = {
-		osProjects: [ { id: 1, title: 'CanJS' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ]
+
+	events = [];
+	smartMerge(item, data);
+	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
+	assert.equal(events.length, 1, 'should dispatch only one event');
+	assert.deepEqual(events[0].type, 'title', 'should dispatch only "title" event: ' + JSON.stringify(events));
+
+	item = new ContributionMonth({
+		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
+	});
+	data = {
+		osProjects: [ { id: 1, title: 'can' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ]
 	};
-
 	events = [];
-	smartMerge(item, data1);
-	assert.deepEqual(item.serialize(), data1, 'updated data should be correct');
-	assert.equal(events.length, 1, 'should dispatch only one event');
-	assert.deepEqual(events[0].type, 'title', 'should dispatch only "title" event: ' + JSON.stringify(events));
-
-	events = [];
-	smartMerge(item, data2);
+	smartMerge(item, data);
 	console.log('events after smartMerge: ', events);
-	assert.deepEqual(item.serialize(), data2, 'updated data should be correct');
-	assert.equal(events.length, 1, 'should dispatch only one event');
-	assert.deepEqual(events[0].type, 'title', 'should dispatch only "title" event: ' + JSON.stringify(events));
+	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
+	assert.equal(events.length, 4, 'should dispatch 4 events: id, title (for the new item); add, length (for insertion)');
+	assert.deepEqual(events.map(a => a.type), ['id','title','add','length'], 'should dispatch correct events: ' + JSON.stringify(events));
 });
 
 QUnit.noop('smartMerge can-connect behaviour', function(assert) {

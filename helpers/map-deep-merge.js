@@ -61,12 +61,12 @@ function mergeList (list, data) {
 	var hydrate = hydratorFromType( Type );
 	var patches = diff( list, data , identity );
 
+	// There are no patches if data contains only updates for all of the existing items:
 	if (!patches.length){
 		return list;
 	}
 
-	// apply patches #3
-	// for any insertion use hydrator
+	// Apply patches #3. For any insertion use a hydrator.
 	patches.forEach(function(patch){
 		applyPatch( list, patch, hydrate );
 	});
