@@ -182,7 +182,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 });
 
 
-QUnit.noop('smartMerge can-connect behaviour', function(assert) {
+QUnit.test('smartMerge can-connect behaviour', function(assert) {
 	var done = assert.async();
 
 	// Fixtures for connection
@@ -226,8 +226,18 @@ QUnit.noop('smartMerge can-connect behaviour', function(assert) {
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
-		assert.equal(events.length, 4);
-		console.log('events::', events);
+		var eventTypes = events.map(e => e.type).filter(notEq('_saving')).filter(notEq('updated'));
+		assert.equal(eventTypes.length, 9, 'Should dispatch 9 events');
+		assert.deepEqual(
+			eventTypes,
+			['id','name','author','name','id','name','add','length','name'],
+			'should dispatch the correct events: ' +
+				'id, name (new Author); ' +
+				'name, author (month update); ' +
+				'name (project update); ' +
+				'id, name (new project); ' +
+				'add, length (projects) ' +
+				JSON.stringify(eventTypes));
 		done();
 	}).catch(function(e){
 		console.log('Error: ', e);
@@ -235,6 +245,12 @@ QUnit.noop('smartMerge can-connect behaviour', function(assert) {
 		done();
 	});
 });
+
+function notEq(a){
+	return function(b){
+		return a !== b;
+	}
+}
 
 //QUnit.test('mergeInstance', function(assert) {
 //	var done = assert.async();
