@@ -28,7 +28,7 @@ var getExpando = function(map, prop) {
 	}
 };
 
-var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
+var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 
 	// overwrite
 	var behavior = {
@@ -336,7 +336,7 @@ var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
 				}
 			}
 
-			canMapBehaviour.callbackInstanceEvents(funcName, instance);
+			canMapBehavior.callbackInstanceEvents(funcName, instance);
 		};
 	});
 
@@ -351,7 +351,7 @@ var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
  *
  * Dispatch events for instance callbacks, e.g. [can-connect/can/map/map.updatedInstance].
  *
- * @signature `canMapBehaviour.callbackInstanceEvents( cbName, instance )`
+ * @signature `canMapBehavior.callbackInstanceEvents( cbName, instance )`
  *
  *   Dispatches events in the end of instance callbacks. This static method could be useful for overriding
  *   instance callbacks. E.g.: to override `updatedInstance` callback:
@@ -360,7 +360,7 @@ var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
  *   connect( [ canMap, {
  *       updatedInstance: function( instance, props ) {
  *           instance = smartMerge( instance, props );
- *           canMapBehaviour.callbackInstanceEvents( "updated", instance );
+ *           canMapBehavior.callbackInstanceEvents( "updated", instance );
  *       }
  *   } ], {} )
  *   ```
@@ -368,7 +368,7 @@ var canMapBehaviour = connect.behavior("can/map",function(baseConnection){
  *   @param {String} cbName Callback name prefix, e.g. ("created" | "updated" | "destroyed") to form a string "createdInstance", etc.
  *   @param {Map} instance A Map instance.
  */
-canMapBehaviour.callbackInstanceEvents = function (funcName, instance) {
+canMapBehavior.callbackInstanceEvents = function (funcName, instance) {
 	var constructor = instance.constructor;
 
 	// triggers change event that bubble's like
@@ -767,4 +767,4 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 	}
 };
 
-module.exports = canMapBehaviour;
+module.exports = canMapBehavior;

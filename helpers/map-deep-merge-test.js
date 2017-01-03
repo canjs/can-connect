@@ -10,43 +10,14 @@ var dataUrl = require('can-connect/data/url/url');
 var constructor = require('can-connect/constructor/constructor');
 var constructorStore = require('can-connect/constructor/store/store');
 
-var smartMerge = require('./map-deep-merge').smartMerge;
+var smartMerge = require('./map-deep-merge');
 var applyPatch = require('./map-deep-merge').applyPatch;
-var applyPatchPure = require('./map-deep-merge').applyPatchPure;
-var mergeInstance = require('./map-deep-merge').mergeInstance;
-var mergeList = require('./map-deep-merge').mergeList;
+var applyPatchPure = smartMerge.applyPatchPure;
+var mergeInstance = smartMerge.mergeInstance;
+var mergeList = smartMerge.mergeList;
 
 var QUnit = require('steal-qunit');
 QUnit.noop = function(){};
-
-// TODO: move this to can-util
-QUnit.test('applyPatch', function(assert) {
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]}
-	), [1,4,2,3], 'Patch insert' );
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 2, insert: [4]}
-	), [1,4], 'Patch delete/insert');
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]},
-		a => a * 10
-	), [1,40,2,3], 'Patch with makeInstance');
-});
-QUnit.test('applyPatchPure', function(assert) {
-	var list = [1,2,3];
-	var patch = {index: 1, deleteCount: 2, insert: [4]};
-	var patchedList = applyPatchPure( list, patch );
-
-	assert.deepEqual( patchedList, [1,4], 'Patched correctly' );
-	assert.notEqual( list, patchedList, 'Patched list does not reference orig list' );
-	// make sure the original array was not mutated:
-	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
-});
 
 //  Orig data:
 //	var origData = {
@@ -145,12 +116,12 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	events = [];
 	smartMerge(item, data1);
 	assert.deepEqual(item.serialize(), data1, 'nested object MERGE');
-	assert.deepEqual(events.map(e => e.type), ['name'], 'should dispatch only "name" event');
+	assert.deepEqual(events.map( prop('type') ), ['name'], 'should dispatch only "name" event');
 
 	events = [];
 	smartMerge(item, data2);
 	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
-	assert.deepEqual(events.map(e => e.type), ['id','name','author'], 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
+	assert.deepEqual(events.map( prop('type') ), ['id','name','author'], 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
 
 	console.log('events::', events);
 });
@@ -166,7 +137,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	events = [];
 	smartMerge(item, data);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the UPDATE');
-	assert.deepEqual(events.map(e => e.type), ['title'], 'should dispatch only "title" event');
+	assert.deepEqual(events.map( prop('type') ), ['title'], 'should dispatch only "title" event');
 
 	item = new ContributionMonth({
 		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
@@ -178,7 +149,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	smartMerge(item, data);
 	console.log('events after smartMerge: ', events);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the INSERT');
-	assert.deepEqual(events.map(a => a.type), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
+	assert.deepEqual(events.map( prop('type') ), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
 });
 
 
@@ -217,7 +188,7 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 
 	connect([dataUrl, constructor, constructorStore, canMap, canMapMergeBehaviour], {
 		Map: ContributionMonth,
-		url: 'http://localhost:8080/contribution-month'
+		url: 'localhost:8080/contribution-month'
 	});
 
 	var item = new ContributionMonth(origData);
@@ -226,7 +197,7 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
-		var eventTypes = events.map(e => e.type).filter(notEq('_saving')).filter(notEq('updated')).sort();
+		var eventTypes = events.map(prop('type')).filter(notEq('_saving')).filter(notEq('updated')).sort();
 		assert.equal(eventTypes.length, 9, 'Should dispatch 9 events');
 		assert.deepEqual(
 			eventTypes,
@@ -246,9 +217,42 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 	});
 });
 
+QUnit.test('applyPatch', function(assert) {
+	assert.deepEqual( applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 0, insert: [4]}
+	), [1,4,2,3], 'Patch insert' );
+
+	assert.deepEqual( applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 2, insert: [4]}
+	), [1,4], 'Patch delete/insert');
+
+	assert.deepEqual( applyPatch(
+		[1,2,3],
+		{index: 1, deleteCount: 0, insert: [4]},
+		function(a) { return a * 10 }
+	), [1,40,2,3], 'Patch with makeInstance');
+});
+QUnit.test('applyPatchPure', function(assert) {
+	var list = [1,2,3];
+	var patch = {index: 1, deleteCount: 2, insert: [4]};
+	var patchedList = applyPatchPure( list, patch );
+
+	assert.deepEqual( patchedList, [1,4], 'Patched correctly' );
+	assert.notEqual( list, patchedList, 'Patched list does not reference orig list' );
+	// make sure the original array was not mutated:
+	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
+});
+
 function notEq(a){
 	return function(b){
 		return a !== b;
+	}
+}
+function prop(prop){
+	return function(o){
+		return o[prop];
 	}
 }
 

@@ -1,7 +1,22 @@
-var DefineMap = require('can-define/map/map');
+//	___________        .___
+//	\__    ___/___   __| _/____
+//	  |    | /  _ \ / __ |/  _ \
+//	  |    |(  <_> ) /_/ (  <_> )
+//	  |____| \____/\____ |\____/
+//						\/
+//
+// TODO: This implementation deeply depends on `can-define/map/` and `can-define/list/`.
+// Track the issue `https://github.com/canjs/canjs/issues/2931` to figure out how to apply smartMerge
+// to regular objects and arrays.
+
 var DefineList = require('can-define/list/list');
 var diff = require('can-util/js/diff/diff');
 
+/*
+ * Main method exported by the module.
+ * @param {can-define/map/map | can-define/list/list} instance Instance to apply smartMerge to.
+ * @param {Object} props Data to be merged to the provided instance.
+ */
 function smartMerge( instance, props ) {
 	if( instance instanceof DefineList ) {
 		mergeList( instance, props );
@@ -20,7 +35,7 @@ function mergeInstance( instance, data ) {
 		// b. map
 		// c. primitive
 
-		if( value instanceof DefineList || isArray( newValue ) ) {
+		if( value instanceof DefineList || Array.isArray( newValue ) ) {
 
 			mergeList( value, newValue );
 
@@ -81,38 +96,30 @@ function idFromType( Type ){
 			return o.id || o._id;
 		};
 }
-function isArray( o ){
-	return Object.prototype.toString.call(o) === '[object Array]';
-}
 function hydratorFromType( Type ){
 	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
 }
 
 
-// TODO: move this to can-util
 function applyPatch( list, patch, makeInstance ){
-	// array.splice(start, deleteCount, item1, item2, ...)
-	// patch = {index: 1, deleteCount: 0, insert: [1.5]}
+	// Splice signature compared to patch:
+	//   array.splice(start, deleteCount, item1, item2, ...)
+	//   patch = {index: 1, deleteCount: 0, insert: [1.5]}
 	var insert = makeInstance && patch.insert.map( makeInstance ) || patch.insert;
 
-	// TODO: Without spread operator ?
-	// var args = [patch.index, patch.deleteCount].concat( insert );
-	// list.splice.apply(list, args);
-
-	list.splice( patch.index, patch.deleteCount, ...insert );
+	var args = [patch.index, patch.deleteCount].concat( insert );
+	list.splice.apply(list, args);
 
 	return list;
 }
-// TODO: maybe name this method just `patch`?
 function applyPatchPure( list, patch, makeInstance ){
 	var copy = list.slice();
 	return applyPatch( copy, patch, makeInstance );
 }
 
-module.exports = {
-	smartMerge,
-	mergeInstance,
-	mergeList,
-	applyPatch,
-	applyPatchPure
-};
+module.exports = smartMerge;
+
+smartMerge.mergeInstance = mergeInstance;
+smartMerge.mergeList = mergeList;
+smartMerge.applyPatch = applyPatch;
+smartMerge.applyPatchPure = applyPatchPure;
