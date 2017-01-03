@@ -112,7 +112,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * Specify what type of `Map` should be hydrated.
 		 *
-		 * @option {Map} Defaults to [can-util/js/types/types.DefaultMap] if a Map is
+		 * @option {Map} Defaults to [can-types.DefaultMap] if a Map is
 		 * not specified.
 		 *
 		 * @body
@@ -194,7 +194,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @signature `connection.instance( props )`
 		 *
 		 *   Uses the [can-connect/can/map/map._Map] property if available, otherwise
-		 *   creates the [can-util/js/types/types.DefaultMap].
+		 *   creates the [can-types.DefaultMap].
 		 *
 		 *   @param {Object} props The raw instance data.
 		 *   @return {Map} An observable map type.
@@ -299,7 +299,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * Updates the instance with the response from [can-connect/connection.updateData].
 		 *
-		 * @signature `connection.createdInstance( instance, props )`
+		 * @signature `connection.updatedInstance( instance, props )`
 		 *
 		 *   Updates the instance with `props` and dispatches a
 		 *   "updated" event on the map and the map's constructor function.
@@ -703,7 +703,7 @@ var listPrototypeOverwrites = {
 			} else {
 				// Otherwise, set up the list like normal.
 				base.apply(this, arguments);
-			}			
+			}
 		};
 	},
 	_eventSetup: function (base, connection) {
