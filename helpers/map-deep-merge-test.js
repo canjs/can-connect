@@ -67,7 +67,7 @@ QUnit.module('helpers map-deep-merge', {
 		events = [];
 		origEventDispatch = canEvent.dispatch;
 		canEvent.dispatch = function(ev){
-			console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
+			//console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
 			var eventInfo = {
 				type: ev.type || ev,
 				target: ev.target && ev.target.serialize()
