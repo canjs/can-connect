@@ -2,8 +2,12 @@
 // Track the issue `https://github.com/canjs/canjs/issues/2931` to figure out how to apply smartMerge
 // to regular objects and arrays.
 
+var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var diff = require('can-util/js/diff/diff');
+var assign = require("can-util/js/assign/assign");
+var each = require("can-util/js/each/each");
+var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 /**
  * @module {function} can-connect/helpers/map-deep-merge mapDeepMerge
@@ -117,38 +121,45 @@ function smartMerge( instance, props ) {
 }
 
 function mergeInstance( instance, data ) {
+	data = assign({}, data);
 
 	instance.forEach( function( value, prop ){
 		var newValue = data[prop];
-
+		delete data[prop];
 		// cases:
 		// a. list
 		// b. map
 		// c. primitive
-
-		if( value instanceof DefineList || Array.isArray( newValue ) ) {
+		var newValueIsArray = Array.isArray( newValue );
+		if( value instanceof DefineList && newValueIsArray ) {
 
 			mergeList( value, newValue );
 
-		} else if( typeof newValue === 'object' || typeof value === 'object' ) {
+		} else if( value instanceof DefineMap && isPlainObject(newValue) && !newValueIsArray) {
 
+			// TODO: the `TYPE` should probably be infered from the `_define` property definition.
 			var Type = value.constructor;
 			var id = idFromType( Type );
 			var hydrate = hydratorFromType( Type );
 
 			// Merge if id is the same:
 			if( id && id( value ) === id( newValue ) ) {
-				mergeInstance( value, newValue )
+				mergeInstance( value, newValue );
 			} else {
 				// Instantiate if id is different:
-				instance[prop] = hydrate( newValue );
+				instance.set(prop, hydrate( newValue ) );
 			}
 
 		} else {
 
-			instance[prop] = newValue;
+			instance.set(prop, newValue );
 
 		}
+	});
+	each(data, function(value, prop){
+		if (prop !== "_cid") {
+            instance.set(prop, value);
+        }
 	});
 }
 

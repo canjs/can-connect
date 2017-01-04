@@ -231,7 +231,7 @@ QUnit.test('applyPatch', function(assert) {
 	assert.deepEqual( applyPatch(
 		[1,2,3],
 		{index: 1, deleteCount: 0, insert: [4]},
-		function(a) { return a * 10 }
+		function(a) { return a * 10; }
 	), [1,40,2,3], 'Patch with makeInstance');
 });
 QUnit.test('applyPatchPure', function(assert) {
@@ -248,13 +248,30 @@ QUnit.test('applyPatchPure', function(assert) {
 function notEq(a){
 	return function(b){
 		return a !== b;
-	}
+	};
 }
 function prop(prop){
 	return function(o){
 		return o[prop];
-	}
+	};
 }
+
+QUnit.test("mergeInstance when properties are removed and added", function(){
+	var map = new DefineMap({a:"A"});
+	mergeInstance(map, {b: "B"});
+
+	QUnit.deepEqual(map.get(), {b: "B"});
+});
+
+QUnit.test("Merging non-defined, but object, types", function(){
+	var first = new Date();
+	var last = new Date();
+	var map = new DefineMap({a: first});
+	mergeInstance(map, {a: last});
+
+	QUnit.equal(map.a, last);
+});
+
 
 //QUnit.test('mergeInstance', function(assert) {
 //	var done = assert.async();
