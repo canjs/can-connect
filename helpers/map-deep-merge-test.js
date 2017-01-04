@@ -272,6 +272,21 @@ QUnit.test("Merging non-defined, but object, types", function(){
 	QUnit.equal(map.a, last);
 });
 
+QUnit.test("use .type for hydrator", function(){
+	var Person = DefineMap.extend({first: "string", last:"string"});
+	var makePerson = function(data) {
+		return new Person(data);
+	};
+	var People = DefineList.extend({
+		"#": {type: makePerson}
+	});
+
+	var people = new People();
+	mergeList(people,[{first: "R", last: "Wheale"},{first: "J", last: "Meyer"}]);
+
+	QUnit.ok(people[0] instanceof Person);
+});
+
 
 //QUnit.test('mergeInstance', function(assert) {
 //	var done = assert.async();

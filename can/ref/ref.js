@@ -162,6 +162,10 @@ var makeRef = function(connection){
 	 * @return {Object}       Instance for the id
 	 */
 	var Ref = function(id, value){
+		if(typeof id === "object") {
+			value = id;
+			id = value[idProp];
+		}
 		// check if this is in the store
 		if(Ref.store.has(id)) {
 			return Ref.store.get(id);
