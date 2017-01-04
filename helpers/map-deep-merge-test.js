@@ -231,7 +231,7 @@ QUnit.test('applyPatch', function(assert) {
 	assert.deepEqual( applyPatch(
 		[1,2,3],
 		{index: 1, deleteCount: 0, insert: [4]},
-		function(a) { return a * 10 }
+		function(a) { return a * 10; }
 	), [1,40,2,3], 'Patch with makeInstance');
 });
 QUnit.test('applyPatchPure', function(assert) {
@@ -248,21 +248,42 @@ QUnit.test('applyPatchPure', function(assert) {
 function notEq(a){
 	return function(b){
 		return a !== b;
-	}
+	};
 }
 function prop(prop){
 	return function(o){
 		return o[prop];
-	}
+	};
 }
 
-//QUnit.test('mergeInstance', function(assert) {
-//	var done = assert.async();
-//	assert.ok(false);
-//	done();
-//});
-//QUnit.test('mergeList', function(assert) {
-//	var done = assert.async();
-//	assert.ok(false);
-//	done();
-//});
+QUnit.test("mergeInstance when properties are removed and added", function(){
+	var map = new DefineMap({a:"A"});
+	mergeInstance(map, {b: "B"});
+
+	QUnit.deepEqual(map.get(), {b: "B"});
+});
+
+QUnit.test("Merging non-defined, but object, types", function(){
+	var first = new Date();
+	var last = new Date();
+	var map = new DefineMap({a: first});
+	mergeInstance(map, {a: last});
+
+	QUnit.equal(map.a, last);
+});
+
+/*
+QUnit.test("use .type for hydrator", function(){
+	var Person = DefineMap.extend({first: "string", last:"string"});
+	var makePerson = function(data) {
+		return new Person(data);
+	};
+	var People = DefineList.extend({
+		"#": {type: makePerson}
+	});
+
+	var people = new People();
+	mergeList(people,[{first: "R", last: "Wheale"},{first: "J", last: "Meyer"}]);
+
+	QUnit.ok(people[0] instanceof Person);
+});*/
