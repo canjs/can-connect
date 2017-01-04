@@ -1,10 +1,3 @@
-//	___________        .___
-//	\__    ___/___   __| _/____
-//	  |    | /  _ \ / __ |/  _ \
-//	  |    |(  <_> ) /_/ (  <_> )
-//	  |____| \____/\____ |\____/
-//						\/
-//
 // TODO: This implementation deeply depends on `can-define/map/` and `can-define/list/`.
 // Track the issue `https://github.com/canjs/canjs/issues/2931` to figure out how to apply smartMerge
 // to regular objects and arrays.
