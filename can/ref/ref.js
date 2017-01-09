@@ -173,7 +173,13 @@ var makeRef = function(connection){
 		// if not, create it
 		this[idProp] = id;
 		if(value) {
-			this._value = connection.hydrateInstance(value);
+			// if the value is already an instance, use it.
+
+			if(value instanceof connection.Map) {
+				this._value = value;
+			} else {
+				this._value = connection.hydrateInstance(value);
+			}
 		}
 
 

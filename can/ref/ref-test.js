@@ -166,3 +166,38 @@ QUnit.asyncTest("using Ref as type", function(){
 		QUnit.start();
 	});
 });
+
+QUnit.test("Ref can be passed an instance of what it references (#236)", function(){
+
+	var Team = DefineMap.extend({
+		id: 'string'
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Team
+	});
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRef: Team.Ref,
+		score: "number"
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Game
+  	});
+
+	// try with team not in the store
+	var team = new Team({id: 5});
+
+	var game = new Game({
+		id: 6,
+		teamRef: team,
+		score: 22
+	});
+
+	QUnit.ok( game.teamRef.value instanceof Team, "is an instance");
+	QUnit.equal(game.teamRef.value, team, "same instance");
+});
