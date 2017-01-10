@@ -10,107 +10,87 @@ var each = require("can-util/js/each/each");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 /**
- * @module {function} can-connect/helpers/map-deep-merge mapDeepMerge
+ * @module {function} can-connect/helpers/map-deep-merge
  * @parent can-connect.modules
  *
  * Perform a smart merge of deeply nested maps and lists.
  *
  * @signature `mapDeepMerge( instance, data )`
  *
- *   Merges changes into the `can-define/map/map` or `can-define/list/list` instance considering the nested structure.
- *   Dispatches update events for the exact changes that needs to be applied.
+ * The `can-connect/helpers/map-deep-merge` module exports a function that
+ * merges nested [can-define/map/map] or [can-define/list/list] instances.
  *
- *   @param {can-define/map/map | can-define/map/list} instance An instance to apply a merge to.
- *   @param {Object | Array} data An object or array with the updated data.
+ *
+ * ```
+ * var mapDeepMerge = require('can-connect/helpers/map-deep-merge');
+ *
+ * var type = new Type({ ... });
+ *
+ * mapDeepMerge(type, { ... });
+ *
+ * var list = new Type.List([ ... ]);
+ * mapDeepMerge(list, [ ... ]);
+ * ```
+ *
+ * To properly know how to merge [can-define] instances of a [can-define/list/list],
+ * `mapDeepMerge` needs to know how to:
+ *
+ * - uniquely identify the instances
+ * - create instances from raw data (hydration)
+ *
+ * `mapDeepMerge` solves this by first identifying the [can-define.types.TypeConstructor]
+ * of the [can-define/list/list.prototype.wildcardItems] (index) property definition.
+ *
+ * With the `Type` known of each item in the list, `mapDeepMerge` looks for for a `Type.algebra` to
+ * specify the unique [can-set.props.id] of `Type` instances.  If `Type.algebra` does
+ * not exist, it looks for an `id` and then `_id` property.
+ *
+ * With the `Type` known of each item in the list, `mapDeepMerge` looks for a `Type.connection.hydrateInstance(props)`
+ * method.  If one does not exist, `new Type(props)` is used instead.
+ *
+ *   @param {can-define/map/map|can-define/map/list} instance An instance to apply a merge to.
+ *   @param {Object|Array} data An object or array with the updated data.
  *
  * @body
  *
  * ## Use
  *
- * This method is especially helpful when is used with `can-connect` models that contain nested data and when
- * the data is live-bound to a template. It makes the update only fire the required minimum changes.
+ * This method is often used by mixing in the [can-connect/can/merge/merge] behavior
+ * into a connection.
  *
- * ## With can-define/map/map
- *
- * Lets say we have a `ContributionMonth` map that contains a list of OS projects and an author:
- *
- * ```js
- *  var DefineMap = require("can-define/map/map");
- *
- *  var Author = DefineMap.extend({});
- *  Author.algebra = new set.Algebra( set.props.id("id") );
- *
- *  var OSProject = DefineMap.extend({});
- *  OSProject.algebra = new set.Algebra( set.props.id("id") );
- *
- *  var ContributionMonth = DefineMap.extend({
- *    author: Author,
- *    osProjects: OSProject.List
- *  });
- *
- * 	var myMonth = new ContributionMonth({
- * 	    id: 1,
- * 	    month: "Feb",
- * 	    osProjects: [ { id: 1, title: "canjs" }, {id: 2, title: "jQuery++"} ],
- * 	    author: {id: 5, name: "ilya"}
- * 	});
- * ```
- *
- * And we receive the following updated data:
+ * It can be used directly to update a [can-define/map/map] instance or
+ * [can-define/list/list] instance with nested data as follows:
  *
  * ```js
- *  var updatedData = {
- *      id: 1,
- *      month: "February",
- *      osProjects: [ { id: 1, title: "CanJS" }, {id: 3, title: "StealJS"}, {id: 2, title: "jQuery++"} ],
- *      author: {id: 6, name: "ilya"}
- *  };
- * ```
+ * var mapDeepMerge = require("can-connect/helpers/map-deep-merge");
  *
- * To make our template engine apply only the minimun changes we need the map to dispatch only the following updates:
- *
- * ```js
- *  contributionMonth.name = "February";                    		// 1 - a property update
- *  contributionMonth.osProjects[0].name = "CanJS";         		// 2 - a property update on an item of a list
- *  contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: "StealJS"}) )     // 3 - item insertion
- *  contributionMonth.author = hydrateInstance( {id: 6, name: "ilya"} )                    // 4 - a map replacement (`id` is different)
- * ```
- *
- * To have this setup we now can update `myMonth` with `updatedData` using our `smartMerge`:
- *
- * ```js
- * var smartMerge = require("can-connect/helpers/map-deep-merge");
- *
- * smartMerge( myMonth, updatedData );
- * ```
- *
- * ### With can-connect
- *
- * We can use our `ContributionMonth` with `can-connect` by creating a new behavior which will perform item update using
- * `can-connect/helpers/map-deep-merge` helper:
- *
- * ```js
- * var connect = require("can-connect");
- * var smartMerge = require("can-connect/helpers/map-deep-merge");
- *
- * var canMapMergeBehaviour = {
- *     updatedInstance: function(instance, props){
- *         smartMerge( instance, props );
- *         canMap.callbackInstanceEvents("updated", instance);
- *     }
- * };
- *
- * connect([dataUrl, constructor, constructorStore, canMap, canMapMergeBehaviour], {
- *     Map: ContributionMonth,
- *     url: "localhost:8080/contribution-month"
+ * var myMonth = new ContributionMonth({
+ *     id: 1,
+ *     month: "Feb",
+ *     osProjects: [ { id: 1, title: "canjs" }, {id: 2, title: "jQuery++"} ],
+ *     author: {id: 5, name: "ilya"}
  * });
  *
- * var item = new ContributionMonth(origData);
- *
- * item.save();
+ * mapDeepMerge( myMonth, {
+ *     id: 1,
+ *     month: "February",
+ *     osProjects: [ { id: 1, title: "CanJS" }, {id: 3, title: "StealJS"}, {id: 2, title: "jQuery++"} ],
+ *     author: {id: 6, name: "ilya"}
+ * });
  * ```
  *
- * Now when we receive the `updatedData` on the save response from server we will get only the minimum changes dispatched.
+ * This will create the following changes:
+ *
+ * ```js
+ * // 1 - a property update
+ * contributionMonth.name = "February";
+ * // 2 - a property update on an item of a list
+ * contributionMonth.osProjects[0].name = "CanJS";
+ * // 3 - item insertion
+ * contributionMonth.osProjects.splice(1,0, hydrateInstance({id: 3, name: "StealJS"}) )
+ *  // 4 - a map replacement (`id` is different)
+ * contributionMonth.author = hydrateInstance( {id: 6, name: "ilya"} )
+ * ```
  */
 function smartMerge( instance, props ) {
 	if( instance instanceof DefineList ) {

@@ -41,7 +41,6 @@ Next, call `baseMap` with all of the options needed by the behaviors that `baseM
 
 ```
 var todoConnection = baseMap({
-  idProp: "_id",
   Map: Todo,
   List: TodoList,
   url: "/services/todos",
