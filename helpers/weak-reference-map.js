@@ -23,9 +23,9 @@ var assign = require("can-util/js/assign/assign");
  * wrm.has("1") //-> true
  * wrm.addReference("1", task1);
  * wrm.has("1") //-> true
- * wrm.removeReference("1", task1);
+ * wrm.deleteReference("1");
  * wrm.has("1") //-> true
- * wrm.removeReference("1", task1);
+ * wrm.deleteReference("1");
  * wrm.has("1") //-> false
  * ```
  */
