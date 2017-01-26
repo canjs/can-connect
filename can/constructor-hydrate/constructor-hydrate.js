@@ -76,7 +76,7 @@
 var connect = require("can-connect");
 var Construct = require("can-construct");
 
-module.exports = connect.behavior("can-connect/can/construct-hydrate", function(){
+module.exports = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
 	return {
 		init: function(){
 			var oldSetup = this.Map.prototype.setup;
@@ -86,7 +86,8 @@ module.exports = connect.behavior("can-connect/can/construct-hydrate", function(
 					return new Construct.ReturnValue( connection.hydrateInstance(props) );
 				}
 				return oldSetup.apply(this, arguments);
-			}
+			};
+			baseConnect.init.apply(this, arguments);
 		}
 	}
 });
