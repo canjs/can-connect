@@ -28,10 +28,10 @@ QUnit.test("basics", function(){
 
 	myPage.hub = {id: 1, name: 'One'};
 	HubConnection.addInstanceReference(myPage.hub);
-	QUnit.equal(myPage.hub._cid, HubConnection.instanceStore.get(1)._cid, 'CID should match');
+	QUnit.equal(myPage.hub, HubConnection.instanceStore.get(1), 'Should be the same instance');
 
 	myPage.hub2 = {id: 1, name: 'OnePlus'};
-	QUnit.equal(myPage.hub2._cid, HubConnection.instanceStore.get(1)._cid, 'CID of the 2nd property should match');
-	QUnit.equal(myPage.hub, myPage.hub2, 'Both properties refer to the same instance');
+	QUnit.equal(myPage.hub2, HubConnection.instanceStore.get(1), 'Should also be the same instance');
+	QUnit.equal(myPage.hub2, myPage.hub, 'Both properties refer to the same instance');
 	QUnit.equal(myPage.hub.name, 'OnePlus', 'The name of the 1st property should be changed since its the same instance now');
 });

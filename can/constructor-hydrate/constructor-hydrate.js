@@ -2,7 +2,7 @@
  * @module {connect.Behavior} can-connect/can/constructor-hydrate/constructor-hydrate
  * @parent can-connect.behaviors
  *
- * Persists instances with the same id.
+ * Always check the [can-connect/constructor/store/store.instanceStore] when creating new instances of the connected [can-connect/can/map/map._Map] type.
  *
  * @signature `constructorHydrate( baseConnection )`
  *
@@ -16,49 +16,49 @@
  *
  * ## Use
  *
- * This behavior could be useful if `Type` converters of [can-define/map/map] are used in multiple places of your app.
+ * This behavior is useful if `Type` converters of [can-define/map/map] are used in multiple places of your app.
  * In which case if a property is set with an id of an already created instance then the connection behaviour will
- * check [can-connect/constructor/store]. If there is already an instance with the same id then it will be returned
- * instead of a new object.
+ * check [can-connect/constructor/store/store.instanceStore]. If there is already an instance with the same id
+ * then it will be returned instead of a new object.
  *
  * Let's say we have the following page state with two properties which are of type `Student`:
- * ```javascript
- * 	const myPage = new (DefineMap.extend({
- * 	    student: { Type: Student },
- * 	    teamLead: { Type: Student },
- * 	}));
+ * ```js
+ * var myPage = new (DefineMap.extend({
+ *     student: { Type: Student },
+ * 	   teamLead: { Type: Student },
+ * }));
  * ```
  *
  * The type `Student` is a DefineMap with `can-connect` capabilities:
- * ```javascript
- * 	const Student = DefineMap.extend({});
- * 	Student.List = DefineList.extend({
- * 	    '#': { Type: Student }
- * 	});
+ * ```js
+ * var Student = DefineMap.extend({});
+ * Student.List = DefineList.extend({
+ *     '#': { Type: Student }
+ * });
  *
- * 	const StudentConnection = connect([
- * 	    require("can-connect/url"),
- * 	    require("can-connect/constructorBehavior"),
- * 	    require("can-connect/constructorStore"),
- * 	    require("can-connect/mapBehavior"),
- * 	    require("can-connect/hydrateBehavior"),
- * 	], {
- * 	    Map: Student,
- * 	    List: Student.List,
- * 	    url: "api/students"
- * 	});
+ * Student.connection = connect([
+ * 	   require("can-connect/data/url/url"),
+ * 	   require("can-connect/constructor/constructor"),
+ * 	   require("can-connect/constructor/store/store"),
+ * 	   require("can-connect/can/map/map"),
+ * 	   require("can-connect/can/constructor-hydrate/constructor-hydrate"),
+ * ], {
+ * 	   Map: Student,
+ * 	   List: Student.List,
+ * 	   url: "api/students"
+ * });
  * ```
  *
- * Now lets say your application loads `student` in a regular way using `Student model` but it gets data
- * of `teamLead` from somewhere else. Also let's the team lead is the same person as student:
+ * Now lets say your application loads `student` in a regular way using `Student.get()`, and it gets data
+ * for `teamLead` from somewhere else. Also let's the team lead is the same person as student:
  *
- * ```javascript
- * myPage.student = Student.get(1);
+ * ```js
+ * myPage.student = Student.get({id: 1});
  *
- * myPage.loadTeamLead().then( person => myPage.teamLead = person );
+ * myPage.loadTeamLead().then( function(person){ myPage.teamLead = person; } );
  * ```
  *
- * If we did not use the `hydrateBehavior` we would end up with two instances of `Student` with the same id.
+ * Without [can-connect/can/constructor-hydrate/constructor-hydrate] we would end up with two instances of `Student` with the same id.
  * Also, the `teamLead` would not be referencing an instance that is stored in connection's `instanceStore`
  * and thus will loose real-time updates if [can-connect/real-time/real-time] was used.
  *
@@ -66,8 +66,8 @@
  * it will return the existing instance and give it to `teamLead`. Now both `myPage.student` and `myPage.teamLead`
  * are referencing the same instance:
  *
- * ```javascript
- * const instanceStore = StudentConnection.instanceStore;
+ * ```js
+ * var instanceStore = Student.connection.instanceStore;
  * myPage.student === myPage.teamLead;                           // => true
  * myPage.teamLead === instanceStore.get( myPage.teamLead.id );  // => true
  * ```
