@@ -1,5 +1,5 @@
 /**
- * @module {connect.Behavior} can-connect/constructor/hydrate/hydrate
+ * @module {connect.Behavior} can-connect/can/constructor-hydrate/constructor-hydrate
  * @parent can-connect.behaviors
  */
 
