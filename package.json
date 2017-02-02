@@ -29,6 +29,7 @@
   "devDependencies": {
     "can-fixture": "^1.0.10",
     "jshint": "^2.9.4",
+    "sinon": "^1.17.7",
     "steal": "^1.0.1",
     "steal-css": "^1.0.0",
     "steal-qunit": "^1.0.0",
