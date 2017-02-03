@@ -170,7 +170,11 @@ var makeRef = function(connection){
 		var storeRef = Ref.store.get(id);
 		if(storeRef) {
 			if (value && !storeRef._value){
-				storeRef._value = connection.hydrateInstance(value);
+				if(value instanceof connection.Map) {
+					storeRef._value = value;
+				} else {
+					storeRef._value = connection.hydrateInstance(value);
+				}
 			}
 			return storeRef;
 		}

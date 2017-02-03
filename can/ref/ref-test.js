@@ -1,5 +1,4 @@
 var QUnit = require("steal-qunit");
-var sinon = require("sinon");
 var DefineMap = require("can-define/map/");
 var DefineList = require("can-define/list/");
 var constructorStore = require("can-connect/constructor/store/");
@@ -200,8 +199,10 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 	var Team = DefineMap.extend({
 		id: "string"
 	});
+	var getDataCallCounter = 0;
 	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
+			getDataCallCounter++;
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
 	}],
@@ -225,15 +226,13 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 
 	var handler = function(){};
 
-	sinon.spy(Team.connection, "getData");
-
 	Game.get({id: 1}).then(function(game){
 		game.on("teamRef", handler);
 		var teamRef = game.teamRef;
 
 		QUnit.ok( typeof teamRef.value === "undefined", "Value should be undefined");
-		QUnit.equal(teamRef.id, 3);
-		QUnit.equal(Team.connection.getData.callCount, 0, "Team getData should NOT be called");
+		QUnit.equal(teamRef.id, 3, "Id should be the correct one");
+		QUnit.equal(getDataCallCounter, 0, "Team getData should NOT be called");
 
 		Game.get({id: 1, populate: "teamRef"}).then(function(game){
 			// Now bind to teamRef:
@@ -241,8 +240,8 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 
 			QUnit.ok( teamRef.value instanceof Team, "Value should be a Team");
 			QUnit.equal(teamRef.value.name, "Cubs", "Name should be Cubs");
-			QUnit.equal(teamRef.id, 3);
-			QUnit.equal(Team.connection.getData.callCount, 0, "Team getData should still NOT be called");
+			QUnit.equal(teamRef.id, 3, "Id should be the correct one");
+			QUnit.equal(getDataCallCounter, 0, "Team getData should still NOT be called");
 			QUnit.start();
 		});
 
