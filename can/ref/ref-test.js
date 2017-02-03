@@ -16,28 +16,22 @@ QUnit.module("can-connect/can/ref",{
 });
 
 QUnit.asyncTest("basics", function(){
-
 	var Team = DefineMap.extend({
 		id: 'string'
 	});
-
-	connect([constructor, constructorStore, canMap, canRef, {
+	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
 	}],
-	{
-		Map: Team
-	});
+	{ Map: Team });
 
 	var Game = DefineMap.extend({
 		id: 'string',
 		teamRef: {type: Team.Ref.type},
 		score: "number"
 	});
-
-	connect([constructor, constructorStore, canMap, canRef,
-	{
+	Game.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getListData: function() {
 			return Promise.resolve({data: [
 	 			{id: 1, score: 50, teamRef: 2},
@@ -53,9 +47,7 @@ QUnit.asyncTest("basics", function(){
 			});
 		}
 	}],
-	{
-		Map: Game
-  	});
+	{ Map: Game });
 
 	var handler = function(){};
 	Game.get({id: 1, populate: "teamRef"}).then(function(game){
@@ -200,4 +192,61 @@ QUnit.test("Ref can be passed an instance of what it references (#236)", functio
 
 	QUnit.ok( game.teamRef.value instanceof Team, "is an instance");
 	QUnit.equal(game.teamRef.value, team, "same instance");
+});
+
+
+QUnit.asyncTest("populate Ref that was already created without a value", function(){
+	var Team = DefineMap.extend({
+		id: "string"
+	});
+	var getDataCallCounter = 0;
+	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+		getData: function() {
+			getDataCallCounter++;
+			return Promise.resolve({ id: 3, name: "Bears" });
+		}
+	}],
+	{ Map: Team });
+
+	var Game = DefineMap.extend({
+		id: "string",
+		teamRef: {type: Team.Ref.type},
+		score: "number"
+	});
+	Game.connection = connect([constructor, constructorStore, canMap, canRef, {
+		getData: function(params) {
+			return Promise.resolve({
+				id: 1,
+				score: 50,
+				teamRef: (params.populate ? {id: 3, name: "Cubs"} : 3)
+			});
+		}
+	}],
+	{ Map: Game });
+
+	var handler = function(){};
+
+	Game.get({id: 1}).then(function(game){
+		game.on("teamRef", handler);
+		var teamRef = game.teamRef;
+
+		QUnit.ok( typeof teamRef.value === "undefined", "Value should be undefined");
+		QUnit.equal(teamRef.id, 3, "Id should be the correct one");
+		QUnit.equal(getDataCallCounter, 0, "Team getData should NOT be called");
+
+		Game.get({id: 1, populate: "teamRef"}).then(function(game){
+			// Now bind to teamRef:
+			game.teamRef.on("value", handler);
+
+			QUnit.ok( teamRef.value instanceof Team, "Value should be a Team");
+			QUnit.equal(teamRef.value.name, "Cubs", "Name should be Cubs");
+			QUnit.equal(teamRef.id, 3, "Id should be the correct one");
+			QUnit.equal(getDataCallCounter, 0, "Team getData should still NOT be called");
+			QUnit.start();
+		});
+
+	}, function(error){
+		QUnit.ok(false, "error");
+		QUnit.start();
+	});
 });

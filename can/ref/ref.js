@@ -167,8 +167,16 @@ var makeRef = function(connection){
 			id = value[idProp];
 		}
 		// check if this is in the store
-		if(Ref.store.has(id)) {
-			return Ref.store.get(id);
+		var storeRef = Ref.store.get(id);
+		if(storeRef) {
+			if (value && !storeRef._value){
+				if(value instanceof connection.Map) {
+					storeRef._value = value;
+				} else {
+					storeRef._value = connection.hydrateInstance(value);
+				}
+			}
+			return storeRef;
 		}
 		// if not, create it
 		this[idProp] = id;
