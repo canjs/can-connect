@@ -35,3 +35,22 @@ QUnit.test("basics", function(){
 	QUnit.equal(myPage.hub2, myPage.hub, 'Both properties refer to the same instance');
 	QUnit.equal(myPage.hub.name, 'OnePlus', 'The name of the 1st property should be changed since its the same instance now');
 });
+
+QUnit.test("Two objects with no id", function(){
+	var Hub = DefineMap.extend({});
+	Hub.List = DefineList.extend({
+		'#': { Type: Hub }
+	});
+	var HubConnection = connect([
+		constructorBehavior,
+		constructorStore,
+		mapBehavior,
+		hydrateBehavior,
+	], { Map: Hub, List: Hub.List });
+
+	var hub1 = new Hub({name: 'One'});
+	HubConnection.addInstanceReference(hub1);
+	QUnit.ok(!HubConnection.instanceStore.has(undefined), 'The instanceStore should not have an "undefined" key item');
+	var hub2 = new Hub({name: 'One'});
+	QUnit.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
+});

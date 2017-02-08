@@ -64,6 +64,9 @@ assign(WeakReferenceMap.prototype,
 	 *   @param  {String} key The key of the item in the store.
 	 */
 	addReference: function(key, item){
+		if (typeof key === 'undefined'){
+			return;
+		}
 		var data = this.set[key];
 		if(!data) {
 			data = this.set[key] = {
