@@ -42,10 +42,10 @@ QUnit.test('createInstance triggers a "created" event', function(assert){
 });
 
 QUnit.test("different methods should not refer to the same last item", function(){
-	var Session = DefineMap.extend({
-		id: 'number',
-		email: 'string'
-	});
+	function Session(data){
+		this.id = data.id;
+		this.email = data.email;
+	}
 	var createdCalled = 0;
 	var destroyedCalled = 0;
 
