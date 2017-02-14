@@ -1,6 +1,6 @@
 module.exports = function(connection) {
 	var ids = [],
-		algebra = this.algebra;
+		algebra = connection.algebra;
 
 	if(algebra && algebra.clauses && algebra.clauses.id) {
 		for(var prop in algebra.clauses.id) {
