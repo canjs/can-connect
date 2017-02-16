@@ -205,3 +205,4 @@ smartMerge.mergeInstance = mergeInstance;
 smartMerge.mergeList = mergeList;
 smartMerge.applyPatch = applyPatch;
 smartMerge.applyPatchPure = applyPatchPure;
+smartMerge.idFromType = idFromType;
