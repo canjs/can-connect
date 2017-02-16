@@ -173,7 +173,8 @@ function typeFromList( list ){
 }
 function idFromType( Type ){
 	return Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id && function(o){
-			return o[Type.algebra.clauses.id.id];
+			var idProp = Object.keys(Type.algebra.clauses.id)[0];
+			return o[idProp];
 		} || function(o){
 			return o.id || o._id;
 		};
