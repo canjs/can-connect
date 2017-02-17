@@ -218,6 +218,26 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 	});
 });
 
+QUnit.test('smartMerge a list of items which type has a connection', function(assert){
+	var Car = DefineMap.extend({
+		vin: 'number',
+		brand: 'string'
+	});
+	Car.algebra = new set.Algebra( set.props.id('vin') );
+	Car.List = DefineList.extend( {'#': Car} );
+	Car.connection = connect([constructor, constructorStore, canMap]);
+	var list = new Car.List([
+		{id: 100, name: 'Feb'},
+		{id: 200, name: 'March'},
+	]);
+	var data = [
+		{id: 100, name: 'February'},
+		{id: 200, name: 'March'},
+	];
+	smartMerge(list, data);
+	assert.deepEqual(list.serialize(), data, 'List with a connection should be merged');
+});
+
 QUnit.test('applyPatch', function(assert) {
 	assert.deepEqual( applyPatch(
 		[1,2,3],
