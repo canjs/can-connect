@@ -365,3 +365,105 @@ if (canDev) {
 	});
 }
 //!steal-remove-end
+
+/**
+ * This test covers a situation where there is a mix of AJAX (data)
+ * and sockets (real-time). A save() happens, an AJAX POST is made
+ * to the server, the socket 'created' event is emitted before
+ * the AJAX request is done, and finally the AJAX response resolves.
+ */
+QUnit.test("handling if createInstance happens before createdData", 4, function (assert) {
+	QUnit.stop();
+	var createdPromiseResolve;
+
+	var dataBehavior = function(){
+		return {
+			createData: function (props, cid) {
+				return new Promise(function(resolve){
+					createdPromiseResolve = resolve;
+				});
+			}
+		};
+	};
+	var connection = connect([
+		dataBehavior,
+		constructor,
+		constructorStore,
+		realTime,
+		dataCallbacks,
+		callbacksOnce
+	],{});
+
+	var data = {name: "Ryan"};
+
+	var savePromise = connection.save(data).then(function(dataAgain){
+		connection.addInstanceReference(data);
+		QUnit.equal(data, dataAgain, "same instance in memory .save()")
+		QUnit.equal(data.id, 1, ".save() has the id");
+	});
+
+	setTimeout(function(){
+		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
+			QUnit.equal(data, instance, ".createInstance() same instance in memory");
+			QUnit.equal(data.id, 1, ".createInstance() has the id");
+		}).then(function(){
+			return savePromise;
+		}).then(function(){
+			QUnit.start();
+		});
+
+		createdPromiseResolve({name: "Ryan", id: 1});
+	}, 10);
+});
+
+/**
+ * This tests to make sure that the `Promise.all` call inside
+ * of createInstance always gets an array of resolved promises.
+ * The createData method will swallow any failures before adding
+ * the promise onto the promise stack used by createInstance.
+ */
+QUnit.test("createInstance doesn't fail if createData fails", 3, function (assert) {
+	QUnit.stop();
+	var createdPromiseReject;
+
+	var dataBehavior = function(){
+		return {
+			createData: function (props, cid) {
+				return new Promise(function(resolve, reject){
+					createdPromiseReject = reject;
+				});
+			}
+		};
+	};
+	var connection = connect([
+		dataBehavior,
+		constructor,
+		constructorStore,
+		realTime,
+		dataCallbacks,
+		callbacksOnce
+	],{});
+
+	var data = {name: "Ryan"};
+
+	var savePromise = connection.save(data).then(function(dataAgain){
+		QUnit.notOk(true, "save() should not have succeeded");
+	}).catch(function(){
+		QUnit.ok(true, "save() caused an error.");
+		return '';
+	});
+
+	setTimeout(function(){
+		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
+			QUnit.notEqual(data, instance, ".createInstance() should create a new instance b/c save() failed");
+			QUnit.ok(!data.id, 'data should not have an id');
+		}).then(function(){
+			return savePromise;
+		}).then(function(){
+			QUnit.start();
+		});
+
+		createdPromiseReject('Simulated AJAX error');
+	}, 10);
+});
+
