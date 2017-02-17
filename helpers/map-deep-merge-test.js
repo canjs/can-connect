@@ -15,6 +15,7 @@ var applyPatch = require('./map-deep-merge').applyPatch;
 var applyPatchPure = smartMerge.applyPatchPure;
 var mergeInstance = smartMerge.mergeInstance;
 var mergeList = smartMerge.mergeList;
+var idFromType = smartMerge.idFromType;
 
 var QUnit = require('steal-qunit');
 QUnit.noop = function(){};
@@ -270,6 +271,48 @@ QUnit.test("Merging non-defined, but object, types", function(){
 	mergeInstance(map, {a: last});
 
 	QUnit.equal(map.a, last);
+});
+
+QUnit.test("idFromType", function(assert){
+	var Car = DefineMap.extend({
+		vin: {type: 'string'},
+		color: {type: 'string'}
+	});
+	Car.algebra = new set.Algebra( set.props.id('vin') );
+	var id = idFromType(Car);
+	var myCar = new Car({vin: "1", color: "black"});
+
+	assert.equal(id(myCar), "1", "id is retrieved from algebra with a custom id prop");
+});
+
+QUnit.test("custom id prop for instance store", function(assert){
+
+	var Car = DefineMap.extend({
+		vin: {type: "string"},
+		color: {type: "string"}
+	});
+	Car.algebra = new set.Algebra( set.props.id("vin") );
+	Car.List = DefineList.extend({ "#" : Car });
+
+	var id = idFromType(Car);
+	var items = new Car.List([
+		{ vin: "1", color: "black" },
+		{ vin: "2", color: "blue" },
+	]);
+	var toStore = function(map, item){ map[item.vin] = item; return map;};
+	var instanceStore = [].reduce.call(items, toStore, {});
+	var data = [
+		{ vin: "2", color: "blue" },
+		{ vin: "1", color: "red" },
+	];
+
+	assert.ok(items[0].vin === "1", "The 1st item is with id 1");
+	assert.deepEqual(instanceStore["1"].serialize(), { vin: "1", color: "black" }, "The item with id=1 is what we want it to be");
+
+	smartMerge(items, data);
+
+	assert.deepEqual(instanceStore["1"].serialize(), { vin: "1", color: "red" }, "The item with id=1 was updated correctly");
+	assert.ok(items[0].vin === "2", "items were swapped in the list which is what we expected");
 });
 
 /*

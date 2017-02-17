@@ -172,8 +172,10 @@ function typeFromList( list ){
 	return list && list._define && list._define.definitions["#"] && list._define.definitions["#"].Type;
 }
 function idFromType( Type ){
-	return Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id && function(o){
-			return o[Type.algebra.clauses.id.id];
+	return Type && Type.connection && Type.connection.id ||
+		Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id && function(o){
+			var idProp = Object.keys(Type.algebra.clauses.id)[0];
+			return o[idProp];
 		} || function(o){
 			return o.id || o._id;
 		};
@@ -205,3 +207,4 @@ smartMerge.mergeInstance = mergeInstance;
 smartMerge.mergeList = mergeList;
 smartMerge.applyPatch = applyPatch;
 smartMerge.applyPatchPure = applyPatchPure;
+smartMerge.idFromType = idFromType;
