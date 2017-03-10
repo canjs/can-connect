@@ -139,7 +139,8 @@ QUnit.test("get", function(){
 
 if(System.env !== 'canjs-test') {
 	// Brittle in IE
-	QUnit.test("get fullCache", function(){
+	QUnit.test("get fullCache", function(assert){
+		var done = assert.async();
 		var resolvedCalls = 0;
 
 		var Person = CanMap.extend({});
@@ -165,8 +166,8 @@ if(System.env !== 'canjs-test') {
 				} else {
 					ok(resolvedCalls >= 2, "got data we already resolved from cache");
 					setTimeout(function(){
-						start();
-					},10);
+						done();
+					}, 100);
 					return {id: 2, type: "second"};
 				}
 
@@ -175,7 +176,6 @@ if(System.env !== 'canjs-test') {
 				return {data: [{id: 1, type: "first"},{id: 2, type: "second"}]};
 			}
 		});
-		stop();
 
 		connection.getList({}).then(function(){
 
