@@ -3,6 +3,7 @@ var DefineList = require('can-define/list/list');
 var set = require('can-set');
 var fixture = require('can-fixture');
 var canEvent = require("can-event");
+var canLog = require("can-util/js/log/log");
 
 var connect = require('can-connect');
 var canMap = require('can-connect/can/map/map');
@@ -68,7 +69,7 @@ QUnit.module('helpers map-deep-merge', {
 		events = [];
 		origEventDispatch = canEvent.dispatch;
 		canEvent.dispatch = function(ev){
-			//console.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
+			//canLog.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
 			var eventInfo = {
 				type: ev.type || ev,
 				target: ev.target && ev.target.serialize()
@@ -124,7 +125,7 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
 	assert.deepEqual(events.map( prop('type') ), ['id','name','author'], 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
 
-	console.log('events::', events);
+	canLog.log('events::', events);
 });
 
 QUnit.test('smartMerge list of maps', function(assert) {
@@ -148,7 +149,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	};
 	events = [];
 	smartMerge(item, data);
-	console.log('events after smartMerge: ', events);
+	canLog.log('events after smartMerge: ', events);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the INSERT');
 	assert.deepEqual(events.map( prop('type') ), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
 });
@@ -159,7 +160,7 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 
 	// Fixtures for connection
 	fixture('PUT /contribution-month/{id}', function(){
-		console.log('fixture here');
+		canLog.log('fixture here');
 		return updatedData;
 	});
 
@@ -212,7 +213,7 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 				JSON.stringify(eventTypes));
 		done();
 	}).catch(function(e){
-		console.log('Error: ', e);
+		canLog.log('Error: ', e);
 		assert.ok(false, 'should not throw an exception');
 		done();
 	});

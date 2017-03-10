@@ -154,7 +154,7 @@ QUnit.test("real-time super model", function(){
 	var importantList,
 		todayList,
 		bindFunc = function(){
-			//console.log("length changing");
+			//canLog.log("length changing");
 		};
 	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
 		.then(function(result){

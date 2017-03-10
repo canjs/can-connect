@@ -1,6 +1,6 @@
-
 var connect = require("can-connect");
 var makeDeferred = require("can-connect/helpers/deferred");
+var canLog = require("can-util/js/log/log");
 
 module.exports = connect.behavior("data/worker",function(baseConnection){
 
@@ -30,7 +30,7 @@ module.exports = connect.behavior("data/worker",function(baseConnection){
 			init: function(){
 				// check if there's a worker, if not a workerURL
 				if(!this.worker) {
-					console.warn("No worker provided, defaulting to base behavior");
+					canLog.warn("No worker provided, defaulting to base behavior");
 					return;
 				}
 				var worker = this.worker,
@@ -41,7 +41,7 @@ module.exports = connect.behavior("data/worker",function(baseConnection){
 					if(!data.type || data.type.indexOf("can-connect:data-worker:"+connection.name) !== 0) {
 						return;
 					}
-					console.log("MAIN - message:",connection.name, ev.data.method);
+					canLog.log("MAIN - message:",connection.name, ev.data.method);
 
 					var method = ev.data.method;
 
@@ -191,7 +191,7 @@ module.exports = connect.behavior("data/worker",function(baseConnection){
 						return;
 					}
 					var method = data.method;
-					console.log("WORKER - message:", connection.name, method);
+					canLog.log("WORKER - message:", connection.name, method);
 
 					if(method === "ping") {
 						return postMessage({
@@ -203,7 +203,7 @@ module.exports = connect.behavior("data/worker",function(baseConnection){
 					}
 
 					if(!connection[method]) {
-						return console.warn("There's no method named "+method+" on connection "+connection.name);
+						return canLog.warn("There's no method named "+method+" on connection "+connection.name);
 					}
 
 					connection[method].call(connection, data.args).then(function(response){

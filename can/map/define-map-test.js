@@ -3,6 +3,7 @@ var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");
 var compute = require("can-compute");
+var canLog = require("can-util/js/log/log");
 
 // load connections
 var constructor = require("can-connect/constructor/");
@@ -18,9 +19,7 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 
-
-
-var connect=  require("can-connect/can-connect");
+var connect = require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
 
@@ -169,7 +168,7 @@ QUnit.test("real-time super model", function(){
 	var importantList,
 		todayList,
 		bindFunc = function(){
-			console.log("length changing");
+			canLog.log("length changing");
 		};
 
 	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])

@@ -71,6 +71,7 @@
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
+var canLog = require("can-util/js/log/log");
 
 module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 
@@ -162,7 +163,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 
 						}, function(e){
 							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							canLog.log("REJECTED", e);
 						});
 					},1);
 				});
@@ -263,7 +264,7 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 
 						}, function(e){
 							// what do we do here?  self.rejectedUpdatedList ?
-							console.log("REJECTED", e);
+							canLog.log("REJECTED", e);
 						});
 					},1);
 				});
