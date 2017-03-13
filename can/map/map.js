@@ -505,17 +505,21 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	// These aren't actually implemented here, but their setup needs to be changed to account for the store.
 	_eventSetup: function (base, connection) {
 		return function(){
-			callCanReadingOnIdRead = false;
-			connection.addInstanceReference(this);
-			callCanReadingOnIdRead = true;
+			if ( connection.addInstanceReference ) {
+				callCanReadingOnIdRead = false;
+				connection.addInstanceReference(this);
+				callCanReadingOnIdRead = true;
+			}
 			return base.apply(this, arguments);
 		};
 	},
 	_eventTeardown: function (base, connection) {
 		return function(){
-			callCanReadingOnIdRead = false;
-			connection.deleteInstanceReference(this);
-			callCanReadingOnIdRead = true;
+			if ( connection.deleteInstanceReference ) {
+				callCanReadingOnIdRead = false;
+				connection.deleteInstanceReference(this);
+				callCanReadingOnIdRead = true;
+			}
 			return base.apply(this, arguments);
 		};
 	},
@@ -523,7 +527,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	___set: function (base, connection) {
 		return function(prop, val){
 			base.apply(this, arguments);
-			if ( prop === connection.idProp && this._bindings ) {
+			if ( connection.addInstanceReference && prop === connection.idProp && this._bindings ) {
 				connection.addInstanceReference(this);
 			}
 		};
