@@ -329,7 +329,7 @@ Todo.List = DefineList.extend({
 
 var todoConnection = connect([
     require("can-connect/data/url/url"),
-    require("can-connect/can/map/map/map"),
+    require("can-connect/can/map/"),
     require("can-connect/constructor/constructor"),
     require("can-connect/constructor/store/store")
   ],{
