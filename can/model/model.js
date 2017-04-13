@@ -306,7 +306,7 @@ var CanModel = CanMap.extend({
 		CanMap.prototype.___set.call(this, prop, val);
 		// If we add or change the ID, update the store accordingly.
 		// TODO: shouldn't this also delete the record from the old ID in the store?
-		if ( prop === (this.constructor.id || "id") && this._bindings ) {
+		if ( prop === (this.constructor.id || "id") && this.__bindEvents && this.__bindEvents._lifecycleBindings ) {
 			this.constructor.connection.addInstanceReference(this);
 		}
 	}
