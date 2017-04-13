@@ -523,7 +523,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	___set: function (base, connection) {
 		return function(prop, val){
 			base.apply(this, arguments);
-			if ( prop === connection.idProp && this._bindings ) {
+			if ( prop === connection.idProp && this.__bindEvents && this.__bindEvents._lifecycleBindings ) {
 				connection.addInstanceReference(this);
 			}
 		};
