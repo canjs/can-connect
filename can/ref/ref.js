@@ -232,7 +232,7 @@ var makeRef = function(connection){
 		 * @property {Promise} can-connect/can/ref/ref.Map.Ref.prototype.promise promise
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 		 * @signature `ref.promise`
-		 * 	returns a promise if it has already been resolved, if not, returns a new promise
+		 * Returns a promise if it has already been resolved, if not, returns a new promise.
 		 * @return {Promise}
 		 */
 		promise: {
@@ -263,7 +263,7 @@ var makeRef = function(connection){
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.value value
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 		 * @signature `ref.value`
-		 * 	returns the actual object that reference points to
+		 * Returns the actual object that reference points to.
 		 * @return {object} actual object that reference points to
 		 */
 		value: {
@@ -281,7 +281,7 @@ var makeRef = function(connection){
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.reason reason
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 		 * @signature `ref.reason`
-		 * 	handles the rejection case for the promise
+		 * Handles the rejection case for the promise.
 		 * @return {Object} error message if the promise is rejected
 		 */
 		reason: {
@@ -313,7 +313,7 @@ var makeRef = function(connection){
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 	 *
 	 * @signature `ref.isResolved`
-	 * 	Returns a {boolean}
+	 * Returns a {boolean}.
 	 * @return {boolean}
 	 */
 	Ref.prototype.isResolved = function(){
@@ -323,7 +323,7 @@ var makeRef = function(connection){
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isRejected isRejected
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 	 * @signature `ref.isRejected`
-	 * 	Returns boolean if the promise was rejected
+	 * Returns boolean if the promise was rejected.
 	 * @return {boolean}
 	 */
 	Ref.prototype.isRejected = function(){
@@ -334,7 +334,7 @@ var makeRef = function(connection){
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isPending isPending
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 	 * @signature `ref.isPending`
-	 * 	Returns true if the state is not 'resolved' or 'rejected'
+	 * Returns true if the state is not 'resolved' or 'rejected'.
 	 * @return {boolean}
 	 */
 	Ref.prototype.isPending = function(){
@@ -345,7 +345,7 @@ var makeRef = function(connection){
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.serialize serialize
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 	 * @signature `ref.serialize`
-	 * 	returns the `idProp`
+	 * Returns the `idProp`.
 	 * @return {string} idProp
 	 */
 	Ref.prototype.serialize = function() {
