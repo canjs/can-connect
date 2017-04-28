@@ -33,7 +33,7 @@
     "steal-css": "^1.0.0",
     "steal-qunit": "^1.0.0",
     "steal-tools": "^1.0.0",
-    "testee": "^0.3.0"
+    "testee": "^0.4.1"
   },
   "steal": {
     "plugins": [
