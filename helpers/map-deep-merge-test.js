@@ -123,7 +123,7 @@ QUnit.test('smartMerge nested objects', function(assert) {
 	events = [];
 	smartMerge(item, data2);
 	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
-	assert.deepEqual(events.map( prop('type') ), ['id','name','author'], 'should dispatch 3 events: id, name (for the new author), and author: ' + JSON.stringify(events));
+	assert.deepEqual(events.map( prop('type') ), ['author'], 'should dispatch 1 event: author: ' + JSON.stringify(events));
 
 	canLog.log('events::', events);
 });
@@ -151,9 +151,8 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	smartMerge(item, data);
 	canLog.log('events after smartMerge: ', events);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the INSERT');
-	assert.deepEqual(events.map( prop('type') ), ['id','title','add','length'], 'should dispatch correct events: id, title (for the new item); add, length (for insertion)');
+	assert.deepEqual(events.map( prop('type') ), ['add','length'], 'should dispatch correct events: add, length (for insertion)');
 });
-
 
 QUnit.test('smartMerge can-connect behaviour', function(assert) {
 	var done = assert.async();
@@ -200,15 +199,13 @@ QUnit.test('smartMerge can-connect behaviour', function(assert) {
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
 		var eventTypes = events.map(prop('type')).filter(notEq('_saving')).filter(notEq('updated')).sort();
-		assert.equal(eventTypes.length, 9, 'Should dispatch 9 events');
+		assert.equal(eventTypes.length, 5, 'Should dispatch 5 events');
 		assert.deepEqual(
 			eventTypes,
-			['id','name',   'name','author',   'name',   'id','name',   'add','length'].sort(),
+			['name','author', 'name', 'add','length'].sort(),
 			'should dispatch the correct events: ' +
-				'id, name (new Author); ' +
 				'name, author (month update); ' +
 				'name (project update); ' +
-				'id, name (new project); ' +
 				'add, length (projects) ' +
 				JSON.stringify(eventTypes));
 		done();
