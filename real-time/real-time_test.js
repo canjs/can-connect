@@ -338,7 +338,6 @@ if (canDev) {
 		var dataBehavior = function(){
 			return {
 				getListData: function(){
-					// nothing here first time
 					return testHelpers.asyncResolve({ data: items.slice(0) });
 				}
 			};
@@ -362,6 +361,39 @@ if (canDev) {
 			notOk(true, 'canDev.warn was never called!');
 		}, 500);
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
+	});
+
+	test("listSet algebra warning includes any `undefined` values", function() {
+		var algebra = new set.Algebra(set.comparators.id("id"));
+		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
+		var dataBehavior = function(){
+			return {
+				getListData: function(){
+					return testHelpers.asyncResolve({ data: items.slice(0) });
+				}
+			};
+		};
+
+		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+			dataCallbacks, callbacksOnce],{
+				algebra: algebra
+		});
+
+		var oldlog = canDev.warn;
+		canDev.warn = function (message) {
+			clearTimeout(failSafeTimer);
+			ok(true, 'warns about item not being in list');
+			ok(/"nope": undefined/.test(message), 'undefined value in set');
+			ok(/"foo": undefined/.test(message), 'undefined value in item');
+			canDev.warn = oldlog;
+			start();
+		};
+
+		stop();
+		var failSafeTimer = setTimeout(function () {
+			notOk(true, 'canDev.warn was never called!');
+		}, 500);
+		connection.getList({ "fooBar": true, foo: { bar: 1234 }, nope: undefined });
 	});
 }
 //!steal-remove-end
