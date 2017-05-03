@@ -687,6 +687,12 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 
 	return behavior;
 
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base"
 });
 
 function copyMetadata(listData, list){

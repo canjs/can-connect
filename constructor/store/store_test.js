@@ -130,6 +130,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 			return new PersonList(arr.data, sets);
 		}
 	});
+	console.log(connection)
 
 	var resolvedList;
 	connection.getList({}).then(function(list){

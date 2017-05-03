@@ -4,6 +4,7 @@
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
+    "can-cid": "^1.0.3",
     "can-compute": "^3.0.4",
     "can-construct": "^3.1.0",
     "can-define": "^1.0.9",
