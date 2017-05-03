@@ -1,5 +1,7 @@
 # can-connect
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-connect.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/canjs/can-connect.png?branch=master)](https://travis-ci.org/canjs/can-connect)
 
 `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
