@@ -9,7 +9,7 @@
     "can-define": "^1.0.9",
     "can-event": "^3.3.0",
     "can-list": "^3.0.1",
-    "can-map": "^3.0.3",
+    "can-map": "3.0.7",
     "can-namespace": "1.0.0",
     "can-observation": "^3.0.3",
     "can-set": "^1.0.2",
