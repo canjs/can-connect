@@ -351,11 +351,11 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 					item = items.data[i];
 					if( !self.algebra.has(set, item) ) {
 						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
-							+ "Read the docs for more information: http://v3.canjs.com/doc/can-set.html#SolvingCommonIssues"
+							+ "Read the docs for more information: https://canjs.com/doc/can-set.html#SolvingCommonIssues"
 							+ "\n\nBelow are the 'Set' parameters:"
-							+ "\n" + JSON.stringify(set, null, "  ")
+							+ "\n" + canDev.stringify(set)
 							+ "\n\nAnd below is an item which does not match those parameters:"
-							+ "\n" + JSON.stringify(item, null, "  ");
+							+ "\n" + canDev.stringify(item);
 						canDev.warn(msg);
 						break;
 					}
