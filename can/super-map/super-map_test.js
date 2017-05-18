@@ -3,6 +3,8 @@ var fixture = require("can-fixture");
 var Map = require("can-map");
 var superMap = require("can-connect/can/super-map/");
 var set = require("can-set");
+var GLOBAL = require("can-util/js/global/global");
+var stealClone = require("steal-clone");
 
 QUnit.module("can-connect/can/super-map");
 
@@ -112,3 +114,31 @@ QUnit.test("uses idProp from algebra (#255)", function(){
 
 
 });
+
+QUnit.test("uses jQuery if loaded", 2, function() {
+	stop();
+	var old$ = GLOBAL().$;
+	var fake$ = {
+		ajax: function() {}
+	};
+	GLOBAL().$ = fake$;
+	stealClone({}).import("can-connect/can/super-map/super-map").then(function(superMap) {
+		var connection = superMap({
+			Map: function() {},
+			List: function() {}
+		});
+		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
+	}).then(function() {
+		GLOBAL().$ = undefined;
+		return stealClone({}).import("can-connect/can/super-map/super-map");
+	}).then(function(superMap) {
+		var connection = superMap({
+			Map: function() {},
+			List: function() {}
+		});
+		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
+		GLOBAL().$ = old$;
+		start();
+	});
+});
+
