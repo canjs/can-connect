@@ -1,7 +1,7 @@
-
 var connect = require("can-connect");
 var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
+var validate = require("can-connect/helpers/validate");
 var deepAssign = require("can-util/js/deep-assign/deep-assign");
 
 var makeDeferred = require("can-connect/helpers/deferred");
@@ -74,7 +74,7 @@ var forEach = [].forEach;
  * ```
  *
  */
-module.exports = connect.behavior("data/combine-requests",function(baseConnection){
+var combineRequests = connect.behavior("data/combine-requests",function(baseConnection){
 	var pendingRequests; //[{set, deferred}]
 
 	return {
@@ -285,6 +285,12 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 		}
 	};
 });
+
+module.exports = validate(combineRequests, [
+	//!steal-remove-start
+	'getListData'
+	//!steal-remove-end
+]);
 
 /**
  * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest

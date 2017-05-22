@@ -9,7 +9,7 @@ var getId = function(d){
 };
 
 
-QUnit.module("can-connect",{
+QUnit.module("can-connect/data/combine-requests",{
 	setup: function(){
 	}
 });

@@ -75,8 +75,9 @@
 
 var connect = require("can-connect");
 var Construct = require("can-construct");
+var validate = require('can-connect/helpers/validate');
 
-module.exports = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
+var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
 	return {
 		init: function(){
 			var oldSetup = this.Map.prototype.setup;
@@ -91,3 +92,9 @@ module.exports = connect.behavior("can-connect/can/construct-hydrate", function(
 		}
 	}
 });
+
+module.exports = validate(constructorHydrateBehavior, [
+	//!steal-remove-start
+	'Map', 'instanceStore', 'hydrateInstance'
+	//!steal-remove-end
+]);

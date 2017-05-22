@@ -102,13 +102,14 @@ var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
 var dev = require("can-util/js/dev/dev");
 var connect = require("can-connect");
+var validate = require("can-connect/helpers/validate");
 
 var makePromise = require("can-util/js/make-promise/make-promise");
 
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data/url", function(baseConnection) {
+var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 
 
 	var behavior = {};
@@ -378,3 +379,9 @@ var createURLFromResource = function(resource, idProp, name) {
 		return url + "/{" + idProp + "}";
 	}
 };
+
+module.exports = validate(urlBehavior, [
+	//!steal-remove-start
+	'url'
+	//!steal-remove-end
+]);

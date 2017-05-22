@@ -14,6 +14,7 @@
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var validate = require("can-connect/helpers/validate");
 var forEach = [].forEach;
 
 // wires up the following methods
@@ -49,7 +50,7 @@ var callbacks = [
 
 
 
-module.exports = connect.behavior("constructor/callbacks-once",function(baseConnection){
+var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",function(baseConnection){
 
 	var behavior = {
 	};
@@ -72,3 +73,6 @@ module.exports = connect.behavior("constructor/callbacks-once",function(baseConn
 
 	return behavior;
 });
+
+
+module.exports = validate(callbacksOnceBehavior, callbacks);

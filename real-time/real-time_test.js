@@ -241,8 +241,7 @@ QUnit.test("sorting by id works", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
-		dataCallbacks, callbacksOnce],{
+	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
 			algebra: algebra
 	});
 
@@ -282,8 +281,7 @@ QUnit.test("sorting by sort clause works with updates", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
-		dataCallbacks, callbacksOnce],{
+	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
 			algebra: algebra
 	});
 
@@ -323,10 +321,8 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 		realTime,
 		constructor,
 		constructorStore,
-		dataCallbacks,
-		destructionForeman,
-		callbacksOnce
-		],{});
+		destructionForeman
+	],{});
 	connection.destroyInstance({id: 1});
 });
 
@@ -339,11 +335,14 @@ if (canDev) {
 			return {
 				getListData: function(){
 					return testHelpers.asyncResolve({ data: items.slice(0) });
-				}
+				},
+				createData: function(props){},
+				updateData: function(props){},
+				destroyData: function(props){}
 			};
 		};
 
-		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+		var connection = connect([dataBehavior,realTime,constructor,constructorStore,
 			dataCallbacks, callbacksOnce],{
 				algebra: algebra
 		});
@@ -370,7 +369,10 @@ if (canDev) {
 			return {
 				getListData: function(){
 					return testHelpers.asyncResolve({ data: items.slice(0) });
-				}
+				},
+				createData: function(props){},
+				updateData: function(props){},
+				destroyData: function(props){}
 			};
 		};
 

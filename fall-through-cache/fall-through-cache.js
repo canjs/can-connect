@@ -71,9 +71,10 @@
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
+var validate = require("can-connect/helpers/validate");
 var canLog = require("can-util/js/log/log");
 
-module.exports = connect.behavior("fall-through-cache",function(baseConnection){
+var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnection){
 
 	var behavior = {
 		/**
@@ -285,3 +286,10 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 	return behavior;
 
 });
+
+
+module.exports = validate(fallThroughCache, [
+	//!steal-remove-start
+	'hydrateList', 'hydrateInstance', 'getListData', 'getData'
+	//!steal-remove-end
+]);

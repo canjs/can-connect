@@ -70,7 +70,8 @@ QUnit.test("basics", function(){
 					state.check("base-getListData-2");
 					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
-			}
+			},
+			getData: function(){}
 		};
 	};
 	var updater = function(){
@@ -83,7 +84,7 @@ QUnit.test("basics", function(){
 		};
 	};
 
-	var connection = connect([base, constructor,fallThroughCache,constructorStore, dataCallbacks,updater],{
+	var connection = connect([base, constructor,fallThroughCache,constructorStore,updater],{
 		cacheConnection: cacheConnection
 	});
 
@@ -167,7 +168,8 @@ QUnit.test("getInstance and getData", function(){
 					state.check("base-getData-2");
 					return testHelpers.asyncResolve({id: 0, foo: "BAR"});
 				}
-			}
+			},
+			getListData: function(){}
 		};
 	};
 	var updater = function(){
@@ -180,7 +182,7 @@ QUnit.test("getInstance and getData", function(){
 		};
 	};
 
-	var connection = connect([base, constructor,fallThroughCache,constructorStore, dataCallbacks, updater],{
+	var connection = connect([base, constructor,fallThroughCache,constructorStore, updater],{
 		cacheConnection: cacheConnection
 	});
 
@@ -215,11 +217,12 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 			getListData: function(){
 				getDataBehaviorDataPromise = testHelpers.asyncResolve({data: [{id: 1}], count: 5});
 				return getDataBehaviorDataPromise;
-			}
+			},
+			getData: function(){}
 		};
 	};
 
-	var connection = connect([getDataBehavior, constructor,fallThroughCache,constructorStore, dataCallbacks],{
+	var connection = connect([getDataBehavior,constructor,fallThroughCache,constructorStore],{
 		cacheConnection: cacheConnection
 	});
 

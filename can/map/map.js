@@ -12,6 +12,7 @@ var types = require("can-types");
 var each = require("can-util/js/each/each");
 var isFunction = require("can-util/js/is-function/is-function");
 var dev = require("can-util/js/dev/dev");
+var validate = require("can-connect/helpers/validate");
 
 var setExpando = function(map, prop, value) {
 	if("attr" in map) {
@@ -767,4 +768,12 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 	}
 };
 
-module.exports = canMapBehavior;
+module.exports = validate(
+	canMapBehavior,
+	[
+		//!steal-remove-start
+		'id', 'get', 'updatedList', 'destroy', 'save', 'getList', 'deleteListReference', 'addListReference',
+		'addInstanceReference'
+		//!steal-remove-end
+	]
+);
