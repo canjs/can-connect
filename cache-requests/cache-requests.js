@@ -268,6 +268,6 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 
 module.exports = validate(cacheRequestsBehaviour, [
 	//!steal-remove-start
-	'getListData'
+	'getListData', 'cacheConnection'
 	//!steal-remove-end
 ]);
