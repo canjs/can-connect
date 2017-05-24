@@ -95,6 +95,6 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 
 module.exports = validate(constructorHydrateBehavior, [
 	//!steal-remove-start
-	'Map', 'instanceStore', 'hydrateInstance'
+	'Map', 'List', 'instanceStore', 'hydrateInstance'
 	//!steal-remove-end
 ]);
