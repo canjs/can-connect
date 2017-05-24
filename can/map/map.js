@@ -343,6 +343,12 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 
 	return behavior;
 
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base"
 });
 
 /**

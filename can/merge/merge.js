@@ -96,4 +96,9 @@ module.exports = connect.behavior("can/merge",function(baseConnection){
 			canBatch.stop();
 		}
 	};
+}, {
+	"constructor/callbacks-once": "derived",
+	"real-time": "derived",
+	"can/map": "base",
+	"constructor": "derived"
 });

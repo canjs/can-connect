@@ -284,4 +284,14 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 
 	return behavior;
 
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base",
+	"constructor": "base",
+	"constructor/store": "base",
+	"can/map": "base",
+	"can/ref": "base"
 });

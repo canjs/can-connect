@@ -642,6 +642,13 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 
 	return behavior;
 
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base",
+	"constructor": "base"
 });
 constructorStore.requests = requests;
 

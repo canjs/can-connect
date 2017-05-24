@@ -388,4 +388,10 @@ module.exports = connect.behavior("can/ref",function(baseConnection){
 			this.Map.Ref = makeRef(this);
 		}
 	};
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base"
 });

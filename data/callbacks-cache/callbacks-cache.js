@@ -60,4 +60,17 @@ module.exports = connect.behavior("data/callbacks-cache",function(baseConnection
 		};
 	});
 	return behavior;
+}, {
+	"data/localstorage-cache": "base",
+	"data/url": "base",
+	"data/parse": "base",
+	"cache-requests": "base",
+	"data/combine-requests": "base",
+	"constructor": "base",
+	"constructor/store": "base",
+	"can/map": "base",
+	"can/ref": "base",
+	"fall-through-cache": "base",
+	"data/worker": "base",
+	"real-time": "base"
 });
