@@ -416,7 +416,10 @@ QUnit.test("handling if createInstance happens before createdData", 4, function 
 				return new Promise(function(resolve){
 					createdPromiseResolve = resolve;
 				});
-			}
+			},
+			getListData: function(props){},
+			updateData: function(props){},
+			destroyData: function(props){}
 		};
 	};
 	var connection = connect([
@@ -466,7 +469,10 @@ QUnit.test("createInstance doesn't fail if createData fails", 3, function (asser
 				return new Promise(function(resolve, reject){
 					createdPromiseReject = reject;
 				});
-			}
+			},
+			getListData: function(props){},
+			updateData: function(props){},
+			destroyData: function(props){}
 		};
 	};
 	var connection = connect([
