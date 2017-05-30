@@ -102,7 +102,6 @@ var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
 var dev = require("can-util/js/dev/dev");
 var connect = require("can-connect");
-var validate = require("can-connect/helpers/validate");
 
 var makePromise = require("can-util/js/make-promise/make-promise");
 
@@ -380,8 +379,9 @@ var createURLFromResource = function(resource, idProp, name) {
 	}
 };
 
-module.exports = validate(urlBehavior, [
-	//!steal-remove-start
-	'url'
-	//!steal-remove-end
-]);
+module.exports = urlBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(urlBehavior, ['url']);
+//!steal-remove-end

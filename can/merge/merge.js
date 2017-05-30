@@ -2,7 +2,6 @@ var smartMerge = require('can-connect/helpers/map-deep-merge');
 var connectMap = require('can-connect/can/map/map');
 var canBatch = require('can-event/batch/batch');
 var connect = require("can-connect");
-var validate = require("can-connect/helpers/validate");
 
 var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 	return {
@@ -99,8 +98,9 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 	};
 });
 
-module.exports = validate(mergeBehavior, [
-	//!steal-remove-start
-	'createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList'
-	//!steal-remove-end
-]);
+module.exports = mergeBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(mergeBehavior, ['createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList']);
+//!steal-remove-end

@@ -10,7 +10,6 @@
  */
 var connect = require("can-connect");
 var each = require("can-util/js/each/each");
-var validate = require("can-connect/helpers/validate");
 
 // wires up the following methods
 var pairs = {
@@ -109,8 +108,11 @@ var dataCallbackBehavior = connect.behavior("data/callbacks",function(baseConnec
 	return behavior;
 });
 
+module.exports = dataCallbackBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
 module.exports = validate(dataCallbackBehavior, [
-	//!steal-remove-start
 	"getListData", "createData", "updateData", "destroyData"
-	//!steal-remove-end
 ]);
+//!steal-remove-end

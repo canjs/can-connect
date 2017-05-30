@@ -1,7 +1,6 @@
 var connect = require("can-connect");
 var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
-var validate = require("can-connect/helpers/validate");
 var deepAssign = require("can-util/js/deep-assign/deep-assign");
 
 var makeDeferred = require("can-connect/helpers/deferred");
@@ -286,11 +285,12 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 	};
 });
 
-module.exports = validate(combineRequests, [
-	//!steal-remove-start
-	'getListData'
-	//!steal-remove-end
-]);
+module.exports = combineRequests;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(combineRequests, ['getListData']);
+//!steal-remove-end
 
 /**
  * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest

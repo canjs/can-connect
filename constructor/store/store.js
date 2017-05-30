@@ -81,7 +81,6 @@
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var validate = require("can-connect/helpers/validate");
 var canEvent = require("can-event");
 var assign = require("can-util/js/assign/assign");
 
@@ -646,8 +645,9 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 });
 constructorStore.requests = requests;
 
-module.exports = validate(constructorStore, [
-	//!steal-remove-start
-	'hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy'
-	//!steal-remove-end
-]);
+module.exports = constructorStore;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+//!steal-remove-end

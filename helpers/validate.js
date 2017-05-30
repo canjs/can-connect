@@ -4,11 +4,7 @@
 var makeInterfaceValidator = require('can-validate-interface');
 
 module.exports = function(extendingBehavior, interfaces){
-	var validatedBehaviour;
-
-	// return unwrapped function in production
-	//!steal-remove-start
-	validatedBehaviour = validateArgumentInterface(extendingBehavior, 0, interfaces, function(errors, baseBehavior) {
+	var validatedBehaviour = validateArgumentInterface(extendingBehavior, 0, interfaces, function(errors, baseBehavior) {
 		throw new BehaviorInterfaceError(baseBehavior, extendingBehavior, errors);
 	});
 
@@ -18,9 +14,8 @@ module.exports = function(extendingBehavior, interfaces){
 	});
 	// add interfaces for building behavior ordering
 	validatedBehaviour.__interfaces = interfaces;
-	//!steal-remove-end
 
-	return validatedBehaviour || extendingBehavior;
+	return validatedBehaviour;
 };
 
 function validateArgumentInterface(func, argIndex, interfaces, errorHandler) {

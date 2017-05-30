@@ -75,7 +75,6 @@
 
 var connect = require("can-connect");
 var Construct = require("can-construct");
-var validate = require('can-connect/helpers/validate');
 
 var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
 	return {
@@ -93,8 +92,9 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 	}
 });
 
-module.exports = validate(constructorHydrateBehavior, [
-	//!steal-remove-start
-	'Map', 'List', 'instanceStore', 'hydrateInstance'
-	//!steal-remove-end
-]);
+module.exports = constructorHydrateBehavior;
+
+//!steal-remove-start
+var validate = require('can-connect/helpers/validate');
+module.exports = validate(constructorHydrateBehavior, ['Map', 'List', 'instanceStore', 'hydrateInstance']);
+//!steal-remove-end

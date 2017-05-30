@@ -1,7 +1,6 @@
 var connect = require("can-connect");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
-var validate = require("can-connect/helpers/validate");
 var forEach = [].forEach;
 
 
@@ -266,8 +265,9 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 
 });
 
-module.exports = validate(cacheRequestsBehaviour, [
-	//!steal-remove-start
-	'getListData', 'cacheConnection'
-	//!steal-remove-end
-]);
+module.exports = cacheRequestsBehaviour;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
+//!steal-remove-end

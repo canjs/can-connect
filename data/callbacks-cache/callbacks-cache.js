@@ -14,7 +14,6 @@
 var connect = require("can-connect");
 var assign = require("can-util/js/assign/assign");
 var each = require("can-util/js/each/each");
-var validate = require("can-connect/helpers/validate");
 
 // wires up the following methods
 var pairs = {
@@ -63,8 +62,9 @@ var callbackCache = connect.behavior("data/callbacks-cache",function(baseConnect
 	return behavior;
 });
 
-module.exports = validate(callbackCache, [
-	//!steal-remove-start
-	'createdData', 'updatedData', 'destroyedData'
-	//!steal-remove-end
-]);
+module.exports = callbackCache;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(callbackCache, ['createdData', 'updatedData', 'destroyedData']);
+//!steal-remove-end
