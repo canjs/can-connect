@@ -33,32 +33,12 @@ function validateArgumentInterface(func, argIndex, interfaces, errorHandler) {
 function BehaviorInterfaceError(baseBehavior, extendingBehavior, missingProps) {
 	var extendingName = extendingBehavior.behaviorName || 'anonymous behavior',
 		baseName = baseBehavior.__behaviorName || 'anonymous behavior',
-		message = 'can-connect: Extending behaviour "' + extendingName + '" found base behaviour "' + baseName
+		message = 'can-connect: Extending behavior "' + extendingName + '" found base behavior "' + baseName
 			+ '" was missing required properties: ' + JSON.stringify(missingProps.related);
 
-	Object.defineProperty(this, 'name', {
-		enumerable: false,
-		writable: false,
-		value: 'BehaviorInterfaceError'
-	});
-
-	Object.defineProperty(this, 'message', {
-		enumerable: false,
-		writable: true,
-		value: message
-	});
-
-	Object.defineProperty(this, 'stack', {
-		enumerable: false,
-		writable: false,
-		value: (new Error(message)).stack
-	});
+	this.name = 'BehaviorInterfaceError';
+	this.message = message;
+	this.stack = (new Error()).stack;
 }
-
-if (typeof Object.setPrototypeOf === 'function') {
-	Object.setPrototypeOf(BehaviorInterfaceError.prototype, Error.prototype);
-} else {
-	BehaviorInterfaceError.prototype = Object.create(Error.prototype, {
-		constructor: { value: BehaviorInterfaceError }
-	});
-}
+BehaviorInterfaceError.prototype = Object.create(Error.prototype);
+BehaviorInterfaceError.prototype.constructor = BehaviorInterfaceError;
