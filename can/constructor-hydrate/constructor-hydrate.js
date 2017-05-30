@@ -17,7 +17,7 @@
  * ## Use
  *
  * This behavior is useful if `Type` converters of [can-define/map/map] are used in multiple places of your app.
- * In which case if a property is set with an id of an already created instance then the connection behaviour will
+ * In which case if a property is set with an id of an already created instance then the connection behavior will
  * check [can-connect/constructor/store/store.instanceStore]. If there is already an instance with the same id
  * then it will be returned instead of a new object.
  *
