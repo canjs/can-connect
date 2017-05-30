@@ -84,7 +84,7 @@ var pairs = {
 	destroyData: "destroyedData"
 };
 
-module.exports = connect.behavior("data/callbacks",function(baseConnection){
+var dataCallbackBehavior = connect.behavior("data/callbacks",function(baseConnection){
 
 	var behavior = {
 	};
@@ -107,3 +107,12 @@ module.exports = connect.behavior("data/callbacks",function(baseConnection){
 	});
 	return behavior;
 });
+
+module.exports = dataCallbackBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(dataCallbackBehavior, [
+	"getListData", "createData", "updateData", "destroyData"
+]);
+//!steal-remove-end

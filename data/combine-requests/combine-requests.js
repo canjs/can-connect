@@ -1,4 +1,3 @@
-
 var connect = require("can-connect");
 var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
@@ -74,7 +73,7 @@ var forEach = [].forEach;
  * ```
  *
  */
-module.exports = connect.behavior("data/combine-requests",function(baseConnection){
+var combineRequests = connect.behavior("data/combine-requests",function(baseConnection){
 	var pendingRequests; //[{set, deferred}]
 
 	return {
@@ -285,6 +284,13 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 		}
 	};
 });
+
+module.exports = combineRequests;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(combineRequests, ['getListData']);
+//!steal-remove-end
 
 /**
  * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest

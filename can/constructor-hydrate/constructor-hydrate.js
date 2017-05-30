@@ -17,7 +17,7 @@
  * ## Use
  *
  * This behavior is useful if `Type` converters of [can-define/map/map] are used in multiple places of your app.
- * In which case if a property is set with an id of an already created instance then the connection behaviour will
+ * In which case if a property is set with an id of an already created instance then the connection behavior will
  * check [can-connect/constructor/store/store.instanceStore]. If there is already an instance with the same id
  * then it will be returned instead of a new object.
  *
@@ -76,7 +76,7 @@
 var connect = require("can-connect");
 var Construct = require("can-construct");
 
-module.exports = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
+var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
 	return {
 		init: function(){
 			var oldSetup = this.Map.prototype.setup;
@@ -91,3 +91,10 @@ module.exports = connect.behavior("can-connect/can/construct-hydrate", function(
 		}
 	}
 });
+
+module.exports = constructorHydrateBehavior;
+
+//!steal-remove-start
+var validate = require('can-connect/helpers/validate');
+module.exports = validate(constructorHydrateBehavior, ['Map', 'List', 'instanceStore', 'hydrateInstance']);
+//!steal-remove-end

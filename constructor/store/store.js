@@ -646,3 +646,8 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 constructorStore.requests = requests;
 
 module.exports = constructorStore;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+//!steal-remove-end

@@ -215,6 +215,7 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 		assign(this, values);
 	};
 	var addressConnection = connect( [persist, constructor, instanceStore], {
+		url: '/test/',
 		instance: function(values){
 			return new Address(values);
 		}

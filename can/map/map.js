@@ -768,3 +768,14 @@ var overwrite = function( connection, Constructor, prototype, statics) {
 };
 
 module.exports = canMapBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(
+	canMapBehavior,
+	[
+		'id', 'get', 'updatedList', 'destroy', 'save', 'getList', 'deleteListReference', 'addListReference',
+		'addInstanceReference'
+	]
+);
+//!steal-remove-end
