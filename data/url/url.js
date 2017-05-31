@@ -108,7 +108,7 @@ var makePromise = require("can-util/js/make-promise/make-promise");
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-module.exports = connect.behavior("data/url", function(baseConnection) {
+var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 
 
 	var behavior = {};
@@ -378,3 +378,10 @@ var createURLFromResource = function(resource, idProp, name) {
 		return url + "/{" + idProp + "}";
 	}
 };
+
+module.exports = urlBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(urlBehavior, ['url']);
+//!steal-remove-end

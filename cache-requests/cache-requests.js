@@ -1,4 +1,3 @@
-
 var connect = require("can-connect");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");
@@ -96,7 +95,7 @@ var forEach = [].forEach;
  * Notice that `cacheConnection`s often share many of the same options as the
  * primary connection.
  */
-module.exports = connect.behavior("cache-requests",function(baseConnection){
+var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConnection){
 
 	return {
 
@@ -265,3 +264,10 @@ module.exports = connect.behavior("cache-requests",function(baseConnection){
 	};
 
 });
+
+module.exports = cacheRequestsBehaviour;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
+//!steal-remove-end

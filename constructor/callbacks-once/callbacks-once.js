@@ -49,7 +49,7 @@ var callbacks = [
 
 
 
-module.exports = connect.behavior("constructor/callbacks-once",function(baseConnection){
+var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",function(baseConnection){
 
 	var behavior = {
 	};
@@ -72,3 +72,10 @@ module.exports = connect.behavior("constructor/callbacks-once",function(baseConn
 
 	return behavior;
 });
+
+module.exports = callbacksOnceBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(callbacksOnceBehavior, callbacks);
+//!steal-remove-end

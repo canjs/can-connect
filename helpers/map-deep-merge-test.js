@@ -154,7 +154,7 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	assert.deepEqual(events.map( prop('type') ), ['add','length'], 'should dispatch correct events: add, length (for insertion)');
 });
 
-QUnit.test('smartMerge can-connect behaviour', function(assert) {
+QUnit.test('smartMerge can-connect behavior', function(assert) {
 	var done = assert.async();
 
 	// Fixtures for connection

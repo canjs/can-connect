@@ -3,7 +3,7 @@ var connectMap = require('can-connect/can/map/map');
 var canBatch = require('can-event/batch/batch');
 var connect = require("can-connect");
 
-module.exports = connect.behavior("can/merge",function(baseConnection){
+var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 	return {
 		/**
 		 * @function can-connect/can/merge/merge.createdInstance createdInstance
@@ -97,3 +97,10 @@ module.exports = connect.behavior("can/merge",function(baseConnection){
 		}
 	};
 });
+
+module.exports = mergeBehavior;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(mergeBehavior, ['createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList']);
+//!steal-remove-end

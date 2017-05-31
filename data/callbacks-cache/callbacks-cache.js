@@ -46,7 +46,7 @@ var pairs = {
 
 
 
-module.exports = connect.behavior("data/callbacks-cache",function(baseConnection){
+var callbackCache = connect.behavior("data/callbacks-cache",function(baseConnection){
 
 	var behavior = {};
 
@@ -61,3 +61,10 @@ module.exports = connect.behavior("data/callbacks-cache",function(baseConnection
 	});
 	return behavior;
 });
+
+module.exports = callbackCache;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(callbackCache, ['createdData', 'updatedData', 'destroyedData']);
+//!steal-remove-end
