@@ -33,6 +33,9 @@ var later = testHelpers.later;
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
+	setTimeout(function(){
+		throw e;
+	},1);
 	start();
 };
 var cleanUndefineds = function(obj) {
@@ -57,7 +60,8 @@ QUnit.module("can-connect/can/map/map with define",{
 			name: "*",
 			type: "*",
 			due: "*",
-			createdId: "*"
+			createdId: "*",
+			destroyed: "any"
 		});
 		var TodoList = List.extend({
 			"*": Todo
@@ -358,7 +362,7 @@ test("isSaving and isDestroying", function(){
 		return todo.isDestroying();
 	});
 
-	isSaving.bind("change", function(ev, newVal, oldVal){
+	isSaving.on("change", function(ev, newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated","hydrated call");
@@ -380,7 +384,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	isDestroying.bind("change", function(ev, newVal, oldVal){
+	isDestroying.on("change", function(ev, newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");
@@ -403,7 +407,7 @@ test("isSaving and isDestroying", function(){
 			todoConnection.destroy(todo).then(function(){
 				equal( todo.isDestroying(), false, "isDestroying is false" );
 				start();
-			});
+			}, logErrorAndStart);
 			equal( todo.isSaving(), false, "isSaving is false" );
 			equal( todo.isDestroying(), true, "isDestroying is true" );
 		});

@@ -352,6 +352,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 				// It should be given a local id and temporarily added to the cidStore
 				// so other hooks can get back the instance that's being created.
 				var cid = this._cid++;
+				// cid is really a token to be able to reference this transaction. 
 				this.cidStore.addReference(cid, instance);
 
 				// Call the data layer.

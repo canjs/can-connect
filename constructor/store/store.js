@@ -80,6 +80,7 @@
  */
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
+var WeakReferenceSet = require("can-connect/helpers/weak-reference-set");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var canEvent = require("can-event");
 var assign = require("can-util/js/assign/assign");
@@ -128,6 +129,9 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *   ```
 		 */
 		instanceStore: new WeakReferenceMap(),
+		// This really should be a set ... we just need it "weak" so we know how many references through binding
+		// it has.
+		newInstanceStore: new WeakReferenceSet(),
 		/**
 		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/store/store.listStore listStore
 		 * @parent can-connect/constructor/store/store.stores
@@ -226,7 +230,25 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *
 		 */
 		addInstanceReference: function(instance, id) {
-			this.instanceStore.addReference( id || this.id(instance), instance );
+			var ID = id || this.id(instance);
+			if(ID === undefined) {
+				// save in the newInstanceStore store temporarily.
+				this.newInstanceStore.addReference(instance);
+			} else {
+				this.instanceStore.addReference( ID, instance );
+			}
+
+		},
+		createdInstance: function(instance, props){
+			// when an instance is created, and it is in the newInstance store
+			// transfer it to the instanceStore
+			baseConnection.createdInstance.apply(this, arguments);
+			var ID = this.id(instance);
+			if(this.newInstanceStore.has(instance) && ID !== undefined) {
+				var referenceCount = this.newInstanceStore.referenceCount(instance);
+				this.newInstanceStore.delete(instance);
+				this.instanceStore.addReference( ID, instance, referenceCount );
+			}
 		},
 		addInstanceMetaData: function(instance, name, value){
 			var data = this.instanceStore.set[this.id(instance)];
@@ -277,7 +299,14 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *
 		 */
 		deleteInstanceReference: function(instance) {
-			this.instanceStore.deleteReference( this.id(instance), instance );
+			var ID = this.id(instance);
+			if(ID === undefined) {
+				// if there is no id, remove this from the newInstanceStore
+				this.newInstanceStore.deleteReference(instance);
+			} else {
+				this.instanceStore.deleteReference( this.id(instance), instance );
+			}
+
 		},
 		/**
 		 * @property {WeakReferenceMap} can-connect/constructor/store/store.addListReference addListReference

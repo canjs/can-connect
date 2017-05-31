@@ -335,6 +335,15 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 					canBatch.stop();
 				}
 			}
+			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
+			if(funcName === "created" && this.newInstanceStore) {
+				var id = this.id(instance);
+				if(this.newInstanceStore.has(instance) && id !== undefined) {
+					var referenceCount = this.newInstanceStore.referenceCount(instance);
+					this.newInstanceStore.delete(instance);
+					this.instanceStore.addReference( id, instance, referenceCount );
+				}
+			}
 
 			canMapBehavior.callbackInstanceEvents(funcName, instance);
 		};
@@ -506,7 +515,10 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	_eventSetup: function (base, connection) {
 		return function(){
 			callCanReadingOnIdRead = false;
-			connection.addInstanceReference(this);
+			if(connection.addInstanceReference) {
+				connection.addInstanceReference(this);
+			}
+
 			callCanReadingOnIdRead = true;
 			return base.apply(this, arguments);
 		};
@@ -514,7 +526,9 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 	_eventTeardown: function (base, connection) {
 		return function(){
 			callCanReadingOnIdRead = false;
-			connection.deleteInstanceReference(this);
+			if(connection.deleteInstanceReference) {
+				connection.deleteInstanceReference(this);
+			}
 			callCanReadingOnIdRead = true;
 			return base.apply(this, arguments);
 		};
@@ -708,7 +722,9 @@ var listPrototypeOverwrites = {
 	},
 	_eventSetup: function (base, connection) {
 		return function(){
-			connection.addListReference(this);
+			if(connection.addListReference) {
+				connection.addListReference(this);
+			}
 			if(base) {
 				return base.apply(this, arguments);
 			}
@@ -716,7 +732,9 @@ var listPrototypeOverwrites = {
 	},
 	_eventTeardown: function (base, connection) {
 		return function(){
-			connection.deleteListReference(this);
+			if(connection.deleteListReference) {
+				connection.deleteListReference(this);
+			}
 			if(base) {
 				return base.apply(this, arguments);
 			}
@@ -774,8 +792,7 @@ var validate = require("can-connect/helpers/validate");
 module.exports = validate(
 	canMapBehavior,
 	[
-		'id', 'get', 'updatedList', 'destroy', 'save', 'getList', 'deleteListReference', 'addListReference',
-		'addInstanceReference'
+		'id', 'get', 'updatedList', 'destroy', 'save', 'getList'
 	]
 );
 //!steal-remove-end
