@@ -1,10 +1,16 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var Map = require("can-map");
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
 var superMap = require("can-connect/can/super-map/");
 var set = require("can-set");
 
-QUnit.module("can-connect/can/super-map");
+QUnit.module("can-connect/can/super-map",{
+	setup: function(){
+		localStorage.clear();
+	}
+});
 
 QUnit.test("uses idProp", function(){
 

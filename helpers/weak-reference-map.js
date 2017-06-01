@@ -63,10 +63,12 @@ assign(WeakReferenceMap.prototype,
 	 *
 	 *   @param  {String} key The key of the item in the store.
 	 */
-	addReference: function(key, item){
+	addReference: function(key, item, referenceCount){
+		// !steal-remove-start
 		if (typeof key === 'undefined'){
-			return;
+			throw new Error("can-connect: You must provide a key to store a value in a WeakReferenceMap");
 		}
+		// !steal-remove-end
 		var data = this.set[key];
 		if(!data) {
 			data = this.set[key] = {
@@ -75,7 +77,13 @@ assign(WeakReferenceMap.prototype,
 				key: key
 			};
 		}
-		data.referenceCount++;
+		data.referenceCount += (referenceCount || 1);
+	},
+	referenceCount: function(key) {
+		var data = this.set[key];
+		if(data) {
+			return data.referenceCount;
+		}
 	},
 	/**
 	 * @function can-connect/helpers/weak-reference-map.prototype.deleteReference deleteReference
