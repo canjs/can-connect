@@ -131,7 +131,8 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 	stealClone({}).import("can-connect/can/super-map/super-map").then(function(superMap) {
 		var connection = superMap({
 			Map: function() {},
-			List: function() {}
+			List: function() {},
+			url: ''
 		});
 		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
 	}).then(function() {
@@ -140,7 +141,8 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 	}).then(function(superMap) {
 		var connection = superMap({
 			Map: function() {},
-			List: function() {}
+			List: function() {},
+			url: ''
 		});
 		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
 		GLOBAL().$ = old$;

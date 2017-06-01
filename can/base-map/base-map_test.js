@@ -68,7 +68,8 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 	stealClone({}).import("can-connect/can/base-map/base-map").then(function(baseMap) {
 		var connection = baseMap({
 			Map: function() {},
-			List: function() {}
+			List: function() {},
+			url: ''
 		});
 		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
 	}).then(function() {
@@ -77,7 +78,8 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 	}).then(function(baseMap) {
 		var connection = baseMap({
 			Map: function() {},
-			List: function() {}
+			List: function() {},
+			url: ''
 		});
 		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
 		GLOBAL().$ = old$;
