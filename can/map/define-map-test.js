@@ -506,3 +506,58 @@ QUnit.test("reads id from set algebra (#82)", function(){
 
 	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
 });
+
+
+QUnit.asyncTest("instances bound before create are moved to instance store (#296)", function(){
+	var todoAlgebra = new set.Algebra(
+		set.props.boolean("complete"),
+		set.props.id("id"),
+		set.props.sort("sort")
+	);
+
+	var todoStore = fixture.store([
+		{ name: "mow lawn", complete: false, id: 5 },
+		{ name: "dishes", complete: true, id: 6 },
+		{ name: "learn canjs", complete: false, id: 7 }
+	], todoAlgebra);
+
+	fixture("/theapi/todos", todoStore);
+
+	var Todo = Map.extend({
+		id: "string",
+		name: "string",
+		complete: {type: "boolean", value: false}
+	});
+
+	Todo.List = List.extend({
+		"#": Todo
+	});
+
+	Todo.connection = connect([
+		constructor,
+		canMap,
+		constructorStore,
+		dataCallbacks,
+		dataUrl],
+		{
+			url: "/theapi/todos",
+			Map: Todo,
+			List: Todo.List,
+			name: "todo",
+			algebra: todoAlgebra
+		});
+
+
+	var newTodo = new Todo({name: "test superMap"});
+	newTodo.on("name", function(){});
+
+	newTodo.save().then(function(savedTodo){
+
+		Todo.get({id: savedTodo.id}).then(function(t){
+			QUnit.equal(t._cid, newTodo._cid); // NOK
+			QUnit.start();
+		});
+	});
+
+
+});

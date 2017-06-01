@@ -263,3 +263,36 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 	});
 
 });
+
+
+QUnit.asyncTest("instances bound before create are moved to instance store (#296)", function(){
+
+	var connection = connect([
+		function(){
+			var calls = 0;
+			return {
+				getData: function(){
+					return Promise.resolve({name: "test store", id: "abc"});
+				},
+				createData: function(){
+					return Promise.resolve({name: "test store", id: "abc"});
+				}
+			};
+		},
+		constructor,
+		instanceStore],
+		{});
+
+	var todo = {name: "test store"};
+	connection.addInstanceReference(todo);
+
+	connection.save(todo).then(function(savedTodo){
+
+		connection.get({id: savedTodo.id}).then(function(t){
+			QUnit.ok(t === todo, "instances the same");
+			QUnit.start();
+		});
+	});
+
+
+});

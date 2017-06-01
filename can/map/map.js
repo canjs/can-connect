@@ -287,7 +287,10 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @signature `connection.createdInstance( instance, props )`
 		 *
 		 *   Updates the instance with `props` and dispatches a
-		 *   "created" event on the map and the map's constructor function.
+		 *   "created" event on the map and the map's constructor function. Calls
+		 *   [can-connect/constructor/store/store.stores.moveCreatedInstanceToInstanceStore]
+		 *   to ensure instances "referenced" before being created are moved into the
+		 *   [can-connect/constructor/store/store.instanceStore].
 		 *
 		 *   @param {Map} instance a Map instance
 		 *   @param {Object} props the updated properties
@@ -336,13 +339,8 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 				}
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
-			if(funcName === "created" && this.newInstanceStore) {
-				var id = this.id(instance);
-				if(this.newInstanceStore.has(instance) && id !== undefined) {
-					var referenceCount = this.newInstanceStore.referenceCount(instance);
-					this.newInstanceStore.delete(instance);
-					this.instanceStore.addReference( id, instance, referenceCount );
-				}
+			if(funcName === "created" && this.moveCreatedInstanceToInstanceStore) {
+				this.moveCreatedInstanceToInstanceStore(instance);
 			}
 
 			canMapBehavior.callbackInstanceEvents(funcName, instance);

@@ -2,8 +2,9 @@
  * @module {connect.Behavior} can-connect/constructor/store/store
  * @parent can-connect.behaviors
  * @group can-connect/constructor/store/store.stores 0 stores
- * @group can-connect/constructor/store/store.crud 1 crud methods
- * @group can-connect/constructor/store/store.hydrators 2 hydrators
+ * @group can-connect/constructor/store/store.callbacks 1 crud callbacks
+ * @group can-connect/constructor/store/store.crud 2 crud methods
+ * @group can-connect/constructor/store/store.hydrators 3 hydrators
  *
  * Supports saving and retrieving lists and instances in a store.
  *
@@ -239,10 +240,41 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 			}
 
 		},
+		/**
+		 * @function can-connect/constructor/store/store.callbacks.createdInstance createdInstance
+		 * @parent can-connect/constructor/store/store.callbacks
+		 *
+		 * Updates the instance being created with the result of [can-connect/connection.createData].
+		 *
+		 * @signature `connection.createdInstance( instance, props )`
+		 *
+		 *   Calls the base behavior. Then calls [can-connect/constructor/store/store.stores.moveCreatedInstanceToInstanceStore].
+		 *
+		 *   @param {can-connect/Instance} instance The instance to update.
+		 *
+		 *   @param {Object} props The data from [can-connect/connection.createData].
+		 */
 		createdInstance: function(instance, props){
 			// when an instance is created, and it is in the newInstance store
 			// transfer it to the instanceStore
 			baseConnection.createdInstance.apply(this, arguments);
+			this.moveCreatedInstanceToInstanceStore(instance);
+		},
+		/**
+		 * @function can-connect/constructor/store/store.stores.moveCreatedInstanceToInstanceStore moveCreatedInstanceToInstanceStore
+		 * @parent can-connect/constructor/store/store.stores
+		 *
+		 * Moves recently created instances into the [can-connect/constructor/store/store.instanceStore].
+		 *
+		 * @signature `connection.createdInstance( instance )`
+		 *
+		 *   Checks if an instance has an `id` and is in the `newInstanceStore`. If it does, moves it into the
+		 *   [can-connect/constructor/store/store.instanceStore].
+		 *
+		 *   @param {can-connect/Instance} instance An instance.  If it was "referenced" (bound to) prior to
+		 *   being created, this will check for that condition and move this instance into the [can-connect/constructor/store/store.instanceStore].
+		 */
+		moveCreatedInstanceToInstanceStore: function(instance){
 			var ID = this.id(instance);
 			if(this.newInstanceStore.has(instance) && ID !== undefined) {
 				var referenceCount = this.newInstanceStore.referenceCount(instance);
