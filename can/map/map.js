@@ -303,6 +303,17 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 *   Updates the instance with `props` and dispatches a
 		 *   "updated" event on the map and the map's constructor function.
+		 *
+		 * The update action can be customized by providing connection with `updatedMap` option which
+		 * takes the same two arguments:
+		 *
+		 * ```
+		 * connect( [ canMap ], {
+		 *     updatedMap: function( instance, props ){
+		 *         return smartMerge( instance, props );
+		 *     }
+		 * } )
+		 * ```
 		 */
 		"updated",
 		/**
@@ -321,8 +332,12 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		// Each of these is pretty much the same, except for the events they trigger.
 		behavior[funcName+"Instance"] = function (instance, props) {
 
-			// Update attributes if attributes have been passed
-			if(props && typeof props === 'object') {
+			if (typeof this[funcName + 'Map'] === 'function'){
+				instance = this[funcName + 'Map'](instance, props);
+
+			} else if(props && typeof props === 'object') {
+				// Update attributes if attributes have been passed
+
 				if("set" in instance) {
 					instance.set(isFunction(props.get) ? props.get() : props, this.constructor.removeAttr || false);
 				} else if("attr" in instance) {
