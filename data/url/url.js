@@ -102,6 +102,9 @@ var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
 var dev = require("can-util/js/dev/dev");
 var connect = require("can-connect");
+var makeRest = require("can-make-rest");
+
+var defaultRest = makeRest("/resource/{id}");
 
 var makePromise = require("can-util/js/make-promise/make-promise");
 
@@ -109,31 +112,38 @@ var makePromise = require("can-util/js/make-promise/make-promise");
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
 var urlBehavior = connect.behavior("data/url", function(baseConnection) {
-
-
 	var behavior = {};
-	each(pairs, function(reqOptions, name) {
-		behavior[name] = function(params) {
+	each(defaultRest, function(defaultData, dataInterfaceName){
+		behavior[dataInterfaceName] = function(params) {
+			var meta = methodMetaData[dataInterfaceName];
 
 			if(typeof this.url === "object") {
-				if(typeof this.url[reqOptions.prop] === "function") {
+				if(typeof this.url[dataInterfaceName] === "function") {
 
-					return makePromise(this.url[reqOptions.prop](params));
+					return makePromise(this.url[dataInterfaceName](params));
 				}
-				else if(this.url[reqOptions.prop]) {
-					return makePromise(makeAjax(this.url[reqOptions.prop], params, reqOptions.type, this.ajax || ajax, findContentType(this.url), reqOptions));
+				else if(this.url[dataInterfaceName]) {
+					var promise = makeAjax(
+							this.url[dataInterfaceName],
+							params,
+							defaultData.method,
+							this.ajax || ajax,
+							findContentType(this.url),
+							meta);
+					return makePromise(promise);
 				}
 			}
 
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
 				var idProps = getIdProps(this);
-				return makePromise(makeAjax( createURLFromResource(resource, idProps[0] ,
-					reqOptions.prop ),
-					params, reqOptions.type,
+				var resourceWithoutTrailingSlashes = resource.replace(/\/+$/, "");
+				var result = makeRest(resourceWithoutTrailingSlashes, idProps[0])[dataInterfaceName];
+				return makePromise(makeAjax( result.url,
+					params, result.method,
 					this.ajax || ajax,
 					findContentType(this.url),
-					reqOptions));
+					meta));
 			}
 
 			return baseConnection[name].call(this, params);
@@ -225,11 +235,9 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
   *   @return {Promise} A Promise that resolves to the data.
   */
 
-// ## pairs
-// The functions that will be created mapped to an object with:
-// - prop - the property to look for in connection.url for a url
-// - type - the default http method if one is not provided in the url
-var pairs = {
+// ## methodMetaData
+// Metadata on different methods that is passed to makeAjax
+var methodMetaData = {
 	/**
 	 * @function can-connect/data/url/url.getListData getListData
 	 * @parent can-connect/data/url/url.data-methods
@@ -244,7 +252,7 @@ var pairs = {
 	 *   @param {can-set/Set} set A object that represents the set of data needed to be loaded.
 	 *   @return {Promise<can-connect.listData>} A promise that resolves to the ListData format.
 	 */
-	getListData: {prop: "getListData", type: "GET"},
+	getListData: {},
 	/**
 	 * @function can-connect/data/url/url.getData getData
 	 * @parent can-connect/data/url/url.data-methods
@@ -259,7 +267,7 @@ var pairs = {
 	 *   @param {Object} params A object that represents the set of data needed to be loaded.
 	 *   @return {Promise<Object>} A promise that resolves to the instance data.
 	 */
-	getData: {prop: "getData", type: "GET"},
+	getData: {},
 	/**
 	 * @function can-connect/data/url/url.createData createData
 	 * @parent can-connect/data/url/url.data-methods
@@ -276,7 +284,7 @@ var pairs = {
 	 *   @param {Number} cid A unique id that represents the instance that is being created.
 	 *   @return {Promise<Object>} A promise that resolves to the newly created instance data.
 	 */
-	createData: {prop: "createData", type: "POST"},
+	createData: {},
 	/**
 	 * @function can-connect/data/url/url.updateData updateData
 	 * @parent can-connect/data/url/url.data-methods
@@ -292,7 +300,7 @@ var pairs = {
 	 *   @param {Object} instanceData The serialized data of the instance.
 	 *   @return {Promise<Object>} A promise that resolves to the updated instance data.
 	 */
-	updateData: {prop: "updateData", type: "PUT"},
+	updateData: {},
 	/**
 	 * @function can-connect/data/url/url.destroyData destroyData
 	 * @parent can-connect/data/url/url.data-methods
@@ -308,7 +316,7 @@ var pairs = {
 	 *   @param {Object} instanceData The serialized data of the instance.
 	 *   @return {Promise<Object>} A promise that resolves to the deleted instance data.
 	 */
-	destroyData: {prop: "destroyData", type: "DELETE", includeData: false}
+	destroyData: {includeData: false}
 };
 
 var findContentType = function( url ) {
@@ -367,16 +375,6 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 		type: type || 'post',
 		dataType: 'json'
 	}, params));
-};
-
-var createURLFromResource = function(resource, idProp, name) {
-
-	var url = resource.replace(/\/+$/, "");
-	if (name === "getListData" || name === "createData") {
-		return url;
-	} else {
-		return url + "/{" + idProp + "}";
-	}
 };
 
 module.exports = urlBehavior;
