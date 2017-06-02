@@ -132,7 +132,7 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 		var connection = superMap({
 			Map: function() {},
 			List: function() {},
-			url: "/fake"
+			url: ''
 		});
 		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
 	}).then(function() {
@@ -142,7 +142,7 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 		var connection = superMap({
 			Map: function() {},
 			List: function() {},
-			url: "/fake"
+			url: ''
 		});
 		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
 		GLOBAL().$ = old$;

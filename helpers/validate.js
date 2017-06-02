@@ -29,16 +29,25 @@ function validateArgumentInterface(func, argIndex, interfaces, errorHandler) {
 	}
 }
 
+
 // change to 'BehaviourInterfaceError extends Error' once we drop support for pre-ES2015
 function BehaviorInterfaceError(baseBehavior, extendingBehavior, missingProps) {
 	var extendingName = extendingBehavior.behaviorName || 'anonymous behavior',
 		baseName = baseBehavior.__behaviorName || 'anonymous behavior',
 		message = 'can-connect: Extending behavior "' + extendingName + '" found base behavior "' + baseName
-			+ '" was missing required properties: ' + JSON.stringify(missingProps.related);
+			+ '" was missing required properties: ' + JSON.stringify(missingProps.related),
+		instance = new Error(message);
 
-	this.name = 'BehaviorInterfaceError';
-	this.message = message;
-	this.stack = (new Error()).stack;
+	if (Object.setPrototypeOf){
+		Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+	}
+	return instance;
 }
-BehaviorInterfaceError.prototype = Object.create(Error.prototype);
-BehaviorInterfaceError.prototype.constructor = BehaviorInterfaceError;
+BehaviorInterfaceError.prototype = Object.create(Error.prototype, {
+	constructor: {value: Error}
+});
+if (Object.setPrototypeOf){
+	Object.setPrototypeOf(BehaviorInterfaceError, Error);
+} else {
+	BehaviorInterfaceError.__proto__ = Error;
+}

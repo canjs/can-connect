@@ -79,7 +79,7 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 		var connection = baseMap({
 			Map: function() {},
 			List: function() {},
-			url: "/fake"
+			url: ''
 		});
 		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
 		GLOBAL().$ = old$;
