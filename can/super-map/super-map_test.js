@@ -149,4 +149,3 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 		start();
 	});
 });
-
