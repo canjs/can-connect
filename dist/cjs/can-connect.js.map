@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../can-connect.js"],"names":["connect","require","base","ns","module","exports"],"mappings":";AAAA,IAAIA,OAAA,GAAUC,OAAA,CAAQ,cAAR,CAAd;AACA,IAAIC,IAAA,GAAOD,OAAA,CAAQ,gBAAR,CAAX,CADA;AAEA,IAAIE,EAAA,GAAKF,OAAA,CAAQ,eAAR,CAAT,CAFA;AAIAD,OAAA,CAAQE,IAAR,GAAeA,IAAf,CAJA;AAMAE,MAAA,CAAOC,OAAP,GAAiBF,EAAA,CAAGH,OAAH,GAAaA,OAA9B","file":"can-connect.js"}
