@@ -12,6 +12,7 @@ var types = require("can-types");
 var each = require("can-util/js/each/each");
 var isFunction = require("can-util/js/is-function/is-function");
 var dev = require("can-util/js/dev/dev");
+var canReflect = require("can-reflect");
 
 var setExpando = function(map, prop, value) {
 	if("attr" in map) {
@@ -711,7 +712,7 @@ var listPrototypeOverwrites = {
 			if (isPlainObject(params) && !isArray(params)) {
 				this.__listSet = params;
 				base.apply(this);
-				this.replace(types.isPromise(params) ? params : connection.getList(params));
+				this.replace(canReflect.isPromise(params) ? params : connection.getList(params));
 			} else {
 				// Otherwise, set up the list like normal.
 				base.apply(this, arguments);
