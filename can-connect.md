@@ -394,10 +394,10 @@ in your behavior:
 And, in most frameworks you know when a particular observable is being used, typically
 observed, and when it can be discarded.  In those places, you should call:
 
-[can-connect/constructor/store/store.addInstanceReference] — Call when an instance is being used.
-[can-connect/constructor/store/store.deleteInstanceReference] — Call when an instance is no longer being used.
-[can-connect/constructor/store/store.addListReference] — Call when a list is being used.
-[can-connect/constructor/store/store.deleteListReference] — Called when a list is no longer being used.
+- [can-connect/constructor/store/store.addInstanceReference] — when an instance is being used.
+- [can-connect/constructor/store/store.deleteInstanceReference] — when an instance is no longer being used.
+- [can-connect/constructor/store/store.addListReference] — when a list is being used.
+- [can-connect/constructor/store/store.deleteListReference] — when a list is no longer being used.
 
 
 ## Interfaces

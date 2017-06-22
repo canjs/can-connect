@@ -154,6 +154,26 @@ QUnit.test("contentType can be form-urlencoded (#134)", function() {
 	});
 });
 
+QUnit.test("contentType defaults to form-urlencoded for GET", function() {
+	var connection = persist({
+		url: {
+			getData: "GET /api/restaurants"
+		}
+	});
+
+	fixture({
+		"GET /api/restaurants": function(request){
+			equal(request.headers["Content-Type"], "application/x-www-form-urlencoded");
+			return request.data;
+		}
+	});
+
+	stop();
+	connection.getData({foo:"bar"}).then(function() {
+		start();
+	});
+});
+
 QUnit.test("getting a real Promise back with functions", function() {
 	var connection = persist({
 		url: {
