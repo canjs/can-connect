@@ -17,7 +17,7 @@
     "can-stache": "^3.0.13",
     "can-stache-bindings": "^3.0.5",
     "can-types": "^1.0.0",
-    "can-util": "^3.7.0",
+    "can-util": "^3.8.5",
     "can-validate-interface": "0.1.0",
     "can-view-callbacks": "^3.0.2",
     "can-view-nodelist": "^3.0.2",

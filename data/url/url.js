@@ -128,7 +128,7 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 							params,
 							defaultData.method,
 							this.ajax || ajax,
-							findContentType(this.url),
+							findContentType(this.url, defaultData.method),
 							meta);
 					return makePromise(promise);
 				}
@@ -142,7 +142,7 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 				return makePromise(makeAjax( result.url,
 					params, result.method,
 					this.ajax || ajax,
-					findContentType(this.url),
+					findContentType(this.url, result.method),
 					meta));
 			}
 
@@ -319,7 +319,7 @@ var methodMetaData = {
 	destroyData: {includeData: false}
 };
 
-var findContentType = function( url ) {
+var findContentType = function( url, method ) {
 	if ( typeof url === 'object' && url.contentType ) {
 		var acceptableType = url.contentType === 'application/x-www-form-urlencoded' ||
 			url.contentType === 'application/json';
@@ -332,7 +332,7 @@ var findContentType = function( url ) {
 			//!steal-remove-end
 		}
 	}
-	return 'application/json';
+	return method === "GET" ? "application/x-www-form-urlencoded" : "application/json";
 };
 
 var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
@@ -358,14 +358,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 
 	// Substitute in data for any templated parts of the URL.
 	params.url = string.sub(params.url, params.data, true);
-
-	// Default to JSON encoding, if contentType is not form-urlencoded
-	var encodeJSON = contentType !== 'application/x-www-form-urlencoded' &&
-		(type && (type === 'POST' || type === 'PUT'));
-	if (encodeJSON) {
-		params.data = JSON.stringify(params.data);
-		params.contentType = contentType;
-	}
+	params.contentType = contentType;
 
 	if(reqOptions.includeData === false) {
 		delete params.data;
