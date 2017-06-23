@@ -9,7 +9,7 @@
     "can-define": "^1.2.0-pre.4",
     "can-event": "^3.5.0-pre.2",
     "can-list": "^3.1.0-pre.9",
-    "can-make-rest": "0.1.0-pre.0",
+    "can-make-rest": "0.1.0",
     "can-map": "^3.1.0-pre.10",
     "can-namespace": "1.0.0",
     "can-observation": "^3.2.0-pre.11",
