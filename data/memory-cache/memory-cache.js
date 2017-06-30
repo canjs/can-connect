@@ -1,5 +1,5 @@
 /**
- * @module can-connect/data/memory-cache/memory-cache
+ * @module can-connect/data/memory-cache/memory-cache memory-cache
  * @parent can-connect.behaviors
  * @group can-connect/data/memory-cache/memory-cache.data-methods data methods
  *

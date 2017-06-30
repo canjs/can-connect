@@ -1,16 +1,18 @@
 /**
- * @module {connect.Behavior} can-connect/can/constructor-hydrate/constructor-hydrate
+ * @module {connect.Behavior} can-connect/can/constructor-hydrate/constructor-hydrate constructor-hydrate
  * @parent can-connect.behaviors
  *
- * Always check the [can-connect/constructor/store/store.instanceStore] when creating new instances of the connected [can-connect/can/map/map._Map] type.
+ * Always check the [can-connect/constructor/store/store.instanceStore] when creating new instances of the connected
+ * [can-connect/can/map/map._Map] type. Prevents duplication of instances when instances are created outside of the
+ * `can-connect` connection.
  *
  * @signature `constructorHydrate( baseConnection )`
  *
- * 	 Overrides [can-define/map/map]'s `setup` method and checks whether a newly created instance already
- * 	 exists in [can-connect/constructor/store/store.instanceStore]. If it exists that instance will be
- * 	 returned instead of a new object.
+ * Overrides [can-define/map/map DefineMaps]'s `setup` method and checks whether a newly created instance already
+ * exists in the [can-connect/constructor/store/store.instanceStore]. If it exists that instance will be returned
+ * instead of a new object.
  *
- * 	 This behavior has to be used with [can-connect/constructor/store] and [can-connect/can/map/map] behaviors.
+ * This behavior has to be used with [can-connect/constructor/store/store] and [can-connect/can/map/map can/map] behaviors.
  *
  * @body
  *
@@ -49,20 +51,21 @@
  * });
  * ```
  *
- * Now lets say your application loads `student` in a regular way using `Student.get()`, and it gets data
- * for `teamLead` from somewhere else. Also let's the team lead is the same person as student:
+ * Now lets say your application loads `student` via `can-connect` using `Student.get()`, and it gets data for
+ * `teamLead` from elsewhere. Also let's say in this example the team lead is the same person as student:
  *
  * ```js
- * myPage.student = Student.get({id: 1});
+ * myPage.student = Student.get({id: 1}); // loaded via can-connect
  *
- * myPage.loadTeamLead().then( function(person){ myPage.teamLead = person; } );
+ * myPage.loadTeamLead().then( function(person){ myPage.teamLead = person; } ); // not loaded via can-connect
  * ```
  *
- * Without [can-connect/can/constructor-hydrate/constructor-hydrate] we would end up with two instances of `Student` with the same id.
- * Also, the `teamLead` would not be referencing an instance that is stored in connection's `instanceStore`
- * and thus will loose real-time updates if [can-connect/real-time/real-time] was used.
+ * Without [can-connect/can/constructor-hydrate/constructor-hydrate] we would end up with two instances of `Student`
+ * with the same id. Additionally, `teamLead` would not be an instance that is stored in the connection's `instanceStore`
+ * and thus would not benefit from the real-time updates offered by the [can-connect/real-time/real-time real-time]
+ * behavior.
  *
- * This behavior solves this problem by checking `instanceStore` before creating a new instance. So, in our app
+ * `constructor-hydrate` solves this problem by checking `instanceStore` before creating a new instance. So, in our app
  * it will return the existing instance and give it to `teamLead`. Now both `myPage.student` and `myPage.teamLead`
  * are referencing the same instance:
  *

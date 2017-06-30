@@ -1,14 +1,17 @@
 /**
- * @module {connect.Behavior} can-connect/can/ref/ref
+ * @module {connect.Behavior} can-connect/can/ref/ref can/ref
  * @parent can-connect.behaviors
  * @group can-connect/can/ref/ref.hydrators hydrators
  * @group can-connect/can/ref/ref.methods methods
  *
- * @description Handle references to instances in the raw data returned by the server.
+ * @description Handle references to instances in the raw data returned by the server. Allows an instance reference to
+ * be populated dynamically, either by the request for the referencing instance, an existing instance in an
+ * instanceStore or via lazy loading.
  *
  * @signature `canRef( baseConnection )`
  *
- *   Makes a reference type that loads the related type or holds onto an existing one. This handles circular references and loads relevant data as needed.
+ *   Makes a reference type that loads the related type or holds onto an existing one. This handles circular references
+ *   and loads relevant data as needed.
  *
  *   @param {connection} baseConnection The base connection should have [can-connect/can/map/map]
  *   already applied to it.
@@ -381,7 +384,9 @@ module.exports = connect.behavior("can/ref",function(baseConnection){
 		 * @can-connect/can/ref/ref.init init
 		 * @parent can-connect/can/ref/ref.methods
 		 *
-		 * @body Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
+		 * @body
+		 *
+		 * Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
 		 */
 		init: function(){
 			baseConnection.init.apply(this, arguments);

@@ -14,7 +14,7 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.createdInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'created'` event on the instance
+		 *   Calls `mapDeepMerge` and triggers the `'created'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance The instance that was just created whose
@@ -37,7 +37,7 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.destroyedInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'destroyed'` event on the instance
+		 *   Calls `mapDeepMerge` and triggers the `'destroyed'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance The instance that was just destroyed whose
@@ -60,7 +60,7 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.updatedInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'updated'` event on the instance
+		 *   Calls `mapDeepMerge` and triggers the `'updated'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance The instance that was just updated whose

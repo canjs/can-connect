@@ -1,5 +1,5 @@
 /**
- * @module {connect.Behavior} can-connect/constructor/store/store
+ * @module {connect.Behavior} can-connect/constructor/store/store constructor/store
  * @parent can-connect.behaviors
  * @group can-connect/constructor/store/store.stores 0 stores
  * @group can-connect/constructor/store/store.callbacks 1 crud callbacks
