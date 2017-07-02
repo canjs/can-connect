@@ -327,16 +327,11 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
-				if("set" in instance) {
-					instance.set(isFunction(props.get) ? props.get() : props, this.constructor.removeAttr || false);
-				} else if("attr" in instance) {
-					instance.attr(isFunction(props.attr) ? props.attr() : props, this.constructor.removeAttr || false);
+
+				if(this.constructor.removeAttr) {
+					canReflect.updateDeep(instance, props);
 				} else {
-					canBatch.start();
-					each(props, function(value, prop){
-						instance[prop] = value;
-					});
-					canBatch.stop();
+					canReflect.assignDeep(instance, props);
 				}
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
