@@ -10,7 +10,7 @@
     "can-event": "^3.5.0",
     "can-list": "^3.1.0",
     "can-make-rest": "0.1.1",
-    "can-map": "^3.1.0",
+    "can-map": "^3.3.1",
     "can-namespace": "1.0.0",
     "can-observation": "^3.2.0",
     "can-reflect": "^1.2.0",
