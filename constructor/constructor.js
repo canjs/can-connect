@@ -92,7 +92,6 @@
  *
  *
  */
-var isArray = require("can-util/js/is-array/is-array");
 var makeArray = require("can-util/js/make-array/make-array");
 var assign = require("can-util/js/assign/assign");
 var connect = require("can-connect");
@@ -211,7 +210,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 		 *   @return {can-connect.List} The data type used to represent the list.
 		 */
 		hydrateList: function(listData, set){
-			if(isArray(listData)) {
+			if(Array.isArray(listData)) {
 				listData = {data: listData};
 			}
 
@@ -352,7 +351,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 				// It should be given a local id and temporarily added to the cidStore
 				// so other hooks can get back the instance that's being created.
 				var cid = this._cid++;
-				// cid is really a token to be able to reference this transaction. 
+				// cid is really a token to be able to reference this transaction.
 				this.cidStore.addReference(cid, instance);
 
 				// Call the data layer.

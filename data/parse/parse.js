@@ -55,7 +55,6 @@
  */
  var connect = require("can-connect");
  var each = require("can-util/js/each/each");
- var isArray = require("can-util/js/is-array/is-array");
  var getObject = require("can-util/js/get/get");
 
 
@@ -137,7 +136,7 @@ module.exports = connect.behavior("data/parse",function(baseConnection){
 			}
 
 			var result;
-			if( isArray(responseData) ) {
+			if( Array.isArray(responseData) ) {
 				result = {data: responseData};
 			} else {
 				var prop = this.parseListProp || 'data';
@@ -147,7 +146,7 @@ module.exports = connect.behavior("data/parse",function(baseConnection){
 				if(prop !== "data") {
 					delete responseData[prop];
 				}
-				if(!isArray(result.data)) {
+				if(!Array.isArray(result.data)) {
 					throw new Error('Could not get any raw data while converting using .parseListData');
 				}
 
