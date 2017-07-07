@@ -10,16 +10,24 @@ var forEach = [].forEach;
  * @group can-connect/cache-requests/cache-requests.data data interface
  * @group can-connect/cache-requests/cache-requests.algebra algebra
  *
- * Cache response data and use it to prevent future requests or make future requests smaller.
+ * Cache response data and use it to prevent unnecessary future requests or make future requests smaller.
  *
  * @signature `cacheRequests( baseConnection )`
  *
- *   Overwrite [can-connect/cache-requests/cache-requests.getListData] to use set logic to determine what data is
- *   already in the [can-connect/base/base.cacheConnection cache] and what data needs to be loaded from the base
- *   connection.
+ *   Provide an implementation of [can-connect/cache-requests/cache-requests.getListData] that uses set logic to
+ *   determine what data is already in the [can-connect/base/base.cacheConnection cache] and what data needs to be
+ *   loaded from the base connection.
  *
  *   It then gets data from the cache and the base connection (if needed), merges it, and returns it. Any data returned
  *   from the base connection is added to the cache.
+ *
+ *   @param {{}} baseConnection `can-connect` connection object that is having the `cache-requests` behavior added
+ *   on to it. Should already contain the behaviors that provide the [can-connect/DataInterface]
+ *   (e.g [can-connect/data/url/url]). If the `connect` helper is to build the connection the behaviors will
+ *   automatically be ordered as required.
+ *
+ *   @return {Object} A `can-connect` connection containing the methods provided by `cache-requests`.
+ *
  *
  * @body
  *
@@ -30,14 +38,12 @@ var forEach = [].forEach;
  * in memory:
  *
  * ```
- * var cacheConnection = connect([
- *   require("can-connect/data/memory-cache/")
- * ],{});
+ * var memoryCache = require("can-connect/data/memory-cache/");
+ * var dataUrl = require("can-connect/data/url/");
+ * var cacheRequests = require("can-connect/cache-requests/");
  *
- * var todoConnection = connect([
- *   require("can-connect/data/url/"),
- *   require("can-connect/cache-requests/")
- * ],{
+ * var cacheConnection = connect([memoryCache], {});
+ * var todoConnection = connect([dataUrl, cacheRequests],{
  *   cacheConnection: cacheConnection,
  *   url: "/todos"
  * });
@@ -57,7 +63,7 @@ var forEach = [].forEach;
  *
  * The subset will be created from the original request's data.
  *
- * ## Using Algebra
+ * ## Algebra Usage
  *
  * `cache-requests` can also "fill in" the data the cache is missing if you provide it the necessary [can-set set algebra].
  *
@@ -81,21 +87,15 @@ var forEach = [].forEach;
  * ```
  * var algebra = new set.Algebra( set.props.rangeInclusive("start","end") );
  *
- * var cacheConnection = connect([
- *   require("can-connect/data/memory-cache/memory-cache")
- * ], {algebra: algebra});
- *
- * var todoConnection = connect([
- *   require("can-connect/data/url/url"),
- *   require("can-connect/cache-requests/cache-requests")
- * ], {
+ * var cacheConnection = connect([memoryCache], {algebra: algebra});
+ * var todoConnection = connect([dataUrl, cacheRequests], {
  *   cacheConnection: cacheConnection,
  *   url: "/todos",
  *   algebra: algebra
  * })
  * ```
  *
- * Notice that `cacheConnection` shares the same algebra configuration as the primary connection.
+ * **Note:** `cacheConnection` shares the same algebra configuration as the primary connection.
  */
 var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConnection){
 
@@ -105,21 +105,21 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 * @function can-connect/cache-requests/cache-requests.getDiff getDiff
 		 * @parent can-connect/cache-requests/cache-requests.algebra
 		 *
-		 * Compares the cached data to the requested set and returns what subset can be loaded from the cache and what
-		 * subset must be loaded from the base connection.
+		 * Compares the cached sets to the requested set and returns a description of what subset can be loaded from the
+		 * cache and what subset must be loaded from the base connection.
 		 *
 		 * @signature `connection.getDiff( set, availableSets )`
 		 *
-		 *   This attempts to find the minimal amount of data to load by going through each `availableSet` and doing a
-		 *   [can-set.Algebra.prototype.subset subset] test and a [can-set.Algebra.prototype.difference set difference]
-		 *   with the `set` argument.
+		 *   This determines the minimal amount of data that must be loaded from the base connection by going through each
+		 *   cached set (`availableSets`) and doing a [can-set.Algebra.prototype.subset subset] check and a
+		 *   [can-set.Algebra.prototype.difference set difference] with the requested set (`set`).
 		 *
 		 *   If `set` is a subset of an `availableSet`, `{cached: set}` will be returned.
 		 *
 		 *   If `set` is neither a subset of, nor intersects with any `availableSets`, `{needed: set}` is returned.
 		 *
-		 *   If `set` has an intersection with one or more `availableSets`, a diff definition with the smallest difference
-		 *   will be returned. An example diff definition looks like:
+		 *   If `set` has an intersection with one or more `availableSets`, a description of the difference that has the fewest
+		 *   missing elements will be returned. An example diff description looks like:
 		 *
 		 *   ```
 		 *   {
@@ -130,8 +130,9 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 *   ```
 		 *
 		 *   @param {can-set/Set} set The set that is being requested.
-		 *   @param {Array<can-set/Set>} availableSets An array of available sets in the [can-connect/base/base.cacheConnection cache].
-		 *   @return {Promise<{needed: Set, cached: Set, count: Integer}>}
+		 *   @param {Array<can-set/Set>} availableSets An array of [can-connect/connection.getSets available sets] in the
+		 *     [can-connect/base/base.cacheConnection cache].
+		 *   @return {Promise<{needed: Set, cached: Set, count: Integer}>} a difference description object. Described above.
 		 *
 		 */
 		getDiff: function( params, availableSets ){
@@ -177,18 +178,18 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 * @function can-connect/cache-requests/cache-requests.getUnion getUnion
 		 * @parent can-connect/cache-requests/cache-requests.algebra
 		 *
-		 * Returns the union of the cached and un-cached data.
+		 * Create the requested data set, a union of the cached and un-cached data.
 		 *
 		 * @signature `connection.getUnion(set, diff, neededData, cachedData)`
 		 *
-		 *   Uses [can-set.getUnion](https://github.com/canjs/can-set#setgetunion) to merge the two sets.
+		 *   Uses [can-set.Algebra.prototype.getUnion] to merge the two sets of data (`neededData` & `cachedData`).
 		 *
-		 *   @param {can-set/Set} set The set requested.
-		 *   @param {Object} diff The result of [can-connect/cache-requests/cache-requests.getDiff].
-		 *   @param {can-connect.listData} neededData The data loaded from the base connection.
-		 *   @param {can-connect.listData} cachedData The data loaded from the [can-connect/base/base.cacheConnection].
+		 * @param {can-set/Set} set The parameters of the data set requested.
+		 * @param {Object} diff The result of [can-connect/cache-requests/cache-requests.getDiff].
+		 * @param {can-connect.listData} neededData The data loaded from the base connection.
+		 * @param {can-connect.listData} cachedData The data loaded from the [can-connect/base/base.cacheConnection].
 		 *
-		 *   @return {can-connect.listData} Return the merged cached and requested data.
+		 * @return {can-connect.listData} A merged [can-connect.listData] representation of the the cached and requested data.
 		 */
 		getUnion: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
@@ -205,14 +206,15 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 *
 		 *   Overwrites a base connection's `getListData` to use data in the [can-connect/base/base.cacheConnection cache]
 		 *   whenever possible.  This works by [can-connect/connection.getSets getting the stored sets]
-		 *   from the cache and
+		 *   from the [can-connect/base/base.cacheConnection cache] and
 		 *   doing a [can-connect/cache-requests/cache-requests.getDiff diff] to see what needs to be loaded from the base
-		 *   connection and what can be loaded from the cache.
+		 *   connection and what can be loaded from the [can-connect/base/base.cacheConnection cache].
 		 *
 		 *   With that information, this `getListData` requests data from the cache or the base connection as needed.
 		 *   Data loaded from different sources is combined via [can-connect/cache-requests/cache-requests.getUnion].
 		 *
-		 * @param {can-set/Set} set
+		 * @param {can-set/Set} set the parameters of the list that is being requested.
+		 * @return {Promise<can-connect.listData>} a promise that returns an object conforming to the [can-connect.listData] format.
 		 */
 		getListData: function(set){
 			set = set || {};

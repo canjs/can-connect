@@ -475,7 +475,7 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			List: TodoList,
 			ajax: $.ajax,
 			algebra: new set.Algebra(
-			   set.comparators.id("_id")
+			   set.props.id("_id")
 			)
 		});
 

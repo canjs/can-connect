@@ -60,7 +60,7 @@ var forEach = [].forEach;
  *   require("can-connect/data/url/url")
  * ],{
  *   url: "/todos",
- *   algebra: new Algebra(set.props.range("start","end"))
+ *   algebra: new Algebra(set.props.rangeInclusive("start","end"))
  * });
  * ```
  *

@@ -1,5 +1,5 @@
 /**
- * @module can-connect/real-time/real-time
+ * @module can-connect/real-time/real-time real-time
  * @parent can-connect.behaviors
  * @group can-connect/real-time/real-time.methods 0 methods
  * @group can-connect/real-time/real-time.callbacks 1 data callbacks
