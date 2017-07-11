@@ -7,7 +7,6 @@ var canEvent = require("can-event");
 var Observation = require("can-observation");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
-var isArray = require("can-util/js/is-array/is-array");
 var types = require("can-types");
 var each = require("can-util/js/each/each");
 var isFunction = require("can-util/js/is-function/is-function");
@@ -704,7 +703,7 @@ var listPrototypeOverwrites = {
 		return function (params) {
 			// If there was a plain object passed to the List constructor,
 			// we use those as parameters for an initial getList.
-			if (isPlainObject(params) && !isArray(params)) {
+			if (isPlainObject(params) && !Array.isArray(params)) {
 				this.__listSet = params;
 				base.apply(this);
 				this.replace(canReflect.isPromise(params) ? params : connection.getList(params));

@@ -94,7 +94,6 @@
  *
  * This does the same thing as the first `todoConnection` example.
  */
-var isArray = require("can-util/js/is-array/is-array");
 var assign = require("can-util/js/assign/assign");
 var each = require("can-util/js/each/each");
 var ajax = require("can-util/dom/ajax/ajax");
@@ -353,7 +352,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 	}
 
 	// If the `data` argument is a plain object, copy it into `params`.
-	params.data = typeof data === "object" && !isArray(data) ?
+	params.data = typeof data === "object" && !Array.isArray(data) ?
 		assign(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
