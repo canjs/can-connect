@@ -1,6 +1,6 @@
 module.exports = function(d, s, id){
 	for(var prop in d) {
-		if( prop !== id && !(prop in s)) {
+		if(d.hasOwnProperty(prop) && !prop.startsWith('__') && prop !== id && !(prop in s)) {
 			delete d[prop];
 		}
 	}
