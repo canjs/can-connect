@@ -588,11 +588,8 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 * @return {Boolean} `true` if [can-connect/base/base.id] is `null` or `undefined`
 		 */
 		return function () {
-			var id = connection.id(this);
-			// 0 is a valid ID.
-			// TODO: Why not `return id === null || id === undefined;`?
-			return !(id || id === 0); // If `null` or `undefined`
-		};
+			return connection.isNew(this);
+		}
 	},
 
 	isSaving: function (base, connection) {

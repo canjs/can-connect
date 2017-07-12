@@ -209,6 +209,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				});
 			});
 		},
+
 		/**
 		 * @function can-connect/real-time/real-time.createdData createdData
 		 * @parent can-connect/real-time/real-time.callbacks
@@ -226,9 +227,6 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   test if the instance's data belongs in that list.  If it does,
 		 *   adds the instance's data to the serialized list data and
 		 *   [can-connect/constructor/constructor.updatedList updates the list].
-		 *
-		 *
-		 *
 		 */
 		createdData: function(props, params, cid){
 			var instance;
@@ -244,6 +242,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 			this.deleteInstanceReference(instance);
 			return undefined;
 		},
+
 		/**
 		 * @function can-connect/real-time/real-time.updatedData updatedData
 		 * @parent can-connect/real-time/real-time.callbacks

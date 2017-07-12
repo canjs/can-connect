@@ -3,8 +3,8 @@
 
 The data format used to create typed lists.  
 
-@type {{data:Array<Object>}} A plain JavaScript object used to [can-connect/constructor.hydrateList hydrate] a typed
-list.  This is the data format resolved by [can-connect/connection.getListData].
+@type {{data:Array<Object>}} A plain JavaScript object used to [can-connect/constructor/constructor.hydrateList hydrate] 
+a typed list.  This is the data format resolved by [can-connect/connection.getListData].
 
 A `ListData` object should look like:
 
