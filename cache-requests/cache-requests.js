@@ -23,7 +23,7 @@ var forEach = [].forEach;
  *
  *   @param {{}} baseConnection `can-connect` connection object that is having the `cache-requests` behavior added
  *   on to it. Should already contain the behaviors that provide the [can-connect/DataInterface]
- *   (e.g [can-connect/data/url/url]). If the `connect` helper is to build the connection the behaviors will
+ *   (e.g [can-connect/data/url/url]). If the `connect` helper is used to build the connection, the behaviors will
  *   automatically be ordered as required.
  *
  *   @return {Object} A `can-connect` connection containing the methods provided by `cache-requests`.

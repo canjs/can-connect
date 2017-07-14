@@ -21,9 +21,11 @@
  * - provides methods to add and remove items in the store by counting references
  *
  * @param {{}} baseConnection `can-connect` connection object that is having the `constructor/store` behavior added
- * on to it.
+ * on to it. Should already contain a behavior that provides the InstanceInteface
+ * (e.g [can-connect/constructor/constructor]). If the `connect` helper is used to build the connection, the behaviors
+ * will automatically be ordered as required.
  *
- * @return {Object} a `can-connect` connection containing the method implementation provided by `constructor/store`.
+ * @return {Object} a `can-connect` connection containing the method implementations provided by `constructor/store`.
  *
  * @body
  *

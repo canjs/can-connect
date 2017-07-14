@@ -40,7 +40,7 @@ nested types must be properly configured.  That configuration is discussed in th
 
 @param {{}} baseConnection `can-connect` connection object that is having the `can/merge` behavior added on to it. Expects
 the [can-connect/can/map/map] behavior to already be added to this base connection. If the `connect` helper 
-is to build the connection the behaviors will automatically be ordered as required.
+is used to build the connection, the behaviors will automatically be ordered as required.
 
 @return {{}} a `can-connect` connection containing the methods provided by `can/merge`.
 

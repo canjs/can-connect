@@ -478,7 +478,7 @@ Overwritten by [can-connect/constructor/store/store constructor/store] and [can-
 
 Implemented by [can-connect/constructor/constructor constructor/constructor] behavior. 
 
-Overwritten by [data-connect/real-time/real-time real-time] and 
+Overwritten by [can-connect/real-time/real-time real-time] and 
 [can-connect/constructor/callbacks-once/callbacks-once constructor/callbacks-once] behaviors.
 
 #### Hydrators and Serializers
@@ -526,11 +526,12 @@ Consumed by [can-connect/constructor/constructor constructor/constructor] behavi
 
 `.gotListData(listData, set) -> ListaData` - Called whenever a list of data records are retrieved.  
 `.gotData( props, params) -> props` - Called whenever an individual data record is retrieved.  
-`.createdData( props, params, cid) -> props` - Called whenever an individual data record data is created.
-`.updatedData( props, params) -> props` - Called whenever an individual data record is updated.
-`.destroyedData( props, params) -> props` - Called whenever an individual data record is deleted.
+`.createdData( props, params, cid) -> props` - Called whenever an individual data record data is created.  
+`.updatedData( props, params) -> props` - Called whenever an individual data record is updated.  
+`.destroyedData( props, params) -> props` - Called whenever an individual data record is deleted.    
 
-Implemented by the [can-connect/data/callbacks/callbacks data/callbacks] behavior.  
+Implemented by the [can-connect/data/callbacks/callbacks data/callbacks] behavior. 
+
 Overwritten by [can-connect/data/callbacks-cache/callbacks-cache data/callbacks-cache] and
 [can-connect/real-time/real-time real-time] behaviors.
 

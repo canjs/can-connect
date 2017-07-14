@@ -27,7 +27,7 @@ with [can-define/map/map DefineMap] and [can-define/list/list DefineList] types:
 
 @param {{}} baseConnection `can-connect` connection object that is having the `can/map` behavior added on to it. Expects
 the [can-connect/constructor/constructor] behavior to already be added to this base connection. If the `connect` helper 
-is to build the connection the behaviors will automatically be ordered as required.
+is used to build the connection, the behaviors will automatically be ordered as required.
 
 @return {{}} a `can-connect` connection containing the methods provided by `can/map`.
 

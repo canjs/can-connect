@@ -18,7 +18,7 @@
  *
  * @param {{}} baseConnection `can-connect` connection object that is having the `can/ref` behavior added on to it.
  * Expects the [can-connect/can/map/map] behavior to already be added to this base connection. If the `connect` helper
- * is to build the connection the behaviors will automatically be ordered as required.
+ * is used to build the connection, the behaviors will automatically be ordered as required.
  *
  * @return {{}} a connection with the [can-connect/can/map/map._Map `Map`] having the reference type property
  * (`Map.Ref.type`) created by `can/ref`.

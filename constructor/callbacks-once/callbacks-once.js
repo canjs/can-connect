@@ -11,7 +11,7 @@
  *
  *   @param {{}} baseConnection `can-connect` connection object that is having the `callbacks-once` behavior added
  *   on to it. Should already contain the behaviors that provide the Instance Callbacks
- *   (e.g [can-connect/constructor/constructor]). If the `connect` helper is to build the connection the
+ *   (e.g [can-connect/constructor/constructor]). If the `connect` helper is used to build the connection, the
  *   behaviors will automatically be ordered as required.
  *
  *   @return {Object} A `can-connect` connection containing the methods provided by `callbacks-once`.
