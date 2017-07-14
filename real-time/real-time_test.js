@@ -229,7 +229,7 @@ QUnit.test("basics", function(){
 });
 
 QUnit.test("sorting by id works", function(){
-	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -269,7 +269,7 @@ QUnit.test("sorting by id works", function(){
 
 
 QUnit.test("sorting by sort clause works with updates", function(){
-	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -329,7 +329,7 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 //!steal-remove-start
 if (canDev) {
 	test("dev mode warning when listSet algebra doesn't match an item", function () {
-		var algebra = new set.Algebra(set.comparators.id("id"));
+		var algebra = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
 			return {
@@ -363,7 +363,7 @@ if (canDev) {
 	});
 
 	test("listSet algebra warning includes any `undefined` values", function() {
-		var algebra = new set.Algebra(set.comparators.id("id"));
+		var algebra = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
 			return {

@@ -248,7 +248,7 @@ QUnit.test("respect sort order (#80)", function(){
 	stop();
 
 	var connection = connect([memoryCache],{
-		algebra: new canSet.Algebra(canSet.comparators.sort("sortBy"))
+		algebra: new canSet.Algebra(canSet.props.sort("sortBy"))
 	});
 
 	connection.updateListData({ data: items.slice(0) }, {})

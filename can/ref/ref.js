@@ -1,17 +1,27 @@
 /**
- * @module {connect.Behavior} can-connect/can/ref/ref
+ * @module {connect.Behavior} can-connect/can/ref/ref can/ref
  * @parent can-connect.behaviors
  * @group can-connect/can/ref/ref.hydrators hydrators
  * @group can-connect/can/ref/ref.methods methods
  *
- * @description Handle references to instances in the raw data returned by the server.
+ * @description Handle references to instances in the data returned by the server. Allows several means of
+ * loading referenced instances, determined on-the-fly.
  *
  * @signature `canRef( baseConnection )`
  *
- *   Makes a reference type that loads the related type or holds onto an existing one. This handles circular references and loads relevant data as needed.
+ * Adds a reference type to [can-connect/can/map/map._Map `connection.Map`] that loads the related type or holds onto
+ * an existing one. This handles circular references and loads relevant data as needed. The reference type can be loaded
+ * by:
+ * - it's data being included in the response for the referencing instance
+ * - having an existing instance available in the [can-connect/constructor/store/store.instanceStore]
+ * - lazy loading via the connection for the reference type
  *
- *   @param {connection} baseConnection The base connection should have [can-connect/can/map/map]
- *   already applied to it.
+ * @param {{}} baseConnection `can-connect` connection object that is having the `can/ref` behavior added on to it.
+ * Expects the [can-connect/can/map/map] behavior to already be added to this base connection. If the `connect` helper
+ * is used to build the connection, the behaviors will automatically be ordered as required.
+ *
+ * @return {{}} a connection with the [can-connect/can/map/map._Map `Map`] having the reference type property
+ * (`Map.Ref.type`) created by `can/ref`.
  *
  * @body
  *
@@ -93,7 +103,7 @@
  * With populating the team data:
  *
  * ```
- * Game.get({id: 5, populate: "teamRef"}).then(function(game){
+ * Game.get({id: 5, $populate: "teamRef"}).then(function(game){
  *   game.teamRef.id //-> 7
  * });
  * ```
@@ -157,9 +167,14 @@ var makeRef = function(connection){
 	 * @parent can-connect/can/ref/ref.hydrators
 	 * @group can-connect/can/ref/ref.Map.Ref.static static
 	 * @group can-connect/can/ref/ref.Map.Ref.prototype prototype
+	 *
+	 * A reference type with `instanceRef.value` primed to return an existing instance of the
+	 * [can-connect/can/map/map._Map] type, if available, or lazy load an instance upon accessing `instanceRef.value`.
+	 *
+	 * @signature `new Map.Ref(id, value)`
 	 * @param  {string} id    string representing the record id
-	 * @param  {Object} value instance loaded / hydrated
-	 * @return {Object}       Instance for the id
+	 * @param  {Object} value properties to be loaded / hydrated
+	 * @return {Map.Ref}       instance reference object for the id
 	 */
 	var Ref = function(id, value){
 		if(typeof id === "object") {
@@ -203,6 +218,7 @@ var makeRef = function(connection){
 	/**
 	 * @property {can-connect/helpers/weak-reference-map} can-connect/can/ref/ref.Map.Ref.store store
 	 * @parent can-connect/can/ref/ref.Map.Ref.static
+	 * @hide // not something that needs to be documented for the average user
 	 * A WeakReferenceMap that contains instances being created by their `._cid` property.
 	 */
 	Ref.store = new WeakReferenceMap();
@@ -211,29 +227,33 @@ var makeRef = function(connection){
 	 * @function can-connect/can/ref/ref.Map.Ref.type type
 	 * @parent can-connect/can/ref/ref.Map.Ref.static
 	 *
-	 * @signature `Map.Ref.type(ref)`
+	 * Returns a new instance of `Map.Ref`.
 	 *
-	 *   @param {Object|String|Number} ref
-	 *   @return {can-connect/can/ref/ref.Map.Ref}
+	 * @signature `Map.Ref.type(reference)`
+	 *
+	 *   @param {Object|String|Number} reference either data or an id for an instance of [can-connect/can/map/map._Map].
+	 *   @return {can-connect/can/ref/ref.Map.Ref} reference instance for the passed data or identifier.
 	 */
 	Ref.type = function(ref) {
 		if(ref && typeof ref !== "object") {
 			// get or make the existing reference from the store
 			return new Ref(ref);
-	    } else {
-	      // get or make the reference in the store, update the instance too
-	      return new Ref(
-			  ref[idProp],
-			  ref);
-	    }
+    } else {
+      // get or make the reference in the store, update the instance too
+      return new Ref(ref[idProp], ref);
+    }
 	};
 	var defs = {
 		/**
 		 * @property {Promise} can-connect/can/ref/ref.Map.Ref.prototype.promise promise
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 * @hide // don't know if this is part of the public API
+		 *
+		 * Returns a resolved promise if the referenced instance is already available, if not, returns a new promise
+		 * to retrieve the instance by the id.
+		 *
 		 * @signature `ref.promise`
-		 * Returns a promise if it has already been resolved, if not, returns a new promise.
-		 * @return {Promise}
+		 * @return {Promise} Promise resolving the instance referenced
 		 */
 		promise: {
 			get: function(){
@@ -246,6 +266,7 @@ var makeRef = function(connection){
 				}
 			}
 		},
+
 		_state: {
 			get: function(lastSet, resolve){
 				if(resolve) {
@@ -259,12 +280,16 @@ var makeRef = function(connection){
 				return "pending";
 			}
 		},
+
 		/**
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.value value
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 *
+		 * Returns the actual instance the reference points to. Returns `undefined` if the instance is still being loaded.
+		 * Accessing this property will start lazy loading if the instance isn't already available.
+		 *
 		 * @signature `ref.value`
-		 * Returns the actual object that reference points to.
-		 * @return {object} actual object that reference points to
+		 * @return {object} actual instance referenced or `undefined` if lazy loading ongoing
 		 */
 		value: {
 			get: function(lastSet, resolve) {
@@ -277,11 +302,15 @@ var makeRef = function(connection){
 				}
 			}
 		},
+
 		/**
 		 * @property {*} can-connect/can/ref/ref.Map.Ref.prototype.reason reason
 		 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+		 *
+		 * Returns the failure message from the lazy loading promise. Returns `undefined` if the referenced instance is
+		 * available or loading is ongoing.
+		 *
 		 * @signature `ref.reason`
-		 * Handles the rejection case for the promise.
 		 * @return {Object} error message if the promise is rejected
 		 */
 		reason: {
@@ -312,9 +341,10 @@ var makeRef = function(connection){
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isResolved isResolved
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
 	 *
+	 * Observable property typically for use in templates to indicate to the user if lazy loading has succeeded.
+	 *
 	 * @signature `ref.isResolved`
-	 * Returns a {boolean}.
-	 * @return {boolean}
+	 * @return {boolean} `true` if the lazy loading promise was resolved.
 	 */
 	Ref.prototype.isResolved = function(){
 		return !!this._value || this._state === "resolved";
@@ -322,9 +352,11 @@ var makeRef = function(connection){
 	/**
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isRejected isRejected
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 *
+	 * Observable property typically for use in templates to indicate to the user if lazy loading has failed.
+	 *
 	 * @signature `ref.isRejected`
-	 * Returns boolean if the promise was rejected.
-	 * @return {boolean}
+	 * @return {boolean} `true` if the lazy loading promise was rejected.
 	 */
 	Ref.prototype.isRejected = function(){
 		return this._state === "rejected";
@@ -333,20 +365,25 @@ var makeRef = function(connection){
 	/**
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.isPending isPending
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 *
+	 * Observable property typically for use in templates to indicate to the user if lazy loading is ongoing.
+	 *
 	 * @signature `ref.isPending`
-	 * Returns true if the state is not 'resolved' or 'rejected'.
-	 * @return {boolean}
+	 * @return {boolean} `true` if the lazy loading promise state is not resolved or rejected.
 	 */
 	Ref.prototype.isPending = function(){
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
-	//return the id of the reference object when being serialized
+
 	/**
 	 * @function can-connect/can/ref/ref.Map.Ref.prototype.serialize serialize
 	 * @parent can-connect/can/ref/ref.Map.Ref.prototype
+	 *
+	 * Return the id of the referenced instance when serializing. Prevents the referenced instance from
+	 * being entirely serialized when serializing the referencing instance.
+	 *
 	 * @signature `ref.serialize`
-	 * Returns the `idProp`.
-	 * @return {string} idProp
+	 * @return {string} id the id of the referenced instance
 	 */
 	Ref.prototype.serialize = function() {
 		return this[idProp];
@@ -381,8 +418,13 @@ module.exports = connect.behavior("can/ref",function(baseConnection){
 		 * @can-connect/can/ref/ref.init init
 		 * @parent can-connect/can/ref/ref.methods
 		 *
-		 * @body Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
-		 */
+		 * @signature `connection.init()`
+		 *
+		 * Initializes the base connection and then creates and sets [can-connect/can/ref/ref.Map.Ref].
+		 * Typically called by the `connect` helper after the connection behaviors have been assembled.
+		 *
+		 * @return {undefined} no return value
+		 **/
 		init: function(){
 			baseConnection.init.apply(this, arguments);
 			this.Map.Ref = makeRef(this);

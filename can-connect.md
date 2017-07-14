@@ -6,95 +6,129 @@
 @outline 2
 @package ./package.json
 
-@description `can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
-any JavaScript project.
+@description `can-connect` provides persisted data middleware. Assemble powerful model layers for any JavaScript 
+project from fully modularized behaviors (i.e plugins). 
+
 
 @signature `connect(behaviors, options)`
 
-Goes through every behavior and assembles them into a final
-connection.
+Iterate through passed behaviors and assemble them into a connection.
 
 ```js
 var connect = require("can-connect");
-var todosConnection = connect([
-    require("can-connect/data/url/url"),
-    require("can-connect/constructor/constructor")    
-],{
+var dataUrl = require("can-connect/data/url/");
+var constructor = require("can-connect/constructor/"); 
+var todosConnection = connect([dataUrl, constructor],{
     url: "/api/todos"
 });
 ```
 
-  @param {Array<can-connect/Behavior>} behaviors An array of
-  behaviors that will be used to compose the final connection.
+  @param {Array<can-connect/Behavior>} behaviors 
+  An array of behaviors that will be used to compose the final connection.
 
-  @param {Object} options an object of configuration
-  options.
+  @param {Object} options 
+  An object of configuration parameters for the behaviors in the connection.
+
 
 @body
 
-`can-connect` comes with the following behaviors that:
+`can-connect` includes behaviors that:
 
 Load data:
 
- - [can-connect/data/url/url] — Persist data to restful or other types of services.
- - [can-connect/data/parse/parse] — Extract response data into a format needed for other extensions.
+ - [can-connect/data/url/url data/url] — 
+    Persist data to RESTful or other types of HTTP services.
+    
+ - [can-connect/data/parse/parse data/parse] — 
+    Convert response data into a format needed for other extensions.
 
 Convert data into special types:
 
- - [can-connect/constructor/constructor] — Create instances of a constructor function or list type.
- - [can-connect/constructor/store/store] — Create only a single instance for a given id or a single list for a set.
+ - [can-connect/constructor/constructor constructor/] —
+    Create instances of a provided constructor function or list type.
+    
+ - [can-connect/constructor/store/store constructor/store] — 
+    Prevent multiple instances of a given id or multiple lists of a given set from being created.
 
-Real time:
+Keep lists updated with the most current data:
 
- - [can-connect/real-time/real-time] — Update lists and instances with server side events.
+ - [can-connect/real-time/real-time real-time] — 
+    Lists updated when instances are created or deleted.
 
-Caching strategies:
+Implement caching strategies:
 
- - [can-connect/fall-through-cache/fall-through-cache] — Respond with data from the [connection.cacheConnection] and
-   then update the response with data from the `raw CRUD Methods`.
- - [can-connect/cache-requests/cache-requests] — Save response data and use it for future requests.
- - [can-connect/data/combine-requests/combine-requests] — Combine overlapping or reduntant requests.
+ - [can-connect/fall-through-cache/fall-through-cache fall-through-cache] — 
+    Use [connection.cacheConnection cache] data if possible when creating instances, 
+    then update the instance with server data upon completion of a background request.
+    
+ - [can-connect/cache-requests/cache-requests cache-requests] — 
+    Cache response data and use it for future requests.
+    
+ - [can-connect/data/combine-requests/combine-requests data/combine-requests] — 
+    Combine overlapping or redundant requests.
 
-Caching layers:
+Provide caching storage (as a [connection.cacheConnection cacheConnection]):
 
- - [can-connect/data/localstorage-cache/localstorage-cache] — LocalStorage caching connection.
- - [can-connect/data/memory-cache/memory-cache] — LocalStorage caching connection.
+ - [can-connect/data/localstorage-cache/localstorage-cache data/localstorage-cache] — 
+    LocalStorage caching connection.
+    
+ - [can-connect/data/memory-cache/memory-cache data/memory-cache] — 
+    In-memory caching connection.
 
-The following modules glue certain methods together:
+Glue certain behaviors together:
 
- - [can-connect/data/callbacks/callbacks] — Glues the result of the `raw CRUD Methods` to callbacks.
- - [can-connect/data/callbacks-cache/callbacks-cache] — Calls [connection.cacheConnection] methods whenever `raw CRUD methods` are called.
+ - [can-connect/data/callbacks/callbacks data/callbacks] — 
+    Add callback hooks are passed the results of the DataInterface methods (CRUD operations).
+    
+ - [can-connect/data/callbacks-cache/callbacks-cache data/callbacks-cache] — 
+    Handle [can-connect/data/callbacks/callbacks data/callbacks] and update the [connection.cacheConnection cache] 
+    when CRUD operations complete.
 
+Provide convenient integration with CanJS:
 
-The following modules are useful to CanJS specifically:
-
- - [can-connect/can/map/map] — Create instances of a special [can-define/map/map] or [can-define/list/list] type.
- - [can-connect/can/super-map/super-map] — Create a connection for a [can-define/map/map] or [can-define/list/list] that uses almost all the plugins.
- - [can-connect/can/model/model] — Inherit from a highly compatible [can.Model](http://v2.canjs.com/docs/can.Model.html) implementation.
+ - [can-connect/can/map/map can/map] — 
+    Create [can-define/map/map] or [can-define/list/list] instances from responses. Adds connection-aware 
+    methods to configured types.
+    
+ - [can-connect/can/ref/ref can/ref] - Handle references to other instances in the raw data responses.  
+ 
+ - [can-connect/can/merge/merge can/merge] - Minimize updates to deeply nested instance data when new data is 
+    returned from the server.
+    
+ - [can-connect/can/constructor-hydrate/constructor-hydrate can/constructor-hydrate] - Always check the 
+    instanceStore when creating new instances of the connection Map type.
+ 
+`can-connect` also provides several other non-behavior utilities for connection ease of use in CanJS:
+ - [can-connect/can/super-map/super-map] — Create a connection for [can-define/map/map can-define/map] or 
+    [can-define/list/list can-define/list] types using nearly all behaviors.
+    
+ - [can-connect/can/model/model] — Create [can-map] types that emulate the interface of 
+    [can.Model](http://v2.canjs.com/docs/can.Model.html). Used for CanJS 2.x migrations.
+     
  - [can-connect/can/tag/tag] — Create a custom element that can load data into a template.
+
 
 ## Overview
 
-The `can-connect` module exports a `connect` function that is used to assemble different
-behaviors and some options into a `connection`.  For example, the following uses `connect` and
-the [can-connect/constructor/constructor] and [can-connect/data/url/url] behaviors to create a `todoConnection`
-connection:
+The `can-connect` module exports a `connect` function that is used to assemble different behaviors (plugins)
+and some configuration options into a `connection`.  For example, the following uses `connect` and the 
+[can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url] behaviors 
+to create a `todoConnection` connection:
 
 ```js
 var connect = require("can-connect");
-var constructor = require("can-connect/constructor/constructor");
-var dataUrl = require("can-connect/data/url/url");
+var constructor = require("can-connect/constructor/");
+var dataUrl = require("can-connect/data/url/");
 
 var todoConnection = connect(
-  [constructor,dataUrl],
-  {
-    url: "/services/todos"
-  });
+  [constructor, dataUrl],
+  { url: "/services/todos" }
+);
 ```
 
-A connection typically provides the ability to
-create, read, update, or delete (CRUD) some data source. That data source is
-usually accessed through the “Instance Interface” methods:
+A typical connection provides the ability to create, read, update, or delete (CRUD) data hosted by some data 
+source. Those operations are usually performed via the connection [can-connect/InstanceInterface InstanceInterface]
+methods:
 
  - [can-connect/connection.get]
  - [can-connect/connection.getList]
@@ -103,49 +137,51 @@ usually accessed through the “Instance Interface” methods:
 
 For example, to get all todos from "GET /services/todos", we could write the following:
 
-```
+```js
 todoConnection.getList({}).then(function(todos){ ... });
 ```
 
-__Behaviors__, like [can-connect/constructor/constructor] and [can-connect/data/url/url] implement,
-extend, or require some set of [interfaces](#Interfaces).  For example, [can-connect/data/url/url] implements
-the “Data Interface” methods, and [can-connect/constructor/constructor] implements the
-“Instance Interface” methods.
+__Behaviors__, like [can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url] 
+implement, extend, or require some set of [interfaces](#Interfaces).  For example, [can-connect/data/url/url data/url] 
+implements the [can-connect/DataInterface DataInterface] methods, and [can-connect/constructor/constructor constructor/constructor] implements 
+the [can-connect/InstanceInterface InstanceInterface] methods.
 
-The `connect` method calls these behaviors in the right order to create a connection. For instance,
-the [can-connect/cache-requests/cache-requests] behavior must be applied after the [can-connect/data/url/url]
-connection.  This is because [can-connect/cache-requests/cache-requests], overwrites [can-connect/data/url/url]’s
-[can-connect/connection.getListData] first check a cache for the data.  Only if the data is not present,
-does it call [can-connect/data/url/url]’s [can-connect/connection.getListData]. So even if we write:
+The `connect` method arranges these behaviors in the right order to create a connection. For instance, the 
+[can-connect/cache-requests/cache-requests cache-requests] behavior must be applied after the [can-connect/data/url/url data/url]
+connection.  This is because [can-connect/cache-requests/cache-requests cache-requests], overwrites [can-connect/data/url/url data/url]’s
+[can-connect/connection.getListData connection.getListData] method to first check the cache for the data.  Only if the 
+data is not found, does it call [can-connect/data/url/url data/urls]’s [can-connect/connection.getListData]. 
+
+This behavior arranging makes it so even if we write:
 
 ```js
-var dataUrl = require("can-connect/data/url/url");
-var cacheRequests = require("can-connect/cache-requests/cache-requests");
-connect([cacheRequests,dataUrl])
+var dataUrl = require("can-connect/data/url/");
+var cacheRequests = require("can-connect/cache-requests/");
+connect([cacheRequests, dataUrl])
 ```
 
 or
 
 ```
-connect([dataUrl,cacheRequests])
+connect([dataUrl, cacheRequests])
 ```
 
-... our connection will be built in the right order!
+... the connection will be built in the right order!
 
-A __connection__ is just an object with each behavior object on its prototype chain and
-its options object at the end of the prototype chain.
+A __connection__ is just an object with each specified behavior on its prototype chain and the passed options object 
+at the end of the prototype chain.
 
 
 ### Basic Use
 
-To use `can-connect`, it’s typically best to start out with the most basic
-behaviors: [can-connect/data/url/url] and [can-connect/constructor/constructor]. [can-connect/data/url/url]
-connects the “Data Interface” to a restful service. [can-connect/constructor/constructor] adds
-an “Instance Interface” that can create, read, update and delete (CRUD) typed data
-using the lower-level "Data Interface".
+When starting out with `can-connect`, it’s advisable to start out with the most basic behaviors: 
+[can-connect/data/url/url data/url] and [can-connect/constructor/constructor constructor/constructor]. 
+[can-connect/data/url/url data/url] adds an implementation of the [can-connect/DataInterface DataInterface] that connects to a RESTful data source. 
+[can-connect/constructor/constructor constructor/constructor] adds an implementation of the [can-connect/InstanceInterface InstanceInterface] 
+that can create, read, update and delete typed data via the lower-level [can-connect/DataInterface DataInterface].
 
-By `typed` data we mean data that is more than just plain JavaScript objects.  For
-example, we might to create `todo` objects with an `isComplete` method:
+By "typed" data we mean data that is more than just plain JavaScript objects.  For example, we want might to create 
+`Todo` objects that implement an `isComplete` method:
 
 ```js
 var Todo = function(props){
@@ -157,7 +193,7 @@ Todo.prototype.isComplete = function(){
 };
 ```
 
-And, we might want a special list type with `completed` and `active` methods:
+And, we might want a special `TodoList` type with implementations of `completed` and `active` methods:
 
 ```js
 var TodoList = function(todos){
@@ -178,38 +214,42 @@ TodoList.prototype.active = function(){
 };
 ```
 
-We can create a connection that connects a restful "/api/todos"
-service to `Todo` instances and `TodoList` lists like:
+We can create a connection that connects a RESTful "/api/todos" endpoint to `Todo` instances and `TodoList` lists like:
 
 ```js
-var todoConnection = connect([constructor, dataUrl],{
-  url: "/api/todos",
-  list: function(listData, set){
-  	return new TodoList(listData.data);
-  },
-  instance: function(props) {
-  	return new Todo(props);
+var todoConnection = connect(
+  [constructor, dataUrl],
+  {
+    url: "/api/todos",
+    list: function(listData, setInfo){
+  	  return new TodoList(listData.data);
+    },
+    instance: function(data) {
+  	  return new Todo(data);
+    }
   }
-});
+);
 ```
 
-And then use that connection to get a `TodoList` of `Todo`s:
+and then use that connection to get a `TodoList` of `Todo`s and render some markup:
 
 ```js
 todoConnection.getList({}).then(function(todos){
 	var todosEl = document.getElementById("todos-list");
-	todosEl.innerHTML = "<h2>Active</h2>"+
-		render(todos.active())+
-		"<h2>Complete</h2>"+
-		render(todos.completed());
+	
+	todosEl.innerHTML = 
+	    "<h2>Active</h2>" + render(todos.active()) +
+		"<h2>Complete</h2>" + render(todos.completed());
 });
 
 var render = function(todos) {
-	return "<ul>"+todos.map(function(todo){
-		return "<li>"+todo.name+
-				"<input type='checkbox' "+
-				(todo.isComplete() ? "checked" : "")+"/></li>";
-	}).join("")+"</ul>";
+    var todoListItems = todos.map(function(todo){
+        return "<li>" +
+            todo.name + "<input type='checkbox' " + (todo.isComplete() ? "checked" : "") + "/>" + 
+        "</li>";
+    }); 
+
+	return "<ul>"+todoListItems.join("")+"</ul>";
 };
 ```
 
@@ -224,14 +264,14 @@ var todo = new Todo({
   name: "take out trash"
 })
 
-// POSTs to /api/todos name=take out trash
+// POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
 todoConnection.save( todo ).then(function(todo){
   todo.id //-> 5
   todo.name = 'take out garbage'
 
-  // PUTs to /api/todos/5 name=take out garbage
-  // server returns {id: 5, "take out garbage"}
+  // PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
+  // server returns {id: 5, name:"take out garbage"}
   todoConnection.save( todo ).then( function(todo){
 
     // DELETEs to /api/todos/5
@@ -239,55 +279,60 @@ todoConnection.save( todo ).then(function(todo){
     todoConnection.destroy( todo ).then( function(todo){
 
     });
-
   });
-
 });
 ```
 
-### Configure behaviors
+### Behavior Configuration
 
-Whenever `connect` creates a connection, it always adds the [can-connect/base/base]
-behavior. This behavior defines configurable options that are used by almost
-every other behavior.  For example, if your data uses an `_id` property
-to uniquely identify todos, you
-can specify this with [can-connect/base/base.idProp] like:
+Whenever `connect` creates a connection, it always adds the [can-connect/base/base base] behavior. 
+This behavior is where the configuration options passed to `connect` are stored and it also defines 
+several configurable options that are used by most other behaviors.  For example, if your backend
+uses a property named `_id` to uniquely identify todos, you can specify this with 
+[can-connect/base/base.idProp idProp] like:
 
 ```js
-var todoConnection = connect([
-    require("can-connect/constructor/constructor"),
-    require("can-connect/data/url/url")
-],{
-  url: "/api/todos",
-  idProp: "_id"
-});
+var constructor = require("can-connect/constructor/"); 
+var dataUrl = require("can-connect/data/url/");
+var todoConnection = connect(
+  [constructor, dataUrl],
+  {
+    url: "/api/todos",
+    idProp: "_id"
+  }
+);
 ```
 
-Other behaviors list their configurable options in their own docs page.  
+Behaviors list their configurable options in their own documentation pages.  
 
-### Overwrite behaviors
+### Behavior Overwriting
 
-If configurable options are not enough, you can overwrite any behavior with your own behavior.
+If the configuration options available for a behavior are not enough, it's possible to overwrite any 
+behavior with your own behavior.
 
-For example, the `constructor`’s [can-connect/constructor/constructor.updatedInstance] behavior
-sets the instance’s properties to match the result of [can-connect/connection.updateData]. But if
-the `PUT /api/todos/5 name=take out garbage` request returned `{}`, the following would result in
-a todo with only an `id` property:
+For example, [can-connect/constructor/constructor constructor/constructor]’s 
+[can-connect/constructor/constructor.updatedInstance updatedInstance] method sets the instance’s 
+properties to match the result of [can-connect/connection.updateData updateData]. But if the 
+`PUT /api/todos/5 {name:"take out garbage""}` request returns `{}`, the following example would 
+result in a todo with only an `id` property:
 
 ```js
-var todo = new Todo({id: 5, name: "take out garbage"})
-// PUTs to /api/todos/5 name=take out garbage
+var todo = new Todo({id: 5, name: "take out garbage"});
+
+// PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
 // server returns {}
 todoConnection.save( todo ).then( function(todo){
-
   todo.id //-> 5
   todo.name //-> undefined
 });
 ```
 
-The following overwrites the behavior of `updateData`:
+The following overwrites [can-connect/constructor/constructor constructor/constructor]’s 
+implementation of `updateData`:
 
 ```js
+var constructor = require("can-connect/constructor/"); 
+var dataUrl = require("can-connect/data/url/");
 var mergeDataBehavior = {
   updateData: function(instance, data){
     Object.assign(instance, data);
@@ -295,57 +340,59 @@ var mergeDataBehavior = {
 };
 
 var todoConnection = connect([
-    require("can-connect/constructor/can-connect/constructor"),
-    require("can-connect/data/url/url")
+    constructor,
+    dataUrl
     mergeDataBehavior
   ],{
-  url: "/api/todos"
+    url: "/api/todos"
 });
 ```
 
-You can add your own behavior that overwrite all base behaviors by adding
-it to the end of the behaviors list.
+You can add your own behavior that can overwrite any underlying behaviors by adding it to the end 
+of the behaviors list.
 
 
 ### CanJS use
 
 If you are using CanJS, you can either:
 
-- use the [can-connect/can/map/map] behavior that overwrites
-  many methods and settings to work with [can-define/map/map] and [can-define/list/list].
-- use the [can-connect/can/super-map/super-map] helper to create a connection that bundles [can-connect/can/map/map can/map] and
-  many of the other extensions.
+- use the [can-connect/can/map/map can/map] behavior which provides many connection methods and 
+  settings to integrate closely with [can-define/map/map can-define/map] and 
+  [can-define/list/list can-define/list] types.
+  
+- use the [can-connect/can/super-map/super-map can/super-map] helper to create a connection that 
+  bundles [can-connect/can/map/map can/map] and many of the other behaviors.
 
-Using [can-connect/can/map/map] to create a connection looks like:
+Using [can-connect/can/map/map can/map] to create a connection looks like:
 
 ```js
-var DefineMap = require("can-define/map/map");
-var DefineList = require("can-define/list/list");
+var DefineMap = require("can-define/map/");
+var DefineList = require("can-define/list/");
+var dataUrl = require("can-connect/data/url/");
+var constructor = require("can-connect/constructor/"); 
+var constructorStore = require("can-connect/constructor/store/"); 
+var canMap = require("can-connect/can/map/");
 
 var Todo = DefineMap.extend({ ... });
 Todo.List = DefineList.extend({
     "#": Todo
 });
 
-var todoConnection = connect([
-    require("can-connect/data/url/url"),
-    require("can-connect/can/map/map/map"),
-    require("can-connect/constructor/constructor"),
-    require("can-connect/constructor/store/store")
-  ],{
-  Map: Todo,
-  url: "/todos"
-});
+var todoConnection = connect(
+  [dataUrl, constructor, constructorStore, canMap],
+  {
+    Map: Todo,
+    url: "/todos"
+  }
+);
 ```
-
-When you bind on a `Todo` instance or `Todo.List` list, they will automatically call
-[can.connect/constructor-store.addInstanceReference] and [can.connect/constructor-store.addListReference].
 
 Using [can-connect/can/super-map/super-map] to create a connection looks like:
 
 ```js
-var DefineMap = require("can-define/map/map");
-var DefineList = require("can-define/list/list");
+var DefineMap = require("can-define/map/");
+var DefineList = require("can-define/list/");
+var superMap = require("can-connect/can/super-map/");
 
 var Todo = DefineMap.extend({ ... });
 Todo.List = DefineList.extend({
@@ -358,37 +405,31 @@ var todoConnection = superMap({
 });
 ```
 
-### ReactJS use
+<!--- todo: move this explanation of constructor/store somewhere better --->
 
-Help us create a special ReactJS behavior that integrates
-a connection with React’s observable life-cycle. Read more [here](#Otheruse).
-
-### Angular use
-
-Help us create a special AngularJS behavior that integrates
-a connection with Angular’s observable life-cycle. Read more [here](#Otheruse).
-
-### Backbone use
-
-Help us create a special BackboneJS behavior that integrates
-a connection with Backbone’s observable life-cycle. Read more [here](#Otheruse).
+Both the above connections contain the [can-connect/constructor/store/store constructor/store] behavior.
+This means when you create a binding to a `Todo` or `Todo.List` instance, they will automatically 
+call [can-connect/constructor/store/store.addInstanceReference constructor/store.addInstanceReference] 
+or [can-connect/constructor/store/store.addListReference constructor/store.addListReference]. 
+[can-connect/constructor/store/store constructor/store] then retains the instance for the life 
+of the binding and ensures only single shared instance of a particular piece of data exists. This 
+prevents a common programming problem where multiple copies of an instance are held by parts of 
+an application that loaded the same data.
 
 ### Other use
 
-Integrating `can-connect` with your framework is typically pretty easy.  In general,
-the pattern involves creating a behavior that integrates with your framework’s
-observable instances. The [can-connect/can/map/map]
-behavior can serve as a good guide. You’ll typically want to implement the following
-in your behavior:
+Integrating `can-connect` with another framework is typically pretty easy.  In general, the pattern involves creating
+a behavior that integrates with your framework’s observable instances. The [can-connect/can/map/map can/map] behavior 
+can serve as a good guide. You’ll typically want to implement the following methods in your behavior:
 
-`.instance` - Creates the appropriate observable object type.  
-`.list` - Creates the appropriate observable array type.  
-`.serializeInstance` - Return a plain object out of the observable object type.  
+`.instance` - Creates the appropriate observable object type.
+`.list` - Creates the appropriate observable array type.
+`.serializeInstance` - Return a plain object out of the observable object type.
 `.serializeList` - Return a plain array out of the observable array type.  
 
-`.createdInstance` - Update an instance with data returned from `createData`.  
-`.updatedInstance` - Update an instance with data returned from `updateData`.  
-`.destroyedInstance` -  Update an instance with data returned from `destroyData`.  
+`.createdInstance` - Update an instance with data returned from `createData`.
+`.updatedInstance` - Update an instance with data returned from `updateData`.
+`.destroyedInstance` -  Update an instance with data returned from `destroyData`.
 `.updatedList` - Update a list with raw data.
 
 And, in most frameworks you know when a particular observable is being used, typically
@@ -402,8 +443,7 @@ observed, and when it can be discarded.  In those places, you should call:
 
 ## Interfaces
 
-The following is a list of the most important interface methods and properties implemented
-or consumed by the core behaviors.
+The following is a list of the primary interface methods and properties implemented or consumed by the core behaviors.
 
 ### Identifiers
 
@@ -412,113 +452,118 @@ or consumed by the core behaviors.
 `.listSet(list) -> set` - Returns the set a list represents.  
 `.listSetProp -> String="__listSet"` - The property on a List that contains its set.  
 
-Implemented by [can-connect/base/base].
+Implemented by the [can-connect/base/base base] behavior.
 
 ### Instance Interface
 
 The following methods operate on instances and lists.
 
-#### CRUD methods:
+#### CRUD Methods
 
-`.getList(set) -> Promise<List>` - retrieve a list of instances.  
-`.getList(set) -> Promise<Instance>` - retrieve a single instance.   
-`.save(instance) -> Promise<Instance>` - creates or updates an instance.  
-`.destroy(instance) -> Promise<Instance>` - destroys an instance.  
+`.getList(set) -> Promise<List>` - Retrieve a list of instances.  
+`.getData(set) -> Promise<Instance>` - Retrieve a single instance.   
+`.save(instance) -> Promise<Instance>` - Create or update an instance.  
+`.destroy(instance) -> Promise<Instance>` - Destroy an instance.  
 
-Implemented by [can-connect/constructor/constructor]. Overwritten by [can-connect/constructor/store/store].
+Implemented by [can-connect/constructor/constructor constructor/constructor] behavior. 
 
-#### Instance callbacks
+Overwritten by [can-connect/constructor/store/store constructor/store] and [can-connect/can/map/map can/map] behaviors.
 
-`.createdInstance(instance, props)` - An instance is created.  
-`.updatedInstance(instance, props)` - An instance is updated.  
-`.destroyedInstance(instance, props)` - An instance is destroyed.  
-`.updatedList(list, updatedListData, set)` - A list has been updated.  
+#### Instance Callbacks
 
-Implemented by [can-connect/constructor/constructor]. Overwritten by [data-connect/real-time/real-time],
-[can-connect/constructor/callbacks-once/callbacks-once].
+`.createdInstance(instance, props)` - Called whenever an instance is created.  
+`.updatedInstance(instance, props)` - Called whenever an instance is updated.  
+`.destroyedInstance(instance, props)` - Called whenever an instance is destroyed.  
+`.updatedList(list, updatedListData, set)` - Called whenever a list has been updated.  
+
+Implemented by [can-connect/constructor/constructor constructor/constructor] behavior. 
+
+Overwritten by [can-connect/real-time/real-time real-time] and 
+[can-connect/constructor/callbacks-once/callbacks-once constructor/callbacks-once] behaviors.
 
 #### Hydrators and Serializers
 
-`.instance(props) -> Instance` - Creates an instance given raw data.  
-`.list({data: Array<Instance>}) -> List` - Creates a list given an array of instances.  
-`.hydrateInstance(props) -> Instance` - Provides an instance given raw data.  
-`.hydrateList({ListData}, set) -> List` - Provides a list given raw data.  
+`.instance(props) -> Instance` - Create an instance given raw data.  
+`.list({data: Array<Instance>}) -> List` - Create a list given an array of instances.  
+`.hydrateInstance(props) -> Instance` - Provide an instance given raw data.  
+`.hydrateList({ListData}, set) -> List` - Provide a list given raw data.  
 `.hydratedInstance(instance)` - Called whenever an instance is created in memory.  
 `.hydratedList(list, set)` - Called whenever a list is created in memory.  
-`.serializeInstance(instance) -> Object` - Returns the serialized form of an instance.  
-`.serializeList(list) -> Array<Object>` - Returns the serialized form of a list and its instances.  
+`.serializeInstance(instance) -> Object` - Return the serialized form of an instance.  
+`.serializeList(list) -> Array<Object>` - Return the serialized form of a list and its instances.  
 
+Implemented by [can-connect/constructor/constructor constructor/constructor] behavior. 
 
-Implemented by [can-connect/constructor/constructor]. Overwritten by [can-connect/constructor/store/store],
-[can-connect/fall-through-cache/fall-through-cache].
+Overwritten by [can-connect/constructor/store/store] and [can-connect/fall-through-cache/fall-through-cache] behaviors.
 
 ### Data Interface
 
 The raw-data connection methods.  
 
-#### CRUD methods
+#### CRUD Methods
 
-`.getListData(set) -> Promise<ListData>` - Retrieves list data.  
+`.getListData(set) -> Promise<ListData>` - Retrieve list data.  
 `.updateListData(listData[, set]) -> Promise<ListData>` - Update a list’s data.
-`.getSets() -> Promise<Array<Set>>` - Returns the sets available to the connection.  
+`.getSets() -> Promise<Array<Set>>` - Return the sets available to the connection, typically those stored in a [connection.cacheConnection cache connection].  
+`.getData(params) -> Promise<Object>` - Retrieve data for a particular item.  
+`.createData(props, cid) -> Promise<props>` - Create a data store record given the serialized form of the data. A 
+  client ID is passed of the instance that is being created.  
+`.updateData(props) -> Promise<props>` - Update a data store record given the serialized form of the data.  
+`.destroyData(props) -> Promise<props>` - Delete a data store record given the serialized form of the data.  
+`.clear() -> Promise` - Clear all data in the connection. Typically used to remove all data from a [connection.cacheConnection cache connection].
 
+Implemented by [can-connect/data/url/url data/url], 
+[can-connect/data/localstorage-cache/localstorage-cache data/localstorage-cache] and 
+[can-connect/data/memory-cache/memory-cache data/memory-cache] behaviors.
 
-`.getData(params) -> Promise<Object>` - Retrieves data for a particular item.  
-`.createData(props, cid) -> Promise<props>` - Creates instance data given the serialized form of the data.
-  A client ID is passed of the
-  instance that is being created.  
-`.updateData(props) -> Promise<props>` - Updates instance data given the
-  serialized form of the data.  
-`.destroyData(props) -> Promise<props>` - Destroys an instance given the seralized
-form of the data.  
+Overwritten by [can-connect/cache-requests/cache-requests cache-requests], 
+[can-connect/data/combine-requests/combine-requests combine-requests] and 
+[can-connect/fall-through-cache/fall-through-cache fall-through-cache] behaviors.
 
-`.clear() -> Promise` - Clears all data in the connection.
-
-Implemented by [can-connect/data/url/url],
-[can-connect/data/localstorage-cache/localstorage-cache], [can-connect/data/memory-cache/memory-cache].
-Overwritten by [can-connect/cache-requests/cache-requests], [can-connect/data/combine-requests/combine-requests], [can-connect/fall-through-cache/fall-through-cache].
-Consumed by [can-connect/constructor/constructor].  
+Consumed by [can-connect/constructor/constructor constructor/constructor] behavior.  
 
 #### Data Callbacks
 
-`.gotListData(listData, set) -> ListaData` - List data is retrieved.  
-`.gotData( props, params) -> props` - Instance data is retreived.  
-`.createdData( props, params, cid) -> props` - An instance’s data is created.
-`.updatedData( props, params) -> props` - An instance’s data is updated.
-`.destroyedData( props, params) -> props` - An instance’s data is destroyed.
+`.gotListData(listData, set) -> ListaData` - Called whenever a list of data records are retrieved.  
+`.gotData( props, params) -> props` - Called whenever an individual data record is retrieved.  
+`.createdData( props, params, cid) -> props` - Called whenever an individual data record data is created.  
+`.updatedData( props, params) -> props` - Called whenever an individual data record is updated.  
+`.destroyedData( props, params) -> props` - Called whenever an individual data record is deleted.    
 
-Implemented by [can-connect/data/callbacks/callbacks].  Overwritten by [can-connect/data/callbacks-cache/callbacks-cache],
-[can-connect/real-time/real-time].
+Implemented by the [can-connect/data/callbacks/callbacks data/callbacks] behavior. 
 
-#### Response parsers
+Overwritten by [can-connect/data/callbacks-cache/callbacks-cache data/callbacks-cache] and
+[can-connect/real-time/real-time real-time] behaviors.
 
-`.parseListData(*) -> ListData` - Given the response of getListData, return the right object format.  
+#### Response Parsers
+
+`.parseListData(*) -> ListData` - Given the response of getListData, return required object format.  
 `.parseInstanceData(*) -> props` - Given the response of getData, createData, updateData, and destroyData,
-return the right object format.
+return the required object format.
 
-Implemented by [can-connect/data/parse/parse].
+Implemented by the [can-connect/data/parse/parse data/parse] behavior.
 
 #### Store Interface
 
-`.addInstanceReference(instance)` - Signal that memory-unsafe actions can be performed on the instance.  
-`.deleteInstanceReference(instance)` - Signal that memory-unsafe actions should be removed.
-`.addListReference(list)` - Signal that memory-unsafe actions can be performed on the list.  
-`.deleteListReference(list)` - Signal that memory-unsafe actions should be removed.
+`.addInstanceReference(instance)` - Add a reference to an instance so that multiple copies can be avoided.  
+`.deleteInstanceReference(instance)` - Remove a reference to an instance, freeing memory when an instance is no longer bound to.
+`.addListReference(list)` - Add a reference to a list so that multiple copies can be avoided.  
+`.deleteListReference(list)` - Remove a reference to an list, freeing memory when a list is no longer bound to.
 
-Implemented by [can-connect/constructor/store/store].
+Implemented by the [can-connect/constructor/store/store constructor/store] behavior.
 
 #### Real-time Methods
 
-`createInstance( props ) -> Promise<instance>` - Inform the connection an instance has been created.  
-`updateInstance( props ) -> Promise<instance>` - Inform the connection an instance has been updated.  
-`destroyInstance( props ) -> Promise<instance>` - Inform the connection an instance has been destroyed.  
+`createInstance( props ) -> Promise<instance>` - Inform the connection a new data record has been created.  
+`updateInstance( props ) -> Promise<instance>` - Inform the connection a data record has been updated.  
+`destroyInstance( props ) -> Promise<instance>` - Inform the connection a data record has been destroyed.  
 
-Implemented by [can-connect/real-time/real-time].
+Implemented by the [can-connect/real-time/real-time real-time] behavior.
 
 ## Creating Behaviors
 
-To create your own behavior, call `connect.behavior` with the name of your behavior and a function that
-returns an object that defines the hooks you want to overwrite or provide:
+To create your own behavior, call `connect.behavior` with the name of your behavior and a function that returns an 
+object that defines the hooks you want to overwrite or provide:
 
 ```js
 connect.behavior("my-behavior", function(baseConnection){
@@ -528,7 +573,7 @@ connect.behavior("my-behavior", function(baseConnection){
 })
 ```
 
-For example, creating a simple localStorage behavior might look like:
+For example, creating a basic localStorage behavior might look like:
 
 ```js
 connect.behavior("localstorage", function(baseConnection){

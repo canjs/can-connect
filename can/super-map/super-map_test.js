@@ -102,7 +102,7 @@ QUnit.test("uses idProp from algebra (#255)", function(){
 		List: Restaurant.List,
 		name: "restaurant",
 		algebra: new set.Algebra(
-		   set.comparators.id("_id")
+		   set.props.id("_id")
 		)
 	});
 

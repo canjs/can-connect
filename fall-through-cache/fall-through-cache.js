@@ -1,5 +1,5 @@
 /**
- * @module can-connect/fall-through-cache/fall-through-cache
+ * @module can-connect/fall-through-cache/fall-through-cache fall-through-cache
  * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache/fall-through-cache.data data callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators hydrators

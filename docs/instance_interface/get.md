@@ -1,4 +1,4 @@
-@function can-connect/connection.get connection.get
+@function can-connect/connection.get get
 @parent can-connect/InstanceInterface
 
 

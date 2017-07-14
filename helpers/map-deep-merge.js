@@ -10,7 +10,7 @@ var each = require("can-util/js/each/each");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 /**
- * @module {function} can-connect/helpers/map-deep-merge
+ * @module {function} can-connect/helpers/map-deep-merge map-deep-merge
  * @parent can-connect.modules
  *
  * Perform a smart merge of deeply nested maps and lists.

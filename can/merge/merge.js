@@ -14,12 +14,12 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.createdInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'created'` event on the instance
+		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'created'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
-		 *   @param {can-connect/Instance} instance The instance that was just created whose
+		 *   @param {can-connect/Instance} instance the instance that was just created whose
 		 *   properties will be updated.
-		 *   @param {Object} props The new data the instance and children of the
+		 *   @param {Object} props the new data the instance and children of the
 		 *   instance should be updated to look like.
 		 */
 		createdInstance: function(instance, props){
@@ -37,7 +37,7 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.destroyedInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'destroyed'` event on the instance
+		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'destroyed'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance The instance that was just destroyed whose
@@ -60,12 +60,12 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.updatedInstance(instance, props)`
 		 *
-		 *   Calls `mapDeepMerge` and triggers the `'updated'` event on the instance
+		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'updated'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
-		 *   @param {can-connect/Instance} instance The instance that was just updated whose
+		 *   @param {can-connect/Instance} instance the instance that was just updated whose
 		 *   properties will be updated.
-		 *   @param {Object} props The new data the instance and children of the
+		 *   @param {Object} props the new data the instance and children of the
 		 *   instance should be updated to look like.
 		 */
 		updatedInstance: function(instance, props){
@@ -83,11 +83,10 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *
 		 * @signature `connection.updatedList(list, listData)`
 		 *
-		 *   Calls `mapDeepMerge` on the list
-		 *   within a [can-event/batch/batch batch].
+		 *   Calls [can-connect/helpers/map-deep-merge] on the list within a [can-event/batch/batch batch].
 		 *
-		 *   @param {can-connect.List} list The list that will be updated.
-		 *   @param {can-connect.listData} listData The new data the list and items in the
+		 *   @param {can-connect.List} list the list that will be updated.
+		 *   @param {can-connect.listData} listData the new data the list and items in the
 		 *   list should be updated to look like.
 		 */
 		updatedList: function(list, listData){

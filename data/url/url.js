@@ -1,5 +1,5 @@
 /**
- * @module {connect.Behavior} can-connect/data/url/url
+ * @module {connect.Behavior} can-connect/data/url/url data/url
  * @parent can-connect.behaviors
  * @group can-connect/data/url/url.data-methods data methods
  * @group can-connect/data/url/url.option options

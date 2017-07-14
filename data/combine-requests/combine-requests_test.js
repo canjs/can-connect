@@ -74,7 +74,7 @@ QUnit.test("ranges", function(){
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		algebra: set.comparators.rangeInclusive("start","end")
+		algebra: set.props.rangeInclusive("start","end")
 	});
 
 

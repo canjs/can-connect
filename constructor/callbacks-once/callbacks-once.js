@@ -1,15 +1,20 @@
 /**
- * @module {function} can-connect/constructor/callbacks-once/callbacks-once
+ * @module {function} can-connect/constructor/callbacks-once/callbacks-once constructor/callbacks-once
  * @parent can-connect.behaviors
  *
- * Prevents unecessary calls to the instance callback methods.
+ * Prevents duplicate calls to the instance callback methods.
  *
- * @signature `constructorCallbacksOnce( baseConnection )`
+ * @signature `callbacksOnce( baseConnection )`
  *
- *   Prevents duplicate calls to the instance callback methods by tracking
- *   the last data the methods were called with.  If called with the
- *   same data again, it does not call the base connection's instance callback.
+ *   Prevents duplicate calls to the instance callback methods by tracking the last data the methods were called with.
+ *   If called with the same data again, it does not call the base connection's instance callback.
  *
+ *   @param {{}} baseConnection `can-connect` connection object that is having the `callbacks-once` behavior added
+ *   on to it. Should already contain the behaviors that provide the Instance Callbacks
+ *   (e.g [can-connect/constructor/constructor]). If the `connect` helper is used to build the connection, the
+ *   behaviors will automatically be ordered as required.
+ *
+ *   @return {Object} A `can-connect` connection containing the methods provided by `callbacks-once`.
  *
  */
 var connect = require("can-connect");
@@ -19,30 +24,45 @@ var forEach = [].forEach;
 // wires up the following methods
 var callbacks = [
 	/**
-	 * @function can-connect/constructor/callbacks-once/callbacks-once.createdData createdData
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.createdInstance createdInstance
 	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
-	 * Called with the resolved response data
-	 * of [can-connect/connection.createData]. The result of this function will be used
-	 * as the new response data.
+	 * `createdInstance` callback handler that prevents sequential calls with the same arguments.
+	 *
+	 * @signature `createdInstance(instance, data)`
+	 * Called with the instance created by [can-connect/constructor/constructor.save `connection.save`] and the response data of the
+	 * underlying request. Prevents sequential calls to the underlying `createdInstance` handlers with the same arguments.
+	 *
+	 * @param {} instance the instance created by `connection.save`
+	 * @param {} data the response data returned during `connection.save`
 	 */
 	"createdInstance",
 	/**
-	 * @function can-connect/constructor/callbacks-once/callbacks-once.updatedData updatedData
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.updatedInstance updatedInstance
 	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
-	 * Called with the resolved response data
-	 * of [can-connect/connection.updateData]. The result of this function will be used
-	 * as the new response data.
+	 * `updatedInstance` callback handler that prevents sequential calls with the same arguments.
+	 *
+	 * @signature `updatedInstance(instance, data)`
+	 * Called with the instance updated by [can-connect/constructor/constructor.save`connection.save`] and the response data of the
+	 * underlying request. Prevents sequential calls to the underlying `updatedInstance` handlers with the same arguments.
+	 *
+	 * @param {} instance the instance created by `connection.save`
+	 * @param {} data the response data returned during `connection.save`
 	 */
 	"updatedInstance",
 	/**
-	 * @function can-connect/constructor/callbacks-once/callbacks-once.destroyedData destroyedData
+	 * @function can-connect/constructor/callbacks-once/callbacks-once.destroyedInstance destroyedInstance
 	 * @parent can-connect/constructor/callbacks-once/callbacks-once
 	 *
-	 * Called with the resolved response data
-	 * of [can-connect/connection.destroyData]. The result of this function will be used
-	 * as the new response data.
+	 * `destroyedInstance` callback handler that prevents sequential calls with the same arguments.
+	 *
+	 * @signature `destroyedInstance(instance, data)`
+	 * Called with the instance created by [can-connect/constructor/constructor.destroy `connection.destroy`] and the response data of the
+	 * underlying request. Prevents sequential calls to the underlying `destroyedInstance` handlers with the same arguments.
+	 *
+	 * @param {} instance the instance created by `connection.destroy`
+	 * @param {} data the response data returned during `connection.destroy`
 	 */
 	"destroyedInstance"
 ];
@@ -51,10 +71,8 @@ var callbacks = [
 
 var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",function(baseConnection){
 
-	var behavior = {
-	};
+	var behavior = {};
 
-	// overwrites createData to createdData
 	forEach.call(callbacks, function(name){
 		behavior[name] = function(instance, data ){
 

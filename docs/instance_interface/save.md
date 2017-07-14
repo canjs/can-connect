@@ -1,4 +1,4 @@
-@function can-connect/connection.save connection.save
+@function can-connect/connection.save save
 @parent can-connect/InstanceInterface
 
 Create or update an instance.
