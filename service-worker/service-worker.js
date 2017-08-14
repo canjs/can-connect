@@ -1,6 +1,7 @@
 
 var connect = require("can-connect");
 var makeDeferred = require("can-connect/helpers/deferred");
+var canLog = require("can-util/js/log/log");
 
 /**
  * @module can-connect/service-worker
@@ -29,7 +30,7 @@ module.exports = connect.behavior("service-worker",function(baseConnection){
 		return def.promise;
 	};
 	worker.onmessage = function(ev){
-		console.log("MAIN - got message", ev.data.type);
+		canLog.log("MAIN - got message", ev.data.type);
 		if(ev.data.type === "ready"){
 			isReady.resolve();
 		} else if(ev.data.type === "response") {
