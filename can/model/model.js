@@ -14,7 +14,7 @@ var $ = require("jquery"),
 var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
 var makeArray = require("can-util/js/make-array/make-array");
-var types = require("can-types");
+var canReflect = require("can-reflect");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 var callCanReadingOnIdRead = true;
@@ -327,7 +327,7 @@ CanModel.List = CanList.extend({
 		// we use those as parameters for an initial findAll.
 		if (isPlainObject(params) && !Array.isArray(params)) {
 			CanList.prototype.setup.apply(this);
-			this.replace(types.isPromise(params) ? params : this.constructor.Map.findAll(params));
+			this.replace(canReflect.isPromise(params) ? params : this.constructor.Map.findAll(params));
 		} else {
 			// Otherwise, set up the list like normal.
 			CanList.prototype.setup.apply(this, arguments);
