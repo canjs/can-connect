@@ -96,7 +96,7 @@
  */
 var assign = require("can-util/js/assign/assign");
 var each = require("can-util/js/each/each");
-var ajax = require("can-util/dom/ajax/ajax");
+var ajax = require("can-ajax");
 var string = require("can-util/js/string/string");
 var getIdProps = require("../../helpers/get-id-props");
 var dev = require("can-util/js/dev/dev");
