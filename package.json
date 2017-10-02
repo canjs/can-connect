@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "can-fixture": "^1.1.0",
-    "detect-cyclic-packages": "^1.0.0",
+    "detect-cyclic-packages": "^1.0.1",
     "jquery": "2.x - 3.x",
     "jshint": "^2.9.4",
     "steal": "^1.0.1",
