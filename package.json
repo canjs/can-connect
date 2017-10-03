@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "can-fixture": "^1.1.0",
+    "detect-cyclic-packages": "^1.1.0",
     "jquery": "2.x - 3.x",
     "jshint": "^2.9.4",
     "steal": "^1.0.1",
@@ -47,7 +48,7 @@
   },
   "scripts": {
     "jshint": "jshint --config .jshintrc",
-    "test": "npm run jshint && testee --browsers firefox test/test.html",
+    "test": "npm run detect-cycle && npm run jshint && testee --browsers firefox test/test.html",
     "preversion": "npm test && npm run build",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
     "postversion": "git push --tags && git checkout master && git branch -D release && git push",
@@ -55,7 +56,8 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "build": "node build.js"
+    "build": "node build.js",
+    "detect-cycle": "detect-cyclic-packages --ignore done-serve"
   },
   "keywords": [
     "CanJS"
