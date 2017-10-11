@@ -6,6 +6,7 @@ var constructor = require("can-connect/constructor/");
 var canMap = require("can-connect/can/map/");
 var canRef = require("can-connect/can/ref/");
 var connect = require("can-connect");
+var canSymbol = require("can-symbol");
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -249,4 +250,71 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 		QUnit.ok(false, "error");
 		QUnit.start();
 	});
+});
+
+QUnit.test('should serialize object ref', function(){
+	var Team = DefineMap.extend({
+		id: 'object'
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Team
+	});
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRef: Team.Ref,
+		score: "number"
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Game
+	});
+
+	var team = new Team({id: {_id: 5}});
+
+	var game = new Game({
+		id: 6,
+		teamRef: team,
+		score: 22
+	});
+
+	QUnit.equal(typeof game.teamRef.serialize, 'function');
+	QUnit.equal(typeof game.teamRef[canSymbol.for("can.serialize")], 'function');
+	QUnit.deepEqual(game.teamRef.serialize(), {_id: 5});
+});
+
+
+QUnit.test('should serialize string ref', function(){
+	var Team = DefineMap.extend({
+		id: 'string'
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Team
+	});
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRef: Team.Ref,
+		score: "number"
+	});
+
+	connect([constructor, constructorStore, canMap, canRef],
+	{
+		Map: Game
+	});
+
+	var team = new Team({id: 5});
+
+	var game = new Game({
+		id: 6,
+		teamRef: team,
+		score: 22
+	});
+
+	QUnit.equal(game.teamRef.serialize(), '5');
 });
