@@ -401,6 +401,7 @@ canMapBehavior.callbackInstanceEvents = function (funcName, instance) {
 	// handler( 'change','1.destroyed' ). This is used
 	// to remove items on destroyed from Model Lists.
 	// but there should be a better way.
+	canBatch.start();
 	canEvent.dispatch.call(instance, {type: funcName, target: instance});
 
 	//!steal-remove-start
@@ -411,6 +412,7 @@ canMapBehavior.callbackInstanceEvents = function (funcName, instance) {
 
 	// Call event on the instance's Class
 	canEvent.dispatch.call(constructor, funcName, [instance]);
+	canBatch.stop();
 };
 
 var callCanReadingOnIdRead = true;
