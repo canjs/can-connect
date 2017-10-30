@@ -1,5 +1,6 @@
 @module {function} can-connect
-@parent can-core
+@parent can-data-modeling
+@collection can-core
 @group can-connect.behaviors 1 behaviors
 @group can-connect.modules 2 modules
 @group can-connect.types 3 data types
