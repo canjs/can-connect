@@ -324,6 +324,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 * Synchronously gets a set of data from localstorage.
 		 *
 		 * @signature `connection.getListDataSync(set)`
+		 * @hide
 		 */
 		getListDataSync: function(set){
 			var sets = this._getSets();
