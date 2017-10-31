@@ -5,9 +5,9 @@ var $ = require("jquery"),
 	constructor = require("../../constructor/constructor"),
 	instanceStore = require("../../constructor/store/store"),
 	parseData = require("../../data/parse/parse"),
-	CanMap = require("can-map"),
-	CanList = require("can-list"),
-	Observation = require("can-observation"),
+	DefineMap = require("can-define/map/map"),
+	DefineList = require("can-define/list/list"),
+	ObservationRecorder = require("can-observation-recorder"),
 	canEvent = require("can-event"),
 	ns = require("can-namespace");
 
@@ -39,17 +39,13 @@ var mapBehavior = connect.behavior(function(baseConnection){
 	var behavior = {
 		id: function(inst) {
 			var idProp = inst.constructor.id || "id";
-			if(inst instanceof CanMap) {
-				if(callCanReadingOnIdRead) {
-					Observation.add(inst, idProp);
-				}
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `Observation.reading`.)
-				return inst.__get(idProp);
+			if(inst instanceof DefineMap) {
+				return inst.get(idProp);
 			} else {
 				if(callCanReadingOnIdRead) {
 					return inst[idProp];
 				} else {
-					return Observation.ignore(function(){
+					return ObservationRecorder.ignore(function(){
 						return inst[idProp];
 					});
 				}
@@ -102,14 +98,14 @@ var mapBehavior = connect.behavior(function(baseConnection){
 
 			// Update attributes if attributes have been passed
 			if(attrs && typeof attrs === 'object') {
-				instance.attr(typeof attrs.attr === "function" ? attrs.attr() : attrs, this.constructor.removeAttr || false);
+				instance[this.constructor.removeAttr ? "updateDeep" : "assignDeep"](attrs);
 			}
 
 			// triggers change event that bubble's like
 			// handler( 'change','1.destroyed' ). This is used
 			// to remove items on destroyed from Model Lists.
 			// but there should be a better way.
-			canEvent.dispatch.call(instance, {type:funcName, target: instance});
+			instance.dispatch(funcName);
 
 			//!steal-remove-start
 			dev.log("Model.js - " + constructor.shortName + " " + funcName);
@@ -128,7 +124,8 @@ var mapBehavior = connect.behavior(function(baseConnection){
 
 
 
-var CanModel = CanMap.extend({
+var CanModel = DefineMap.extend({
+	seal: false,
 	setup: function (base, fullName, staticProps, protoProps) {
 		// Assume `fullName` wasn't passed. (`CanModel.extend({ ... }, { ... })`)
 		// This is pretty usual.
@@ -148,7 +145,7 @@ var CanModel = CanMap.extend({
 		// Create the model store here, in case someone wants to use CanModel without inheriting from it.
 		this.store = {};
 
-		CanMap.setup.apply(this, arguments);
+		DefineMap.setup.apply(this, arguments);
 
 		//
 
@@ -167,7 +164,7 @@ var CanModel = CanMap.extend({
 			this.List.Map = this;
 		} else {
 			this.List = base.List.extend({
-				Map: this
+				"#": this
 			}, {});
 		}
 		var self = this;
@@ -201,7 +198,7 @@ var CanModel = CanMap.extend({
 				var list = new self.List(listData.data);
 				each(listData, function (val, prop) {
 					if (prop !== 'data') {
-						list.attr(prop, val);
+						list.set(prop, val);
 					}
 				});
 				return list;
@@ -235,13 +232,13 @@ var CanModel = CanMap.extend({
 			if( self.connection[name] ) {
 				var fn = self.connection[name].bind(self.connection);
 				fn.base = self[name];
-				CanMap._overwrite(self, base, name, fn);
+				DefineMap._overwrite(self, base, name, fn);
 			}
 		});
 		each(parseMethods, function(connectionName, name){
 			var fn = self.connection[connectionName].bind(self.connection);
 			fn.base = self[name];
-			CanMap._overwrite(self, base, name,  fn);
+			DefineMap._overwrite(self, base, name,  fn);
 		});
 	},
 	models: function(raw, oldList){
@@ -293,17 +290,17 @@ var CanModel = CanMap.extend({
 		callCanReadingOnIdRead = false;
 		this.constructor.connection.addInstanceReference(this);
 		callCanReadingOnIdRead = true;
-		return CanMap.prototype._eventSetup.apply(this, arguments);
+		return DefineMap.prototype._eventSetup.apply(this, arguments);
 	},
 	_eventTeardown: function () {
 		callCanReadingOnIdRead = false;
 		this.constructor.connection.deleteInstanceReference(this);
 		callCanReadingOnIdRead = true;
-		return CanMap.prototype._eventTeardown.apply(this, arguments);
+		return DefineMap.prototype._eventTeardown.apply(this, arguments);
 	},
 	// Change the behavior of `___set` to account for the store.
 	___set: function (prop, val) {
-		CanMap.prototype.___set.call(this, prop, val);
+		DefineMap.prototype.___set.call(this, prop, val);
 		// If we add or change the ID, update the store accordingly.
 		// TODO: shouldn't this also delete the record from the old ID in the store?
 		if ( prop === (this.constructor.id || "id") && this.__bindEvents && this.__bindEvents._lifecycleBindings ) {
@@ -312,28 +309,28 @@ var CanModel = CanMap.extend({
 	}
 });
 
-CanModel.List = CanList.extend({
+CanModel.List = DefineList.extend({
 	// ## CanModel.List.setup
 	// On change or a nested named event, setup change bubbling.
 	// On any other type of event, setup "destroyed" bubbling.
-	_bubbleRule: function(eventName, list) {
-		var bubbleRules = CanList._bubbleRule(eventName, list);
-		bubbleRules.push('destroyed');
-		return bubbleRules;
-	}
+	// _bubbleRule: function(eventName, list) {
+	// 	var bubbleRules = CanList._bubbleRule(eventName, list);
+	// 	bubbleRules.push('destroyed');
+	// 	return bubbleRules;
+	// }
 },{
 	setup: function (params) {
 		// If there was a plain object passed to the List constructor,
 		// we use those as parameters for an initial findAll.
 		if (isPlainObject(params) && !Array.isArray(params)) {
-			CanList.prototype.setup.apply(this);
+			DefineList.prototype.setup.apply(this);
 			this.replace(canReflect.isPromise(params) ? params : this.constructor.Map.findAll(params));
 		} else {
 			// Otherwise, set up the list like normal.
-			CanList.prototype.setup.apply(this, arguments);
+			DefineList.prototype.setup.apply(this, arguments);
 		}
 		this._init = 1;
-		this.bind('destroyed', this._destroyed.bind(this));
+		this.on('destroyed', this._destroyed.bind(this));
 		delete this._init;
 	},
 	_destroyed: function (ev, attr) {

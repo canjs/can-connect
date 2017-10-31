@@ -2,13 +2,14 @@ var set = require("can-set");
 var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");
-var compute = require("can-compute");
+var Observation = require("can-observation");
 var canLog = require("can-util/js/log/log");
+var canReflect = require("can-reflect");
 
 // load connections
 var constructor = require("can-connect/constructor/");
 var canMap = require("can-connect/can/map/");
-var canRef = require("can-connect/can/ref/");
+//var canRef = require("can-connect/can/ref/");
 var constructorStore = require("can-connect/constructor/store/");
 var dataCallbacks = require("can-connect/data/callbacks/");
 var callbacksCache = require("can-connect/data/callbacks-cache/");
@@ -355,14 +356,14 @@ test("isSaving and isDestroying", function(){
 		isSavingCalls = 0,
 		isDestroyingCalls = 0;
 
-	var isSaving = compute(function(){
+	var isSaving = new Observation(function(){
 		return todo.isSaving();
 	});
-	var isDestroying = compute(function(){
+	var isDestroying = new Observation(function(){
 		return todo.isDestroying();
 	});
 
-	isSaving.on("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isSaving, function(ev, newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated","hydrated call");
@@ -384,7 +385,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	isDestroying.on("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isDestroying, function(ev, newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");

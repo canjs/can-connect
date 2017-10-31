@@ -2,25 +2,49 @@ var QUnit = require("steal-qunit");
 
 var CanMap = require("can-map");
 var CanList = require("can-list");
-var compute = require("can-compute");
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
+var SimpleObservable = require("can-simple-observable");
 
 var $ = require("jquery");
 var superMap = require("can-connect/can/super-map/");
 var tag = require("can-connect/can/tag/");
 var fixture = require("can-fixture");
-var findAllTemplate = require("./tag_find_all_test.stache!");
-var findOneTemplate = require("./tag_find_one_test.stache!");
+// TODO when steal-stache is up to date, use these lines again and remove requiring stache and the fetch.
+//var findAllTemplate = require("./tag_find_all_test.stache");
+//var findOneTemplate = require("./tag_find_one_test.stache");
+var stache = require("can-stache");
+require("can-stache-bindings");
+var findAllTemplate, findOneTemplate;
 
 require("can-util/dom/events/inserted/inserted");
 
-QUnit.module("can-connect/can/tag");
+QUnit.module("can-connect/can/tag", {
+	setup: function(done) {
+		if(!findAllTemplate) {
+			stop();
+			Promise.all([
+				// note: base href is /test/
+				fetch("../can/tag/tag_find_all_test.stache"),
+				fetch("../can/tag/tag_find_one_test.stache")])
+			.then(function(fetches) {
+				return Promise.all(fetches.map(function(response) {
+					return response.text();
+				}));
+			}).then(function(bodies) {
+				findAllTemplate = stache(bodies[0]);
+				findOneTemplate = stache(bodies[1]);
+			}).then(start);
+		}
+	}
+});
 
 
 QUnit.test("getList", function(){
 
 
-	var Person = CanMap.extend({});
-	Person.List = CanList.extend({Map: Person},{});
+	var Person = DefineMap.extend({seal: true}, {});
+	Person.List = DefineList.extend({"#": Person},{});
 
 	var options = {
 			url: "/api/people",
@@ -43,7 +67,7 @@ QUnit.test("getList", function(){
 
 		}
 	});
-	var type = compute("first");
+	var type = new SimpleObservable("first");
 	stop();
 
 	var resolvedCalls = 0;
@@ -59,7 +83,7 @@ QUnit.test("getList", function(){
 				ok(true, "called resolved");
 				equal(el.childNodes[1].innerHTML, "1", "added id");
 				setTimeout(function(){
-					type("second");
+					type.set("second");
 				},1);
 			} else {
 				ok(true, "called resolved");
@@ -102,7 +126,7 @@ QUnit.test("get", function(){
 
 		}
 	});
-	var personId = compute(1);
+	var personId = new SimpleObservable(1);
 	stop();
 
 	var resolvedCalls = 0;
@@ -118,7 +142,7 @@ QUnit.test("get", function(){
 				ok(true, "called resolved");
 				equal(el.innerHTML, "first", "added id");
 				setTimeout(function(){
-					personId(2);
+					personId.set(2);
 				},1);
 			} else {
 				ok(true, "called resolved");
@@ -179,7 +203,7 @@ if(System.env !== 'canjs-test') {
 
 		connection.getList({}).then(function(){
 
-			var personId = compute(1);
+			var personId = new SimpleObservable(1);
 
 
 			var frag = findOneTemplate({
@@ -193,7 +217,7 @@ if(System.env !== 'canjs-test') {
 
 						equal(el.innerHTML, "first", "first id");
 						setTimeout(function(){
-							personId(2);
+							personId.set(2);
 
 							setTimeout(function(){
 								equal($("person-model .resolved").text(), "second", "updated id");

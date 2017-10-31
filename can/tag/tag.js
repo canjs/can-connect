@@ -34,12 +34,13 @@ require("can-stache-bindings");
 
 var connect = require("can-connect");
 
-var compute = require('can-compute');
+var Observation = require('can-observation');
 var expression = require("can-stache/src/expression");
 var viewCallbacks = require("can-view-callbacks");
-var Observation = require("can-observation");
+var ObservationRecorder = require("can-observation-recorder");
 var nodeLists = require("can-view-nodelist");
 var canEvent = require("can-event");
+var canReflect = require("can-reflect");
 
 var each = require("can-util/js/each/each");
 
@@ -82,7 +83,7 @@ connect.tag = function(tagName, connection){
 
 
 		var addedToPageData = false;
-		var addToPageData = Observation.ignore(function(set, promise){
+		var addToPageData = ObservationRecorder.ignore(function(set, promise){
 			if(!addedToPageData) {
 				var root = tagData.scope.peek("%root") || tagData.scope.peek("@root");
 				if( root && root.pageData ) {
@@ -95,7 +96,7 @@ connect.tag = function(tagName, connection){
 			addedToPageData = true;
 		});
 
-		var request = compute(function(){
+		var request = new Observation(function(){
 			var hash = {};
 			if(typeof attrInfo.hash === "object") {
 				// old expression data
@@ -113,7 +114,7 @@ connect.tag = function(tagName, connection){
 					hash[key] = convertToValue(val);
 				});
 			} else {
-				hash = attrInfo.argExprs.length ? attrInfo.argExprs[0].value(tagData.scope, tagData.options)()
+				hash = attrInfo.argExprs.length ? canReflect.getValue(attrInfo.argExprs[0].value(tagData.scope, tagData.options))
 					: {};
 			}
 

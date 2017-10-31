@@ -4,28 +4,20 @@ var each = require("can-util/js/each/each");
 var connect = require("can-connect");
 var canBatch = require("can-event/batch/batch");
 var canEvent = require("can-event");
-var Observation = require("can-observation");
+var ObservationRecorder = require("can-observation-recorder");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 var types = require("can-types");
 var each = require("can-util/js/each/each");
-var isFunction = require("can-util/js/is-function/is-function");
 var dev = require("can-util/js/dev/dev");
 var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
 
 var setExpando = function(map, prop, value) {
-	if("attr" in map) {
-		map[prop] = value;
-	} else {
-		map._data[prop] = value;
-	}
+	canReflect.set(map, canSymbol.for("can-connect." + prop), value);
 };
 var getExpando = function(map, prop) {
-	if("attr" in map) {
-		return map[prop];
-	} else {
-		return map._data[prop];
-	}
+	return canReflect.get(map, canSymbol.for("can-connect." + prop));
 };
 
 var canMapBehavior = connect.behavior("can/map",function(baseConnection){
@@ -71,7 +63,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 					ids.push(readObservable(instance,"id"));
 				}
 
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `Observation.add`.)
+				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObservationRecorder.add`.)
 				return ids.length > 1 ? ids.join("@|@"): ids[0];
 			} else {
 				return baseConnection.id(instance);
@@ -610,7 +602,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 *   instance but the returned promise has not yet resolved.
 		 */
 		return function () {
-			Observation.add(this,"_saving");
+			ObservationRecorder.add(this,"_saving");
 			return !!getExpando(this, "_saving");
 		};
 	},
@@ -638,7 +630,7 @@ var mapOverwrites = {	// ## can.Model#bind and can.Model#unbind
 		 *   instance but the returned promise has not resolved.
 		 */
 		return function () {
-			Observation.add(this,"_destroying");
+			ObservationRecorder.add(this,"_destroying");
 			return !!getExpando(this, "_destroying");
 		};
 	},
@@ -802,14 +794,14 @@ var listStaticOverwrites = {
 var readObservable = function(instance, prop){
 	if("__get" in instance) {
 		if(callCanReadingOnIdRead) {
-			Observation.add(instance, prop);
+			ObservationRecorder.add(instance, prop);
 		}
 		return instance.__get(prop);
 	} else {
 		if(callCanReadingOnIdRead) {
 			return instance[prop];
 		} else {
-			return Observation.ignore(function(){
+			return ObservationRecorder.ignore(function(){
 				return instance[prop];
 			})();
 		}

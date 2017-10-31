@@ -8,7 +8,7 @@ var makeDeferred = require("can-connect/helpers/deferred");
 var canEvent = require("can-event");
 var CanMap = require("can-map");
 var CanList = require("can-list");
-var Observation = require("can-observation");
+var ObservationRecorder = require("can-observation-recorder");
 
 var assign = require("can-util/js/assign/assign");
 
@@ -28,7 +28,7 @@ var logErrorAndStart = function(e){
 			id: 'foo'
 		}, {
 			foo: function () {
-				return this.attr('foo');
+				return this._data.foo;
 			}
 		});
 		var newModel = new MyModel({});
@@ -317,7 +317,7 @@ var logErrorAndStart = function(e){
 			ok(true, 'updated');
 			equal(val, 'baz', 'values match');
 		});
-		inst.attr('foo', 'baz');
+		inst.set('foo', 'baz');
 
 	});
 
@@ -394,17 +394,17 @@ var logErrorAndStart = function(e){
 		item.save().then(undefined, logErrorAndStart);
 	});
 
-	test('removeAttr test', function () {
-		var Person = CanModel({},{});
-		var person = new Person({
-			foo: 'bar'
-		});
-		equal(person.foo, 'bar', 'property set');
-		person.removeAttr('foo');
-		equal(person.foo, undefined, 'property removed');
-		var attrs = person.attr();
-		equal(attrs.foo, undefined, 'attrs removed');
-	});
+	// test('removeAttr test', function () {
+	// 	var Person = CanModel({},{});
+	// 	var person = new Person({
+	// 		foo: 'bar'
+	// 	});
+	// 	equal(person.foo, 'bar', 'property set');
+	// 	person.set('foo', undefined);
+	// 	equal(person.foo, undefined, 'property removed');
+	// 	var attrs = person.attr();
+	// 	equal(attrs.foo, undefined, 'attrs removed');
+	// });
 	test('save error args', function () {
 		var Foo = CanModel.extend({
 			create: '/testinmodelsfoos.json'
@@ -481,7 +481,7 @@ var logErrorAndStart = function(e){
 		ok(!Storage.store.has(1), 'not stored');
 		var s2 = new Storage({});
 		s2.bind('foo', func);
-		s2.attr('id', 5);
+		s2.set('id', 5);
 		ok(Storage.store.has(5), 'stored');
 		s2.unbind('foo', func);
 		ok(!Storage.store.has(5), 'not stored');
@@ -650,7 +650,7 @@ var logErrorAndStart = function(e){
 				})
 			]);
 		equal(list1.length, 0, 'Initial empty list has length of 0');
-		list1.attr(list2);
+		list1.assign(list2);
 		equal(list1.length, 2, 'Merging using attr yields length of 2');
 	});
 	test('destroying a model impact the right list', function () {
@@ -689,8 +689,8 @@ var logErrorAndStart = function(e){
 		people.bind('length', function () {});
 		orgs.bind('length', function () {});
 		// set each person to have an organization
-		people[0].attr('organisation', orgs[0]);
-		people[1].attr('organisation', orgs[1]);
+		people[0].set('organisation', orgs[0]);
+		people[1].set('organisation', orgs[1]);
 		equal(people.length, 2, 'Initial Person.List has length of 2');
 		equal(orgs.length, 2, 'Initial Organisation.List has length of 2');
 		orgs[0].destroy();
@@ -704,8 +704,8 @@ var logErrorAndStart = function(e){
 	});
 	test('uses attr with isNew', function () {
 		// TODO this does not seem to be consistent expect(2);
-		var old = Observation.add;
-		Observation.add = function (object, attribute) {
+		var old = ObservationRecorder.add;
+		ObservationRecorder.add = function (object, attribute) {
 			if (attribute === 'id') {
 				ok(true, 'used attr');
 			}
@@ -715,7 +715,7 @@ var logErrorAndStart = function(e){
 			id: 4
 		});
 		m.isNew();
-		Observation.add = old;
+		ObservationRecorder.add = old;
 	});
 
 	test('extends defaults by calling base method', function () {
@@ -754,7 +754,7 @@ var logErrorAndStart = function(e){
 		}], list);
 
 		equal(list, newList, 'Lists are the same');
-		equal(newList.attr('length'), 3, 'List has new items');
+		equal(newList.get('length'), 3, 'List has new items');
 		equal(list[0].name, 'third', 'New item is the first one');
 	});
 
@@ -766,10 +766,10 @@ var logErrorAndStart = function(e){
 		// you must bind to a list for this feature
 		list.bind('length', function () {});
 		list.push(newModel);
-		equal(list.attr('length'), 1, 'List length as expected');
+		equal(list.get('length'), 1, 'List length as expected');
 		deferred = newModel.destroy();
 		ok(deferred, '.destroy returned a Deferred');
-		equal(list.attr('length'), 0, 'Unsaved model removed from list');
+		equal(list.get('length'), 0, 'Unsaved model removed from list');
 		deferred.then(function (data) {
 			ok(data === newModel, 'Resolved with destroyed model as described in docs');
 		});
@@ -790,8 +790,8 @@ var logErrorAndStart = function(e){
 			id: 0,
 			name: 'text updated'
 		});
-		equal(model.attr('name'), 'text updated', 'attribute updated');
-		equal(model.attr('index'), 2, 'Index attribute still remains');
+		equal(model.get('name'), 'text updated', 'attribute updated');
+		equal(model.get('index'), 2, 'Index attribute still remains');
 		MyModel = CanModel.extend({
 			removeAttr: true
 		}, {});
@@ -807,8 +807,8 @@ var logErrorAndStart = function(e){
 			id: 0,
 			name: 'text updated'
 		});
-		equal(model.attr('name'), 'text updated', 'attribute updated');
-		deepEqual(model.attr(), {
+		equal(model.get('name'), 'text updated', 'attribute updated');
+		deepEqual(model.get(), {
 			id: 0,
 			name: 'text updated'
 		}, 'Index attribute got removed');
@@ -846,14 +846,14 @@ var logErrorAndStart = function(e){
 
 		MyModel.bind('created', function (ev, created) {
 			start();
-			deepEqual(created.attr(), {
+			deepEqual(created.get(), {
 				id: 1,
 				name: 'Dishes'
 			}, '.model works for create');
 		})
 			.bind('updated', function (ev, updated) {
 				start();
-				deepEqual(updated.attr(), {
+				deepEqual(updated.get(), {
 					id: 1,
 					name: 'Laundry',
 					updatedAt: updateTime
@@ -866,7 +866,7 @@ var logErrorAndStart = function(e){
 			saveD = instance.save();
 		stop();
 		saveD.then(function () {
-			instance.attr('name', 'Laundry')
+			instance.set('name', 'Laundry')
 				.save(undefined, logErrorAndStart);
 		}, logErrorAndStart);
 
@@ -940,7 +940,7 @@ var logErrorAndStart = function(e){
 				}
 			}]
 		});
-		deepEqual(strangers.attr(), [{
+		deepEqual(strangers.get(), [{
 			id: 1,
 			name: 'one'
 		}, {
@@ -1039,7 +1039,7 @@ var logErrorAndStart = function(e){
 		stop();
 		MyModel.bind('created', function (ev, created) {
 			start();
-			deepEqual(created.attr(), {
+			deepEqual(created.get(), {
 				id: 1,
 				name: 'Dishes',
 				aDefault: "bar"
@@ -1047,7 +1047,7 @@ var logErrorAndStart = function(e){
 		})
 			.bind('updated', function (ev, updated) {
 				start();
-				deepEqual(updated.attr(), {
+				deepEqual(updated.get(), {
 					id: 1,
 					name: 'Laundry',
 					updatedAt: updateTime
@@ -1062,8 +1062,8 @@ var logErrorAndStart = function(e){
 
 		stop();
 		saveD.then(function () {
-			instance.attr('name', 'Laundry');
-			instance.removeAttr("aDefault");
+			instance.set('name', 'Laundry');
+			instance.set("aDefault", undefined);
 			instance.save();
 		});
 
@@ -1101,7 +1101,7 @@ var logErrorAndStart = function(e){
 		stop();
 		MyModel.bind('created', function (ev, created) {
 			start();
-			deepEqual(created.attr(), {
+			deepEqual(created.get(), {
 				id: 1,
 				name: 'Dishes',
 				aDefault: "bar"
@@ -1109,7 +1109,7 @@ var logErrorAndStart = function(e){
 		})
 			.bind('updated', function (ev, updated) {
 				start();
-				deepEqual(updated.attr(), {
+				deepEqual(updated.get(), {
 					id: 1,
 					name: 'Laundry',
 					updatedAt: updateTime
@@ -1124,8 +1124,8 @@ var logErrorAndStart = function(e){
 
 		stop();
 		saveD.then(function () {
-			instance.attr('name', 'Laundry');
-			instance.removeAttr("aDefault");
+			instance.set('name', 'Laundry');
+			instance.set("aDefault", undefined);
 			instance.save();
 		});
 
@@ -1185,7 +1185,7 @@ var logErrorAndStart = function(e){
 		stop();
 
 		MyModel.findAll({}, function (models) {
-			deepEqual(models.attr(), [{
+			deepEqual(models.get(), [{
 				id: 1,
 				name: "first"
 			}], "correct models returned");
@@ -1197,9 +1197,9 @@ var logErrorAndStart = function(e){
 	test("Nested lists", function(){
 		var Teacher = CanModel.extend({});
 		var teacher = new Teacher();
-		teacher.attr("locations", [{id: 1, name: "Chicago"}, {id: 2, name: "LA"}]);
-		ok(!(teacher.attr('locations') instanceof Teacher.List), 'nested list is not an instance of Teacher.List');
-		ok(!(teacher.attr('locations')[0] instanceof Teacher), 'nested map is not an instance of Teacher');
+		teacher.set("locations", [{id: 1, name: "Chicago"}, {id: 2, name: "LA"}]);
+		ok(!(teacher.get('locations') instanceof Teacher.List), 'nested list is not an instance of Teacher.List');
+		ok(!(teacher.get('locations')[0] instanceof Teacher), 'nested map is not an instance of Teacher');
 	});
 
 	test("#501 - resource definition - create", function() {
@@ -1233,7 +1233,7 @@ var logErrorAndStart = function(e){
 
 		stop();
 		DrinkModel.findAll({}, function(drinks) {
-			deepEqual(drinks.attr(), [{
+			deepEqual(drinks.get(), [{
 				id: 1,
 				name: "coke"
 			}], "findAll returned the correct models");
@@ -1418,7 +1418,7 @@ var logErrorAndStart = function(e){
 
 		Base.findOne({}).then(function(model) {
 			ok(model instanceof Base);
-			deepEqual(model.attr(), {
+			deepEqual(model.get(), {
 				text: 'Base findAll'
 			});
 			start();
@@ -1451,7 +1451,7 @@ var logErrorAndStart = function(e){
 		Extended.findOne({}).then(function(model) {
 			ok(model instanceof Base);
 			ok(model instanceof Extended);
-			deepEqual(model.attr(), {
+			deepEqual(model.get(), {
 				text: 'Base findOne',
 				parsed: true
 			});
@@ -1475,7 +1475,7 @@ var logErrorAndStart = function(e){
 		}, {});
 
 		Third.findOne({}).then(function(model) {
-			equal(model.attr('text'), 'Third findOne', 'correct findOne used');
+			equal(model.get('text'), 'Third findOne', 'correct findOne used');
 		});
 	});
 
@@ -1507,7 +1507,7 @@ var logErrorAndStart = function(e){
 		t1.bind('change', function(){});
 		ok(Task.store.get(t1.id).name === "MyTask", "Model should be in store");
 
-		t1.removeAttr("id");
+		t1.set("id", undefined);
 		ok(typeof Task.store.get(t1.id) === "undefined", "Model should be removed from store when `id` is removed");
 
 	});

@@ -2,7 +2,8 @@ var set = require("can-set");
 var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
-var compute = require("can-compute");
+var Observation = require("can-observation");
+var canReflect = require("can-reflect");
 
 // load connections
 var constructor = require("can-connect/constructor/");
@@ -333,14 +334,14 @@ test("isSaving and isDestroying", function(){
 		isSavingCalls = 0,
 		isDestroyingCalls = 0;
 
-	var isSaving = compute(function(){
+	var isSaving = new Observation(function(){
 		return todo.isSaving();
 	});
-	var isDestroying = compute(function(){
+	var isDestroying = new Observation(function(){
 		return todo.isDestroying();
 	});
 
-	isSaving.bind("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isSaving, function(newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated");
@@ -362,7 +363,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	isDestroying.bind("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isDestroying, function(newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");
@@ -452,7 +453,7 @@ test("findAll and findOne alias", function(){
 });
 
 QUnit.test("reads id from set algebra (#82)", function(){
-	var Todo = Map.extend({});
+	var Todo = Map.extend({seal: false}, {});
 	var TodoList = List.extend({
 		Map: Todo
 	});
