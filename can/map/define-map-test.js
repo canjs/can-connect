@@ -23,6 +23,7 @@ var realTime = require("can-connect/real-time/");
 var connect = require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
+var queues = require("can-queues");
 
 
 var fixture = require("can-fixture");
@@ -56,7 +57,7 @@ var cleanUndefineds = function(obj) {
 QUnit.module("can-connect/can/map/map with define",{
 	setup: function(){
 
-		var Todo = Map.extend({
+		var Todo = Map.extend("Todo",{
 			id: "*",
 			name: "*",
 			type: "*",
@@ -64,12 +65,12 @@ QUnit.module("can-connect/can/map/map with define",{
 			createdId: "*",
 			destroyed: "any"
 		});
-		var TodoList = List.extend({
+		var TodoList = List.extend("TodoList",{
 			"*": Todo
 		});
 		this.Todo = Todo;
 		this.TodoList = TodoList;
-
+		
 		var cacheConnection = connect([localCache],{
 			name: "todos"
 		});
@@ -356,14 +357,14 @@ test("isSaving and isDestroying", function(){
 		isSavingCalls = 0,
 		isDestroyingCalls = 0;
 
-	var isSaving = new Observation(function(){
+	var isSaving = new Observation(function isSaving(){
 		return todo.isSaving();
 	});
-	var isDestroying = new Observation(function(){
+	var isDestroying = new Observation(function isDestroying(){
 		return todo.isDestroying();
 	});
 
-	canReflect.onValue(isSaving, function(ev, newVal, oldVal){
+	canReflect.onValue(isSaving, function onIsSaving(newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated","hydrated call");
@@ -385,7 +386,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	canReflect.onValue(isDestroying, function(ev, newVal, oldVal){
+	canReflect.onValue(isDestroying, function onIsDestroying(newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");
@@ -395,9 +396,10 @@ test("isSaving and isDestroying", function(){
 			equal(newVal, false);
 		}
 	});
-
+	equal( todo.isSaving(), false, "isSaving is false to start" );
 
 	todoConnection.save(todo).then(function(){
+
 		state = "created";
 		equal( todo.isSaving(), false, "isSaving is false" );
 

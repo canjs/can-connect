@@ -2,7 +2,6 @@ var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var set = require('can-set');
 var fixture = require('can-fixture');
-var canEvent = require("can-event");
 var canLog = require("can-util/js/log/log");
 
 var connect = require('can-connect');

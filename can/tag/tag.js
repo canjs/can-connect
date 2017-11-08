@@ -39,7 +39,7 @@ var expression = require("can-stache/src/expression");
 var viewCallbacks = require("can-view-callbacks");
 var ObservationRecorder = require("can-observation-recorder");
 var nodeLists = require("can-view-nodelist");
-var canEvent = require("can-event");
+var eventQueue = require("can-event-queue");
 var canReflect = require("can-reflect");
 
 var each = require("can-util/js/each/each");
@@ -139,7 +139,7 @@ connect.tag = function(tagName, connection){
 
 		// add to pageData
 
-		canEvent.one.call(el, 'removed', function() {
+		eventQueue.one.call(el, 'removed', function() {
 			nodeLists.unregister(nodeList);
 		});
 	});

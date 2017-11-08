@@ -18,8 +18,6 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 
-
-
 var connect=  require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
