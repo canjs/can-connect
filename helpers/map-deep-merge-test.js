@@ -16,6 +16,8 @@ var applyPatchPure = smartMerge.applyPatchPure;
 var mergeInstance = smartMerge.mergeInstance;
 var mergeList = smartMerge.mergeList;
 var idFromType = smartMerge.idFromType;
+var canSymbol = require("can-symbol");
+var get = require("can-util/js/get/get");
 
 var QUnit = require('steal-qunit');
 QUnit.noop = function(){};
@@ -42,7 +44,12 @@ QUnit.noop = function(){};
 //	contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: 'StealJS'}) ) // 3
 //	contributionMonth.author = hydrateInstance( {id: 6, name: 'ilya'} ) // 4
 
-var OSProject, Author, ContributionMonth, origEventDispatch, events;
+var OSProject, Author, ContributionMonth, origEventDispatch, onPatches,
+	addPatches = function(obj, patches){
+		patches.forEach(function(patch){
+			onPatches.push({object: obj, patch: patch});
+		});
+	};
 
 // Setup:
 Author = DefineMap.extend({
@@ -63,22 +70,32 @@ ContributionMonth = DefineMap.extend({
 	osProjects: OSProject.List
 });
 
+function notEq(a){
+	return function(b){
+		return a !== b;
+	};
+}
+function prop(prop){
+	return function(o){
+		return get(o, prop);
+	};
+}
+
 QUnit.module('helpers map-deep-merge', {
 	setup: function(){
-		events = [];
-		origEventDispatch = canEvent.dispatch;
-		canEvent.dispatch = function(ev){
-			//canLog.log('!!! canEvent.dispatch !!! ' + JSON.stringify(ev), arguments);
-			var eventInfo = {
-				type: ev.type || ev,
-				target: ev.target && ev.target.serialize()
-			};
-			events.push(eventInfo);
-			return origEventDispatch.apply(this, arguments);
-		};
+
+		onPatches = [];
+
+		ContributionMonth[canSymbol.for("can.onInstancePatches")](addPatches);
+		Author[canSymbol.for("can.onInstancePatches")](addPatches);
+		OSProject[canSymbol.for("can.onInstancePatches")](addPatches);
+		OSProject.List[canSymbol.for("can.onInstancePatches")](addPatches);
 	},
 	teardown: function(){
-		canEvent.dispatch = origEventDispatch;
+		ContributionMonth[canSymbol.for("can.offInstancePatches")](addPatches);
+		Author[canSymbol.for("can.offInstancePatches")](addPatches);
+		OSProject[canSymbol.for("can.offInstancePatches")](addPatches);
+		OSProject.List[canSymbol.for("can.offInstancePatches")](addPatches);
 	}
 });
 
@@ -91,13 +108,10 @@ QUnit.test('smartMerge simple object', function(assert) {
 		id: 1,
 		month: 'February'
 	};
-
-	events = [];
 	smartMerge(item, data);
 
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct');
-	assert.equal(events.length, 1, 'should dispatch only one event');
-	assert.deepEqual(events[0].type, 'month', 'should dispatch only "month" event: ' + JSON.stringify(events));
+	assert.deepEqual(onPatches, [{object: item, patch: {key: "month", type: "set", value: "February"}}], 'should only be one patch');
 });
 
 QUnit.test('smartMerge nested objects', function(assert) {
@@ -114,17 +128,16 @@ QUnit.test('smartMerge nested objects', function(assert) {
 		author: {id: 7, name: 'Peter'}
 	};
 
-	events = [];
+	onPatches = [];
 	smartMerge(item, data1);
 	assert.deepEqual(item.serialize(), data1, 'nested object MERGE');
-	assert.deepEqual(events.map( prop('type') ), ['name'], 'should dispatch only "name" event');
+	assert.deepEqual(onPatches.map( prop('patch.key') ), ['name'], 'should patch only "name" event');
 
-	events = [];
+	onPatches = [];
 	smartMerge(item, data2);
 	assert.deepEqual(item.serialize(), data2, 'nested object REPLACE');
-	assert.deepEqual(events.map( prop('type') ), ['author'], 'should dispatch 1 event: author: ' + JSON.stringify(events));
+	assert.deepEqual(onPatches.map( prop('patch.key') ), ['author'], 'should dispatch 1 event: author: ' + JSON.stringify(onPatches));
 
-	canLog.log('events::', events);
 });
 
 QUnit.test('smartMerge list of maps', function(assert) {
@@ -135,10 +148,10 @@ QUnit.test('smartMerge list of maps', function(assert) {
 		osProjects: [ { id: 1, title: 'CanJS' }, {id: 2, title: 'jQuery++'} ]
 	};
 
-	events = [];
+	onPatches = [];
 	smartMerge(item, data);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the UPDATE');
-	assert.deepEqual(events.map( prop('type') ), ['title'], 'should dispatch only "title" event');
+	assert.deepEqual(onPatches.map( prop('patch.key') ), ['title'], 'should dispatch only "title" event');
 
 	item = new ContributionMonth({
 		osProjects: [ { id: 1, title: 'can' }, {id: 2, title: 'jQuery++'} ]
@@ -146,11 +159,12 @@ QUnit.test('smartMerge list of maps', function(assert) {
 	data = {
 		osProjects: [ { id: 1, title: 'can' }, {id: 3, title: 'StealJS'}, {id: 2, title: 'jQuery++'} ]
 	};
-	events = [];
+	onPatches = [];
 	smartMerge(item, data);
-	canLog.log('events after smartMerge: ', events);
+	canLog.log('events after smartMerge: ', onPatches);
 	assert.deepEqual(item.serialize(), data, 'updated data should be correct for the INSERT');
-	assert.deepEqual(events.map( prop('type') ), ['add','length'], 'should dispatch correct events: add, length (for insertion)');
+	assert.equal(onPatches.length, 1, 'one patch for the insertion '+JSON.stringify(onPatches));
+	assert.deepEqual(onPatches[0].patch, {type: "splice", deleteCount: 0, index: 1, insert: [item.osProjects[1]]}, 'should dispatch correct events: add, length (for insertion)');
 });
 
 QUnit.test('smartMerge can-connect behavior', function(assert) {
@@ -188,25 +202,30 @@ QUnit.test('smartMerge can-connect behavior', function(assert) {
 
 	connect([dataUrl, constructor, constructorStore, canMap, canMapMergeBehaviour], {
 		Map: ContributionMonth,
+		List: DefineList.extend({"#": ContributionMonth}),
 		url: 'localhost:8080/contribution-month'
 	});
 
 	var item = new ContributionMonth(origData);
 
-	events = [];
+	onPatches = [];
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
-		var eventTypes = events.map(prop('type')).filter(notEq('_saving')).filter(notEq('updated')).sort();
-		assert.equal(eventTypes.length, 5, 'Should dispatch 5 events');
+		console.log(onPatches)
+		var patchInfo = onPatches.map(function(patchData){
+			if(patchData.patch.type === "set") {
+				return "set "+patchData.patch.key;
+			} else if(patchData.patch.type === "splice") {
+				return "splice "+patchData.patch.insert.length+" at "+patchData.patch.index;
+			}
+		});
+		var eventTypes = patchInfo.sort();
+		assert.equal(eventTypes.length, 6, 'Should dispatch 6 events');
 		assert.deepEqual(
-			eventTypes,
-			['name','author', 'name', 'add','length'].sort(),
-			'should dispatch the correct events: ' +
-				'name, author (month update); ' +
-				'name (project update); ' +
-				'add, length (projects) ' +
-				JSON.stringify(eventTypes));
+			patchInfo.sort(),
+			['set name','set author', 'set name','set _saving','set _saving','splice 1 at 1'].sort(),
+			'should dispatch the correct events: ' + JSON.stringify(eventTypes));
 		done();
 	}).catch(function(e){
 		canLog.log('Error: ', e);
@@ -222,7 +241,9 @@ QUnit.test('smartMerge a list of items which type has a connection', function(as
 	});
 	Car.algebra = new set.Algebra( set.props.id('vin') );
 	Car.List = DefineList.extend( {'#': Car} );
-	Car.connection = connect([constructor, constructorStore, canMap]);
+	Car.connection = connect([constructor, constructorStore, canMap],{
+		Map: Car
+	});
 	var list = new Car.List([
 		{id: 100, name: 'Feb'},
 		{id: 200, name: 'March'},
@@ -263,16 +284,7 @@ QUnit.test('applyPatchPure', function(assert) {
 	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
 });
 
-function notEq(a){
-	return function(b){
-		return a !== b;
-	};
-}
-function prop(prop){
-	return function(o){
-		return o[prop];
-	};
-}
+
 
 QUnit.test("mergeInstance when properties are removed and added", function(){
 	var map = new DefineMap({a:"A"});

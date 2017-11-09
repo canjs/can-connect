@@ -24,6 +24,10 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 			}
 
 			this.List = this.List || this.Map.List;
+			if(!this.List) {
+				throw new Error("can-connect/can/map/map must be configured with a List type");
+			}
+
 			overwrite(this, this.Map, mapOverwrites);
 			overwrite(this, this.List, listOverwrites);
 
@@ -740,8 +744,8 @@ var mapOverwrites = {
 		}
 	},
 	properties: {
-		_saving: {},
-		_destroying: {}
+		_saving: {enumerable: false, value: false},
+		_destroying: {enumerable: false, value: false}
 	}
 };
 

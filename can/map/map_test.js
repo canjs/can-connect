@@ -33,7 +33,11 @@ var later = testHelpers.later;
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();
+	return Promise.reject(e);
+
 };
+
+var queues = require("can-queues");
 
 QUnit.module("can-connect/can/map/map",{
 	setup: function(){
@@ -152,7 +156,7 @@ QUnit.test("real-time super model", function(){
 
 	var importantList,
 		todayList,
-		bindFunc = function(){
+		bindFunc = function functionUsedToKeepObservablesBound(){
 			//canLog.log("length changing");
 		};
 	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
@@ -289,6 +293,7 @@ QUnit.test("real-time super model", function(){
 	}
 
 	function getListDueTodayAgainstCache(){
+
 		connection.getList({due: "today"}).then(function(updatedTodayList){
 			var added = serverCreatedInstance.serialize();
 			equal(todayList, updatedTodayList, "same todo list returned");
@@ -296,7 +301,7 @@ QUnit.test("real-time super model", function(){
 			deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
 
 			var batchNum;
-			todayList.bind("length", function(ev){
+			todayList.bind("length", function lengthChanged(ev){
 				if(!ev.batchNum || ev.batchNum !== batchNum) {
 					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
 					start();

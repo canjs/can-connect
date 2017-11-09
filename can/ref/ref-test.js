@@ -19,12 +19,15 @@ QUnit.asyncTest("basics", function(){
 	var Team = DefineMap.extend({
 		id: 'string'
 	});
+	var Teams = DefineList.extend({
+		"#": Team
+	});
 	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
 	}],
-	{ Map: Team });
+	{ Map: Team, List: Teams });
 
 	var Game = DefineMap.extend({
 		id: 'string',
@@ -47,7 +50,7 @@ QUnit.asyncTest("basics", function(){
 			});
 		}
 	}],
-	{ Map: Game });
+	{ Map: Game, List: DefineList.extend({ 	"#": Game }) });
 
 	var handler = function(){};
 	Game.get({id: 1, populate: "teamRef"}).then(function(game){
@@ -95,7 +98,8 @@ QUnit.asyncTest("using Ref as type", function(){
 		}
 	}],
 	{
-		Map: Team
+		Map: Team,
+		List: DefineList.extend({ "#": Team })
 	});
 
 	var Game = DefineMap.extend({
@@ -122,7 +126,8 @@ QUnit.asyncTest("using Ref as type", function(){
 		}
 	}],
 	{
-		Map: Game
+		Map: Game,
+		List: DefineList.extend({ "#": Game })
   	});
 
 	var handler = function(){};
@@ -167,7 +172,8 @@ QUnit.test("Ref can be passed an instance of what it references (#236)", functio
 
 	connect([constructor, constructorStore, canMap, canRef],
 	{
-		Map: Team
+		Map: Team,
+		List: DefineList.extend({ "#": Team })
 	});
 
 	var Game = DefineMap.extend({
@@ -178,7 +184,8 @@ QUnit.test("Ref can be passed an instance of what it references (#236)", functio
 
 	connect([constructor, constructorStore, canMap, canRef],
 	{
-		Map: Game
+		Map: Game,
+		List: DefineList.extend({ "#": Game })
   	});
 
 	// try with team not in the store
@@ -206,7 +213,10 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
 	}],
-	{ Map: Team });
+	{
+		Map: Team,
+		List: DefineList.extend({ "#": Team })
+	});
 
 	var Game = DefineMap.extend({
 		id: "string",
@@ -222,7 +232,10 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 			});
 		}
 	}],
-	{ Map: Game });
+	{
+		Map: Game,
+		List: DefineList.extend({ "#": Game })
+	});
 
 	var handler = function(){};
 
