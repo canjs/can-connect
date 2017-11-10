@@ -4,6 +4,7 @@ var assign = require("can-util/js/assign/assign");
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
  * The order of named execution gets run in order.
  * @param {Object} options
+ * @hide
  */
 var connect = function(behaviors, options){
 

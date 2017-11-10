@@ -3,6 +3,7 @@ var hooks = {
 	/**
 	 * Get a list of instances
 	 * @return {Promise<Array<Object>>}
+	 * @hide
 	 */
 	getListData: function(params){
 		
@@ -10,6 +11,7 @@ var hooks = {
 	/**
 	 * Get an instance
 	 * @return {Promise<Object>}
+	 * @hide
 	 */
 	getData: function(params){
 	
@@ -52,6 +54,7 @@ var hooks = {
 	 * 
 	 * @param {*} listData
 	 * @return {Array<*>} An array that represents the data
+	 * @hide
 	 */
 	parseListData: function(){},
 	/**
@@ -59,6 +62,7 @@ var hooks = {
 	 * 
 	 * @param {*} instanceData
 	 * @return {Object} An object of properties on the object
+	 * @hide
 	 */
 	parseInstanceData: function(){},
 	
