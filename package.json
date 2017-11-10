@@ -6,7 +6,7 @@
   "dependencies": {
     "can-ajax": "^1.1.1",
     "can-construct": "^3.2.0",
-    "can-define": "file:../can-define",
+    "can-define": "^2.0.0-pre.15",
     "can-event-queue": "<2.0.0",
     "can-list": "^4.0.0-pre.0",
     "can-make-rest": "0.1.1",
@@ -15,7 +15,7 @@
     "can-observation": "^4.0.0-pre.18",
     "can-observation-recorder": "<2.0.0",
     "can-queues": "<2.0.0",
-    "can-reflect": "file:../can-reflect",
+    "can-reflect": "^1.8.0",
     "can-set": "^1.3.0",
     "can-stache": "^4.0.0-pre.7",
     "can-stache-bindings": "^4.0.0-pre.9",
