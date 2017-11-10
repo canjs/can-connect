@@ -250,6 +250,7 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 		 * Synchronously gets a set of data from the memory cache.
 		 *
 		 * @signature `connection.getListDataSync(set)`
+		 * @hide
 		 */
 		getListDataSync: function(set){
 			var sets = this._getSets();
