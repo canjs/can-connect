@@ -1,4 +1,4 @@
 <person-model get='{id=personId}'>
-	{{#isPending}}<span class='pending' on:inserted="pending()"></span>{{/isPending}}
-	{{#isResolved}}<span class='resolved' on:inserted="resolved(%context, %element)" pid="{{value.id}}">{{value.type}}</span>{{/isResolved}}
+	{{#if isPending}}<span class='pending' on:inserted="../pending()"></span>{{/if}}
+	{{#if isResolved}}<span class='resolved' on:inserted="../resolved(scope.context, scope.element)" pid="{{value.id}}">{{value.type}}</span>{{/if}}
 </person-model>
