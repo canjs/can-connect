@@ -6,6 +6,8 @@ var constructorStore = require("can-connect/constructor/store/");
 var dataCallbacks = require("can-connect/data/callbacks/");
 var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
 var canDev = require('can-util/js/dev/dev');
@@ -229,7 +231,7 @@ QUnit.test("basics", function(){
 });
 
 QUnit.test("sorting by id works", function(){
-	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -241,8 +243,7 @@ QUnit.test("sorting by id works", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
-		dataCallbacks, callbacksOnce],{
+	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
 			algebra: algebra
 	});
 
@@ -270,7 +271,7 @@ QUnit.test("sorting by id works", function(){
 
 
 QUnit.test("sorting by sort clause works with updates", function(){
-	var algebra = new set.Algebra(set.comparators.id("id"), set.comparators.sort("sortBy"));
+	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -282,8 +283,7 @@ QUnit.test("sorting by sort clause works with updates", function(){
 		};
 	};
 
-	var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
-		dataCallbacks, callbacksOnce],{
+	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
 			algebra: algebra
 	});
 
@@ -323,28 +323,28 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 		realTime,
 		constructor,
 		constructorStore,
-		dataCallbacks,
-		destructionForeman,
-		callbacksOnce
-		],{});
+		destructionForeman
+	],{});
 	connection.destroyInstance({id: 1});
 });
 
 //!steal-remove-start
 if (canDev) {
 	test("dev mode warning when listSet algebra doesn't match an item", function () {
-		var algebra = new set.Algebra(set.comparators.id("id"));
+		var algebra = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
 			return {
 				getListData: function(){
-					// nothing here first time
 					return testHelpers.asyncResolve({ data: items.slice(0) });
-				}
+				},
+				createData: function(props){},
+				updateData: function(props){},
+				destroyData: function(props){}
 			};
 		};
 
-		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+		var connection = connect([dataBehavior,realTime,constructor,constructorStore,
 			dataCallbacks, callbacksOnce],{
 				algebra: algebra
 		});
@@ -363,5 +363,199 @@ if (canDev) {
 		}, 500);
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
 	});
+
+	test("listSet algebra warning includes any `undefined` values", function() {
+		var algebra = new set.Algebra(set.props.id("id"));
+		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
+		var dataBehavior = function(){
+			return {
+				getListData: function(){
+					return testHelpers.asyncResolve({ data: items.slice(0) });
+				},
+				createData: function(props){},
+				updateData: function(props){},
+				destroyData: function(props){}
+			};
+		};
+
+		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
+			dataCallbacks, callbacksOnce],{
+				algebra: algebra
+		});
+
+		var oldlog = canDev.warn;
+		canDev.warn = function (message) {
+			clearTimeout(failSafeTimer);
+			ok(true, 'warns about item not being in list');
+			ok(/"nope": undefined/.test(message), 'undefined value in set');
+			ok(/"foo": undefined/.test(message), 'undefined value in item');
+			canDev.warn = oldlog;
+			start();
+		};
+
+		stop();
+		var failSafeTimer = setTimeout(function () {
+			notOk(true, 'canDev.warn was never called!');
+		}, 500);
+		connection.getList({ "fooBar": true, foo: { bar: 1234 }, nope: undefined });
+	});
 }
 //!steal-remove-end
+
+/**
+ * This test covers a situation where there is a mix of AJAX (data)
+ * and sockets (real-time). A save() happens, an AJAX POST is made
+ * to the server, the socket 'created' event is emitted before
+ * the AJAX request is done, and finally the AJAX response resolves.
+ */
+QUnit.test("handling if createInstance happens before createdData", 4, function (assert) {
+	QUnit.stop();
+	var createdPromiseResolve;
+
+	var dataBehavior = function(){
+		return {
+			createData: function (props, cid) {
+				return new Promise(function(resolve){
+					createdPromiseResolve = resolve;
+				});
+			},
+			getListData: function(props){},
+			updateData: function(props){},
+			destroyData: function(props){}
+		};
+	};
+	var connection = connect([
+		dataBehavior,
+		constructor,
+		constructorStore,
+		realTime,
+		dataCallbacks,
+		callbacksOnce
+	],{});
+
+	var data = {name: "Ryan"};
+
+	var savePromise = connection.save(data).then(function(dataAgain){
+		connection.addInstanceReference(data);
+		QUnit.equal(data, dataAgain, "same instance in memory .save()")
+		QUnit.equal(data.id, 1, ".save() has the id");
+	});
+
+	setTimeout(function(){
+		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
+			QUnit.equal(data, instance, ".createInstance() same instance in memory");
+			QUnit.equal(data.id, 1, ".createInstance() has the id");
+		}).then(function(){
+			return savePromise;
+		}).then(function(){
+			QUnit.start();
+		});
+
+		createdPromiseResolve({name: "Ryan", id: 1});
+	}, 10);
+});
+
+/**
+ * This tests to make sure that the `Promise.all` call inside
+ * of createInstance always gets an array of resolved promises.
+ * The createData method will swallow any failures before adding
+ * the promise onto the promise stack used by createInstance.
+ */
+QUnit.test("createInstance doesn't fail if createData fails", 3, function (assert) {
+	QUnit.stop();
+	var createdPromiseReject;
+
+	var dataBehavior = function(){
+		return {
+			createData: function (props, cid) {
+				return new Promise(function(resolve, reject){
+					createdPromiseReject = reject;
+				});
+			},
+			getListData: function(props){},
+			updateData: function(props){},
+			destroyData: function(props){}
+		};
+	};
+	var connection = connect([
+		dataBehavior,
+		constructor,
+		constructorStore,
+		realTime,
+		dataCallbacks,
+		callbacksOnce
+	],{});
+
+	var data = {name: "Ryan"};
+
+	var savePromise = connection.save(data).then(function(dataAgain){
+		QUnit.notOk(true, "save() should not have succeeded");
+	}).catch(function(){
+		QUnit.ok(true, "save() caused an error.");
+		return '';
+	});
+
+	setTimeout(function(){
+		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
+			QUnit.notEqual(data, instance, ".createInstance() should create a new instance b/c save() failed");
+			QUnit.ok(!data.id, 'data should not have an id');
+		}).then(function(){
+			return savePromise;
+		}).then(function(){
+			QUnit.start();
+		});
+
+		createdPromiseReject('Simulated AJAX error');
+	}, 10);
+});
+
+QUnit.test("instances should be removed from 'length-bound' lists when destroyed (#365)", function (assert) {
+	var done = assert.async();
+	assert.expect(2);
+
+	var todos = [{
+		name: "test the store",
+		id: "abc"
+	}, {
+		name: "rock the house",
+		id: "def"}
+	];
+	var connection = connect([
+		function(){
+			return {
+				list: function(items) {
+					var list = new DefineList(items.data);
+					// simulate the can-connet/can/map/map behaviour
+					// adding the list to the listStore
+					connection.addListReference(list, {});
+					return list;
+				},
+				getListData: function(){
+					return Promise.resolve(todos);
+				},
+				destroyData: function() {
+					// simulate an empty object response from server
+					return Promise.resolve({});
+				},
+				updateData: function(){},
+				createData: function(){}
+			};
+		},
+		dataCallbacks,
+		realTime,
+		constructor,
+		constructorStore
+	], {});
+
+	connection.getList({}).then(function(todos){
+		todos.on('length', function(){
+			// make sure length change is triggered
+			assert.ok(true, "length changes");
+		});
+		connection.destroy(todos[0])
+		.then(function(destroyedTodo){
+			assert.ok(todos.indexOf(destroyedTodo) === -1, "instance was removed from lists");
+			done();
+		}, done);
+	});
+});

@@ -1,4 +1,4 @@
-@function can-connect/connection.getList connection.getList
+@function can-connect/connection.getList getList
 @parent can-connect/InstanceInterface
 
 Gets a [can-connect.List] of instances.

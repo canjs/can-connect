@@ -1,5 +1,5 @@
 /**
- * @module can-connect/data/localstorage-cache/localstorage-cache
+ * @module can-connect/data/localstorage-cache/localstorage-cache localstorage-cache
  * @parent can-connect.behaviors
  * @group can-connect/data/localstorage-cache/localstorage-cache.identifiers 0 identifiers
  * @group can-connect/data/localstorage-cache/localstorage-cache.data-methods 1 data methods
@@ -324,6 +324,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 * Synchronously gets a set of data from localstorage.
 		 *
 		 * @signature `connection.getListDataSync(set)`
+		 * @hide
 		 */
 		getListDataSync: function(set){
 			var sets = this._getSets();

@@ -1,38 +1,52 @@
-@module {connect.Behavior} can-connect/can/map/map
-@group can-connect/can/map/map.map-static 0 map static methods
-@group can-connect/can/map/map.map 1 map instance methods
-@group can-connect/can/map/map.hydrators 2 hydrators
-@group can-connect/can/map/map.serializers 3 serializers
-@group can-connect/can/map/map.identifiers 4 identifiers
-@group can-connect/can/map/map.instance-callbacks 5 instance callbacks
-@group can-connect/can/map/map.static 6 behavior static methods
+@module {connect.Behavior} can-connect/can/map/map can/map
+@group can-connect/can/map/map.options 0 behavior options
+@group can-connect/can/map/map.map-static 1 map static methods
+@group can-connect/can/map/map.map 2 map instance methods
+@group can-connect/can/map/map.hydrators 3 hydrators
+@group can-connect/can/map/map.serializers 4 serializers
+@group can-connect/can/map/map.identifiers 5 identifiers
+@group can-connect/can/map/map.instance-callbacks 6 instance callbacks
+@group can-connect/can/map/map.static 7 behavior static methods
 @parent can-connect.behaviors
 
-Make a connection use a [can-define/map/map] type.
+Integrate a `can-connect` connection with a [can-define/map/map DefineMap] type.  
+
 
 @signature `canMap( baseConnection )`
 
-  Implements the hydrators, serializers, identifiers, and instance
-  callback interfaces of [can-connect/constructor/constructor] so they work with a [can-define/map/map] and [can-define/list/list].
-  Adds static methods like [can-connect/can/map/map.getList] and prototype methods
-  like [can-connect/can/map/map.prototype.isDestroying] to the Map type that make use of the connection's
-  methods.
+Extends the functionality of the [can-connect/constructor/constructor constructor] behavior so it integrates tightly 
+with [can-define/map/map DefineMap] and [can-define/list/list DefineList] types:
+- adds methods to [can-connect/can/map/map.get read], [can-connect/can/map/map.prototype.destroy destroy], 
+[can-connect/can/map/map.prototype.save create and update] instances (via the connection) to the 
+[can-connect/can/map/map._Map] type
+- adds observable values to instances indicating if they are being [can-connect/can/map/map.prototype.isSaving saved], 
+[can-connect/can/map/map.prototype.isDestroying deleted] or have 
+[can-connect/can/map/map.prototype.isNew not yet been saved]
+- updates instances with the data from the response bodies of create, update and delete requests
+- triggers events on the [can-connect/can/map/map._Map] type and instances when instances are created, destroyed or updated
 
+@param {{}} baseConnection `can-connect` connection object that is having the `can/map` behavior added on to it. Expects
+the [can-connect/constructor/constructor] behavior to already be added to this base connection. If the `connect` helper 
+is used to build the connection, the behaviors will automatically be ordered as required.
+
+@return {{}} a `can-connect` connection containing the methods provided by `can/map`.
 
 
 @body
 
 ## Use
 
-The `can-connect/can/map/map` behavior make a connection use instances of a [can-define/map/map] and
-[can-define/list/list].  It also adds methods to the [can-define/map/map]
-that use the connection for retrieving, creating, updating, and destroying Map instances.
+The `can/map` behavior links a connection to a [can-define/map/map DefineMap] and [can-define/list/list DefineList] type. 
+The connection will create those types of instances from the data it receives. It also adds convenient methods and 
+observable values to the [can-connect/can/map/map._Map] that offer connection functionality (e.g 
+[can-connect/can/map/map.prototype.save `instance.save`]) and the status of the instance (e.g
+[can-connect/can/map/map.prototype.isSaving `instance.isSaving`]).
 
-To use `can-connect/can/map/map`, first create a Map and List constructor function:
+To use the `can/map` behavior, first create a Map and List constructor function:
 
 ```
 var Todo = DefineMap.extend({
-  canComplete: function(ownerId) {
+  allowComplete: function(ownerId) {
     return this.ownerId === ownerId;
   }
 });
@@ -45,54 +59,52 @@ var TodoList = DefineList.extend({
 });
 ```
 
-Next, pass the Map and List constructor functions to `connect` as options. The following
-creates a connection that connects `Todo` and `TodoList` to a restful URL:
+Next, pass the Map and List constructor functions to `connect` as options. The following creates connects the `Todo` 
+and `TodoList` types to a RESTful data service via the connection:
 
 ```js
 var connect = require("can-connect");
+var dataUrl = require("can-connect/data/url/url"),
+var constructor = require("can-connect/constructor/constructor"),
+var canMap = require("can-connect/can/map/map")
 
-var todoConnection = connect([
-    require("can-connect/data/url/url"),
-    require("can-connect/constructor/constructor"),
-    require("can-connect/can/map/map")
-],{
+var todoConnection = connect([dataUrl, constructor, canMap],{
   Map: Todo,
   List: TodoList,
   url: "/services/todos"
 });
 ```
 
-Now the connection can be used to CRUD `Todo` and `TodoList`s:
+The connection itself can be used to create, read, update & delete `Todo` and `TodoList`s:
 
 ```js
 todoConnection.getList({}).then(function(todos){
   var incomplete = todos.incomplete();
-  incomplete[0].canComplete( 5 ) //-> true
+  incomplete[0].allowComplete( 5 ) //-> true
 });
 ```
 
-However, because `can/map` adds methods to the `Map` option, you can use `Todo` directly to
-retrieve `Todo` and `TodoList`s:
+... or instead of how it's done above, because `can/map` adds methods to the [can-connect/can/map/map._Map] type, you 
+can use `Todo` to retrieve `Todo` and `TodoList`s:
 
 ```js
 Todo.getList({}).then(function(todos){ ... });
 Todo.get({}).then(function(todo){ ... });
 ```
 
-You can also create, update, and [can-connect/can/map/map.prototype.destroy] todo instances. Notice
-that [can-connect/can/map/map.prototype.save] is used to create
-and update:
-
+You can also create, update, and [can-connect/can/map/map.prototype.destroy] `Todo` instances. Notice that
+[can-connect/can/map/map.prototype.save] is used to create and update:
 
 ```js
+// create an instance
 new Todo({name: "dishes"}).save().then(function(todo){
   todo.set({
-      name: "Do the dishes"
-    })
-    .save()
-    .then(function(todo){
-      todo.destroy();
-    });
+    name: "Do the dishes"
+  })
+  .save() // update an instance
+  .then(function(todo){
+    todo.destroy(); // destroy an instance
+  });
 });
 ```
 
@@ -106,12 +118,11 @@ todo.isSaving() //-> true
 savePromise.then(function(){
 	todo.isSaving() //-> false
 
-	var destroyPromise = todo.destroy();
+	var destroyPromise = todo.destroy();    
 	todo.isDestroying() //-> true
 
 	destroyPromise.then(function(){
-
-		todo.isDestroying() //-> false
+        todo.isDestroying() //-> false
 	})
 })
 ```

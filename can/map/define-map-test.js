@@ -33,6 +33,9 @@ var later = testHelpers.later;
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
+	setTimeout(function(){
+		throw e;
+	},1);
 	start();
 };
 var cleanUndefineds = function(obj) {
@@ -57,7 +60,8 @@ QUnit.module("can-connect/can/map/map with define",{
 			name: "*",
 			type: "*",
 			due: "*",
-			createdId: "*"
+			createdId: "*",
+			destroyed: "any"
 		});
 		var TodoList = List.extend({
 			"*": Todo
@@ -358,7 +362,7 @@ test("isSaving and isDestroying", function(){
 		return todo.isDestroying();
 	});
 
-	isSaving.bind("change", function(ev, newVal, oldVal){
+	isSaving.on("change", function(ev, newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated","hydrated call");
@@ -380,7 +384,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	isDestroying.bind("change", function(ev, newVal, oldVal){
+	isDestroying.on("change", function(ev, newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");
@@ -403,7 +407,7 @@ test("isSaving and isDestroying", function(){
 			todoConnection.destroy(todo).then(function(){
 				equal( todo.isDestroying(), false, "isDestroying is false" );
 				start();
-			});
+			}, logErrorAndStart);
 			equal( todo.isSaving(), false, "isSaving is false" );
 			equal( todo.isDestroying(), true, "isDestroying is true" );
 		});
@@ -496,9 +500,64 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			List: TodoList,
 			ajax: $.ajax,
 			algebra: new set.Algebra(
-			   set.comparators.id("_id")
+			   set.props.id("_id")
 			)
 		});
 
 	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
+});
+
+
+QUnit.asyncTest("instances bound before create are moved to instance store (#296)", function(){
+	var todoAlgebra = new set.Algebra(
+		set.props.boolean("complete"),
+		set.props.id("id"),
+		set.props.sort("sort")
+	);
+
+	var todoStore = fixture.store([
+		{ name: "mow lawn", complete: false, id: 5 },
+		{ name: "dishes", complete: true, id: 6 },
+		{ name: "learn canjs", complete: false, id: 7 }
+	], todoAlgebra);
+
+	fixture("/theapi/todos", todoStore);
+
+	var Todo = Map.extend({
+		id: "string",
+		name: "string",
+		complete: {type: "boolean", value: false}
+	});
+
+	Todo.List = List.extend({
+		"#": Todo
+	});
+
+	Todo.connection = connect([
+		constructor,
+		canMap,
+		constructorStore,
+		dataCallbacks,
+		dataUrl],
+		{
+			url: "/theapi/todos",
+			Map: Todo,
+			List: Todo.List,
+			name: "todo",
+			algebra: todoAlgebra
+		});
+
+
+	var newTodo = new Todo({name: "test superMap"});
+	newTodo.on("name", function(){});
+
+	newTodo.save().then(function(savedTodo){
+
+		Todo.get({id: savedTodo.id}).then(function(t){
+			QUnit.equal(t._cid, newTodo._cid); // NOK
+			QUnit.start();
+		});
+	});
+
+
 });

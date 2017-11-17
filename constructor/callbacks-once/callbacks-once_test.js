@@ -5,6 +5,7 @@ var constructor = require("can-connect/constructor/");
 var constructorStore = require("can-connect/constructor/store/");
 var canMap = require("can-connect/can/map/");
 var dataCallbacks = require("can-connect/data/callbacks/");
+var url = require("can-connect/data/url/");
 var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var DefineMap = require('can-define/map/');
 require('can-define/list/list');
@@ -23,7 +24,6 @@ QUnit.test('createInstance triggers a "created" event', function(assert){
 		constructor,
 		canMap,
 		constructorStore,
-		dataCallbacks,
 		realTime,
 		callbacksOnce
 	], {
@@ -50,22 +50,23 @@ QUnit.test("different methods should not refer to the same last item", function(
 	var destroyedCalled = 0;
 
 	Session.connection = connect([
-		constructorStore,
+		constructor,
 		{
 			// simulate can/map/map's `id`:
 			id: function(instance){
 				return instance.id;
 			},
-			// simulate can/constructor/constructor:
+			// overwrite can/constructor/constructor:
 			createdInstance: function(instance, data){
 				this.addInstanceReference(instance);
 				createdCalled++;
 			},
-			// simulate can/constructor/constructor:
+			// overwrite can/constructor/constructor:
 			destroyedInstance: function(instance, data){
 				destroyedCalled++;
 			}
 		},
+		constructorStore,
 		callbacksOnce
 	], {
 		Map: Session

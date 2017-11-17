@@ -9,7 +9,7 @@ var getId = function(d){
 };
 
 
-QUnit.module("can-connect",{
+QUnit.module("can-connect/data/combine-requests",{
 	setup: function(){
 	}
 });
@@ -74,7 +74,7 @@ QUnit.test("ranges", function(){
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		algebra: set.comparators.rangeInclusive("start","end")
+		algebra: set.props.rangeInclusive("start","end")
 	});
 
 

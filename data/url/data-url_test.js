@@ -2,6 +2,7 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var $ = require("jquery");
+var set = require("can-set");
 
 QUnit.module("can-connect/data/url",{
 	setup: function(){
@@ -153,6 +154,26 @@ QUnit.test("contentType can be form-urlencoded (#134)", function() {
 	});
 });
 
+QUnit.test("contentType defaults to form-urlencoded for GET", function() {
+	var connection = persist({
+		url: {
+			getData: "GET /api/restaurants"
+		}
+	});
+
+	fixture({
+		"GET /api/restaurants": function(request){
+			equal(request.headers["Content-Type"], "application/x-www-form-urlencoded");
+			return request.data;
+		}
+	});
+
+	stop();
+	connection.getData({foo:"bar"}).then(function() {
+		start();
+	});
+});
+
 QUnit.test("getting a real Promise back with functions", function() {
 	var connection = persist({
 		url: {
@@ -241,5 +262,53 @@ QUnit.test("getting a real Promise back with objects using makeAjax setting this
 
 	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
 	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+
+});
+
+QUnit.asyncTest("fixture stores work with data (#298)", function(){
+
+	var todoStore = fixture.store([{
+		id: "1",
+		name: "todo 1"
+	}]);
+
+	fixture("/v1/places/todos/{id}", todoStore);
+
+	var connection = persist({
+		url: "/v1/places/todos/{id}"
+	});
+
+	connection.getData({id: 1}).then(function(todo){
+		QUnit.equal(todo.name, "todo 1");
+	}).then(function(){
+
+		var algebra = new set.Algebra(
+			set.props.id("_todoId")
+		);
+
+		var todoStore = fixture.store([{
+			_todoId: "1",
+			name: "todo 1"
+		}], algebra);
+
+		fixture("/v2/places/todos", todoStore);
+
+		var connection = persist({
+			url: "/v2/places/todos",
+			algebra: algebra
+		});
+
+		connection.getData({_todoId: "1"}).then(function(todo){
+			QUnit.equal(todo.name, "todo 1");
+			QUnit.start();
+		});
+
+
+	});
+
+
+
+
+
 
 });

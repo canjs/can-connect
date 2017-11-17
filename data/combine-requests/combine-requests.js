@@ -1,4 +1,3 @@
-
 var connect = require("can-connect");
 var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
@@ -7,41 +6,45 @@ var deepAssign = require("can-util/js/deep-assign/deep-assign");
 var makeDeferred = require("can-connect/helpers/deferred");
 var forEach = [].forEach;
 /**
- * @module can-connect/data/combine-requests/combine-requests
+ * @module can-connect/data/combine-requests/combine-requests combine-requests
  * @parent can-connect.behaviors
- * @group can-connect/data/combine-requests.data-methods data methods
- * @group can-connect/data/combine-requests.options options
- * @group can-connect/data/combine-requests.algebra algebra methods
- * @group can-connect/data/combine-requests.types types
+ * @group can-connect/data/combine-requests.options 1 behavior options
+ * @group can-connect/data/combine-requests.types 2 types
+ * @group can-connect/data/combine-requests.data-methods 3 data methods
+ * @group can-connect/data/combine-requests.algebra 4 algebra methods
  *
- * Combines multiple incoming requests into one if possible.
+ * Combines multiple incoming lists requests into a single list request when possible.
  *
- * @signature `dataCombineRequests( baseConnection )`
+ * @signature `combineRequests( baseConnection )`
  *
- *   Overwrites [can-connect/data/combine-requests.getListData] to collect the requested
- *   sets for
- *   some [can-connect/data/combine-requests.time].  Once that time has expired, it tries
- *   to take the [can-connect/data/combine-requests.unionPendingRequests union] of those sets. It
- *   makes requests with those unioned sets. Once the unioned set data has returned,
- *   the original requests re satisified by getting
- *   [can-connect/data/combine-requests.getSubset subsets] of the unioned set data.
+ * Implements [can-connect/data/combine-requests.getListData] to collect the requested sets for some
+ * [can-connect/data/combine-requests.time].  Once the configured amount of time has passed, it tries to take the
+ * [can-connect/data/combine-requests.unionPendingRequests union] of the requested sets. It then makes requests with
+ * those unified sets. Once the unified set requests have returned, the original requests are resolved by taking
+ * [can-connect/data/combine-requests.getSubset subsets] of the unified response data.
+ *
+ * @param {{}} baseConnection `can-connect` connection object that is having the `combine-requests` behavior added
+ * on to it. Should already contain a behavior that provides `getListData` (e.g [can-connect/data/url/url]). If
+ * the `connect` helper is used to build the connection, the behaviors will automatically be ordered as required.
+ *
+ * @return {{}} a `can-connect` connection containing the method implementations provided by `combine-requests`.
  *
  * @body
  *
  * ## Use
  *
- * Create a connection with the `combine-requests` plugin like:
+ * Create a connection with the `combine-requests` plugin:
  *
  * ```
- * var todosConnection = connect([
- *   require("can-connect/data/combine-requests/combine-requests"),
- *   require("can-connect/data/url/url")
- * ],{
+ * var combineRequests = require("can-connect/data/combine-requests/");
+ * var dataUrl = require("can-connect/data/url/");
+ * var todosConnection = connect([dataUrl, combineRequests], {
  *   url: "/todos"
  * });
  * ```
- *
- * By default, the following will only make a single request if made at the same time:
+ * Since the configuration above doesn't include the [can-connect/data/combine-requests.time] option, the following
+ * will only make a single request if all requests are made during the same "thread of execution" (i.e before the
+ * browser takes a break from executing the current JavaScript):
  *
  * ```
  * todosConnection.getListData({})
@@ -49,23 +52,25 @@ var forEach = [].forEach;
  * todosConnection.getListData({userId: 5, type: "critical"});
  * ```
  *
- * This is because [can-set](https://github.com/canjs/can-set) knows that
- * `{userId: 5, type: "critical"}` and `{userId: 5}` are subsets of `{}`.
+ * The above requests can all be joined since [can-set] intuitively knows that
+ * `{userId: 5, type: "critical"}` and `{userId: 5}` are subsets of the complete set of todos, `{}`.
  *
- * For more advanced combining, use set algebra.  The following supports
- * combining ranges:
+ * For more advanced combining, a [can-set.Algebra set algebra] must be configured. This allows [can-set] to understand
+ * what certain parameters of a set mean, and how they might be combined.
+ *
+ * The following connection supports combining ranges:
  *
  * ```
- * var todosConnection = connect([
- *   require("can-connect/data/combine-requests/combine-requests"),
- *   require("can-connect/data/url/url")
- * ],{
+ * var set = require("can-set");
+ * var combineRequests = require("can-connect/data/combine-requests/");
+ * var dataUrl = require("can-connect/data/url/");
+ * var todosConnection = connect([dataUrl, combineRequests], {
  *   url: "/todos",
- *   algebra: new Algebra(set.props.range("start","end"))
+ *   algebra: new set.Algebra(set.props.rangeInclusive("start","end"))
  * });
  * ```
  *
- * Now the following will make single request:
+ * Now the following will also be unified to make single request:
  *
  * ```
  * todosConnection.getListData({start: 0, end: 49})
@@ -74,7 +79,7 @@ var forEach = [].forEach;
  * ```
  *
  */
-module.exports = connect.behavior("data/combine-requests",function(baseConnection){
+var combineRequests = connect.behavior("data/combine-requests",function(baseConnection){
 	var pendingRequests; //[{set, deferred}]
 
 	return {
@@ -82,27 +87,30 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 		 * @function can-connect/data/combine-requests.unionPendingRequests unionPendingRequests
 		 * @parent can-connect/data/combine-requests.algebra
 		 *
+		 * Group pending requests by the request that they are a subset of.
+		 *
 		 * @signature `connection.unionPendingRequests( pendingRequests )`
 		 *
-		 *   @param {Array<can-connect/data/combine-requests.PendingRequest>}
+		 * This is called by [can-connect/data/combine-requests.getListData] to determine which pending requests can be unified
+		 * into a broader request. This produces a grouping of 'parent' sets to 'child' requests whose data will be
+		 * derived from the data retrieved by the parent.
 		 *
-		 *   An array of objects, each containing:
+		 * After this grouping is returned, [can-connect/data/combine-requests.getListData] executes requests for the parent
+		 * sets. After a parent request succeeds, the child requests will have their data calculated from the parent data.
 		 *
+		 * @param {Array<can-connect/data/combine-requests.PendingRequest>} pendingRequests
+		 * an array of objects, each containing:
 		 *   - `set` - the requested set
-		 *   - `deferred` - a deferred that will be resolved with this sets data
+		 *   - `deferred` - a wrapper around a `Promise` that will be resolved with this sets data
 		 *
-		 *   @return {Array<{set: Set, pendingRequests: can-connect/data/combine-requests.PendingRequest}>}
-		 *
-		 *   Returns an array of each of the unioned requests to be made.  Each unionized request should have:
-		 *
+		 * @return {Array<{set: Set, pendingRequests: can-connect/data/combine-requests.PendingRequest}>}
+		 * an array of each of the unified requests to be made.  Each unified request should have:
 		 *   - `set` - the set to request
-		 *   - `pendingRequests` - the array of [can-connect/data/combine-requests.PendingRequest pending requests] the set satisfies.
+		 *   - `pendingRequests` - the array of [can-connect/data/combine-requests.PendingRequest pending requests] the `set` satisfies
 		 *
-		 * @body
+		 * ### Example
 		 *
-		 * ## Use
-		 *
-		 * This function gets called automatically.  However, it converts something like:
+		 * This function converts something like:
 		 *
 		 * ```
 		 * [
@@ -111,7 +119,7 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 		 * ]
 		 * ```
 		 *
-		 * to
+		 * to:
 		 *
 		 * ```
 		 * [
@@ -174,62 +182,47 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 
 			return Promise.resolve(combineData);
 		},
-		/**
-		 * @function can-connect/data/combine-requests.getSubset getSubset
-		 * @parent can-connect/data/combine-requests.algebra
-		 *
-		 * Return the items that belong to an initial request.
-		 *
-		 * @signature `connection.getSubset( set, unionSet, data )`
-		 *
-		 *   This implementation uses [can-set.Algebra.prototype.getSubset] on the [can-connect/base/base.algebra].
-		 *
-		 *   @param {can-set/Set} set the subset initially requested
-		 *   @param {can-set/Set} unionSet the combined set that was actually requested
-		 *   @param {can-connect.listData} data the data from the combined set
-		 *   @return {can-connect.listData} the data that belongs to `set`
-		 */
-		getSubset: function(set, unionSet, data){
-			return canSet.getSubset(set, unionSet, data, this.algebra);
-		},
+
 		/**
 		 * @property {Number} can-connect/data/combine-requests.time time
 		 * @parent can-connect/data/combine-requests.options
 		 *
 		 * Specifies the amount of time to wait to combine requests.
 		 *
-		 * @option {Number} Defaults to `1` which means that only requests made within the same
-		 * "thread of execution" will be combined.  Increasing this number will mean
-		 * that requests are going to be delayed that length of time in case other requests
-		 * are made.  Generally speaking, there's no good reason to increase the amount of time.
+		 * @option {Number} Defaults to `1`, meaning only requests made within the same "thread of execution" will be
+		 * combined (i.e requests made before the browser takes a break from the ongoing JavaScript execution).
+		 *
+		 * Increasing this number will mean that requests are delayed that length of time in case other requests
+		 * are made. In general, we advise against increasing this amount of time except in cases where loads take a
+		 * significant amount of time and the increased delay is unlikely to be noticed.
 		 *
 		 * ```
-		 * connect([
-		 *   require("can-connect/data/combine-requests/combine-requests"),
-		 *   ...
-		 * ],{
+		 * var combineRequests = require("can-connect/data/combine-requests/");
+		 * connect([... combineRequests, ...],{
 		 *   time: 100
 		 * })
 		 * ```
 		 */
 		time:1,
+
 		/**
 		 * @function can-connect/data/combine-requests.getListData getListData
 		 * @parent can-connect/data/combine-requests.data-methods
 		 *
-		 * Tries to combine requests using set logic.
+		 * Combines multiple list data requests into a single request, when possible.
 		 *
 		 * @signature `connection.getListData( set )`
 		 *
-		 *   Collects the sets for calls to `getListData` for
-		 *   some [can-connect/data/combine-requests.time].  Once that time has expired, it tries
-		 *   to take the [union](https://github.com/canjs/can-set#setunion) of those sets. It
-		 *   makes requests with those unioned sets. Once the unioned set data has returned,
-		 *   the original requests rae satisified by taking
-		 *   [can-set.Algebra.prototype.getSubset] of the unioned set data.
+		 * Extension of [can-connect/connection.getListData `getListData`] that tries to combine calls to it into a single
+		 * call. The calls are fulfilled by an underlying behavior's `getListData` implementation.
 		 *
-		 *   @param {can-set/Set} set The set used to request data.
-		 *   @return {can-connect.listData} The data for the requested set of data.
+		 * Waits for a configured [can-connect/data/combine-requests.time] then tries to unify the sets requested during it.
+		 * After unification, calls for the unified sets are made to the underlying `getListData`. Once the unified
+		 * data has returned, the individual calls to `getListData` are resolved with a
+		 * [can-set.Algebra.prototype.getSubset calculated subset] of the unified data.
+		 *
+		 * @param {can-set/Set} set the parameters of the requested set of data
+		 * @return {Promise<can-connect.listData>} `Promise` resolving the data of the requested set
 		 */
 		getListData: function(set){
 			set = set || {};
@@ -258,7 +251,7 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 										// to baseConnection.getListData which might mutate it causing combinedRequests
 										// to resolve with an `undefined` value instead of an actual set
 										// https://github.com/canjs/can-connect/issues/139
-										pending.deferred.resolve( {data: self.getSubset(pending.set, combined.set, getItems(data) )} );
+										pending.deferred.resolve( {data: canSet.getSubset(pending.set, combined.set, getItems(data), self.algebra)} );
 									});
 								}
 							}, function(err){
@@ -286,13 +279,28 @@ module.exports = connect.behavior("data/combine-requests",function(baseConnectio
 	};
 });
 
+module.exports = combineRequests;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(combineRequests, ['getListData']);
+//!steal-remove-end
+
 /**
- * @typedef {{set: Set, deferred: Deferred}} can-connect/data/combine-requests.PendingRequest PendingRequest
+ * @typedef {PendingRequest} can-connect/data/combine-requests.PendingRequest PendingRequest
  * @parent can-connect/data/combine-requests.types
  *
- * @option {can-set/Set} set A [can-set](https://github.com/canjs/can-set) set object.
- * @option {Deferred} deferred A defferred that can be used to resolve or reject a promise.
+ * @description Type to keep track of the multiple requests that were unified into a single request.
+ *
+ * @type {PendingRequest} Record of an individual request that has been unified as part of the combined request. After
+ * the unified request completes instances of these types are processed to complete the individual requests with the
+ * subset of the unified data.
+ *
+ * @option {can-set/Set} set a requested [can-set/Set set] of data that has been unified into the combined request
+ * @option {{}} deferred a type that keeps track of the individual [can-connect/data/combine-requests.getListData]
+ * promise that will be resolved after the unified request completes
  */
+
 // ### doubleLoop
 var doubleLoop = function(arr, callbacks){
 	var i = 0;

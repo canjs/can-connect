@@ -14,7 +14,7 @@ var $ = require("jquery"),
 var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
 var makeArray = require("can-util/js/make-array/make-array");
-var types = require("can-types");
+var canReflect = require("can-reflect");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
 
 var callCanReadingOnIdRead = true;
@@ -306,7 +306,7 @@ var CanModel = CanMap.extend({
 		CanMap.prototype.___set.call(this, prop, val);
 		// If we add or change the ID, update the store accordingly.
 		// TODO: shouldn't this also delete the record from the old ID in the store?
-		if ( prop === (this.constructor.id || "id") && this._bindings ) {
+		if ( prop === (this.constructor.id || "id") && this.__bindEvents && this.__bindEvents._lifecycleBindings ) {
 			this.constructor.connection.addInstanceReference(this);
 		}
 	}
@@ -327,7 +327,7 @@ CanModel.List = CanList.extend({
 		// we use those as parameters for an initial findAll.
 		if (isPlainObject(params) && !Array.isArray(params)) {
 			CanList.prototype.setup.apply(this);
-			this.replace(types.isPromise(params) ? params : this.constructor.Map.findAll(params));
+			this.replace(canReflect.isPromise(params) ? params : this.constructor.Map.findAll(params));
 		} else {
 			// Otherwise, set up the list like normal.
 			CanList.prototype.setup.apply(this, arguments);

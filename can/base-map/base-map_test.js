@@ -2,6 +2,8 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var Map = require("can-map");
 var baseMap = require("can-connect/can/base-map/");
+var GLOBAL = require("can-util/js/global/global");
+var stealClone = require("steal-clone");
 
 QUnit.module("can-connect/can/base-map");
 
@@ -54,4 +56,33 @@ QUnit.test("creates map if none is provided (#8)", function(){
 	});
 
 
+});
+
+QUnit.test("uses jQuery if loaded", 2, function() {
+	stop();
+	var old$ = GLOBAL().$;
+	var fake$ = {
+		ajax: function() {}
+	};
+	GLOBAL().$ = fake$;
+	stealClone({}).import("can-connect/can/base-map/base-map").then(function(baseMap) {
+		var connection = baseMap({
+			Map: function() {},
+			List: function() {},
+			url: "/fake"
+		});
+		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
+	}).then(function() {
+		GLOBAL().$ = undefined;
+		return stealClone({}).import("can-connect/can/base-map/base-map");
+	}).then(function(baseMap) {
+		var connection = baseMap({
+			Map: function() {},
+			List: function() {},
+			url: ''
+		});
+		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
+		GLOBAL().$ = old$;
+		start();
+	});
 });
