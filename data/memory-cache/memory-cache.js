@@ -1,5 +1,5 @@
 /**
- * @module can-connect/data/memory-cache/memory-cache
+ * @module can-connect/data/memory-cache/memory-cache memory-cache
  * @parent can-connect.behaviors
  * @group can-connect/data/memory-cache/memory-cache.data-methods data methods
  *
@@ -250,6 +250,7 @@ module.exports = connect.behavior("data/memory-cache",function(baseConnection){
 		 * Synchronously gets a set of data from the memory cache.
 		 *
 		 * @signature `connection.getListDataSync(set)`
+		 * @hide
 		 */
 		getListDataSync: function(set){
 			var sets = this._getSets();

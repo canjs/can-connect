@@ -51,10 +51,7 @@ QUnit.test("if the server responds with success, the callbacks still get passed 
 
 	var connection = callbacksCache({
 		cacheConnection: cacheConnection,
-		keepMissingProperties: true,
-		createdData: function(){},
-		updatedData: function(){},
-		destroyedData: function(){}
+		keepMissingProperties: true
 	});
 	connection.createdData({id: 1}, {foo: "bar"});
 	connection.updatedData({createdAt:3}, {foo: "bar", id: 1, createdAt: 2});

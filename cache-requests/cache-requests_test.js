@@ -60,7 +60,7 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 
-	var algebra = set.comparators.rangeInclusive("start","end");
+	var algebra = set.props.rangeInclusive("start","end");
 
 	var behavior = cacheRequests( {
 		getListData: function(params){

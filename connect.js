@@ -4,6 +4,7 @@ var assign = require("can-util/js/assign/assign");
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
  * The order of named execution gets run in order.
  * @param {Object} options
+ * @hide
  */
 var connect = function(behaviors, options){
 
@@ -23,14 +24,15 @@ var connect = function(behaviors, options){
 			sortedIndex: sortedIndex,
 			behavior: behavior
 		};
-	})
-		.sort(function(b1, b2){
-			// if both have a sorted index
-			if(~b1.sortedIndex && ~b2.sortedIndex) {
-				return b1.sortedIndex - b2.sortedIndex;
-			}
-			return b1.originalIndex - b2.originalIndex;
-		});
+	});
+
+	behaviors.sort(function(b1, b2){
+		// if both have a sorted index
+		if(~b1.sortedIndex && ~b2.sortedIndex) {
+			return b1.sortedIndex - b2.sortedIndex;
+		}
+		return b1.originalIndex - b2.originalIndex;
+	});
 
 	behaviors = behaviors.map(function(b){
 		return b.behavior;
@@ -57,7 +59,7 @@ connect.order = ["data/localstorage-cache","data/url","data/parse","cache-reques
 	"data/worker","real-time",
 
 	"data/callbacks-cache","data/callbacks","constructor/callbacks-once"
-	];
+];
 
 connect.behavior = function(name, behavior){
 	if(typeof name !== "string") {

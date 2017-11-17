@@ -1,6 +1,5 @@
 console.log("WORKER - LISTENING");
 addEventListener("message", function(ev){
-	console.log("WORKER - got message");
 
 	postMessage({
 		type: "response",

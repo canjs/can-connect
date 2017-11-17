@@ -1,5 +1,5 @@
 /**
- * @module can-connect/fall-through-cache/fall-through-cache
+ * @module can-connect/fall-through-cache/fall-through-cache fall-through-cache
  * @parent can-connect.behaviors
  * @group can-connect/fall-through-cache/fall-through-cache.data data callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators hydrators
@@ -73,7 +73,7 @@ var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
 var canLog = require("can-util/js/log/log");
 
-module.exports = connect.behavior("fall-through-cache",function(baseConnection){
+var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnection){
 
 	var behavior = {
 		/**
@@ -285,3 +285,10 @@ module.exports = connect.behavior("fall-through-cache",function(baseConnection){
 	return behavior;
 
 });
+
+module.exports = fallThroughCache;
+
+//!steal-remove-start
+var validate = require("can-connect/helpers/validate");
+module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
+//!steal-remove-end

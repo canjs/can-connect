@@ -1,4 +1,4 @@
-@function can-connect/connection.destroy connection.destroy
+@function can-connect/connection.destroy destroy
 @parent can-connect/InstanceInterface
 
 Destroy an instance.

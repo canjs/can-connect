@@ -1,5 +1,5 @@
 /**
- * @module can-connect/real-time/real-time
+ * @module can-connect/real-time/real-time real-time
  * @parent can-connect.behaviors
  * @group can-connect/real-time/real-time.methods 0 methods
  * @group can-connect/real-time/real-time.callbacks 1 data callbacks
@@ -132,7 +132,16 @@ var indexOf = require("can-connect/helpers/get-index-by-id");
 var canDev = require('can-util/js/dev/dev');
 
 module.exports = connect.behavior("real-time",function(baseConnection){
+
+	var createPromise = Promise.resolve();
+
 	return {
+		createData: function(){
+			var promise = baseConnection.createData.apply(this, arguments);
+			var cleanPromise = promise.catch(function () { return ''; })
+			createPromise = Promise.all([createPromise, cleanPromise]);
+			return promise;
+		},
 		/**
 		 * @function can-connect/real-time/real-time.createInstance createInstance
 		 * @parent can-connect/real-time/real-time.methods
@@ -171,27 +180,36 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *
 		 */
 		createInstance: function(props){
-			var id = this.id(props);
-			var instance = this.instanceStore.get(id);
-			var serialized;
+			var self = this;
+			return new Promise(function(resolve, reject){
+				// Wait until all create promises are done
+				// so that we can find data in the instance store
+				createPromise.then(function(){
+					// Allow time for the store to get hydrated
+					setTimeout(function(){
+						var id = self.id(props);
+						var instance = self.instanceStore.get(id);
+						var serialized;
 
-			if( instance ) {
-				// already created, lets update
-				return this.updateInstance(props);
-			} else {
-				instance = this.hydrateInstance(props);
-				serialized = this.serializeInstance(instance);
-				var self = this;
+						if( instance ) {
+							// already created, lets update
+							resolve(self.updateInstance(props));
+						} else {
+							instance = self.hydrateInstance(props);
+							serialized = self.serializeInstance(instance);
 
-				this.addInstanceReference(instance);
+							self.addInstanceReference(instance);
 
-				return Promise.resolve( this.createdData(props, serialized) ).then(function(){
-
-					self.deleteInstanceReference(instance);
-					return instance;
+							Promise.resolve( self.createdData(props, serialized) ).then(function(){
+								self.deleteInstanceReference(instance);
+								resolve(instance);
+							});
+						}
+					}, 1);
 				});
-			}
+			});
 		},
+
 		/**
 		 * @function can-connect/real-time/real-time.createdData createdData
 		 * @parent can-connect/real-time/real-time.callbacks
@@ -209,9 +227,6 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   test if the instance's data belongs in that list.  If it does,
 		 *   adds the instance's data to the serialized list data and
 		 *   [can-connect/constructor/constructor.updatedList updates the list].
-		 *
-		 *
-		 *
 		 */
 		createdData: function(props, params, cid){
 			var instance;
@@ -227,6 +242,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 			this.deleteInstanceReference(instance);
 			return undefined;
 		},
+
 		/**
 		 * @function can-connect/real-time/real-time.updatedData updatedData
 		 * @parent can-connect/real-time/real-time.callbacks
@@ -351,11 +367,11 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 					item = items.data[i];
 					if( !self.algebra.has(set, item) ) {
 						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
-							+ "Read the docs for more information: http://v3.canjs.com/doc/can-set.html#SolvingCommonIssues"
+							+ "Read the docs for more information: https://canjs.com/doc/can-set.html#SolvingCommonIssues"
 							+ "\n\nBelow are the 'Set' parameters:"
-							+ "\n" + JSON.stringify(set, null, "  ")
+							+ "\n" + canDev.stringify(set)
 							+ "\n\nAnd below is an item which does not match those parameters:"
-							+ "\n" + JSON.stringify(item, null, "  ");
+							+ "\n" + canDev.stringify(item);
 						canDev.warn(msg);
 						break;
 					}
