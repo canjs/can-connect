@@ -159,6 +159,9 @@ var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var Observation = require("can-observation");
 var constructorStore = require("can-connect/constructor/store/store");
 var define = require("can-define");
+var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
+var CIDMap = require("can-cid/map/map");
 
 var makeRef = function(connection){
 	var idProp = getIdProps(connection)[0];
@@ -385,8 +388,8 @@ var makeRef = function(connection){
 	 * @signature `ref.serialize`
 	 * @return {string} id the id of the referenced instance
 	 */
-	Ref.prototype.serialize = function() {
-		return this[idProp];
+	Ref.prototype.serialize = Ref.prototype[canSymbol.for("can.serialize")] = function() {
+		return canReflect.serialize(this[idProp], CIDMap);
 	};
 
 	var baseEventSetup = Ref.prototype._eventSetup;
