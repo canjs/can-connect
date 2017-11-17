@@ -676,11 +676,15 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 */
 		destroy: function(instance) {
 			var self = this;
+			// Add to instance store, for the duration of the
+			// destroy callback
+			this.addInstanceReference(instance);
 			requests.increment(this);
 			var promise = baseConnection.destroy.call(this, instance);
 
 			promise.then(function(instance){
 				self._finishedRequest();
+				self.deleteInstanceReference(instance);
 			}, function(){
 				self._finishedRequest();
 			});

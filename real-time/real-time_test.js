@@ -6,6 +6,8 @@ var constructorStore = require("can-connect/constructor/store/");
 var dataCallbacks = require("can-connect/data/callbacks/");
 var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var testHelpers = require("can-connect/test-helpers");
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
 var canDev = require('can-util/js/dev/dev');
@@ -507,3 +509,53 @@ QUnit.test("createInstance doesn't fail if createData fails", 3, function (asser
 	}, 10);
 });
 
+QUnit.test("instances should be removed from 'length-bound' lists when destroyed (#365)", function (assert) {
+	var done = assert.async();
+	assert.expect(2);
+
+	var todos = [{
+		name: "test the store",
+		id: "abc"
+	}, {
+		name: "rock the house",
+		id: "def"}
+	];
+	var connection = connect([
+		function(){
+			return {
+				list: function(items) {
+					var list = new DefineList(items.data);
+					// simulate the can-connet/can/map/map behaviour
+					// adding the list to the listStore
+					connection.addListReference(list, {});
+					return list;
+				},
+				getListData: function(){
+					return Promise.resolve(todos);
+				},
+				destroyData: function() {
+					// simulate an empty object response from server
+					return Promise.resolve({});
+				},
+				updateData: function(){},
+				createData: function(){}
+			};
+		},
+		dataCallbacks,
+		realTime,
+		constructor,
+		constructorStore
+	], {});
+
+	connection.getList({}).then(function(todos){
+		todos.on('length', function(){
+			// make sure length change is triggered
+			assert.ok(true, "length changes");
+		});
+		connection.destroy(todos[0])
+		.then(function(destroyedTodo){
+			assert.ok(todos.indexOf(destroyedTodo) === -1, "instance was removed from lists");
+			done();
+		}, done);
+	});
+});
