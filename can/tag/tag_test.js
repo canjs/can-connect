@@ -10,34 +10,14 @@ var $ = require("jquery");
 var superMap = require("can-connect/can/super-map/");
 var tag = require("can-connect/can/tag/");
 var fixture = require("can-fixture");
-// TODO when steal-stache is up to date, use these lines again and remove requiring stache and the fetch.
-//var findAllTemplate = require("./tag_find_all_test.stache");
-//var findOneTemplate = require("./tag_find_one_test.stache");
+var findAllTemplate = require("./tag_find_all_test.stache");
+var findOneTemplate = require("./tag_find_one_test.stache");
 var stache = require("can-stache");
 require("can-stache-bindings");
-var findAllTemplate, findOneTemplate;
 
 require("can-util/dom/events/inserted/inserted");
 
-QUnit.module("can-connect/can/tag", {
-	setup: function(done) {
-		if(!findAllTemplate) {
-			stop();
-			Promise.all([
-				// note: base href is /test/
-				fetch("../can/tag/tag_find_all_test.stache"),
-				fetch("../can/tag/tag_find_one_test.stache")])
-			.then(function(fetches) {
-				return Promise.all(fetches.map(function(response) {
-					return response.text();
-				}));
-			}).then(function(bodies) {
-				findAllTemplate = stache(bodies[0]);
-				findOneTemplate = stache(bodies[1]);
-			}).then(start);
-		}
-	}
-});
+QUnit.module("can-connect/can/tag");
 
 
 QUnit.test("getList", function(){
