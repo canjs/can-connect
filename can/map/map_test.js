@@ -39,7 +39,7 @@ var logErrorAndStart = function(e){
 
 var queues = require("can-queues");
 
-QUnit.module("can-connect/can/map/map",{
+QUnit.module("can-connect/can/map/map with Map",{
 	setup: function(){
 
 		var Todo = Map.extend({
@@ -302,9 +302,10 @@ QUnit.test("real-time super model", function(){
 
 			var batchNum;
 			todayList.bind("length", function lengthChanged(ev){
-				if(!ev.batchNum || ev.batchNum !== batchNum) {
+				if(batchNum && ev.batchNum !== batchNum) {
 					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
 					start();
+				} else {
 					batchNum = ev.batchNum;
 				}
 

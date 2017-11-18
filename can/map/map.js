@@ -124,7 +124,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @return {Object} the result of calling [can-define/map/map.prototype.serialize `instance.serialize()`]
 		 */
 		serializeInstance: function(instance){
-			return instance.serialize();
+			return canReflect.serialize(instance);
 		},
 		/**
 		 * @function can-connect/can/map/map.serializeList serializeList
@@ -140,7 +140,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @return {Object} the result of calling [can-define/list/list.prototype.serialize `list.serialize()`]
 		 */
 		serializeList: function(list){
-			return list.serialize();
+			return canReflect.serialize(list);
 		},
 
 		/**
@@ -294,11 +294,15 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *   @param {can-connect.listData} listData raw list data.
 		 *   @param {can-set/Set} set the set of the list being updated.
 		 */
-		updatedList: function(){
+		updatedList: function(list, listData, set){
 			queues.batch.start();
-			var res = baseConnection.updatedList.apply(this, arguments);
+			queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments,{
+				//!steal-remove-start
+				reasonLog: ["set", set,"list", list,"updated with", listData]
+				//!steal-remove-end
+			});
 			queues.batch.stop();
-			return res;
+
 		},
 		save: function(instance){
 			canReflect.setKeyValue(instance, "_saving", true);
@@ -744,8 +748,8 @@ var mapOverwrites = {
 		}
 	},
 	properties: {
-		_saving: {enumerable: false, value: false},
-		_destroying: {enumerable: false, value: false}
+		_saving: {enumerable: false, value: false, configurable: true, writable: true},
+		_destroying: {enumerable: false, value: false, configurable: true, writable: true}
 	}
 };
 
