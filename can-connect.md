@@ -367,12 +367,12 @@ If you are using CanJS, you can either:
 Using [can-connect/can/map/map can/map] to create a connection looks like:
 
 ```js
-var DefineMap = require("can-define/map/");
-var DefineList = require("can-define/list/");
-var dataUrl = require("can-connect/data/url/");
-var constructor = require("can-connect/constructor/"); 
-var constructorStore = require("can-connect/constructor/store/"); 
-var canMap = require("can-connect/can/map/");
+var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
+var dataUrl = require("can-connect/data/url/url");
+var constructor = require("can-connect/constructor/constructor"); 
+var constructorStore = require("can-connect/constructor/store/store"); 
+var canMap = require("can-connect/can/map/map");
 
 var Todo = DefineMap.extend({ ... });
 Todo.List = DefineList.extend({
