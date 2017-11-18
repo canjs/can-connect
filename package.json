@@ -24,7 +24,8 @@
     "can-validate-interface": "<2.0.0",
     "can-view-callbacks": "^4.0.0-pre.3",
     "can-view-import": "^4.0.0-pre.2",
-    "can-view-nodelist": "^3.1.0"
+    "can-view-nodelist": "^3.1.0",
+    "steal-stache": "^4.0.0-pre.1"
   },
   "repository": {
     "type": "git",
