@@ -91,7 +91,7 @@ var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var WeakReferenceSet = require("can-connect/helpers/weak-reference-set");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var eventQueue = require("can-event-queue");
+var eventQueue = require("can-event-queue/map/legacy/legacy");
 
 // shared across all connections
 var pendingRequests = 0;

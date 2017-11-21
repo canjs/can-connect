@@ -3,7 +3,7 @@ var each = require("can-util/js/each/each");
 
 var connect = require("can-connect");
 var queues = require("can-queues");
-var eventQueue = require("can-event-queue");
+var eventQueue = require("can-event-queue/map/legacy/legacy");
 var ObservationRecorder = require("can-observation-recorder");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
