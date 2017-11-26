@@ -271,7 +271,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 			var list = new _List(listData.data);
 			each(listData, function (val, prop) {
 				if (prop !== 'data') {
-					list[list.set ? "set" : "attr"](prop, val);
+					canReflect.setKeyValue(prop, val);
 				}
 			});
 
