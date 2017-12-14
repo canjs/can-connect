@@ -486,3 +486,22 @@ QUnit.test("reads id from set algebra (#82)", function(){
 
 	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
 });
+
+QUnit.test("additional properties are included in getList responses", function(){
+	fixture({
+		"GET /services/todos": function(){
+			return {
+				count: 1,
+				data: [{id: 1}]
+			};
+		}
+	});
+
+	var Todo = this.Todo;
+
+	stop();
+	Todo.getList({}).then(function(todos){
+		equal(todos.count, 1);
+		start();
+	});
+});
