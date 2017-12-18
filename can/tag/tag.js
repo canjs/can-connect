@@ -39,7 +39,7 @@ var expression = require("can-stache/src/expression");
 var viewCallbacks = require("can-view-callbacks");
 var ObservationRecorder = require("can-observation-recorder");
 var nodeLists = require("can-view-nodelist");
-var eventQueue = require("can-event-queue/map/legacy/legacy");
+var eventQueue = require("can-event-queue/map/map");
 var canReflect = require("can-reflect");
 
 var each = require("can-util/js/each/each");
