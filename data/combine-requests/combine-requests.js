@@ -43,7 +43,7 @@ var forEach = [].forEach;
  * });
  * ```
  * Since the configuration above doesn't include the [can-connect/data/combine-requests.time] option, the following
- * will only make a single request if all requests are made during the same "thread of execution" (i.e before the
+ * will only make a single request if all requests are made during the same "thread of execution" (i.e. before the
  * browser takes a break from executing the current JavaScript):
  *
  * ```
@@ -190,7 +190,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 		 * Specifies the amount of time to wait to combine requests.
 		 *
 		 * @option {Number} Defaults to `1`, meaning only requests made within the same "thread of execution" will be
-		 * combined (i.e requests made before the browser takes a break from the ongoing JavaScript execution).
+		 * combined (i.e. requests made before the browser takes a break from the ongoing JavaScript execution).
 		 *
 		 * Increasing this number will mean that requests are delayed that length of time in case other requests
 		 * are made. In general, we advise against increasing this amount of time except in cases where loads take a
