@@ -39,16 +39,11 @@ var expression = require("can-stache/src/expression");
 var viewCallbacks = require("can-view-callbacks");
 var ObservationRecorder = require("can-observation-recorder");
 var nodeLists = require("can-view-nodelist");
-var eventQueue = require("can-event-queue/map/map");
 var canReflect = require("can-reflect");
-
+var canSymbol = require("can-symbol");
+var domMutate = require('can-dom-mutate');
+var domMutateNode = require("can-dom-mutate/node");
 var each = require("can-util/js/each/each");
-
-var domMutate = require("can-util/dom/mutate/mutate");
-var domData = require("can-util/dom/data/data");
-
-
-require("can-util/dom/events/removed/removed");
 
 var convertToValue = function(arg){
 	if(typeof arg === "function") {
@@ -123,7 +118,7 @@ connect.tag = function(tagName, connection){
 			return promise;
 		});
 
-		domData.set.call(el, "viewModel", request);
+		el[canSymbol.for('can.viewModel')] = request;
 
 		var nodeList = nodeLists.register([], undefined, tagData.parentNodeList || true);
 
@@ -132,15 +127,16 @@ connect.tag = function(tagName, connection){
 					document.createDocumentFragment();
 
 		// Append the resulting document fragment to the element
-		domMutate.appendChild.call(el, frag);
+		domMutateNode.appendChild.call(el, frag);
 
 		// update the nodeList with the new children so the mapping gets applied
 		nodeLists.update(nodeList, el.childNodes);
 
-		// add to pageData
-
-		eventQueue.one.call(el, 'removed', function() {
-			nodeLists.unregister(nodeList);
+		var removalDisposal = domMutate.onNodeRemoval(el, function () {
+			if (!el.ownerDocument.contains(el)) {
+				removalDisposal();
+				nodeLists.unregister(nodeList);
+			}
 		});
 	});
 };

@@ -15,10 +15,17 @@ var findOneTemplate = require("./tag_find_one_test.stache");
 var stache = require("can-stache");
 require("can-stache-bindings");
 
-require("can-util/dom/events/inserted/inserted");
+var domEvents = require('can-dom-events');
+var insertedEvent = require('can-dom-mutate/dom-events').inserted;
 
-QUnit.module("can-connect/can/tag");
-
+QUnit.module("can-connect/can/tag", {
+	setup: function () {
+		this.undo = domEvents.addEvent(insertedEvent);
+	},
+	teardown: function () {
+		this.undo();
+	}
+});
 
 QUnit.test("getList", function(){
 
