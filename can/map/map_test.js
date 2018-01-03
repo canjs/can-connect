@@ -3,6 +3,7 @@ var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
 var compute = require("can-compute");
+var canBatch = require("can-event/batch/batch");
 
 // load connections
 var constructor = require("can-connect/constructor/");
@@ -17,12 +18,9 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 
-
-
 var connect=  require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
-
 
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
@@ -480,4 +478,22 @@ QUnit.test("reads id from set algebra (#82)", function(){
 		});
 
 	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
+});
+
+QUnit.test("should batch model events", function () {
+	var batchNum;
+	var Instance = Map.extend({})
+	var instance = new Instance();
+	instance.__bindEvents = {
+		updated: [function (batch) {
+			batchNum = batch.batchNum;
+		}]
+	};
+	instance.constructor.__bindEvents = {
+		updated: [function (batch) {
+			QUnit.equal(batch.batchNum, batchNum, "Calls are in the same batch");
+		}]
+	}
+
+	canMap.callbackInstanceEvents("updated", instance);
 });
