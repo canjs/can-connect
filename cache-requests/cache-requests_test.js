@@ -116,3 +116,61 @@ QUnit.test("Incrementally load data", function(){
 	});
 
 });
+
+QUnit.test("Filters are preserved for different pagination", function() {
+	stop();
+	var isSecondRun = false;
+
+	var algebra = new set.Algebra(
+		set.props.id('id'),
+		set.props.offsetLimit('$skip', '$limit'),
+		set.props.sort('$sort')
+	);
+
+	var params = {
+		$limit: 10,
+		$skip: 0,
+		type: "a",
+		$sort: "price",
+	};
+	var params2 = {
+		$limit: 25,
+		$skip: 0,
+		type: "a",
+		$sort: "price",
+	};
+
+	var behavior = cacheRequests( {
+		getListData: function(params){
+			equal(params.$skip, isSecondRun ? 10 : 0, "$skip is right "+params.$skip);
+			equal(params.$limit, isSecondRun ? 15 : 10, "$limit is right "+params.$limit);
+			equal(params.$sort, "price", "$sort is right "+params.$sort);
+			equal(params.type, "a", "type is right "+params.type);
+
+			var items = [];
+			for(var i = (+params.$skip); i < (+params.$skip + (+params.$limit)); i++) {
+				items.push({
+					id: i,
+					price: i * 10,
+					type: "a"
+				});
+			}
+			isSecondRun = true
+			return Promise.resolve({data: items});
+		},
+		algebra: algebra,
+		cacheConnection: memCache(connect.base({algebra: algebra}))
+	} );
+
+
+	behavior.getListData(params).then(function(listData){
+		var list = listData.data;
+		equal(list.length, 10, "got 10 items");
+
+		return behavior.getListData(params2);
+	}).then(function(listData){
+		var list = listData.data;
+		equal(list.length, 25, "got 25 items");
+		start();
+	});
+})
