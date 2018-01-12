@@ -233,6 +233,32 @@ QUnit.test("getting a real Promise back with object using makeAjax", function() 
 
 });
 
+QUnit.test('URL parameters should be encoded', function (assert) {
+	var done = assert.async();
+	var connection = persist({
+		url: {
+			getData: {
+				type: 'get',
+				url: '/dogs/{id}'
+			}
+		}
+	});
+	fixture({
+		"GET /dogs/%23asher": function () {
+			return {id: '#asher'}
+		}
+	});
+
+	connection.getData({id: '#asher'})
+		.then(function (data) {
+			assert.equal(data.id, '#asher');
+			done();
+		})
+		.catch(function (error) {
+			done(error);
+		});
+});
+
 QUnit.test("getting a real Promise back with objects using makeAjax setting this.ajax", function() {
 	var connection = persist({
 		url: {
@@ -302,13 +328,5 @@ QUnit.asyncTest("fixture stores work with data (#298)", function(){
 			QUnit.equal(todo.name, "todo 1");
 			QUnit.start();
 		});
-
-
 	});
-
-
-
-
-
-
 });
