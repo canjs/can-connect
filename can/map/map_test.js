@@ -18,10 +18,9 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 
-var connect=  require("can-connect/can-connect");
+var connect = require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
-
 
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
@@ -504,4 +503,30 @@ QUnit.test("additional properties are included in getList responses", function()
 		equal(todos.count, 1);
 		start();
 	});
+});
+
+QUnit.test("should batch model events", function () {
+	var eventOrder = [];
+	var Type = Map.extend({})
+	var instance = new Type();
+
+	instance.on("updated", function() {
+		eventOrder.push(2);
+	}, "notify");
+
+	Type.on("updated", function() {
+		eventOrder.push(3);
+	}, "notify");
+
+	queues.batch.start();
+	queues.notifyQueue.enqueue(function() {
+		eventOrder.push(1);
+	})
+	queues.deriveQueue.enqueue(function() {
+		eventOrder.push(4);
+	})
+	canMap.callbackInstanceEvents("updated", instance);
+	queues.batch.stop();
+
+	QUnit.equal(eventOrder.join(""), "1234", "events are batched");
 });

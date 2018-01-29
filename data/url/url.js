@@ -334,6 +334,10 @@ var findContentType = function( url, method ) {
 	return method === "GET" ? "application/x-www-form-urlencoded" : "application/json";
 };
 
+function urlParamEncoder (key, value) {
+	return encodeURIComponent(value)
+}
+
 var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 
 	var params = {};
@@ -356,7 +360,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 		assign(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = string.sub(params.url, params.data, true);
+	params.url = string.replaceWith(params.url, params.data, urlParamEncoder, true);
 	params.contentType = contentType;
 
 	if(reqOptions.includeData === false) {
