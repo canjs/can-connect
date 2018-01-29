@@ -8,7 +8,7 @@ var dataCallbacks = require("can-connect/data/callbacks/");
 var url = require("can-connect/data/url/");
 var callbacksOnce = require("can-connect/constructor/callbacks-once/");
 var DefineMap = require('can-define/map/');
-require('can-define/list/list');
+var DefineList = require('can-define/list/list');
 
 QUnit.module("can-connect/callbacks-once");
 
@@ -18,6 +18,9 @@ QUnit.test('createInstance triggers a "created" event', function(assert){
 	var Session = DefineMap.extend({
 		id: 'any',
 		email: 'string'
+	});
+	Session.List = DefineList.extend({
+		"#": Session
 	});
 
 	var connection = connect([

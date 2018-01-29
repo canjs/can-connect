@@ -35,7 +35,7 @@ QUnit.test("uses idProp", function(){
 });
 
 
-QUnit.test("creates map if none is provided (#8)", function(){
+QUnit.skip("creates map if none is provided (#8)", function(){
 
 	var connection = baseMap({
 		url: "/api/restaurants",
@@ -54,7 +54,6 @@ QUnit.test("creates map if none is provided (#8)", function(){
 		deepEqual(data, {id: 5}, "findOne");
 		start();
 	});
-
 
 });
 

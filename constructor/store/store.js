@@ -91,8 +91,7 @@ var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var WeakReferenceSet = require("can-connect/helpers/weak-reference-set");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var canEvent = require("can-event");
-var assign = require("can-util/js/assign/assign");
+var eventQueue = require("can-event-queue/map/map");
 
 // shared across all connections
 var pendingRequests = 0;
@@ -114,7 +113,7 @@ var requests = {
 		return pendingRequests;
 	}
 };
-assign(requests, canEvent);
+eventQueue(requests);
 
 
 var constructorStore = connect.behavior("constructor/store",function(baseConnection){

@@ -156,7 +156,7 @@
 var connect = require("can-connect");
 var getIdProps = require("can-connect/helpers/get-id-props");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
-var Observation = require("can-observation");
+var ObservationRecorder = require("can-observation-recorder");
 var constructorStore = require("can-connect/constructor/store/store");
 var define = require("can-define");
 
@@ -334,7 +334,7 @@ var makeRef = function(connection){
 
 	define(Ref.prototype,defs);
 
-	Ref.prototype.unobservedId = Observation.ignore(function(){
+	Ref.prototype.unobservedId = ObservationRecorder.ignore(function(){
 		return this[idProp];
 	});
 	/**

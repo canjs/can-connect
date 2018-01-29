@@ -1,4 +1,4 @@
-require("can-connect/helpers/map-deep-merge-test.js");
+require("./map-deep-merge-test");
 
 var idMerge = require("can-connect/helpers/id-merge");
 

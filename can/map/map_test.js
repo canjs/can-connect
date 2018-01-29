@@ -2,8 +2,8 @@ var set = require("can-set");
 var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
-var compute = require("can-compute");
-var canBatch = require("can-event/batch/batch");
+var Observation = require("can-observation");
+var canReflect = require("can-reflect");
 
 // load connections
 var constructor = require("can-connect/constructor/");
@@ -18,7 +18,7 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 
-var connect=  require("can-connect/can-connect");
+var connect = require("can-connect/can-connect");
 
 var QUnit = require("steal-qunit");
 
@@ -32,9 +32,13 @@ var later = testHelpers.later;
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
 	start();
+	return Promise.reject(e);
+
 };
 
-QUnit.module("can-connect/can/map/map",{
+var queues = require("can-queues");
+
+QUnit.module("can-connect/can/map/map with Map",{
 	setup: function(){
 
 		var Todo = Map.extend({
@@ -151,7 +155,7 @@ QUnit.test("real-time super model", function(){
 
 	var importantList,
 		todayList,
-		bindFunc = function(){
+		bindFunc = function functionUsedToKeepObservablesBound(){
 			//canLog.log("length changing");
 		};
 	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
@@ -288,6 +292,7 @@ QUnit.test("real-time super model", function(){
 	}
 
 	function getListDueTodayAgainstCache(){
+
 		connection.getList({due: "today"}).then(function(updatedTodayList){
 			var added = serverCreatedInstance.serialize();
 			equal(todayList, updatedTodayList, "same todo list returned");
@@ -295,10 +300,11 @@ QUnit.test("real-time super model", function(){
 			deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
 
 			var batchNum;
-			todayList.bind("length", function(ev){
-				if(!ev.batchNum || ev.batchNum !== batchNum) {
+			todayList.bind("length", function lengthChanged(ev){
+				if(batchNum && ev.batchNum !== batchNum) {
 					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
 					start();
+				} else {
 					batchNum = ev.batchNum;
 				}
 
@@ -331,14 +337,14 @@ test("isSaving and isDestroying", function(){
 		isSavingCalls = 0,
 		isDestroyingCalls = 0;
 
-	var isSaving = compute(function(){
+	var isSaving = new Observation(function(){
 		return todo.isSaving();
 	});
-	var isDestroying = compute(function(){
+	var isDestroying = new Observation(function(){
 		return todo.isDestroying();
 	});
 
-	isSaving.bind("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isSaving, function(newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"hydrated");
@@ -360,7 +366,7 @@ test("isSaving and isDestroying", function(){
 		}
 	});
 
-	isDestroying.bind("change", function(ev, newVal, oldVal){
+	canReflect.onValue(isDestroying, function(newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
 			equal(state,"updated");
@@ -450,7 +456,7 @@ test("findAll and findOne alias", function(){
 });
 
 QUnit.test("reads id from set algebra (#82)", function(){
-	var Todo = Map.extend({});
+	var Todo = Map.extend({seal: false}, {});
 	var TodoList = List.extend({
 		Map: Todo
 	});
@@ -480,20 +486,47 @@ QUnit.test("reads id from set algebra (#82)", function(){
 	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
 });
 
-QUnit.test("should batch model events", function () {
-	var batchNum;
-	var Instance = Map.extend({})
-	var instance = new Instance();
-	instance.__bindEvents = {
-		updated: [function (batch) {
-			batchNum = batch.batchNum;
-		}]
-	};
-	instance.constructor.__bindEvents = {
-		updated: [function (batch) {
-			QUnit.equal(batch.batchNum, batchNum, "Calls are in the same batch");
-		}]
-	}
+QUnit.test("additional properties are included in getList responses", function(){
+	fixture({
+		"GET /services/todos": function(){
+			return {
+				count: 1,
+				data: [{id: 1}]
+			};
+		}
+	});
 
+	var Todo = this.Todo;
+
+	stop();
+	Todo.getList({}).then(function(todos){
+		equal(todos.count, 1);
+		start();
+	});
+});
+
+QUnit.test("should batch model events", function () {
+	var eventOrder = [];
+	var Type = Map.extend({})
+	var instance = new Type();
+
+	instance.on("updated", function() {
+		eventOrder.push(2);
+	}, "notify");
+
+	Type.on("updated", function() {
+		eventOrder.push(3);
+	}, "notify");
+
+	queues.batch.start();
+	queues.notifyQueue.enqueue(function() {
+		eventOrder.push(1);
+	})
+	queues.deriveQueue.enqueue(function() {
+		eventOrder.push(4);
+	})
 	canMap.callbackInstanceEvents("updated", instance);
+	queues.batch.stop();
+
+	QUnit.equal(eventOrder.join(""), "1234", "events are batched");
 });
