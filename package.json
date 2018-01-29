@@ -23,7 +23,7 @@
     "can-validate-interface": "^0.1.0",
     "can-view-callbacks": "^3.1.0",
     "can-view-nodelist": "^3.1.0",
-    "steal-stache": "^3.1.0"
+    "steal-stache": "^4.0.0"
   },
   "repository": {
     "type": "git",
