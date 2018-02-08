@@ -228,6 +228,7 @@ var CanModel = CanMap.extend({
 				)
 			)
 		);
+		this.connection.init();
 
 		this.store = this.connection.instanceStore;
 		// map static stuff to crud .. but we don't want this inherited by the next thing'

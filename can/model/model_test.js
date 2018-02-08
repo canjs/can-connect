@@ -9,7 +9,7 @@ var canEvent = require("can-event");
 var CanMap = require("can-map");
 var CanList = require("can-list");
 var Observation = require("can-observation");
-
+var constructorStore = require("can-connect/constructor/store/store");
 var assign = require("can-util/js/assign/assign");
 
 var logErrorAndStart = function(e){
@@ -17,6 +17,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
+constructorStore.requestCleanupDelay = 1;
 
 (function () {
 	QUnit.module('can-connect/can/model', {

@@ -10,6 +10,7 @@ var canMap = require('can-connect/can/map/map');
 var dataUrl = require('can-connect/data/url/url');
 var constructor = require('can-connect/constructor/constructor');
 var constructorStore = require('can-connect/constructor/store/store');
+constructorStore.requestCleanupDelay = 1;
 
 var smartMerge = require('./map-deep-merge');
 var applyPatch = require('./map-deep-merge').applyPatch;
