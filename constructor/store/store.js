@@ -106,7 +106,10 @@ var requests = {
 		if(pendingRequests === 0) {
 			noRequestsTimer = setTimeout(function(){
 				requests.dispatch("end");
-			},10);
+			},module.exports.requestCleanupDelay);
+		}
+		if(pendingRequests < 0) {
+			pendingRequests = 0;
 		}
 	},
 	count: function(){
@@ -160,21 +163,39 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * ```
 		 */
 		listStore: new WeakReferenceMap(),
-		_requestInstances: {},
-		_requestLists: {},
-		_finishedRequest: function(){
-			var id;
-			requests.decrement(this);
-			if(requests.count() === 0) {
+		 // Set up the plain objects for tracking requested lists and instances for this connection,
+		 // and add a handler to the requests counter to flush list and instance references when all
+		 // requests have completed
+		 //
+		 // This function is called automatically when connect() is called on this behavior,
+		 // and should not need to be called manually.
+		init: function() {
+			if(baseConnection.init) {
+				baseConnection.init.apply(this, arguments);
+			}
+
+			if(!this.hasOwnProperty("_requestInstances")) {
+				this._requestInstances = {};
+			}
+			if(!this.hasOwnProperty("_requestLists")) {
+				this._requestLists = {};
+			}
+
+			requests.on("end", function(){
+				var id;
 				for(id in this._requestInstances) {
 					this.instanceStore.deleteReference(id);
 				}
 				this._requestInstances = {};
 				for(id in this._requestLists) {
 					this.listStore.deleteReference(id);
+					this._requestLists[id].forEach(this.deleteInstanceReference.bind(this));
 				}
 				this._requestLists = {};
-			}
+			}.bind(this));
+		},
+		_finishedRequest: function(){
+			requests.decrement(this);
 		},
 
 		/**
@@ -415,6 +436,9 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 			var id = sortedSetJSON( set || this.listSet(list) );
 			if(id) {
 				this.listStore.addReference( id, list );
+				list.forEach(function(instance) {
+					this.addInstanceReference(instance);
+				}.bind(this));
 			}
 		},
 		/**
@@ -450,6 +474,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 			var id = sortedSetJSON( set || this.listSet(list) );
 			if(id) {
 				this.listStore.deleteReference( id, list );
+				list.forEach(this.deleteInstanceReference.bind(this));
 			}
 		},
 		/**
@@ -690,6 +715,38 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 			});
 			return promise;
 
+		},
+		/**
+		 * @function can-connect/constructor/store/store.updatedList updatedList
+		 * @parent can-connect/constructor/store/store.callbacks
+		 *
+		 * Extends the underlying [can-connect/connection.updatedList] so any instances that have been added or removed
+		 * from the list have their reference counts updated accordingly.
+		 *
+		 * @signature `connection.updatedList( list, listData, set )`
+		 * Increments an internal request counter so instances on this list during this request will be stored, and decrements
+		 * the same counter for all items previously on the list (found in `listData.data`).
+		 *
+		 * @param {can-connect.List} list a typed list of instances being updated
+		 * @param {Object} listData an object representing the previous state of the list
+		 * @param {Object} set the retrieval set used to get the list
+		 */
+		updatedList: function(list, listData, set) {
+			var oldList = list.slice(0);
+			if(!listData.data && typeof listData.length === "number") {
+				listData = { data: listData };
+			}
+			if(baseConnection.updatedList) {
+				baseConnection.updatedList.call(this, list, listData, set);
+				list.forEach(function(instance) {
+					this.addInstanceReference(instance);
+				}.bind(this));
+			} else if(listData.data) {
+				listData.data.forEach(function(instance) {
+					this.addInstanceReference(instance);
+				}.bind(this));
+			}
+			oldList.forEach(this.deleteInstanceReference.bind(this));
 		}
 	};
 
@@ -697,6 +754,14 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 
 });
 constructorStore.requests = requests;
+// The number of ms to wait after all known requests have finished,
+//  before starting request cleanup.
+// If a new request comes in before timeout, wait until that request
+//  has finished (+ delay) before starting cleanup.
+// This is configurable, for use cases where more waiting is desired,
+//  or for the can-connect tests which expect everything to clean up
+//  in 1ms.
+constructorStore.requestCleanupDelay = 10;
 
 module.exports = constructorStore;
 
