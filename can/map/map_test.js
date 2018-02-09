@@ -36,6 +36,7 @@ var logErrorAndStart = function(e){
 
 };
 
+constructorStore.requestCleanupDelay = 1;
 var queues = require("can-queues");
 
 QUnit.module("can-connect/can/map/map with Map",{
