@@ -34,6 +34,8 @@ var logErrorAndStart = function(e){
 	start();
 };
 
+constructorStore.requestCleanupDelay = 1;
+
 QUnit.module("can-connect/can/map/map",{
 	setup: function(){
 

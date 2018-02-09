@@ -8,7 +8,7 @@ var connect = require("can-connect/can-connect");
 var testHelpers = require("can-connect/test-helpers");
 var assign = require("can-util/js/assign/assign");
 
-
+instanceStore.requestCleanupDelay = 1;
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -295,4 +295,73 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 	});
 
 
+});
+
+QUnit.asyncTest("instanceStore adds instance references for list membership.", function() {
+	var connection = connect([
+		function(){
+			return {
+				getListData: function(){
+					return Promise.resolve([{name: "test store", id: "abc"}]);
+				}
+			};
+		},
+		constructor,
+		instanceStore],
+	{});
+
+	connection.getList({}).then(function(list) {
+		var instanceRef = connection.instanceStore.get("abc");
+		QUnit.ok(instanceRef, "instance reference exists in store");
+		QUnit.equal(connection.instanceStore.referenceCount("abc"), 2, "reference count reflects that instance is being loaded");
+		connection.addListReference(list);
+		QUnit.equal(connection.instanceStore.referenceCount("abc"), 3, "reference count reflects that instance is in reffed list");
+
+		return new Promise(function(resolve) {
+			setTimeout(function() {
+				QUnit.equal(connection.instanceStore.referenceCount("abc"), 1, "finished requests reduce instance counts to 1");
+				connection.deleteListReference(list);
+				QUnit.ok(!connection.instanceStore.has("abc"), "instance removed from store after last list ref removed");
+				resolve()
+			}, 1);
+		});
+	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
+});
+
+QUnit.asyncTest("instanceStore adds/removes instances based on list updates.", function() {
+	var connection = connect([
+		function(){
+			var calls = 0;
+			return {
+				getListData: function(){
+					if(calls) {
+						return Promise.resolve([{name: "test store", id: "def"}]);
+					} else {
+						calls++;
+						return Promise.resolve([{name: "test store", id: "abc"}]);
+					}
+				}
+			};
+		},
+		constructor,
+		instanceStore],
+	{});
+
+	connection.getList({}).then(function(list) {
+		connection.addListReference(list);
+		return new Promise(function(resolve) {
+			setTimeout(function() {
+				QUnit.ok(connection.instanceStore.get("abc"), "first item is in instance store");
+				resolve(connection.getList({}));
+			}, 1);
+		});
+	}).then(function(list) {
+		return new Promise(function(resolve) {
+			setTimeout(function() {
+				QUnit.ok(!connection.instanceStore.get("abc"), "first item is not in instance store");
+				QUnit.ok(connection.instanceStore.get("def"), "second item is in instance store");
+				resolve();
+			}, 10);
+		});
+	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
 });

@@ -26,6 +26,7 @@ var logErrorAndStart = function(e){
 	start();
 };
 
+constructorStore.requestCleanupDelay = 1;
 
 QUnit.test("basics", function(){
 	// get two lists

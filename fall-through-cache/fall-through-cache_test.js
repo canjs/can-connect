@@ -12,6 +12,8 @@ var getId = function(d){
 	return d.id;
 };
 
+constructorStore.requestCleanupDelay = 1;
+
 QUnit.module("can-connect/fall-through-cache");
 
 QUnit.test("basics", function(){
