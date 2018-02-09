@@ -1,0 +1,20 @@
+/*can-connect@1.5.17#all*/
+var connect = require('./can-connect.js');
+connect.cacheRequests = require('./cache-requests/cache-requests.js');
+connect.constructor = require('./constructor/constructor.js');
+connect.constructorCallbacksOnce = require('./constructor/callbacks-once/callbacks-once.js');
+connect.constructorStore = require('./constructor/store/store.js');
+connect.dataCallbacks = require('./data/callbacks/callbacks.js');
+connect.dataCallbacksCache = require('./data/callbacks-cache/callbacks-cache.js');
+connect.dataCombineRequests = require('./data/combine-requests/combine-requests.js');
+connect.dataLocalStorageCache = require('./data/localstorage-cache/localstorage-cache.js');
+connect.dataMemoryCache = require('./data/memory-cache/memory-cache.js');
+connect.dataParse = require('./data/parse/parse.js');
+connect.dataUrl = require('./data/url/url.js');
+connect.fallThroughCache = require('./fall-through-cache/fall-through-cache.js');
+connect.realTime = require('./real-time/real-time.js');
+connect.superMap = require('./can/super-map/super-map.js');
+connect.tag = require('./can/tag/tag.js');
+connect.baseMap = require('./can/base-map/base-map.js');
+module.exports = connect;
+//# sourceMappingURL=all.js.map
