@@ -239,14 +239,6 @@ var todoConnection = connect([
 and then use that connection to get a `TodoList` of `Todo`s and render some markup:
 
 ```js
-todoConnection.getList({}).then(function(todos){
-	var todosEl = document.getElementById("todos-list");
-	todosEl.innerHTML = "<h2>Active</h2>"+
-		render(todos.active())+
-		"<h2>Complete</h2>"+
-		render(todos.completed());
-});
-
 var render = function(todos) {
 	return "<ul>"+todos.map(function(todo){
 		return "<li>"+todo.name+
@@ -254,6 +246,14 @@ var render = function(todos) {
 				(todo.isComplete() ? "checked" : "")+"/></li>";
 	}).join("")+"</ul>";
 };
+
+todoConnection.getList({}).then(function(todos){
+	var todosEl = document.getElementById("todos-list");
+	todosEl.innerHTML = "<h2>Active</h2>"+
+		render(todos.active())+
+		"<h2>Complete</h2>"+
+		render(todos.completed());
+});
 ```
 
 The following demo shows the result:
@@ -344,7 +344,7 @@ var mergeDataBehavior = {
 
 var todoConnection = connect([
     constructor,
-    dataUrl
+    dataUrl,
     mergeDataBehavior
   ],{
     url: "/api/todos"
@@ -585,23 +585,22 @@ connect.behavior("localstorage", function(baseConnection){
       var id = this.id(params);
       return new Promise(function(resolve){
         var data = localStorage.getItem(baseConnection.name+"/"+id);
-        resolve( JSON.parse(data) )
+        resolve( JSON.parse(data) );
       });
     },
     createData: function(props){
       var id = localStorage.getItem(baseConnection.name+"-ID") || "0";
+	  var nextId = JSON.parse( id ) + 1;
 
-      var nextId = ++JSON.parse( id );
       localStorage.setItem(baseConnection.name+"-ID", nextId);
-      var id = this.idProp;
       return new Promise(function(resolve){
-        props[id] = nextId;
+        props[this.idProp] = nextId;
         localStorage.setItem(baseConnection.name+"/"+nextId, props);
         resolve( props )
       });
     },
     updateData: function(){ ... },
-    destroyData: function(){ ...}
+    destroyData: function(){ ... },
   };
 })
 ```

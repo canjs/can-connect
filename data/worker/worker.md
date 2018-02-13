@@ -106,13 +106,13 @@ This doesn't have to be the case.  Two different modules could be used.  For exa
 var workerURL = System.stealURL+"?main=app/models/todo-worker";
 
 var todoConnection = connect([
-	require("can-connect/data/worker/worker"),
-	require("can-connect/constructor/constructor"),
-	require("can-connect/constructor/store/store"),
-  {
-    worker: new Worker( workerURL ),
-    name: "todos"
-  });
+  require("can-connect/data/worker/worker"),
+  require("can-connect/constructor/constructor"),
+  require("can-connect/constructor/store/store"),
+],{
+  worker: new Worker( workerURL ),
+  name: "todos"
+});
 ```
 
 ```js
