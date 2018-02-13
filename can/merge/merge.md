@@ -11,25 +11,25 @@ Overwrites [can-connect/can/map/map]'s instance callbacks so they use [can-conne
 and lists given raw data.
 E.g:
 
-```javascript
+```js
 let existingStudent;
 const classroom = ClassRoom.get({id: 505}).then(function(instance) {
-  instance.id; // 505
-  instance.students[0].id; // 15
-  instance.students[0].name; // 'Samantha Jones'
-  existingStudent = instance;
+	instance.id; // 505
+	instance.students[0].id; // 15
+	instance.students[0].name; // 'Samantha Jones'
+	existingStudent = instance;
 });
 
 // later in the program new information for the classroom is retrieved
 
 ClassRoom.get({id:505}).then(function(instance) {
-    instance.id; // 505
-    instance.students[0].id; // 15
-    instance.students[0].name; // 'Samantha Jones-Baker'
+	instance.id; // 505
+	instance.students[0].id; // 15
+	instance.students[0].name; // 'Samantha Jones-Baker'
 
-    // true, if can-merge behavior is used.
-    // a new nested instance isn't created, instead it was updated with the changed fields
-    existingStudent === instance.students[0];
+	// true, if can-merge behavior is used.
+	// a new nested instance isn't created, instead it was updated with the changed fields
+	existingStudent === instance.students[0];
 });
 
 ```
@@ -56,23 +56,23 @@ To use the `can/merge` behavior, you have to:
 Adding the `can/merge` behavior after [can-connect/can/map/map] is pretty straightforward.
 When you create a custom connection, create it as follows:
 
-```javascript
+```js
 import canMergeBehavior from "can-connect/can/merge/merge";
 import canMapBehavior from "can-connect/can/map/map";
 
 const ClassRoom = DefineMap.extend({
-  // ...
+	// ...
 });
 
 ClassRoom.List = DefineList.extend({
-  "#": ClassRoom
+	"#": ClassRoom
 });
 
 ClassRoom.algebra = new set.Algebra({ /* ... */ })
 
 ClassRoom.connection = connect([ /* ... */ , canMapBehavior, canMergeBehavior, /* ... */ ], {
-  Map: ClassRoom,
-  List: ClassRoom.List
+	Map: ClassRoom,
+	List: ClassRoom.List
 });
 ```
 
@@ -84,16 +84,16 @@ be able to convert raw data to instances and lists.
 This is more easily understood in an example.
 If the `ClassRoom` has a `students` property that is a list of `Student` instances like:
 
-```javascript
+```js
 const ClassRoom = DefineMap.extend({
-  students: Student.List
+	students: Student.List
 });
 ```
 
 To be able to uniquely identify `Student` instances within that list, make sure `Student` has an `algebra` property
 that is configured with the identifier property:
 
-```javascript
+```js
 Student = DefineMap.extend({ /* ... */ });
 
 Student.algebra = new set.Algebra(set.props.id("_id"))
@@ -102,9 +102,9 @@ Student.algebra = new set.Algebra(set.props.id("_id"))
 Also make sure that `Student.List` points its [can-define/list/list.prototype.wildcardItems] definition to `Student`
 like the following:
 
-```javascript
+```js
 Student.List = DefineList.extend({
-    "#": Student
+	"#": Student
 });
 ```
 
@@ -115,11 +115,11 @@ This is useful if `Student`s should be looked up in the connection [can-connect/
 
 For example, `Student` might have a connection that has an [can-connect/constructor/store/store.instanceStore], like:
 
-```javascript
+```js
 Student.connection = baseMap({
-  Map: Student,
-  List: Student.List,
-  url: "/services/students",
-  name: "students"
+	Map: Student,
+	List: Student.List,
+	url: "/services/students",
+	name: "students"
 });
 ```

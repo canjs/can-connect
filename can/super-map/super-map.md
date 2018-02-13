@@ -33,13 +33,13 @@ fast in most circumstances.
 
 To use it, first define a Map and List constructor function:
 
-```javascript
+```js
 import DefineMap from "can-define/map/map";
 import DefineList from "can-define/list/list";
 
 const Todo = DefineMap.extend({ /* ... */ });
 const TodoList = DefineList.extend({
-  "#": Todo
+	"#": Todo
 });
 ```
 

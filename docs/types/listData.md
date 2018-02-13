@@ -8,12 +8,12 @@ a typed list.  This is the data format resolved by [can-connect/connection.getLi
 
 A `ListData` object should look like:
 
-```javascript
+```js
 {
-  data: [
-    {id: 1, name: "take out the trash"},
-    {id: 1, name: "do the dishes"}
-  ]
+	data: [
+		{id: 1, name: "take out the trash"},
+		{id: 1, name: "do the dishes"}
+	]
 }
 ```
 

@@ -13,7 +13,7 @@ being created.
 The following shows how [can-connect/constructor/constructor] calls `createData`
 and what it does with the response:
 
-```javascript
+```js
 import CID from "can-util/js/cid/cid";
 
 // Create an instance of a special type
@@ -26,7 +26,7 @@ const cid = CID(myInstance);
 const instanceData = connection.serializeInstance(myInstance);
 
 connection.createData(instanceData, cid).then(function(createdInstanceData){
-  connection.createdInstance(myInstance, createdInstanceData);
+	connection.createdInstance(myInstance, createdInstanceData);
 })
 ```
 

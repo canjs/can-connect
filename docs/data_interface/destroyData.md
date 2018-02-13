@@ -11,12 +11,12 @@ data. Returns any additional properties that should be added to the instance.
 The following shows how [can-connect/constructor/constructor] calls `destroyData` and
 what it does with the response:
 
-```javascript
+```js
 // get its raw data
 const instanceData = connection.serializeInstance(myInstance);
 
 connection.destroyData(instanceData).then(function(destroyedInstanceData){
-  connection.destroyedInstance(myInstance, createdInstanceData);
+	connection.destroyedInstance(myInstance, createdInstanceData);
 });
 ```
 

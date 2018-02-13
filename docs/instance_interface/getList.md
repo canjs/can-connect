@@ -8,7 +8,7 @@ Gets a [can-connect.List] of instances.
 Gets a [can-connect.List] of instances using the `connection` by calling
 [can-connect/connection.getListData].
 
-```javascript
+```js
 connection.getList({parentId: 5}).then(function(list){
 
 });

@@ -62,32 +62,32 @@ var TodoList = DefineList.extend({
 Next, pass the Map and List constructor functions to `connect` as options. The following creates connects the `Todo`
 and `TodoList` types to a RESTful data service via the connection:
 
-```javascript
+```js
 import connect from "can-connect";
 import dataUrl from "can-connect/data/url/url";
 import constructor from "can-connect/constructor/constructor";
 import canMap from "can-connect/can/map/map";
 
 const todoConnection = connect([dataUrl, constructor, canMap],{
-  Map: Todo,
-  List: TodoList,
-  url: "/services/todos"
+	Map: Todo,
+	List: TodoList,
+	url: "/services/todos"
 });
 ```
 
 The connection itself can be used to create, read, update & delete `Todo` and `TodoList`s:
 
-```javascript
+```js
 todoConnection.getList({}).then(function(todos){
-  const incomplete = todos.incomplete();
-  incomplete[0].allowComplete( 5 ) //-> true
+	const incomplete = todos.incomplete();
+	incomplete[0].allowComplete( 5 ) //-> true
 });
 ```
 
 ... or instead of how it's done above, because `can/map` adds methods to the [can-connect/can/map/map._Map] type, you
 can use `Todo` to retrieve `Todo` and `TodoList`s:
 
-```javascript
+```js
 Todo.getList({}).then(function(todos){ /* ... */ });
 Todo.get({}).then(function(todo){ /* ... */ });
 ```
@@ -95,34 +95,34 @@ Todo.get({}).then(function(todo){ /* ... */ });
 You can also create, update, and [can-connect/can/map/map.prototype.destroy] `Todo` instances. Notice that
 [can-connect/can/map/map.prototype.save] is used to create and update:
 
-```javascript
+```js
 // create an instance
 new Todo({name: "dishes"}).save().then(function(todo){
-  todo.set({
-    name: "Do the dishes"
-  })
-  .save() // update an instance
-  .then(function(todo){
-    todo.destroy(); // destroy an instance
-  });
+	todo.set({
+		name: "Do the dishes"
+	})
+		.save() // update an instance
+		.then(function(todo){
+			todo.destroy(); // destroy an instance
+		});
 });
 ```
 
 There's also methods that let you know if an instance is in the process of being
 [can-connect/can/map/map.prototype.isSaving saved] or [can-connect/can/map/map.prototype.isDestroying destroyed]:
 
-```javascript
+```js
 const savePromise = new Todo({name: "dishes"}).save();
 todo.isSaving() //-> true
 
 savePromise.then(function(){
-  todo.isSaving() //-> false
+	todo.isSaving() //-> false
 
-  const destroyPromise = todo.destroy();    
-  todo.isDestroying() //-> true
+	const destroyPromise = todo.destroy();    
+	todo.isDestroying() //-> true
 
-  destroyPromise.then(function(){
-        todo.isDestroying() //-> false
-  })
+	destroyPromise.then(function(){
+		todo.isDestroying() //-> false
+	})
 })
 ```

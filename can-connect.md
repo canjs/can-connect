@@ -15,12 +15,12 @@ project from fully modularized behaviors (i.e. plugins).
 
 Iterate through passed behaviors and assemble them into a connection.
 
-```javascript
+```js
 import connect from "can-connect";
 import dataUrl from "can-connect/data/url/";
 import constructor from "can-connect/constructor/";
 const todosConnection = connect([dataUrl, constructor],{
-    url: "/api/todos"
+	url: "/api/todos"
 });
 ```
 
@@ -116,14 +116,14 @@ and some configuration options into a `connection`.  For example, the following 
 [can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url] behaviors
 to create a `todoConnection` connection:
 
-```javascript
+```js
 import connect from "can-connect";
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 
 const todoConnection = connect(
-  [constructor, dataUrl],
-  { url: "/services/todos" }
+	[constructor, dataUrl],
+	{ url: "/services/todos" }
 );
 ```
 
@@ -138,7 +138,7 @@ methods:
 
 For example, to get all todos from "GET /services/todos", we could write the following:
 
-```javascript
+```js
 todoConnection.getList({}).then(function(todos){ /* ... */ });
 ```
 
@@ -155,7 +155,7 @@ data is not found, does it call [can-connect/data/url/url data/urls]’s [can-co
 
 This behavior arranging makes it so even if we write:
 
-```javascript
+```js
 import dataUrl from "can-connect/data/url/";
 import cacheRequests from "can-connect/cache-requests/";
 connect([cacheRequests, dataUrl])
@@ -184,72 +184,72 @@ that can create, read, update and delete typed data via the lower-level [can-con
 By "typed" data we mean data that is more than just plain JavaScript objects.  For example, we want might to create
 `Todo` objects that implement an `isComplete` method:
 
-```javascript
+```js
 import assign from "can-assign";
 
 const Todo = function(props){
-  assign(this, props);
+	assign(this, props);
 };
 
 Todo.prototype.isComplete = function(){
-  return this.status === "complete";
+	return this.status === "complete";
 };
 ```
 
 And, we might want a special `TodoList` type with implementations of `completed` and `active` methods:
 
-```javascript
+```js
 const TodoList = function(todos){
-  [].push.apply(this, todos);
+	[].push.apply(this, todos);
 };
 TodoList.prototype = Object.create(Array.prototype);
 
 TodoList.prototype.completed = function(){
-  return this.filter(function(todo){
-    return todo.status === "complete";
-  });
+	return this.filter(function(todo){
+		return todo.status === "complete";
+	});
 };
 
 TodoList.prototype.active = function(){
-  return this.filter(function(todo){
-    return todo.status !== "complete";
-  });
+	return this.filter(function(todo){
+		return todo.status !== "complete";
+	});
 };
 ```
 
 We can create a connection that connects a RESTful "/api/todos" endpoint to `Todo` instances and `TodoList` lists like:
 
-```javascript
+```js
 import connect from "can-connect";
 
 const todoConnection = connect([
-  require("can-connect/constructor/constructor"),
-  require("can-connect/data/url/url")
+	require("can-connect/constructor/constructor"),
+	require("can-connect/data/url/url")
 ],{
-  url: "/todos",
-  list: function(listData, set){
-    return new TodoList(listData.data);
-  },
-  instance: function(props) {
-    return new Todo(props);
-  }
+	url: "/todos",
+	list: function(listData, set){
+		return new TodoList(listData.data);
+	},
+	instance: function(props) {
+		return new Todo(props);
+	}
 });
 ```
 
 and then use that connection to get a `TodoList` of `Todo`s and render some markup:
 
-```javascript
+```js
 const render = function(todos) {
-  return "<ul>"+todos.map(function(todo){
-    return "<li>"+todo.name+
+	return "<ul>"+todos.map(function(todo){
+		return "<li>"+todo.name+
         "<input type='checkbox' "+
         (todo.isComplete() ? "checked" : "")+"/></li>";
-  }).join("")+"</ul>";
+	}).join("")+"</ul>";
 };
 
 todoConnection.getList({}).then(function(todos){
-  const todosEl = document.getElementById("todos-list");
-  todosEl.innerHTML = "<h2>Active</h2>"+
+	const todosEl = document.getElementById("todos-list");
+	todosEl.innerHTML = "<h2>Active</h2>"+
     render(todos.active())+
     "<h2>Complete</h2>"+
     render(todos.completed());
@@ -262,27 +262,27 @@ The following demo shows the result:
 
 This connection also lets you create, update, and destroy a Todo instance as follows:
 
-```javascript
+```js
 const todo = new Todo({
-  name: "take out trash"
+	name: "take out trash"
 });
 
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
 todoConnection.save( todo ).then(function(todo){
-  todo.id //-> 5
-  todo.name = 'take out garbage'
+	todo.id //-> 5
+	todo.name = 'take out garbage'
 
-  // PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
-  // server returns {id: 5, name:"take out garbage"}
-  todoConnection.save( todo ).then( function(todo){
+	// PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
+	// server returns {id: 5, name:"take out garbage"}
+	todoConnection.save( todo ).then( function(todo){
 
-    // DELETEs to /api/todos/5
-    // server returns {}
-    todoConnection.destroy( todo ).then( function(todo){
+		// DELETEs to /api/todos/5
+		// server returns {}
+		todoConnection.destroy( todo ).then( function(todo){
 
-    });
-  });
+		});
+	});
 });
 ```
 
@@ -294,15 +294,15 @@ several configurable options that are used by most other behaviors.  For example
 uses a property named `_id` to uniquely identify todos, you can specify this with
 [can-connect/base/base.idProp idProp] like:
 
-```javascript
+```js
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 const todoConnection = connect(
-  [constructor, dataUrl],
-  {
-    url: "/api/todos",
-    idProp: "_id"
-  }
+	[constructor, dataUrl],
+	{
+		url: "/api/todos",
+		idProp: "_id"
+	}
 );
 ```
 
@@ -319,35 +319,35 @@ properties to match the result of [can-connect/connection.updateData updateData]
 `PUT /api/todos/5 {name:"take out garbage""}` request returns `{}`, the following example would
 result in a todo with only an `id` property:
 
-```javascript
+```js
 const todo = new Todo({id: 5, name: "take out garbage"});
 
 // PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
 // server returns {}
 todoConnection.save( todo ).then( function(todo){
-  todo.id //-> 5
-  todo.name //-> undefined
+	todo.id //-> 5
+	todo.name //-> undefined
 });
 ```
 
 The following overwrites [can-connect/constructor/constructor constructor/constructor]’s
 implementation of `updateData`:
 
-```javascript
+```js
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 const mergeDataBehavior = {
-  updateData: function(instance, data){
-    Object.assign(instance, data);
-  }
+	updateData: function(instance, data){
+		Object.assign(instance, data);
+	}
 };
 
 const todoConnection = connect([
-    constructor,
-    dataUrl,
-    mergeDataBehavior
-  ],{
-    url: "/api/todos"
+	constructor,
+	dataUrl,
+	mergeDataBehavior
+],{
+	url: "/api/todos"
 });
 ```
 
@@ -368,7 +368,7 @@ If you are using CanJS, you can either:
 
 Using [can-connect/can/map/map can/map] to create a connection looks like:
 
-```javascript
+```js
 import DefineMap from "can-define/map/map";
 import DefineList from "can-define/list/list";
 import dataUrl from "can-connect/data/url/url";
@@ -378,33 +378,33 @@ import canMap from "can-connect/can/map/map";
 
 const Todo = DefineMap.extend({ /* ... */ });
 Todo.List = DefineList.extend({
-    "#": Todo
+	"#": Todo
 });
 
 const todoConnection = connect(
-  [dataUrl, constructor, constructorStore, canMap],
-  {
-    Map: Todo,
-    url: "/todos"
-  }
+	[dataUrl, constructor, constructorStore, canMap],
+	{
+		Map: Todo,
+		url: "/todos"
+	}
 );
 ```
 
 Using [can-connect/can/super-map/super-map] to create a connection looks like:
 
-```javascript
+```js
 import DefineMap from "can-define/map/";
 import DefineList from "can-define/list/";
 import superMap from "can-connect/can/super-map/";
 
 const Todo = DefineMap.extend({ /* ... */ });
 Todo.List = DefineList.extend({
-    "#": Todo
+	"#": Todo
 });
 
 const todoConnection = superMap({
-    Map: Todo,
-    url: "/todos"
+	Map: Todo,
+	url: "/todos"
 });
 ```
 
@@ -568,39 +568,39 @@ Implemented by the [can-connect/real-time/real-time real-time] behavior.
 To create your own behavior, call `connect.behavior` with the name of your behavior and a function that returns an
 object that defines the hooks you want to overwrite or provide:
 
-```javascript
+```js
 connect.behavior("my-behavior", function(baseConnection){
-  return {
-    // Hooks here
-  };
+	return {
+		// Hooks here
+	};
 })
 ```
 
 For example, creating a basic localStorage behavior might look like:
 
-```javascript
+```js
 connect.behavior("localstorage", function(baseConnection){
-  return {
-    getData: function(params){
-      const id = this.id(params);
-      return new Promise(function(resolve){
-        const data = localStorage.getItem(baseConnection.name+"/"+id);
-        resolve( JSON.parse(data) );
-      });
-    },
-    createData: function(props){
-      const id = localStorage.getItem(baseConnection.name+"-ID") || "0";
-    const nextId = JSON.parse( id ) + 1;
+	return {
+		getData: function(params){
+			const id = this.id(params);
+			return new Promise(function(resolve){
+				const data = localStorage.getItem(baseConnection.name+"/"+id);
+				resolve( JSON.parse(data) );
+			});
+		},
+		createData: function(props){
+			const id = localStorage.getItem(baseConnection.name+"-ID") || "0";
+			const nextId = JSON.parse( id ) + 1;
 
-      localStorage.setItem(baseConnection.name+"-ID", nextId);
-      return new Promise(function(resolve){
-        props[this.idProp] = nextId;
-        localStorage.setItem(baseConnection.name+"/"+nextId, props);
-        resolve( props )
-      });
-    },
-    updateData: function(){ /* ... */ },
-    destroyData: function(){ /* ... */ },
-  };
+			localStorage.setItem(baseConnection.name+"-ID", nextId);
+			return new Promise(function(resolve){
+				props[this.idProp] = nextId;
+				localStorage.setItem(baseConnection.name+"/"+nextId, props);
+				resolve( props )
+			});
+		},
+		updateData: function(){ /* ... */ },
+		destroyData: function(){ /* ... */ },
+	};
 })
 ```

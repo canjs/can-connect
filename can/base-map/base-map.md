@@ -29,11 +29,11 @@ fast in most circumstances.
 
 To use it, first define a Map and List constructor function:
 
-```javascript
+```js
 const Todo = DefineMap.extend({ /* ... */ });
 const TodoList = DefineList.extend({
-  "#": Todo,
-  // ...
+	"#": Todo,
+	// ...
 });
 ```
 
