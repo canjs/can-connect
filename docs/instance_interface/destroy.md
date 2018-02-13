@@ -8,12 +8,12 @@ Destroy an instance.
 Destroys an instance using the `connection` by calling
 [can-connect/connection.destroyData].
 
-```js
+```javascript
 // get an instance
 connection.get({id: 5}).then(function( instance ){
 
-	// destroy it
-	connection.destroy( instance );
+  // destroy it
+  connection.destroy( instance );
 })
 ```
 

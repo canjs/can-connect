@@ -9,7 +9,7 @@ Gets a [can-connect/Instance].
 Get a single [can-connect/Instance] using the `connection` by calling
 [can-connect/connection.getData].
 
-```js
+```javascript
 connection.get({id: 5}).then(function(instance){
 
 });

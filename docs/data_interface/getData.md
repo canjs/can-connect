@@ -9,9 +9,9 @@
   The following shows how [can-connect/constructor/constructor] calls `getData`
   and what it does with the response:
 
-  ```js
+  ```javascript
   connection.getData({id: 1}).then(function(instanceData){
-  	connection.hydrateInstance(instanceData);
+    connection.hydrateInstance(instanceData);
   });
   ```
 
@@ -25,12 +25,12 @@
 
 Extensions like [can-connect/data/url/url] implement `getData`  but implementing it yourself can be as simple as:
 
-```js
-var behavior = connect([],{
+```javascript
+const behavior = connect([],{
   getData: function(params){
     return new Promise(function(resolve, reject){
-		$.get("/api/todo",params).then(resolve, reject)
-	});
+    $.get("/api/todo",params).then(resolve, reject)
+  });
   }
-})
+});
 ```

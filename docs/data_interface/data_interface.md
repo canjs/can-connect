@@ -29,36 +29,36 @@ extra functionality.
 For example, [can-connect/data/url/url] implements these behaviors to
 make an Ajax request like:
 
-```js
+```javascript
 connect.behavior("data/url", function(baseConnection) {
-	return {
-		getListData: function(set){
-			return ajax({
-				type: "GET",
-				url: this.url,
-				data: set
-			});
-		},
-		getData: function(){ ... },
-		...
-	}
+  return {
+    getListData: function(set){
+      return ajax({
+        type: "GET",
+        url: this.url,
+        data: set
+      });
+    },
+    getData: function(){ /* ... */ },
+    // ...
+  }
 });
 ```
 
 The [can-connect/data/parse/parse] behavior overwrites the `baseConnection`’s methods to
 perform cleanup on the response data:
 
-```js
+```javascript
 connect.behavior("data/parse", function(baseConnection) {
-	return {
-		getListData: function(set){
-			var self = this;
-			return baseConnection.getListData(set).then(function(response){
-				return self.parseListData(response);
-			});
-		},
-		getData: function(){ ... },
-		...
-	}
+  return {
+    getListData: function(set){
+      const self = this;
+      return baseConnection.getListData(set).then(function(response){
+        return self.parseListData(response);
+      });
+    },
+    getData: function(){ /* ... */ },
+    // ...
+  };
 });
 ```

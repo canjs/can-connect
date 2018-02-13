@@ -11,12 +11,12 @@
 
   An example response might look like:
 
-  ```js
+  ```javascript
   connection.getSets().then(function(sets){
-	  sets //-> [
-	  //   {complete: true},
-	  //   {userId: 5, start: 10, end: 20}
-	  //]
+    sets //-> [
+    //   {complete: true},
+    //   {userId: 5, start: 10, end: 20}
+    //]
   })
   ```
 

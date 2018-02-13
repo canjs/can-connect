@@ -7,18 +7,18 @@
 
   Returns a promise that resolves to the list data for a particular set.
 
-  ```js
+  ```javascript
   connection.updateListData({
-	  data: [
-		  {id: 1, name: "dishes", createdAt: 1477104548997}
-	  ]
+    data: [
+      {id: 1, name: "dishes", createdAt: 1477104548997}
+    ]
   }, {}).then(function(listData){
-	  listData //-> {
-	  //	  data: [
-	  //		  {id: 1, name: "dishes",
-	  //		   createdAt: 1477104548997, updatedAt: 1477104580000}
-	  //	  ]
-	  //}
+    listData //-> {
+    //    data: [
+    //      {id: 1, name: "dishes",
+    //       createdAt: 1477104548997, updatedAt: 1477104580000}
+    //    ]
+    //}
   })
   ```
 

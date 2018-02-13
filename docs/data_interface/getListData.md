@@ -7,9 +7,9 @@
 
   Returns a promise that resolves to a [can-connect.listData] for a particular set.  
 
-  ```js
+  ```javascript
   connection.getListData({complete: true}).then(function(listData){
-	  connection.hydrateList(listData);
+    connection.hydrateList(listData);
   });
   ```
 
@@ -18,7 +18,7 @@
 
   @return {Promise<can-connect.listData>} A promise that resolves to the [can-connect.listData] format like:
 
-  ```js
+  ```javascript
   {
     data: [
       {id: 1, name: "take out the trash"},
@@ -34,12 +34,12 @@
 
 Extensions like [can-connect/data/url/url] make it easy to implement `getListData`, but it can be as simple as:
 
-```js
-var connection = connect([],{
+```javascript
+const connection = connect([],{
   getListData: function(set){
     return new Promise(function(resolve, reject){
-		$.get("/api/todos",set).then(resolve, reject)
-	});
+    $.get("/api/todos",set).then(resolve, reject)
+  });
   }
-})
+});
 ```

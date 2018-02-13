@@ -62,13 +62,13 @@ var TodoList = DefineList.extend({
 Next, pass the Map and List constructor functions to `connect` as options. The following creates connects the `Todo`
 and `TodoList` types to a RESTful data service via the connection:
 
-```js
-var connect = require("can-connect");
-var dataUrl = require("can-connect/data/url/url");
-var constructor = require("can-connect/constructor/constructor");
-var canMap = require("can-connect/can/map/map");
+```javascript
+import connect from "can-connect";
+import dataUrl from "can-connect/data/url/url";
+import constructor from "can-connect/constructor/constructor";
+import canMap from "can-connect/can/map/map";
 
-var todoConnection = connect([dataUrl, constructor, canMap],{
+const todoConnection = connect([dataUrl, constructor, canMap],{
   Map: Todo,
   List: TodoList,
   url: "/services/todos"
@@ -77,9 +77,9 @@ var todoConnection = connect([dataUrl, constructor, canMap],{
 
 The connection itself can be used to create, read, update & delete `Todo` and `TodoList`s:
 
-```js
+```javascript
 todoConnection.getList({}).then(function(todos){
-  var incomplete = todos.incomplete();
+  const incomplete = todos.incomplete();
   incomplete[0].allowComplete( 5 ) //-> true
 });
 ```
@@ -87,15 +87,15 @@ todoConnection.getList({}).then(function(todos){
 ... or instead of how it's done above, because `can/map` adds methods to the [can-connect/can/map/map._Map] type, you
 can use `Todo` to retrieve `Todo` and `TodoList`s:
 
-```js
-Todo.getList({}).then(function(todos){ ... });
-Todo.get({}).then(function(todo){ ... });
+```javascript
+Todo.getList({}).then(function(todos){ /* ... */ });
+Todo.get({}).then(function(todo){ /* ... */ });
 ```
 
 You can also create, update, and [can-connect/can/map/map.prototype.destroy] `Todo` instances. Notice that
 [can-connect/can/map/map.prototype.save] is used to create and update:
 
-```js
+```javascript
 // create an instance
 new Todo({name: "dishes"}).save().then(function(todo){
   todo.set({
@@ -111,18 +111,18 @@ new Todo({name: "dishes"}).save().then(function(todo){
 There's also methods that let you know if an instance is in the process of being
 [can-connect/can/map/map.prototype.isSaving saved] or [can-connect/can/map/map.prototype.isDestroying destroyed]:
 
-```js
-var savePromise = new Todo({name: "dishes"}).save();
+```javascript
+const savePromise = new Todo({name: "dishes"}).save();
 todo.isSaving() //-> true
 
 savePromise.then(function(){
-	todo.isSaving() //-> false
+  todo.isSaving() //-> false
 
-	var destroyPromise = todo.destroy();    
-	todo.isDestroying() //-> true
+  const destroyPromise = todo.destroy();    
+  todo.isDestroying() //-> true
 
-	destroyPromise.then(function(){
+  destroyPromise.then(function(){
         todo.isDestroying() //-> false
-	})
+  })
 })
 ```

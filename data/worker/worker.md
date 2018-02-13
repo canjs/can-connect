@@ -36,33 +36,33 @@ The `todo_connection` module can be found [here](https://github.com/canjs/can-co
 and looks like the following:
 
 
-```js
-var connect = require("can-connect");
-var fixture = require("can-fixture");
+```javascript
+import connect from "can-connect";
+import fixture from "can-fixture";
 
 // If we are in the main thread, see if we can load this same
 // connection in a worker thread.
-var worker;
+let worker;
 if(typeof document !== "undefined") {
-	worker = new Worker( System.stealURL+"?main=can-connect/data/worker/demo/todo_connection" );
+  worker = new Worker( System.stealURL+"?main=can-connect/data/worker/demo/todo_connection" );
 }
 
 
 // create cache connection
-var cache = connect([
-	require("can-connect/data/memory-cache/")
+const cache = connect([
+  require("can-connect/data/memory-cache/")
 ],{
-	name: "todos"
+  name: "todos"
 });
 
 // Create the main connection with everything you need.  If there is a worker,
 // all data interface methods will be sent to the worker.
-var todosConnection = connect([
-	require("can-connect/data/url/url"),
-	require("can-connect/cache-requests/cache-requests"),
-	require("can-connect/data/worker/worker"),
-	require("can-connect/constructor/constructor"),
-	require("can-connect/constructor/store/store")
+const todosConnection = connect([
+  require("can-connect/data/url/url"),
+  require("can-connect/cache-requests/cache-requests"),
+  require("can-connect/data/worker/worker"),
+  require("can-connect/constructor/constructor"),
+  require("can-connect/constructor/store/store")
 ],{
     url: "/todos",
     cacheConnection: cache,
@@ -73,16 +73,16 @@ var todosConnection = connect([
 
 fixture.delay = 1000;
 fixture({
-	"GET /todos": function(request){
-		return {data: [
-			{id: 1, name: "wash dishes"},
-			{id: 2, name: "mow lawn"},
-			{id: 3, name: "do laundry"}
-		]};
-	}
+  "GET /todos": function(request){
+    return {data: [
+      {id: 1, name: "wash dishes"},
+      {id: 2, name: "mow lawn"},
+      {id: 3, name: "do laundry"}
+    ]};
+  }
 });
 
-module.exports = todosConnection;
+export default todosConnection;
 ```
 
 
@@ -101,11 +101,11 @@ THe previous example used a single module that was loaded by both the window and
 This doesn't have to be the case.  Two different modules could be used.  For example, `todo-window.js` and
 `todo-worker.js`.  Each might look like:
 
-```js
+```javascript
 // todo-window.js
-var workerURL = System.stealURL+"?main=app/models/todo-worker";
+const workerURL = System.stealURL+"?main=app/models/todo-worker";
 
-var todoConnection = connect([
+const todoConnection = connect([
   require("can-connect/data/worker/worker"),
   require("can-connect/constructor/constructor"),
   require("can-connect/constructor/store/store"),
@@ -115,18 +115,18 @@ var todoConnection = connect([
 });
 ```
 
-```js
+```javascript
 // todo-worker.js
-var cache = connect([
-	require("can-connect/data/memory-cache/memory-cache")
+const cache = connect([
+  require("can-connect/data/memory-cache/memory-cache")
 ],{
-	name: "todos-cache"
+  name: "todos-cache"
 });
 
-var todoConnection = connect([
-	require("can-connect/data/url/url"),
-	require("can-connect/cache-requests/cache-requests"),
-	require("can-connect/data/worker/worker")
+const todoConnection = connect([
+  require("can-connect/data/url/url"),
+  require("can-connect/cache-requests/cache-requests"),
+  require("can-connect/data/worker/worker")
 ],{
     url: "/todos",
     cacheConnection: cache,

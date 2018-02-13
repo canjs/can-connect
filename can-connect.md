@@ -15,11 +15,11 @@ project from fully modularized behaviors (i.e. plugins).
 
 Iterate through passed behaviors and assemble them into a connection.
 
-```js
-var connect = require("can-connect");
-var dataUrl = require("can-connect/data/url/");
-var constructor = require("can-connect/constructor/");
-var todosConnection = connect([dataUrl, constructor],{
+```javascript
+import connect from "can-connect";
+import dataUrl from "can-connect/data/url/";
+import constructor from "can-connect/constructor/";
+const todosConnection = connect([dataUrl, constructor],{
     url: "/api/todos"
 });
 ```
@@ -116,12 +116,12 @@ and some configuration options into a `connection`.  For example, the following 
 [can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url] behaviors
 to create a `todoConnection` connection:
 
-```js
-var connect = require("can-connect");
-var constructor = require("can-connect/constructor/");
-var dataUrl = require("can-connect/data/url/");
+```javascript
+import connect from "can-connect";
+import constructor from "can-connect/constructor/";
+import dataUrl from "can-connect/data/url/";
 
-var todoConnection = connect(
+const todoConnection = connect(
   [constructor, dataUrl],
   { url: "/services/todos" }
 );
@@ -138,8 +138,8 @@ methods:
 
 For example, to get all todos from "GET /services/todos", we could write the following:
 
-```js
-todoConnection.getList({}).then(function(todos){ ... });
+```javascript
+todoConnection.getList({}).then(function(todos){ /* ... */ });
 ```
 
 __Behaviors__, like [can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url]
@@ -155,9 +155,9 @@ data is not found, does it call [can-connect/data/url/url data/urls]’s [can-co
 
 This behavior arranging makes it so even if we write:
 
-```js
-var dataUrl = require("can-connect/data/url/");
-var cacheRequests = require("can-connect/cache-requests/");
+```javascript
+import dataUrl from "can-connect/data/url/";
+import cacheRequests from "can-connect/cache-requests/";
 connect([cacheRequests, dataUrl])
 ```
 
@@ -184,10 +184,10 @@ that can create, read, update and delete typed data via the lower-level [can-con
 By "typed" data we mean data that is more than just plain JavaScript objects.  For example, we want might to create
 `Todo` objects that implement an `isComplete` method:
 
-```js
-var assign = require("can-assign");
+```javascript
+import assign from "can-assign";
 
-var Todo = function(props){
+const Todo = function(props){
   assign(this, props);
 };
 
@@ -198,8 +198,8 @@ Todo.prototype.isComplete = function(){
 
 And, we might want a special `TodoList` type with implementations of `completed` and `active` methods:
 
-```js
-var TodoList = function(todos){
+```javascript
+const TodoList = function(todos){
   [].push.apply(this, todos);
 };
 TodoList.prototype = Object.create(Array.prototype);
@@ -219,40 +219,40 @@ TodoList.prototype.active = function(){
 
 We can create a connection that connects a RESTful "/api/todos" endpoint to `Todo` instances and `TodoList` lists like:
 
-```js
-var connect = require("can-connect");
+```javascript
+import connect from "can-connect";
 
-var todoConnection = connect([
-	require("can-connect/constructor/constructor"),
-	require("can-connect/data/url/url")
+const todoConnection = connect([
+  require("can-connect/constructor/constructor"),
+  require("can-connect/data/url/url")
 ],{
   url: "/todos",
   list: function(listData, set){
-  	return new TodoList(listData.data);
+    return new TodoList(listData.data);
   },
   instance: function(props) {
-  	return new Todo(props);
+    return new Todo(props);
   }
 });
 ```
 
 and then use that connection to get a `TodoList` of `Todo`s and render some markup:
 
-```js
-var render = function(todos) {
-	return "<ul>"+todos.map(function(todo){
-		return "<li>"+todo.name+
-				"<input type='checkbox' "+
-				(todo.isComplete() ? "checked" : "")+"/></li>";
-	}).join("")+"</ul>";
+```javascript
+const render = function(todos) {
+  return "<ul>"+todos.map(function(todo){
+    return "<li>"+todo.name+
+        "<input type='checkbox' "+
+        (todo.isComplete() ? "checked" : "")+"/></li>";
+  }).join("")+"</ul>";
 };
 
 todoConnection.getList({}).then(function(todos){
-	var todosEl = document.getElementById("todos-list");
-	todosEl.innerHTML = "<h2>Active</h2>"+
-		render(todos.active())+
-		"<h2>Complete</h2>"+
-		render(todos.completed());
+  const todosEl = document.getElementById("todos-list");
+  todosEl.innerHTML = "<h2>Active</h2>"+
+    render(todos.active())+
+    "<h2>Complete</h2>"+
+    render(todos.completed());
 });
 ```
 
@@ -262,10 +262,10 @@ The following demo shows the result:
 
 This connection also lets you create, update, and destroy a Todo instance as follows:
 
-```js
-var todo = new Todo({
+```javascript
+const todo = new Todo({
   name: "take out trash"
-})
+});
 
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
@@ -294,10 +294,10 @@ several configurable options that are used by most other behaviors.  For example
 uses a property named `_id` to uniquely identify todos, you can specify this with
 [can-connect/base/base.idProp idProp] like:
 
-```js
-var constructor = require("can-connect/constructor/");
-var dataUrl = require("can-connect/data/url/");
-var todoConnection = connect(
+```javascript
+import constructor from "can-connect/constructor/";
+import dataUrl from "can-connect/data/url/";
+const todoConnection = connect(
   [constructor, dataUrl],
   {
     url: "/api/todos",
@@ -319,8 +319,8 @@ properties to match the result of [can-connect/connection.updateData updateData]
 `PUT /api/todos/5 {name:"take out garbage""}` request returns `{}`, the following example would
 result in a todo with only an `id` property:
 
-```js
-var todo = new Todo({id: 5, name: "take out garbage"});
+```javascript
+const todo = new Todo({id: 5, name: "take out garbage"});
 
 // PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
 // server returns {}
@@ -333,16 +333,16 @@ todoConnection.save( todo ).then( function(todo){
 The following overwrites [can-connect/constructor/constructor constructor/constructor]’s
 implementation of `updateData`:
 
-```js
-var constructor = require("can-connect/constructor/");
-var dataUrl = require("can-connect/data/url/");
-var mergeDataBehavior = {
+```javascript
+import constructor from "can-connect/constructor/";
+import dataUrl from "can-connect/data/url/";
+const mergeDataBehavior = {
   updateData: function(instance, data){
     Object.assign(instance, data);
   }
 };
 
-var todoConnection = connect([
+const todoConnection = connect([
     constructor,
     dataUrl,
     mergeDataBehavior
@@ -368,20 +368,20 @@ If you are using CanJS, you can either:
 
 Using [can-connect/can/map/map can/map] to create a connection looks like:
 
-```js
-var DefineMap = require("can-define/map/map");
-var DefineList = require("can-define/list/list");
-var dataUrl = require("can-connect/data/url/url");
-var constructor = require("can-connect/constructor/constructor");
-var constructorStore = require("can-connect/constructor/store/store");
-var canMap = require("can-connect/can/map/map");
+```javascript
+import DefineMap from "can-define/map/map";
+import DefineList from "can-define/list/list";
+import dataUrl from "can-connect/data/url/url";
+import constructor from "can-connect/constructor/constructor";
+import constructorStore from "can-connect/constructor/store/store";
+import canMap from "can-connect/can/map/map";
 
-var Todo = DefineMap.extend({ ... });
+const Todo = DefineMap.extend({ /* ... */ });
 Todo.List = DefineList.extend({
     "#": Todo
 });
 
-var todoConnection = connect(
+const todoConnection = connect(
   [dataUrl, constructor, constructorStore, canMap],
   {
     Map: Todo,
@@ -392,17 +392,17 @@ var todoConnection = connect(
 
 Using [can-connect/can/super-map/super-map] to create a connection looks like:
 
-```js
-var DefineMap = require("can-define/map/");
-var DefineList = require("can-define/list/");
-var superMap = require("can-connect/can/super-map/");
+```javascript
+import DefineMap from "can-define/map/";
+import DefineList from "can-define/list/";
+import superMap from "can-connect/can/super-map/";
 
-var Todo = DefineMap.extend({ ... });
+const Todo = DefineMap.extend({ /* ... */ });
 Todo.List = DefineList.extend({
     "#": Todo
 });
 
-var todoConnection = superMap({
+const todoConnection = superMap({
     Map: Todo,
     url: "/todos"
 });
@@ -568,7 +568,7 @@ Implemented by the [can-connect/real-time/real-time real-time] behavior.
 To create your own behavior, call `connect.behavior` with the name of your behavior and a function that returns an
 object that defines the hooks you want to overwrite or provide:
 
-```js
+```javascript
 connect.behavior("my-behavior", function(baseConnection){
   return {
     // Hooks here
@@ -578,19 +578,19 @@ connect.behavior("my-behavior", function(baseConnection){
 
 For example, creating a basic localStorage behavior might look like:
 
-```js
+```javascript
 connect.behavior("localstorage", function(baseConnection){
   return {
     getData: function(params){
-      var id = this.id(params);
+      const id = this.id(params);
       return new Promise(function(resolve){
-        var data = localStorage.getItem(baseConnection.name+"/"+id);
+        const data = localStorage.getItem(baseConnection.name+"/"+id);
         resolve( JSON.parse(data) );
       });
     },
     createData: function(props){
-      var id = localStorage.getItem(baseConnection.name+"-ID") || "0";
-	  var nextId = JSON.parse( id ) + 1;
+      const id = localStorage.getItem(baseConnection.name+"-ID") || "0";
+    const nextId = JSON.parse( id ) + 1;
 
       localStorage.setItem(baseConnection.name+"-ID", nextId);
       return new Promise(function(resolve){
@@ -599,8 +599,8 @@ connect.behavior("localstorage", function(baseConnection){
         resolve( props )
       });
     },
-    updateData: function(){ ... },
-    destroyData: function(){ ... },
+    updateData: function(){ /* ... */ },
+    destroyData: function(){ /* ... */ },
   };
 })
 ```

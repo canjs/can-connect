@@ -11,27 +11,27 @@ of the record.
 
 An example request and response might look like:
 
-```js
+```javascript
 connection.updateData({
-	id: 5,
-	name: "do dishes",
-	createdAt: 1477104548997
+  id: 5,
+  name: "do dishes",
+  createdAt: 1477104548997
 }).then(function(instanceData){
-	instanceData //-> {
-	//	id: 5,
-	//	name: "do dishes",
-	//	createdAt: 1477104540000,
-	//	updatedAt: 1477104580000
-	//}
+  instanceData //-> {
+  //  id: 5,
+  //  name: "do dishes",
+  //  createdAt: 1477104540000,
+  //  updatedAt: 1477104580000
+  //}
 })
 ```
 
 The following shows how [can-connect/constructor/constructor] calls `updateData`
 and what it does with the response:
 
-```js
+```javascript
 // get its raw data
-var instanceData = connection.serializeInstance(myInstance);
+const instanceData = connection.serializeInstance(myInstance);
 
 connection.updateData(instanceData).then(function(updatedInstanceData){
   connection.updatedInstance(myInstance, updatedInstanceData);
