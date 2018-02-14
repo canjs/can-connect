@@ -19,9 +19,9 @@ Iterate through passed behaviors and assemble them into a connection.
 import connect from "can-connect";
 import dataUrl from "can-connect/data/url/";
 import constructor from "can-connect/constructor/";
-const todosConnection = connect([dataUrl, constructor],{
+const todosConnection = connect( [ dataUrl, constructor ], {
 	url: "/api/todos"
-});
+} );
 ```
 
   @param {Array<can-connect/Behavior>} behaviors
@@ -122,7 +122,7 @@ import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 
 const todoConnection = connect(
-	[constructor, dataUrl],
+	[ constructor, dataUrl ],
 	{ url: "/services/todos" }
 );
 ```
@@ -139,7 +139,7 @@ methods:
 For example, to get all todos from "GET /services/todos", we could write the following:
 
 ```js
-todoConnection.getList({}).then(function(todos){ /* ... */ });
+todoConnection.getList( {} ).then( function( todos ) { /* ... */ } );
 ```
 
 __Behaviors__, like [can-connect/constructor/constructor constructor/constructor] and [can-connect/data/url/url data/url]
@@ -158,7 +158,7 @@ This behavior arranging makes it so even if we write:
 ```js
 import dataUrl from "can-connect/data/url/";
 import cacheRequests from "can-connect/cache-requests/";
-connect([cacheRequests, dataUrl])
+connect( [ cacheRequests, dataUrl ] );
 ```
 
 or
@@ -187,11 +187,11 @@ By "typed" data we mean data that is more than just plain JavaScript objects.  F
 ```js
 import assign from "can-assign";
 
-const Todo = function(props){
-	assign(this, props);
+const Todo = function( props ) {
+	assign( this, props );
 };
 
-Todo.prototype.isComplete = function(){
+Todo.prototype.isComplete = function() {
 	return this.status === "complete";
 };
 ```
@@ -199,21 +199,21 @@ Todo.prototype.isComplete = function(){
 And, we might want a special `TodoList` type with implementations of `completed` and `active` methods:
 
 ```js
-const TodoList = function(todos){
-	[].push.apply(this, todos);
+const TodoList = function( todos ) {
+	[].push.apply( this, todos );
 };
-TodoList.prototype = Object.create(Array.prototype);
+TodoList.prototype = Object.create( Array.prototype );
 
-TodoList.prototype.completed = function(){
-	return this.filter(function(todo){
+TodoList.prototype.completed = function() {
+	return this.filter( function( todo ) {
 		return todo.status === "complete";
-	});
+	} );
 };
 
-TodoList.prototype.active = function(){
-	return this.filter(function(todo){
+TodoList.prototype.active = function() {
+	return this.filter( function( todo ) {
 		return todo.status !== "complete";
-	});
+	} );
 };
 ```
 
@@ -222,38 +222,38 @@ We can create a connection that connects a RESTful "/api/todos" endpoint to `Tod
 ```js
 import connect from "can-connect";
 
-const todoConnection = connect([
-	require("can-connect/constructor/constructor"),
-	require("can-connect/data/url/url")
-],{
+const todoConnection = connect( [
+	require( "can-connect/constructor/constructor" ),
+	require( "can-connect/data/url/url" )
+], {
 	url: "/todos",
-	list: function(listData, set){
-		return new TodoList(listData.data);
+	list: function( listData, set ) {
+		return new TodoList( listData.data );
 	},
-	instance: function(props) {
-		return new Todo(props);
+	instance: function( props ) {
+		return new Todo( props );
 	}
-});
+} );
 ```
 
 and then use that connection to get a `TodoList` of `Todo`s and render some markup:
 
 ```js
-const render = function(todos) {
-	return "<ul>"+todos.map(function(todo){
-		return "<li>"+todo.name+
-        "<input type='checkbox' "+
-        (todo.isComplete() ? "checked" : "")+"/></li>";
-	}).join("")+"</ul>";
+const render = function( todos ) {
+	return "<ul>" + todos.map( function( todo ) {
+		return "<li>" + todo.name +
+        "<input type='checkbox' " +
+        ( todo.isComplete() ? "checked" : "" ) + "/></li>";
+	} ).join( "" ) + "</ul>";
 };
 
-todoConnection.getList({}).then(function(todos){
-	const todosEl = document.getElementById("todos-list");
-	todosEl.innerHTML = "<h2>Active</h2>"+
-    render(todos.active())+
-    "<h2>Complete</h2>"+
-    render(todos.completed());
-});
+todoConnection.getList( {} ).then( function( todos ) {
+	const todosEl = document.getElementById( "todos-list" );
+	todosEl.innerHTML = "<h2>Active</h2>" +
+    render( todos.active() ) +
+    "<h2>Complete</h2>" +
+    render( todos.completed() );
+} );
 ```
 
 The following demo shows the result:
@@ -263,27 +263,27 @@ The following demo shows the result:
 This connection also lets you create, update, and destroy a Todo instance as follows:
 
 ```js
-const todo = new Todo({
+const todo = new Todo( {
 	name: "take out trash"
-});
+} );
 
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
-todoConnection.save( todo ).then(function(todo){
-	todo.id //-> 5
-	todo.name = 'take out garbage'
+todoConnection.save( todo ).then( function( todo ) {
+	todo.id; //-> 5
+	todo.name = "take out garbage";
 
 	// PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
 	// server returns {id: 5, name:"take out garbage"}
-	todoConnection.save( todo ).then( function(todo){
+	todoConnection.save( todo ).then( function( todo ) {
 
 		// DELETEs to /api/todos/5
 		// server returns {}
-		todoConnection.destroy( todo ).then( function(todo){
+		todoConnection.destroy( todo ).then( function( todo ) {
 
-		});
-	});
-});
+		} );
+	} );
+} );
 ```
 
 ### Behavior Configuration
@@ -298,7 +298,7 @@ uses a property named `_id` to uniquely identify todos, you can specify this wit
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 const todoConnection = connect(
-	[constructor, dataUrl],
+	[ constructor, dataUrl ],
 	{
 		url: "/api/todos",
 		idProp: "_id"
@@ -320,14 +320,14 @@ properties to match the result of [can-connect/connection.updateData updateData]
 result in a todo with only an `id` property:
 
 ```js
-const todo = new Todo({id: 5, name: "take out garbage"});
+const todo = new Todo( { id: 5, name: "take out garbage" } );
 
 // PUTs to /api/todos/5 with JSON request body {name:"take out garbage"}
 // server returns {}
-todoConnection.save( todo ).then( function(todo){
-	todo.id //-> 5
-	todo.name //-> undefined
-});
+todoConnection.save( todo ).then( function( todo ) {
+	todo.id; //-> 5
+	todo.name; //-> undefined
+} );
 ```
 
 The following overwrites [can-connect/constructor/constructor constructor/constructor]’s
@@ -337,18 +337,18 @@ implementation of `updateData`:
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
 const mergeDataBehavior = {
-	updateData: function(instance, data){
-		Object.assign(instance, data);
+	updateData: function( instance, data ) {
+		Object.assign( instance, data );
 	}
 };
 
-const todoConnection = connect([
+const todoConnection = connect( [
 	constructor,
 	dataUrl,
 	mergeDataBehavior
-],{
+], {
 	url: "/api/todos"
-});
+} );
 ```
 
 You can add your own behavior that can overwrite any underlying behaviors by adding it to the end
@@ -376,13 +376,13 @@ import constructor from "can-connect/constructor/constructor";
 import constructorStore from "can-connect/constructor/store/store";
 import canMap from "can-connect/can/map/map";
 
-const Todo = DefineMap.extend({ /* ... */ });
-Todo.List = DefineList.extend({
+const Todo = DefineMap.extend( { /* ... */ } );
+Todo.List = DefineList.extend( {
 	"#": Todo
-});
+} );
 
 const todoConnection = connect(
-	[dataUrl, constructor, constructorStore, canMap],
+	[ dataUrl, constructor, constructorStore, canMap ],
 	{
 		Map: Todo,
 		url: "/todos"
@@ -397,15 +397,15 @@ import DefineMap from "can-define/map/";
 import DefineList from "can-define/list/";
 import superMap from "can-connect/can/super-map/";
 
-const Todo = DefineMap.extend({ /* ... */ });
-Todo.List = DefineList.extend({
+const Todo = DefineMap.extend( { /* ... */ } );
+Todo.List = DefineList.extend( {
 	"#": Todo
-});
+} );
 
-const todoConnection = superMap({
+const todoConnection = superMap( {
 	Map: Todo,
 	url: "/todos"
-});
+} );
 ```
 
 <!--- todo: move this explanation of constructor/store somewhere better --->
@@ -569,38 +569,39 @@ To create your own behavior, call `connect.behavior` with the name of your behav
 object that defines the hooks you want to overwrite or provide:
 
 ```js
-connect.behavior("my-behavior", function(baseConnection){
+connect.behavior( "my-behavior", function( baseConnection ) {
 	return {
+
 		// Hooks here
 	};
-})
+} );
 ```
 
 For example, creating a basic localStorage behavior might look like:
 
 ```js
-connect.behavior("localstorage", function(baseConnection){
+connect.behavior( "localstorage", function( baseConnection ) {
 	return {
-		getData: function(params){
-			const id = this.id(params);
-			return new Promise(function(resolve){
-				const data = localStorage.getItem(baseConnection.name+"/"+id);
-				resolve( JSON.parse(data) );
-			});
+		getData: function( params ) {
+			const id = this.id( params );
+			return new Promise( function( resolve ) {
+				const data = localStorage.getItem( baseConnection.name + "/" + id );
+				resolve( JSON.parse( data ) );
+			} );
 		},
-		createData: function(props){
-			const id = localStorage.getItem(baseConnection.name+"-ID") || "0";
+		createData: function( props ) {
+			const id = localStorage.getItem( baseConnection.name + "-ID" ) || "0";
 			const nextId = JSON.parse( id ) + 1;
 
-			localStorage.setItem(baseConnection.name+"-ID", nextId);
-			return new Promise(function(resolve){
-				props[this.idProp] = nextId;
-				localStorage.setItem(baseConnection.name+"/"+nextId, props);
-				resolve( props )
-			});
+			localStorage.setItem( baseConnection.name + "-ID", nextId );
+			return new Promise( function( resolve ) {
+				props[ this.idProp ] = nextId;
+				localStorage.setItem( baseConnection.name + "/" + nextId, props );
+				resolve( props );
+			} );
 		},
-		updateData: function(){ /* ... */ },
-		destroyData: function(){ /* ... */ },
+		updateData: function() { /* ... */ },
+		destroyData: function() { /* ... */ }
 	};
-})
+} );
 ```

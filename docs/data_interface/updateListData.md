@@ -8,19 +8,19 @@
   Returns a promise that resolves to the list data for a particular set.
 
   ```js
-connection.updateListData({
+connection.updateListData( {
 	data: [
-		{id: 1, name: "dishes", createdAt: 1477104548997}
+		{ id: 1, name: "dishes", createdAt: 1477104548997 }
 	]
-}, {}).then(function(listData){
-	listData //-> {
+}, {} ).then( function( listData ) {
+	listData; //-> {
 	//    data: [
 	//      {id: 1, name: "dishes",
 	//       createdAt: 1477104548997, updatedAt: 1477104580000}
 	//    ]
 	//}
-})
-  ```
+} );
+```
 
   @param {can-connect.listData} listData A object that represents the set of data needed to be loaded.
 

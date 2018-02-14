@@ -37,10 +37,10 @@ To use it, first define a Map and List constructor function:
 import DefineMap from "can-define/map/map";
 import DefineList from "can-define/list/list";
 
-const Todo = DefineMap.extend({ /* ... */ });
-const TodoList = DefineList.extend({
+const Todo = DefineMap.extend( { /* ... */ } );
+const TodoList = DefineList.extend( {
 	"#": Todo
-});
+} );
 ```
 
 Next, call `superMap` with all of the options needed by the behaviors that `superMap` adds:

@@ -17,17 +17,17 @@ and what it does with the response:
 import CID from "can-util/js/cid/cid";
 
 // Create an instance of a special type
-const myInstance = new MyType({ /* ... */ });
+const myInstance = new MyType( { /* ... */ } );
 
 // get its CID
-const cid = CID(myInstance);
+const cid = CID( myInstance );
 
 // get its raw data
-const instanceData = connection.serializeInstance(myInstance);
+const instanceData = connection.serializeInstance( myInstance );
 
-connection.createData(instanceData, cid).then(function(createdInstanceData){
-	connection.createdInstance(myInstance, createdInstanceData);
-})
+connection.createData( instanceData, cid ).then( function( createdInstanceData ) {
+	connection.createdInstance( myInstance, createdInstanceData );
+} );
 ```
 
 

@@ -30,11 +30,12 @@ fast in most circumstances.
 To use it, first define a Map and List constructor function:
 
 ```js
-const Todo = DefineMap.extend({ /* ... */ });
-const TodoList = DefineList.extend({
-	"#": Todo,
+const Todo = DefineMap.extend( { /* ... */ } );
+const TodoList = DefineList.extend( {
+	"#": Todo
+
 	// ...
-});
+} );
 ```
 
 Next, call `baseMap` with all of the options needed by the behaviors that `baseMap` adds:

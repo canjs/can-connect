@@ -16,11 +16,12 @@ Deletes all records on a connection.
 Implement `clear` to remove all data in a connection.
 
 ```js
-connect.behavior("my-behavior", function(baseConnection){
+connect.behavior( "my-behavior", function( baseConnection ) {
 	return {
-		clear: function(){
+		clear: function() {
+
 			// delete tabs, or clear localStorage, etc
 		}
-	}
-})
+	};
+} );
 ```

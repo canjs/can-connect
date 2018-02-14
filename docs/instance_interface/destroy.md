@@ -10,11 +10,11 @@ Destroys an instance using the `connection` by calling
 
 ```js
 // get an instance
-connection.get({id: 5}).then(function( instance ){
+connection.get( { id: 5 } ).then( function( instance ) {
 
 	// destroy it
 	connection.destroy( instance );
-})
+} );
 ```
 
 Note that [can-connect/can/map/map] adds `destroy` to the `instance`

@@ -13,17 +13,17 @@ Creates or updates an instance using the `connection` by calling
 const instance = new Type();
 
 // create it with the connection
-connection.save( instance ).then(function(instance){
+connection.save( instance ).then( function( instance ) {
 
 	// change the instance
 	instance.prop = "NEW VALUE";
 
 	// update it with the connection
-	connection.save( instance ).then(function(instance){
+	connection.save( instance ).then( function( instance ) {
 
-	});
+	} );
 
-});
+} );
 ```
 
 The choice of [can-connect/connection.createData] or [can-connect/connection.updateData] is made by the result of
