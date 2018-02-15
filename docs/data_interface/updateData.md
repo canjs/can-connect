@@ -12,18 +12,18 @@ of the record.
 An example request and response might look like:
 
 ```js
-connection.updateData({
+connection.updateData( {
 	id: 5,
 	name: "do dishes",
 	createdAt: 1477104548997
-}).then(function(instanceData){
-	instanceData //-> {
-	//	id: 5,
-	//	name: "do dishes",
-	//	createdAt: 1477104540000,
-	//	updatedAt: 1477104580000
+} ).then( function( instanceData ) {
+	instanceData; //-> {
+	//  id: 5,
+	//  name: "do dishes",
+	//  createdAt: 1477104540000,
+	//  updatedAt: 1477104580000
 	//}
-})
+} );
 ```
 
 The following shows how [can-connect/constructor/constructor] calls `updateData`
@@ -31,11 +31,11 @@ and what it does with the response:
 
 ```js
 // get its raw data
-var instanceData = connection.serializeInstance(myInstance);
+const instanceData = connection.serializeInstance( myInstance );
 
-connection.updateData(instanceData).then(function(updatedInstanceData){
-  connection.updatedInstance(myInstance, updatedInstanceData);
-})
+connection.updateData( instanceData ).then( function( updatedInstanceData ) {
+	connection.updatedInstance( myInstance, updatedInstanceData );
+} );
 ```
 
   @param {Object} instanceData The serialized data of the instance.

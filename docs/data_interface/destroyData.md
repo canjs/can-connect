@@ -13,11 +13,11 @@ what it does with the response:
 
 ```js
 // get its raw data
-var instanceData = connection.serializeInstance(myInstance);
+const instanceData = connection.serializeInstance( myInstance );
 
-connection.destroyData(instanceData).then(function(destroyedInstanceData){
-	connection.destroyedInstance(myInstance, createdInstanceData);
-});
+connection.destroyData( instanceData ).then( function( destroyedInstanceData ) {
+	connection.destroyedInstance( myInstance, createdInstanceData );
+} );
 ```
 
   @param {Object} instanceData The serialized data of the instance.

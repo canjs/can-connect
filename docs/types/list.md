@@ -10,20 +10,20 @@ a constructor function, that is used to contain a list of typed [can-connect/Ins
 what's returned by [can-connect/connection.getList].
 
 ```js
-var list = connection.hydrateList({
-  data: [{id: 1, name: "raw data"}]
-});
+const list = connection.hydrateList( {
+	data: [ { id: 1, name: "raw data" } ]
+} );
 
-list //-> an instance of List
+list; //-> an instance of List
 ```
 
 The `List` type often has special methods used to interact with
 the collection of [can-connect/Instance] instances.
 
 ```js
-var list = connection.hydrateList({
-  data: [{id: 1, name: "raw data"}]
-});
+const list = connection.hydrateList( {
+	data: [ { id: 1, name: "raw data" } ]
+} );
 
 list.someSpecialMethod();
 ```

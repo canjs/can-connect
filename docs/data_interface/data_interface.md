@@ -30,35 +30,35 @@ For example, [can-connect/data/url/url] implements these behaviors to
 make an Ajax request like:
 
 ```js
-connect.behavior("data/url", function(baseConnection) {
+connect.behavior( "data/url", function( baseConnection ) {
 	return {
-		getListData: function(set){
-			return ajax({
+		getListData: function( set ) {
+			return ajax( {
 				type: "GET",
 				url: this.url,
 				data: set
-			});
+			} );
 		},
-		getData: function(){ ... },
-		...
-	}
-});
+		getData: function() { /* ... */ }
+		// ...
+	};
+} );
 ```
 
 The [can-connect/data/parse/parse] behavior overwrites the `baseConnection`’s methods to
 perform cleanup on the response data:
 
 ```js
-connect.behavior("data/parse", function(baseConnection) {
+connect.behavior( "data/parse", function( baseConnection ) {
 	return {
-		getListData: function(set){
-			var self = this;
-			return baseConnection.getListData(set).then(function(response){
-				return self.parseListData(response);
-			});
+		getListData: function( set ) {
+			const self = this;
+			return baseConnection.getListData( set ).then( function( response ) {
+				return self.parseListData( response );
+			} );
 		},
-		getData: function(){ ... },
-		...
-	}
-});
+		getData: function() { /* ... */ }
+		// ...
+	};
+} );
 ```

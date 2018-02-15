@@ -12,13 +12,13 @@
   An example response might look like:
 
   ```js
-  connection.getSets().then(function(sets){
-	  sets //-> [
-	  //   {complete: true},
-	  //   {userId: 5, start: 10, end: 20}
-	  //]
-  })
-  ```
+connection.getSets().then( function( sets ) {
+	sets; //-> [
+	//   {complete: true},
+	//   {userId: 5, start: 10, end: 20}
+	//]
+} );
+```
 
   @return {Promise<Array<can-set/Set>>} A promise that resolves to an an array of sets.
 

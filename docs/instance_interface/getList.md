@@ -9,9 +9,9 @@ Gets a [can-connect.List] of instances using the `connection` by calling
 [can-connect/connection.getListData].
 
 ```js
-connection.getList({parentId: 5}).then(function(list){
+connection.getList( { parentId: 5 } ).then( function( list ) {
 
-});
+} );
 ```
 
 Note that [can-connect/can/map/map] adds `getList` to the `instance`'s
