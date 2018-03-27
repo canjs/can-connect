@@ -1,7 +1,7 @@
 
 var QUnit = require("steal-qunit");
 var combineRequests = require("can-connect/data/combine-requests/");
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 var map = [].map;
 
 var getId = function(d){

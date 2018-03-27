@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var memoryCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
-var canSet = require("can-set");
+var canSet = require("can-query/compat/compat");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);

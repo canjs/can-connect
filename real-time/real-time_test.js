@@ -1,5 +1,5 @@
 var connect = require("can-connect/can-connect");
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 var realTime = require("can-connect/real-time/");
 var constructor = require("can-connect/constructor/");
 var constructorStore = require("can-connect/constructor/store/");
@@ -117,7 +117,9 @@ QUnit.test("basics", function(){
 		dataCallbacks,
 		callbackBehavior,
 		callbacksOnce
-		],{});
+		],{
+			algebra: new set.Algebra()
+		});
 
 	var importantList,
 		todayList;

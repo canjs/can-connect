@@ -1,5 +1,4 @@
 var connect = require("can-connect");
-var canSet = require("can-set");
 var getItems = require("can-connect/helpers/get-items");
 var deepAssign = require("can-util/js/deep-assign/deep-assign");
 
@@ -146,9 +145,9 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 
 			pendingRequests.sort(function(pReq1, pReq2){
 
-				if(canSet.subset(pReq1.set, pReq2.set, self.algebra)) {
+				if(self.algebra.subset(pReq1.set, pReq2.set)) {
 					return 1;
-				} else if( canSet.subset(pReq2.set, pReq1.set, self.algebra) ) {
+				} else if( self.algebra.subset(pReq2.set, pReq1.set) ) {
 					return -1;
 				} else {
 					return 0;

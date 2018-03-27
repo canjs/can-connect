@@ -48,7 +48,6 @@
 var getItems = require("can-connect/helpers/get-items");
 var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
-var canSet = require("can-set");
 var forEach = [].forEach;
 var map = [].map;
 var setAdd = require("can-connect/helpers/set-add");
@@ -331,8 +330,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			for(var i = 0; i < sets.length; i++) {
 				var checkSet = sets[i];
 
-				if( canSet.subset(set, checkSet, this.algebra) ) {
-					var items = canSet.getSubset(set, checkSet, this.__getListData(checkSet), this.algebra);
+				if( this.algebra.subset(set, checkSet) ) {
+					var items = this.algebra.getSubset(set, checkSet, this.__getListData(checkSet) );
 					return {data: items};
 				}
 			}
@@ -396,12 +395,12 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			var self = this;
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
-				var union = canSet.union(setDatum.set, set, this.algebra);
+				var union = this.algebra.union(setDatum.set, set);
 				if(union) {
 					// Get the data for the old set we can union with.
 					return this.getListData(setDatum.set).then(function(setData){
 						// update the old set to the new set
-						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.algebra), union);
+						self.updateSet(setDatum, this.algebra.getUnion(setDatum.set, set, getItems(setData), items), union);
 					});
 				}
 			}
@@ -427,8 +426,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			var instance = this.updateInstance(props);
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(canSet.has(setDatum.set, instance, this.algebra)) {
-					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra), setDatum.set);
+				if(this.algebra.has(setDatum.set, instance)) {
+					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance), setDatum.set);
 				}
 			});
 			return Promise.resolve(assign({},instance));
@@ -454,7 +453,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, instance, items);
 
-				if(canSet.has(setDatum.set, instance, this.algebra)) {
+				if( this.algebra.has( setDatum.set, instance )) {
 
 					// if it's not in, add it
 					if(index === -1) {

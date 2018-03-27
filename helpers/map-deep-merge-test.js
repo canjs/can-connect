@@ -1,6 +1,6 @@
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
-var set = require('can-set');
+var set = require('can-query/compat/compat');
 var fixture = require('can-fixture');
 var canLog = require("can-util/js/log/log");
 

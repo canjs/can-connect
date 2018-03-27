@@ -2,7 +2,7 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var $ = require("jquery");
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 
 QUnit.module("can-connect/data/url",{
 	setup: function(){

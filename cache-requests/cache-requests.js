@@ -1,6 +1,5 @@
 var connect = require("can-connect");
 var getItems = require("can-connect/helpers/get-items");
-var canSet = require("can-set");
 var forEach = [].forEach;
 
 
@@ -142,14 +141,14 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 
 			forEach.call(availableSets, function(set){
 				var curSets;
-				var difference = canSet.difference(params, set, self.algebra);
+				var difference = this.algebra.difference(params, set );
 				if(typeof difference === "object") {
 					curSets = {
 						needed: difference,
-						cached: canSet.intersection(params, set, self.algebra),
-						count: canSet.count(difference, self.algebra)
+						cached: self.algebra.intersection(params, set),
+						count: self.algebra.count(difference)
 					};
-				} else if( canSet.subset(params, set, self.algebra) ){
+				} else if( self.algebra.subset(params, set) ){
 					curSets = {
 						cached: params,
 						count: 0
@@ -193,7 +192,7 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 */
 		getUnion: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
-			return {data: canSet.getUnion(diff.needed, diff.cached, getItems(neededItems), getItems(cachedItems), this.algebra)};
+			return {data: this.algebra.getUnion(diff.needed, diff.cached, getItems(neededItems), getItems(cachedItems))};
 		},
 
 		/**

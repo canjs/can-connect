@@ -126,7 +126,6 @@
  * ```
  */
 var connect = require("../can-connect");
-var canSet = require("can-set");
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 var canDev = require('can-util/js/dev/dev');
@@ -394,13 +393,13 @@ var create = function(props){
 
 		var index = indexOf(self, props, list);
 
-		if(canSet.has(set, props, self.algebra)) {
+		if(self.algebra.has(set, props)) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			if(index === -1) {
 				// get back the list items
 				var items = self.serializeList(list);
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
+				self.updatedList(list,  { data: setAdd(self, set,  items, props) }, set);
 			} else {
 				// if the index
 			}
@@ -424,16 +423,16 @@ var update = function(props) {
 
 		var index = indexOf(self, props, list);
 
-		if(canSet.has(set, props, self.algebra)) {
+		if(self.algebra.has( set, props )) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
 			items = self.serializeList(list);
 			if(index === -1) {
 				// get back the list items
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
+				self.updatedList(list,  { data: setAdd(self, set,  items, props) }, set);
 			} else {
-				var sortedIndex = canSet.index(set, items, props, self.algebra);
+				var sortedIndex = self.algebra.index(set, items, props);
 				if(sortedIndex !== undefined && sortedIndex !== index) {
 					var copy = items.slice(0);
 					if(index < sortedIndex) {

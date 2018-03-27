@@ -4,7 +4,7 @@ var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
 var map = [].map;
 
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 
 var getId = function(d) {
 	return d.id;

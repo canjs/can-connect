@@ -1,4 +1,4 @@
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");

@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var connect = require("can-connect");
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 
 
 QUnit.module("can-connect/core test",{
