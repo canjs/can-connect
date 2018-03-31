@@ -1,4 +1,4 @@
-var set = require("can-set");
+var set = require("can-query/compat/compat");
 var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
@@ -51,8 +51,11 @@ QUnit.module("can-connect/can/map/map with Map",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
+		var algebra = new set.Algebra();
+
 		var cacheConnection = connect([localCache],{
-			name: "todos"
+			name: "todos",
+			algebra: algebra
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -75,7 +78,8 @@ QUnit.module("can-connect/can/map/map with Map",{
 				cacheConnection: cacheConnection,
 				Map: Todo,
 				List: TodoList,
-				ajax: $.ajax
+				ajax: $.ajax,
+				algebra: algebra
 			});
 
 
@@ -102,6 +106,7 @@ QUnit.test("real-time super model", function(){
 
 	fixture({
 		"GET /services/todos": function(){
+			
 			if(state.get() === "getListData-important") {
 				state.next();
 				return {data: firstItems.slice(0) };
@@ -164,6 +169,8 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
+		QUnit.ok(importantList.length, "got important");
+		QUnit.ok(todayList.length, "got today");
 
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);

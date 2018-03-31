@@ -11,10 +11,14 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 var connect = require("can-connect/can-connect");
+var canSet = require("can-query/compat/compat");
 
 module.exports = function(Todo, TodoList){
+    var algebra = new canSet.Algebra();
+
     var cacheConnection = connect([localCache],{
-        name: "todos"
+        name: "todos",
+        algebra: algebra
     });
     cacheConnection.clear();
 
@@ -34,7 +38,8 @@ module.exports = function(Todo, TodoList){
             url: "/services/todos",
             cacheConnection: cacheConnection,
             Map: Todo,
-            List: TodoList
+            List: TodoList,
+            algebra: algebra
         });
 
 };

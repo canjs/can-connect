@@ -3,6 +3,7 @@ var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
 var map = [].map;
+var canSet = require("can-query/compat/compat");
 
 var set = require("can-query/compat/compat");
 
@@ -23,6 +24,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 
 	var res = cacheRequests( {
 		getListData: function(params){
+			
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -35,7 +37,8 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		cacheConnection: memCache(connect.base({}))
+		cacheConnection: memCache(connect.base({algebra: new canSet.Algebra()})),
+		algebra: new canSet.Algebra()
 	} );
 
 	res.getListData({}).then(function(list){
@@ -51,6 +54,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 		done();
 	}).then(null, function(error) {
 		assert.ok(false, error);
+		return Promise.reject(error);
 	});
 });
 
@@ -60,10 +64,11 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 
-	var algebra = set.props.rangeInclusive("start","end");
+	var algebra = new canSet.Algebra( set.props.rangeInclusive("start","end") );
 
 	var behavior = cacheRequests( {
 		getListData: function(params){
+			console.log("gld", params)
 			equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
 			equal(params.end, count * 10, "end is right "+params.end);
@@ -88,8 +93,8 @@ QUnit.test("Incrementally load data", function(){
 	}).then(function(listData){
 		var list = listData.data;
 		equal(list.length, 10, "got 10 items");
-		equal(list[0].id, 1);
-		equal(list[9].id, 10);
+		equal(list[0].id, 1,"first id is right");
+		equal(list[9].id, 10, "second id is right");
 
 		behavior.getListData({
 			start: 1,

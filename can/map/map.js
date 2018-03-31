@@ -96,6 +96,9 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 						ids.push(canReflect.getKeyValue(instance,prop));
 					}
 				}
+				if(algebra && algebra.id) {
+					return algebra.id(instance);
+				}
 
 				if(this.idProp && !ids.length) {
 					ids.push(canReflect.getKeyValue(instance,this.idProp));

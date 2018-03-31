@@ -293,10 +293,12 @@ QUnit.test("getting a real Promise back with objects using makeAjax setting this
 
 QUnit.asyncTest("fixture stores work with data (#298)", function(){
 
+	var basicAlgebra = new set.Algebra();
+
 	var todoStore = fixture.store([{
 		id: "1",
 		name: "todo 1"
-	}]);
+	}], basicAlgebra);
 
 	fixture("/v1/places/todos/{id}", todoStore);
 
@@ -305,7 +307,7 @@ QUnit.asyncTest("fixture stores work with data (#298)", function(){
 	});
 
 	connection.getData({id: 1}).then(function(todo){
-		QUnit.equal(todo.name, "todo 1");
+		QUnit.equal(todo.name, "todo 1", "got one item");
 	}).then(function(){
 
 		var algebra = new set.Algebra(
@@ -327,6 +329,10 @@ QUnit.asyncTest("fixture stores work with data (#298)", function(){
 		connection.getData({_todoId: "1"}).then(function(todo){
 			QUnit.equal(todo.name, "todo 1");
 			QUnit.start();
+		}, function(error){
+			debugger;
 		});
+	}, function(){
+		debugger;
 	});
 });

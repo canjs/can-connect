@@ -61,8 +61,11 @@ QUnit.module("can-connect/can/map/map with define",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
+		var algebra = new set.Algebra();
+
 		var cacheConnection = connect([localCache],{
-			name: "todos"
+			name: "todos",
+			algebra: algebra
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -84,7 +87,8 @@ QUnit.module("can-connect/can/map/map with define",{
 				cacheConnection: cacheConnection,
 				Map: Todo,
 				List: TodoList,
-				ajax: $.ajax
+				ajax: $.ajax,
+				algebra: algebra
 			});
 
 

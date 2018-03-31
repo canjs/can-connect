@@ -172,13 +172,24 @@ function typeFromList( list ){
 	return list && list._define && list._define.definitions["#"] && list._define.definitions["#"].Type;
 }
 function idFromType( Type ){
-	return Type && Type.connection && function(o){ return Type.connection.id(o); } ||
-		Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id && function(o){
+	if(Type && Type.connection) {
+		return function(o){
+			return Type.connection.id(o);
+		};
+	} else if(Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id) {
+		return function(o){
 			var idProp = Object.keys(Type.algebra.clauses.id)[0];
 			return o[idProp];
-		} || function(o){
+		};
+	} else if(Type && Type.algebra && Type.algebra) {
+		return function(o) {
+			return Type.algebra.id(o);
+		};
+	} else {
+		return function(o){
 			return o.id || o._id;
 		};
+	}
 }
 function hydratorFromType( Type ){
 	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };

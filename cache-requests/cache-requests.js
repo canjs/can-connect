@@ -141,11 +141,12 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 
 			forEach.call(availableSets, function(set){
 				var curSets;
-				var difference = this.algebra.difference(params, set );
-				if(typeof difference === "object") {
+				var difference = self.algebra.difference(params, set );
+				if( self.algebra.isDefinedAndHasMembers(difference) ) {
+					var intersection = self.algebra.intersection(params, set);
 					curSets = {
 						needed: difference,
-						cached: self.algebra.intersection(params, set),
+						cached: self.algebra.isDefinedAndHasMembers(intersection) ? intersection : false,
 						count: self.algebra.count(difference)
 					};
 				} else if( self.algebra.subset(params, set) ){

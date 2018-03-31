@@ -396,11 +396,11 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
 				var union = this.algebra.union(setDatum.set, set);
-				if(union) {
+				if( this.algebra.isDefinedAndHasMembers(union) ) {
 					// Get the data for the old set we can union with.
 					return this.getListData(setDatum.set).then(function(setData){
 						// update the old set to the new set
-						self.updateSet(setDatum, this.algebra.getUnion(setDatum.set, set, getItems(setData), items), union);
+						self.updateSet(setDatum, self.algebra.getUnion(setDatum.set, set, getItems(setData), items), union);
 					});
 				}
 			}

@@ -106,6 +106,10 @@ module.exports = connect.behavior("base",function(baseConnection){
 					ids.push(instance[prop]);
 				}
 			}
+			if(algebra && algebra.id) {
+				return algebra.id(instance);
+			}
+
 
 			if(this.idProp && !ids.length) {
 				ids.push(instance[this.idProp]);

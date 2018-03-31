@@ -168,8 +168,8 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = canSet.union(current.set, pendingRequest.set, self.algebra);
-					if(combined) {
+					var combined = self.algebra.union(current.set, pendingRequest.set);
+					if( self.algebra.isDefinedAndHasMembers(combined) ) {
 						// add next
 						current.set = combined;
 						current.pendingRequests.push(pendingRequest);
@@ -250,7 +250,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 										// to baseConnection.getListData which might mutate it causing combinedRequests
 										// to resolve with an `undefined` value instead of an actual set
 										// https://github.com/canjs/can-connect/issues/139
-										pending.deferred.resolve( {data: canSet.getSubset(pending.set, combined.set, getItems(data), self.algebra)} );
+										pending.deferred.resolve( {data: self.algebra.getSubset(pending.set, combined.set, getItems(data))} );
 									});
 								}
 							}, function(err){

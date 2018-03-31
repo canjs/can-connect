@@ -13,6 +13,7 @@ var fixture = require("can-fixture");
 var findAllTemplate = require("./tag_find_all_test.stache");
 var findOneTemplate = require("./tag_find_one_test.stache");
 var stache = require("can-stache");
+var canSet = require("can-query/compat/compat");
 require("can-stache-bindings");
 
 var domEvents = require('can-dom-events');
@@ -34,10 +35,11 @@ QUnit.test("getList", function(){
 	Person.List = DefineList.extend({"#": Person},{});
 
 	var options = {
-			url: "/api/people",
-			Map: Person,
-			List: Person.List,
-			name: "person"
+		url: "/api/people",
+		Map: Person,
+		List: Person.List,
+		name: "person",
+		algebra: new canSet.Algebra()
 	};
 	var connection = superMap(options);
 	options.cacheConnection.clear();
