@@ -14,7 +14,8 @@ var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 QUnit.module("can-connect/data-localstorage-cache",{
 	setup: function(){
 		this.connection = connect([dataLocalStorage],{
-			name: "todos"
+			name: "todos",
+			algebra: new canSet.Algebra()
 		});
 		this.connection.clear();
 	}
@@ -68,7 +69,7 @@ QUnit.test("updateData", function(){
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
+			deepEqual(listData.data, items.concat([{id: 4, foo:"bar"}]), "updateData added item 4");
 
 			updateItem2();
 
@@ -89,7 +90,7 @@ QUnit.test("updateData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]), "id 4 should now have name A");
+			deepEqual(listData.data, [{id: 4, name:"A"}].concat(aItems), "id 4 should now have name A");
 
 			start();
 
@@ -136,7 +137,7 @@ QUnit.test("createData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 5, name:"A"}]));
+			deepEqual(listData.data, [{id: 5, name:"A"}].concat(aItems));
 
 			start();
 
