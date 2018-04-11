@@ -7,13 +7,13 @@ var eventQueue = require("can-event-queue/map/map");
 var ObservationRecorder = require("can-observation-recorder");
 
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
-var types = require("can-types");
 var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 var QueryLogic = require("can-query-logic");
-
+var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
+var assignDeepExceptIdentity = require("can-diff/assign-deep-except-identity/assign-deep-except-identity");
 
 var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 
@@ -116,7 +116,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * Specify the type of the `[can-define/map/map DefineMap]` that should be instantiated by the connection.
 		 *
-		 * @option {connection.Map} Defaults to [can-types.DefaultMap] if this option is not specified.
+		 * @option {connection.Map}
 		 *
 		 * **Usage:**
 		 *
@@ -151,7 +151,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * Specify the type of the `[can-define/list/list DefineList]` that should be instantiated by the connection.
 		 *
 		 * @option {connection.List} If this option is not specified it defaults to the [can-connect/can/map/map._Map Map].List
-		 * property and then [can-types.DefaultList].
+		 * property.
 		 *
 		 * **Usage:**
 		 * ```js
@@ -197,14 +197,13 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * @signature `connection.instance(props)`
 		 *
-		 *   Create an instance of [can-connect/can/map/map._Map] if available, otherwise creates an instance of
-		 *   [can-types.DefaultMap].
+		 *   Create an instance of [can-connect/can/map/map._Map].
 		 *
 		 *   @param {Object} props the raw instance data.
 		 *   @return [can-connect/can/map/map._Map] a [can-connect/can/map/map._Map] instance containing the `props`.
 		 */
 		instance: function(props){
-			var _Map = this.Map || types.DefaultMap;
+			var _Map = this.Map;
 			return new _Map(props);
 		},
 
@@ -217,7 +216,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @signature `connection.list(listData, set)`
 		 *
 		 *   Creates an instance of [can-connect/can/map/map._List] if available, otherwise creates
-		 *   [can-connect/can/map/map._Map].List if available, and then finally defaulting to [can-types.DefaultList].
+		 *   [can-connect/can/map/map._Map].List if available.
 		 *
 		 *   This will add properties on the raw `listData` array to the created list instance. e.g:
 		 *   ```js
@@ -234,7 +233,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *   [can-connect/can/map/map._Map] built from the list items in `listData`.
 		 */
 		list: function(listData, set){
-			var _List = this.List || (this.Map && this.Map.List) || types.DefaultList;
+			var _List = this.List || (this.Map && this.Map.List);
 			var list = new _List(listData.data);
 			each(listData, function (val, prop) {
 				if (prop !== 'data') {
@@ -355,9 +354,9 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 			if(props && typeof props === 'object') {
 
 				if(this.constructor.removeAttr) {
-					canReflect.updateDeep(instance, props);
+					updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
 				} else {
-					canReflect.assignDeep(instance, props);
+					assignDeepExceptIdentity(instance, props, this.queryLogic.schema);
 				}
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.

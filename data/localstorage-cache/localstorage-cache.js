@@ -51,7 +51,7 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var forEach = [].forEach;
 var map = [].map;
 var setAdd = require("can-connect/helpers/set-add");
-var indexOf = require("can-connect/helpers/get-index-by-id");
+var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
 var assign = require("can-util/js/assign/assign");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 
@@ -451,7 +451,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			this._eachSet(function(setDatum, setKey, getItems){
 				// if instance belongs
 				var items = getItems();
-				var index = indexOf(self, instance, items);
+				var index = indexByIdentity(items, instance, self.queryLogic.schema);
 
 				if( this.queryLogic.isMember( setDatum.set, instance )) {
 
@@ -494,7 +494,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			this._eachSet(function(setDatum, setKey, getItems){
 				// if props belongs
 				var items = getItems();
-				var index = indexOf(self, instance, items);
+				var index =  indexByIdentity(items, instance, self.queryLogic.schema)
 
 				if(index !== -1){
 					// otherwise remove it

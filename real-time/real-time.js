@@ -127,7 +127,7 @@
  */
 var connect = require("../can-connect");
 var setAdd = require("can-connect/helpers/set-add");
-var indexOf = require("can-connect/helpers/get-index-by-id");
+var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
 var canDev = require('can-util/js/dev/dev');
 
 module.exports = connect.behavior("real-time",function(baseConnection){
@@ -394,7 +394,7 @@ var create = function(props){
 		// ideally there should be speed up ... but this is fine for now.
 
 
-		var index = indexOf(self, props, list);
+		var index = indexByIdentity(list, props, self.queryLogic.schema);
 
 		if(self.queryLogic.isMember(set, props)) {
 
@@ -424,7 +424,7 @@ var update = function(props) {
 		// ideally there should be speed up ... but this is fine for now.
 
 
-		var index = indexOf(self, props, list);
+		var index = indexByIdentity(list, props, self.queryLogic.schema);
 
 		if(self.queryLogic.isMember( set, props )) {
 
@@ -466,7 +466,7 @@ var destroy = function(props) {
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
-		var index = indexOf(self, props, list);
+		var index = indexByIdentity(list, props, self.queryLogic.schema);
 
 		if(index !== -1){
 			// otherwise remove it

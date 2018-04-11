@@ -91,7 +91,8 @@ module.exports = function(makeTypes){
     			if(state.get() === "destroyData-important-1") {
     				state.next();
     				// todo change to all props
-    				return assign({destroyed:  1},request.data);
+					
+					return assign({destroyed:  1},request.data);
     			}
     		}
     	});
@@ -225,7 +226,7 @@ module.exports = function(makeTypes){
     	}
 
     	function checkLists4(){
-    		equal( importantList.indexOf(firstImportant), -1, "in important");
+    		equal( importantList.indexOf(firstImportant), -1, "destroyed, should not be in important");
     		checkCache( "cache looks right afer destroy", {type: "important"}, canReflect.serialize(importantList), serverSideDestroy );
     	}
 
