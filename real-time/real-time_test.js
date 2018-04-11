@@ -1,5 +1,5 @@
 var connect = require("can-connect/can-connect");
-var set = require("can-query/compat/compat");
+var set = require("can-set-legacy");
 var realTime = require("can-connect/real-time/");
 var constructor = require("can-connect/constructor/");
 var constructorStore = require("can-connect/constructor/store/");
@@ -11,7 +11,7 @@ var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
 var canDev = require('can-util/js/dev/dev');
-
+var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/real-time",{});
 
@@ -118,7 +118,7 @@ QUnit.test("basics", function(){
 		callbackBehavior,
 		callbacksOnce
 		],{
-			algebra: new set.Algebra()
+			queryLogic: new set.Algebra()
 		});
 
 	var importantList,
@@ -234,7 +234,7 @@ QUnit.test("basics", function(){
 });
 
 QUnit.test("sorting by id works", function(){
-	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
+	var queryLogic = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -247,7 +247,7 @@ QUnit.test("sorting by id works", function(){
 	};
 
 	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
-			algebra: algebra
+			queryLogic: queryLogic
 	});
 
 	stop();
@@ -274,7 +274,7 @@ QUnit.test("sorting by id works", function(){
 
 
 QUnit.test("sorting by sort clause works with updates", function(){
-	var algebra = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
+	var queryLogic = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
 	var dataBehavior = function(){
@@ -287,7 +287,7 @@ QUnit.test("sorting by sort clause works with updates", function(){
 	};
 
 	var connection = connect([dataBehavior,realTime,constructor,constructorStore],{
-			algebra: algebra
+			queryLogic: queryLogic
 	});
 
 	stop();
@@ -327,14 +327,18 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 		constructor,
 		constructorStore,
 		destructionForeman
-	],{});
+	],{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 	connection.destroyInstance({id: 1});
 });
 
 //!steal-remove-start
 if (canDev) {
-	test("dev mode warning when listSet algebra doesn't match an item", function () {
-		var algebra = new set.Algebra(set.props.id("id"));
+	test("dev mode warning when listSet queryLogic doesn't match an item", function () {
+		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
 			return {
@@ -349,7 +353,7 @@ if (canDev) {
 
 		var connection = connect([dataBehavior,realTime,constructor,constructorStore,
 			dataCallbacks, callbacksOnce],{
-				algebra: algebra
+				queryLogic: queryLogic
 		});
 
 		var oldlog = canDev.warn;
@@ -367,8 +371,8 @@ if (canDev) {
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
 	});
 
-	test("listSet algebra warning includes any `undefined` values", function() {
-		var algebra = new set.Algebra(set.props.id("id"));
+	test("listSet queryLogic warning includes any `undefined` values", function() {
+		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
 			return {
@@ -383,7 +387,7 @@ if (canDev) {
 
 		var connection = connect([ dataBehavior, realTime,constructor,constructorStore,
 			dataCallbacks, callbacksOnce],{
-				algebra: algebra
+				queryLogic: queryLogic
 		});
 
 		var oldlog = canDev.warn;
@@ -434,7 +438,11 @@ QUnit.test("handling if createInstance happens before createdData", 4, function 
 		realTime,
 		dataCallbacks,
 		callbacksOnce
-	],{});
+	],{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	var data = {name: "Ryan"};
 
@@ -487,7 +495,11 @@ QUnit.test("createInstance doesn't fail if createData fails", 3, function (asser
 		realTime,
 		dataCallbacks,
 		callbacksOnce
-	],{});
+	],{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	var data = {name: "Ryan"};
 
@@ -548,7 +560,11 @@ QUnit.test("instances should be removed from 'length-bound' lists when destroyed
 		realTime,
 		constructor,
 		constructorStore
-	], {});
+	], {
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	connection.getList({}).then(function(todos){
 		todos.on('length', function(){
@@ -560,5 +576,10 @@ QUnit.test("instances should be removed from 'length-bound' lists when destroyed
 			assert.ok(todos.indexOf(destroyedTodo) === -1, "instance was removed from lists");
 			done();
 		}, done);
+	}, function(err){
+		setTimeout(function(){
+			throw err;
+		},1);
+		done();
 	});
 });

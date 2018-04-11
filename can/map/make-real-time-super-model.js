@@ -11,14 +11,14 @@ var dataUrl = require("can-connect/data/url/");
 var fallThroughCache = require("can-connect/fall-through-cache/");
 var realTime = require("can-connect/real-time/");
 var connect = require("can-connect/can-connect");
-var canSet = require("can-query/compat/compat");
+var canSet = require("can-set-legacy");
 
 module.exports = function(Todo, TodoList){
-    var algebra = new canSet.Algebra();
+    var queryLogic = new canSet.Algebra();
 
     var cacheConnection = connect([localCache],{
         name: "todos",
-        algebra: algebra
+        queryLogic: queryLogic
     });
     cacheConnection.clear();
 
@@ -39,7 +39,7 @@ module.exports = function(Todo, TodoList){
             cacheConnection: cacheConnection,
             Map: Todo,
             List: TodoList,
-            algebra: algebra
+            queryLogic: queryLogic
         });
 
 };

@@ -1,6 +1,6 @@
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
-var set = require('can-query/compat/compat');
+var set = require('can-set-legacy');
 
 var connect = require('can-connect');
 var canMap = require('can-connect/can/map/map');
@@ -11,20 +11,20 @@ var canMapMerge = require('can-connect/can/merge/merge');
 var QUnit = require('steal-qunit');
 
 QUnit.test("basics", function(){
-	// must have algebra connection and use #
+	// must have queryLogic connection and use #
 
 	var Author = DefineMap.extend({
 		id: 'number',
 		name: 'string'
 	});
-	Author.algebra = new set.Algebra( set.props.id('id') );
+	Author.queryLogic = new set.Algebra( set.props.id('id') );
 
 	var OSProject = DefineMap.extend({
 		id: 'number',
 		title: 'string'
 	});
 	OSProject.List = DefineList.extend({ '#' : OSProject });
-	OSProject.algebra = new set.Algebra( set.props.id('id') );
+	OSProject.queryLogic = new set.Algebra( set.props.id('id') );
 
 	var ContributionMonth = DefineMap.extend({
 		id: "string",

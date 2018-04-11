@@ -1,4 +1,4 @@
-var set = require("can-query/compat/compat");
+var set = require("can-set-legacy");
 var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");
@@ -61,11 +61,11 @@ QUnit.module("can-connect/can/map/map with define",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
-		var algebra = new set.Algebra();
+		var queryLogic = new set.Algebra();
 
 		var cacheConnection = connect([localCache],{
 			name: "todos",
-			algebra: algebra
+			queryLogic: queryLogic
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -88,7 +88,7 @@ QUnit.module("can-connect/can/map/map with define",{
 				Map: Todo,
 				List: TodoList,
 				ajax: $.ajax,
-				algebra: algebra
+				queryLogic: queryLogic
 			});
 
 
@@ -113,14 +113,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"});
+			deepEqual( todoConnection.listSet(list), {foo: "bar"}, "first set");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"});
+			deepEqual( todoConnection.listSet(list), {zed: "ted"}, "second set");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
+		deepEqual(  todoConnection.listSet(list), {zak: "ack"}, "hydrated set");
 		start();
 	});
 
@@ -153,7 +153,7 @@ test("findAll and findOne alias", function(){
 	});
 });
 
-QUnit.test("reads id from set algebra (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(){
 	var Todo = Map.extend({
 		_id: "*"
 	});
@@ -178,7 +178,7 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			Map: Todo,
 			List: TodoList,
 			ajax: $.ajax,
-			algebra: new set.Algebra(
+			queryLogic: new set.Algebra(
 			   set.props.id("_id")
 			)
 		});
@@ -223,7 +223,7 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 			Map: Todo,
 			List: Todo.List,
 			name: "todo",
-			algebra: todoAlgebra
+			queryLogic: todoAlgebra
 		});
 
 

@@ -13,7 +13,8 @@ var fixture = require("can-fixture");
 var findAllTemplate = require("./tag_find_all_test.stache");
 var findOneTemplate = require("./tag_find_one_test.stache");
 var stache = require("can-stache");
-var canSet = require("can-query/compat/compat");
+var canSet = require("can-set-legacy");
+var QueryLogic = require("can-query-logic");
 require("can-stache-bindings");
 
 var domEvents = require('can-dom-events');
@@ -39,7 +40,7 @@ QUnit.test("getList", function(){
 		Map: Person,
 		List: Person.List,
 		name: "person",
-		algebra: new canSet.Algebra()
+		queryLogic: new canSet.Algebra()
 	};
 	var connection = superMap(options);
 	options.cacheConnection.clear();
@@ -98,7 +99,10 @@ QUnit.test("get", function(){
 			url: "/api/people",
 			Map: Person,
 			List: Person.List,
-			name: "person"
+			name: "person",
+			queryLogic: new QueryLogic({
+				identity: ["id"]
+			})
 	};
 	var connection = superMap(options);
 	options.cacheConnection.clear();
@@ -163,7 +167,10 @@ if(System.env !== 'canjs-test') {
 				url: "/api/people",
 				Map: Person,
 				List: Person.List,
-				name: "person"
+				name: "person",
+				queryLogic: new QueryLogic({
+					identity: ["id"]
+				})
 		};
 		var connection = superMap(options);
 		connection.cacheConnection.clear();

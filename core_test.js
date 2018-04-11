@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var connect = require("can-connect");
-var set = require("can-query/compat/compat");
+var set = require("can-set-legacy");
 
 
 QUnit.module("can-connect/core test",{
@@ -10,15 +10,15 @@ QUnit.module("can-connect/core test",{
 });
 
 
-QUnit.test("Determine .id() from algebra (#82)", function(){
-	var algebra = new set.Algebra(
+QUnit.test("Determine .id() from queryLogic (#82)", function(){
+	var queryLogic = new set.Algebra(
 		set.comparators.id("_id")
 	);
 	var connection = connect([],{
-		algebra: algebra
+		queryLogic: queryLogic
 	});
-	QUnit.equal( connection.id({_id: "foo"}), "foo", "got id from algebra");
-	QUnit.equal( connection.id({_id: 1}), 1, "got id from algebra");
+	QUnit.equal( connection.id({_id: "foo"}), "foo", "got id from queryLogic");
+	QUnit.equal( connection.id({_id: 1}), 1, "got id from queryLogic");
 });
 
 QUnit.test("Everything available at can-connect/all", function(){

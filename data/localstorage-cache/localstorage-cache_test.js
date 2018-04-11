@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var dataLocalStorage = require("can-connect/data/localstorage-cache/");
 var connect = require("can-connect");
-var canSet = require("can-query/compat/compat");
+var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -15,7 +15,7 @@ QUnit.module("can-connect/data-localstorage-cache",{
 	setup: function(){
 		this.connection = connect([dataLocalStorage],{
 			name: "todos",
-			algebra: new canSet.Algebra()
+			queryLogic: new canSet.Algebra()
 		});
 		this.connection.clear();
 	}
@@ -265,9 +265,9 @@ QUnit.test("clearing localStorage clears set info", function(){
 	});
 });
 
-QUnit.test("using algebra (#72)", function(){
+QUnit.test("using queryLogic (#72)", function(){
 	var connection = this.connection;
-	connection.algebra = new canSet.Algebra(new canSet.Translate("where","$where"));
+	connection.queryLogic = new canSet.Algebra(new canSet.Translate("where","$where"));
 	QUnit.stop();
 	connection.updateListData({ data: [{id: 1, placeId: 2, name: "J"}] }, {$where: {placeId: 2}}).then(function(){
 		connection.updateData({id: 1, placeId: 2, name: "B"}).then(function(){
@@ -314,7 +314,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 
 	var connection = connect([dataLocalStorage],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(

@@ -7,6 +7,7 @@ var constructor = require("can-connect/constructor/constructor");
 var fallThroughCache = require("can-connect/fall-through-cache/fall-through-cache");
 var constructorStore = require("can-connect/constructor/store/store");
 var dataCallbacks = require("can-connect/data/callbacks/");
+var QueryLogic = require("can-query-logic");
 
 var getId = function(d){
 	return d.id;
@@ -60,7 +61,11 @@ QUnit.test("basics", function(){
 				}
 			}
 		};
-	}],{});
+	}],{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	var base = function(base, options){
 		return {
@@ -87,7 +92,10 @@ QUnit.test("basics", function(){
 	};
 
 	var connection = connect([base, constructor,fallThroughCache,constructorStore,updater],{
-		cacheConnection: cacheConnection
+		cacheConnection: cacheConnection,
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	// first time, it takes the whole time
@@ -157,7 +165,11 @@ QUnit.test("getInstance and getData", function(){
 				}
 			}
 		};
-	}],{});
+	}],{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	var base = function(base, options){
 		return {
@@ -185,7 +197,10 @@ QUnit.test("getInstance and getData", function(){
 	};
 
 	var connection = connect([base, constructor,fallThroughCache,constructorStore, updater],{
-		cacheConnection: cacheConnection
+		cacheConnection: cacheConnection,
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	// first time, it takes the whole time
@@ -225,7 +240,10 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 	};
 
 	var connection = connect([getDataBehavior,constructor,fallThroughCache,constructorStore],{
-		cacheConnection: cacheConnection
+		cacheConnection: cacheConnection,
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	connection.getList({}).then(function(list){

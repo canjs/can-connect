@@ -7,7 +7,7 @@ var forEach = [].forEach;
  * @module can-connect/cache-requests/cache-requests cache-requests
  * @parent can-connect.behaviors
  * @group can-connect/cache-requests/cache-requests.data data interface
- * @group can-connect/cache-requests/cache-requests.algebra algebra
+ * @group can-connect/cache-requests/cache-requests.queryLogic queryLogic
  *
  * Cache response data and use it to prevent unnecessary future requests or make future requests smaller.
  *
@@ -51,50 +51,56 @@ var forEach = [].forEach;
  * Now if today's todos are loaded:
  *
  * ```
- * todoConnection.getListData({due: "today"});
+ * todoConnection.getListData({filter: {due: "today"}});
  * ```
  *
  * And later, a subset of those todos are loaded:
  *
  * ```
- * todoConnection.getListData({due: "today", status: "critical"});
+ * todoConnection.getListData({filter: {due: "today", status: "critical"}});
  * ```
  *
  * The subset will be created from the original request's data.
  *
- * ## Algebra Usage
+ * ## QueryLogic Usage
  *
- * `cache-requests` can also "fill in" the data the cache is missing if you provide it the necessary [can-set set algebra].
+ * `cache-requests` can also "fill in" the data the cache is missing if you provide it the necessary [can-query-logic queryLogic].
  *
  * For example, if you requested paginated data like:
  *
  * ```
- * todoConnection.getListData({start: 1, end: 10})
+ * todoConnection.getListData({filter: {status: "critical"}})
  * ```
  *
  * And then later requested:
  *
  * ```
- * todoConnection.getListData({start: 1, end: 20})
+ * todoConnection.getListData({})
  * ```
  *
- * ... with the appropriate algebra configuration, `cache-requests` will only request `{start: 11, end: 20}`, merging
+ * ... with the appropriate queryLogic configuration, `cache-requests` will only request `{filter: {status: ["low","medium"]}}`, merging
  * that response with the data already present in the cache.
  *
  * That configuration looks like:
  *
  * ```
- * var algebra = new set.Algebra( set.props.rangeInclusive("start","end") );
+ * import QueryLogic from "can-query-logic";
  *
- * var cacheConnection = connect([memoryCache], {algebra: algebra});
+ * var queryLogic = new QueryLogic({
+ *   keys: {
+ *     status: QueryLogic.makeEnum(["low","medium","critical"])
+ *   }
+ * });
+ *
+ * var cacheConnection = connect([memoryCache], {queryLogic: queryLogic});
  * var todoConnection = connect([dataUrl, cacheRequests], {
  *   cacheConnection: cacheConnection,
  *   url: "/todos",
- *   algebra: algebra
+ *   queryLogic: queryLogic
  * })
  * ```
  *
- * **Note:** `cacheConnection` shares the same algebra configuration as the primary connection.
+ * **Note:** `cacheConnection` shares the same queryLogic configuration as the primary connection.
  */
 var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConnection){
 
@@ -102,54 +108,54 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 
 		/**
 		 * @function can-connect/cache-requests/cache-requests.getDiff getDiff
-		 * @parent can-connect/cache-requests/cache-requests.algebra
+		 * @parent can-connect/cache-requests/cache-requests.queryLogic
 		 *
-		 * Compares the cached sets to the requested set and returns a description of what subset can be loaded from the
+		 * Compares the cached queries to the requested query and returns a description of what subset can be loaded from the
 		 * cache and what subset must be loaded from the base connection.
 		 *
-		 * @signature `connection.getDiff( set, availableSets )`
+		 * @signature `connection.getDiff( query, availableQueries )`
 		 *
 		 *   This determines the minimal amount of data that must be loaded from the base connection by going through each
-		 *   cached set (`availableSets`) and doing a [can-set.Algebra.prototype.subset subset] check and a
-		 *   [can-set.Algebra.prototype.difference set difference] with the requested set (`set`).
+		 *   cached query (`availableQueries`) and doing a [can-query-logic.prototype.isSubset isSubset] check and a
+		 *   [can-query-logic.prototype.difference query difference] with the requested query (`query`).
 		 *
-		 *   If `set` is a subset of an `availableSet`, `{cached: set}` will be returned.
+		 *   If `query` is a subset of an `availableSet`, `{cached: query}` will be returned.
 		 *
-		 *   If `set` is neither a subset of, nor intersects with any `availableSets`, `{needed: set}` is returned.
+		 *   If `query` is neither a subset of, nor intersects with any `availableQueries`, `{needed: query}` is returned.
 		 *
-		 *   If `set` has an intersection with one or more `availableSets`, a description of the difference that has the fewest
+		 *   If `query` has an intersection with one or more `availableQueries`, a description of the difference that has the fewest
 		 *   missing elements will be returned. An example diff description looks like:
 		 *
 		 *   ```
 		 *   {
-		 *     needed: {start: 50, end: 99}, // the difference, the set that is not cached
-		 *     cached: {start: 0, end: 49}, // the intersection, the set that is cached
-		 *     count: 49 // the size of the needed set
+		 *     needed: {start: 50, end: 99}, // the difference, the query that is not cached
+		 *     cached: {start: 0, end: 49}, // the intersection, the query that is cached
+		 *     count: 49 // the size of the needed query
 		 *   }
 		 *   ```
 		 *
-		 *   @param {can-set/Set} set The set that is being requested.
-		 *   @param {Array<can-set/Set>} availableSets An array of [can-connect/connection.getSets available sets] in the
+		 *   @param {can-query-logic/query} query The query that is being requested.
+		 *   @param {Array<can-query-logic/query>} availableQueries An array of [can-connect/connection.getSets available queries] in the
 		 *     [can-connect/base/base.cacheConnection cache].
-		 *   @return {Promise<{needed: Set, cached: Set, count: Integer}>} a difference description object. Described above.
+		 *   @return {Promise<{needed: can-query-logic/query, cached: can-query-logic/query, count: Integer}>} a difference description object. Described above.
 		 *
 		 */
-		getDiff: function( params, availableSets ){
+		getDiff: function( params, availableQueries ){
 
 			var minSets,
 				self = this;
 
-			forEach.call(availableSets, function(set){
+			forEach.call(availableQueries, function(query){
 				var curSets;
-				var difference = self.algebra.difference(params, set );
-				if( self.algebra.isDefinedAndHasMembers(difference) ) {
-					var intersection = self.algebra.intersection(params, set);
+				var difference = self.queryLogic.difference(params, query );
+				if( self.queryLogic.isDefinedAndHasMembers(difference) ) {
+					var intersection = self.queryLogic.intersection(params, query);
 					curSets = {
 						needed: difference,
-						cached: self.algebra.isDefinedAndHasMembers(intersection) ? intersection : false,
-						count: self.algebra.count(difference)
+						cached: self.queryLogic.isDefinedAndHasMembers(intersection) ? intersection : false,
+						count: self.queryLogic.count(difference)
 					};
-				} else if( self.algebra.subset(params, set) ){
+				} else if( self.queryLogic.isSubset(params, query) ){
 					curSets = {
 						cached: params,
 						count: 0
@@ -175,14 +181,14 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		},
 
 		/**
-		 * @function can-connect/cache-requests/cache-requests.getUnion getUnion
-		 * @parent can-connect/cache-requests/cache-requests.algebra
+		 * @function can-connect/cache-requests/cache-requests.unionMembers unionMembers
+		 * @parent can-connect/cache-requests/cache-requests.queryLogic
 		 *
 		 * Create the requested data set, a union of the cached and un-cached data.
 		 *
-		 * @signature `connection.getUnion(set, diff, neededData, cachedData)`
+		 * @signature `connection.unionMembers(set, diff, neededData, cachedData)`
 		 *
-		 *   Uses [can-set.Algebra.prototype.getUnion] to merge the two sets of data (`neededData` & `cachedData`).
+		 *   Uses [can-query-logic.prototype.unionMembers] to merge the two queries of data (`neededData` & `cachedData`).
 		 *
 		 * @param {can-set/Set} set The parameters of the data set requested.
 		 * @param {Object} diff The result of [can-connect/cache-requests/cache-requests.getDiff].
@@ -191,9 +197,9 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 *
 		 * @return {can-connect.listData} A merged [can-connect.listData] representation of the the cached and requested data.
 		 */
-		getUnion: function(params, diff, neededItems, cachedItems){
+		unionMembers: function(params, diff, neededItems, cachedItems){
 			// using the diff, re-construct everything
-			return {data: this.algebra.getUnion(diff.needed, diff.cached, getItems(neededItems), getItems(cachedItems))};
+			return {data: this.queryLogic.unionMembers(diff.needed, diff.cached, getItems(neededItems), getItems(cachedItems))};
 		},
 
 		/**
@@ -205,13 +211,13 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 * @signature `connection.getListData(set)`
 		 *
 		 *   Overwrites a base connection's `getListData` to use data in the [can-connect/base/base.cacheConnection cache]
-		 *   whenever possible.  This works by [can-connect/connection.getSets getting the stored sets]
+		 *   whenever possible.  This works by [can-connect/connection.getSets getting the stored queries]
 		 *   from the [can-connect/base/base.cacheConnection cache] and
 		 *   doing a [can-connect/cache-requests/cache-requests.getDiff diff] to see what needs to be loaded from the base
 		 *   connection and what can be loaded from the [can-connect/base/base.cacheConnection cache].
 		 *
 		 *   With that information, this `getListData` requests data from the cache or the base connection as needed.
-		 *   Data loaded from different sources is combined via [can-connect/cache-requests/cache-requests.getUnion].
+		 *   Data loaded from different sources is combined via [can-connect/cache-requests/cache-requests.unionMembers].
 		 *
 		 * @param {can-set/Set} set the parameters of the list that is being requested.
 		 * @return {Promise<can-connect.listData>} a promise that returns an object conforming to the [can-connect.listData] format.
@@ -220,9 +226,9 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 			set = set || {};
 			var self = this;
 
-			return this.cacheConnection.getSets(set).then(function(sets){
+			return this.cacheConnection.getSets(set).then(function(queries){
 
-				var diff = self.getDiff(set, sets);
+				var diff = self.getDiff(set, queries);
 
 				if(!diff.needed) {
 					return self.cacheConnection.getListData(diff.cached);
@@ -250,7 +256,7 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 					]).then(function(result){
 						var cached = result[0],
 							needed = result[1];
-						return self.getUnion( set, diff, needed, cached);
+						return self.unionMembers( set, diff, needed, cached);
 					});
 
 					return Promise.all([combinedPromise, savedPromise]).then(function(data){

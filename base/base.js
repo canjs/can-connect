@@ -1,4 +1,8 @@
 var connect = require("can-connect/connect");
+var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
+
+
 /**
  * @module can-connect/base/base base
  * @group can-connect/base/base.options 0 behavior options
@@ -13,13 +17,13 @@ var connect = require("can-connect/connect");
  * Provides instance and list identifiers. Added automatically to every connection created by the `connect` helper.
  * So even if we do:
  *
- * ```
+ * ```js
  * var connection = connect([],{});
  * ```
  *
  * The connection still has the identification functionality provided by `base`:
  *
- * ```
+ * ```js
  * connection.id({id: 1, ...}) //-> 1
  * ```
  *
@@ -31,8 +35,8 @@ var connect = require("can-connect/connect");
  * how ids are determined.
  *
  * @param {Object} connectionOptions Object containing the configuration for the behaviors of the connection. Added to the
- * prototype of the returned connection object. `base` is almost always configured with an [can-connect/base/base.algebra] option since it
- * [can-connect/base/base.id defines the id property] and the majority of behaviors also require the algebra.
+ * prototype of the returned connection object. `base` is almost always configured with an [can-connect/base/base.queryLogic] option since it
+ * [can-connect/base/base.id defines the id property] and the majority of behaviors also require the queryLogic.
  *
  * @return {Object} A `can-connect` connection containing the methods provided by `base`.
  */
@@ -46,9 +50,7 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 *
 		 * @signature `connection.id(instance)`
 		 *
-		 *   Returns the instance id as determined by [can-connect/base/base.algebra]'s id values if they exist, else return
-		 *   the instance value indicated by [can-connect/base/base.idProp] if it exists, otherwise the return the value of
-		 *   `instance.id`.
+		 *   Returns the instance id as determined by [can-connect/base/base.queryLogic]'s id values.
 		 *
 		 *   @param {Instance|Object} instance An instance or raw properties for an instance.
 		 *
@@ -68,91 +70,23 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 * {_id: 5, name: "do the dishes"}
 		 * ```
 		 *
-		 * In this case, [can-connect/base/base.algebra]'s `id` property should be set to "_id":
+		 * In this case, [can-connect/base/base.queryLogic]'s `id` property should be set to "_id":
 		 *
 		 * ```js
-		 * var algebra = new set.Algebra({
-		 *   set.props.id("_id")
+		 * import QueryLogic from "can-query-logic";
+		 *
+		 * var queryLogic = new QueryLogic({
+		 *   identity: ["_id"]
 	 	 * });
 		 *
-		 * connect([...],{algebra: algebra});
+		 * connect([...],{queryLogic: queryLogic});
 		 * ```
 		 *
-		 * However, some data records may have compound ids.  For example, "Class Assignment" data may be uniquely
-		 * identified by a combination of two properties, the `studentId` and the `classId`. For this kind of setup, you
-		 * can provide your own id function as follows:
-		 *
-		 * ```js
-		 * var customIdBehavior = {
-		 *   id: function(assignment){
-		 *     return assignment.studentId + "-" + assignment.classId;
-		 *   }
-		 * }
-		 *
-		 * var classAssignmentConnection = connect(
-		 *   [...behaviors..., customIdBehavior],
-		 *   {
-		 *     url: "/class_assignments"
-		 *   }
-		 * );
-		 * ```
 		 */
 		id: function(instance){
-			var ids = [],
-				algebra = this.algebra;
-
-			if(algebra && algebra.clauses && algebra.clauses.id) {
-				for(var prop in algebra.clauses.id) {
-					ids.push(instance[prop]);
-				}
-			}
-			if(algebra && algebra.id) {
-				return algebra.id(instance);
-			}
-
-
-			if(this.idProp && !ids.length) {
-				ids.push(instance[this.idProp]);
-			}
-
-			if(!ids.length) {
-				ids.push(instance.id);
-			}
-
-			// Join with something unlikely to be matched.
-			// TODO: provide a way to supply join
-			return ids.length > 1 ? ids.join("@|@"): ids[0];
+			return canReflect.getIdentity(instance, this.queryLogic.schema);
 		},
 
-		/**
-		 * @property {String} can-connect/base/base.idProp idProp
-		 * @parent can-connect/base/base.identifiers
-		 * @hide
-		 *
-		 * Specifies the property that uniquely identifies an instance.
-		 *
-		 * @deprecated {0.5.3} Instead of specifying idProp users should set an [can-set.props.id id property] on the
-		 * [can-connect/base/base.algebra] included in the connection configuration options.
-		 *
-		 *
-		 * @option {String} The name of the property that uniquely identifies an instance.  Defaults to `"id"`.
-		 *
-		 * @body
-		 *
-		 * ## Use
-		 *
-		 * ```
-		 * var todoConnect = connect([
-		 *   require("can-connect/data/url/url")
-		 * ],{
-		 *   idProp: "_id"
-		 * });
-		 *
-		 * todoConnect.id({_id: 5}) // -> 5
-		 * ```
-		 *
-		 */
-		idProp: baseConnection.idProp || "id",
 
 		/**
 		 * @function can-connect/base/base.listSet listSet
@@ -163,11 +97,11 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 * @signature `connection.listSet(list)`
 		 *
 		 *   Returns the value of the property referenced by [can-connect/base/base.listSetProp] if it exists.
-		 *   By default, this will return `list.__listSet`.
+		 *   By default, this will return `list[Symbol.for("can.listSet")]`.
 		 *
 		 *   @param {can-connect.List} list A list instance.
 		 *
-		 *   @return {Object} An object that can be passed to `JSON.stringify` to represent the list.
+		 *   @return {can-query-logic/query} An object that can be passed to `JSON.stringify` to represent the list.
 		 *
 		 * @body
 		 *
@@ -179,29 +113,29 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 * Typically, a list's set identifier is a property on the list object.  As example, a list of Todos might look like
 		 * the following:
 		 *
-		 * ```
-		 * var dueTodos = todoConnection.getList({due: "today"});
+		 * ```js
+		 * var dueTodos = todoConnection.getList({filter: {due: "today"}});
 		 * dueTodos; // [{_id: 5, name: "do dishes", due:"today"}, {_id: 6, name: "walk dog", due:"today"}, ...]
-		 * dueTodos.__listSet; // {due: "today"}
-		 * todoConnection.listSet(dueTodos); // {due: "today"}
+		 * dueTodos[Symbol.for("can.listSet")]; //-> {filter: {due: "today"}}
+		 * todoConnection.listSet(dueTodos); //-> {filter: {due: "today"}}
 		 * ```
 		 *
-		 * In the above example the [can-connect/base/base.listSetProp] would be the default `"__listSet"`.
+		 * In the above example the [can-connect/base/base.listSetProp] would be the default `@can.listSet`.
 		 */
 		listSet: function(list){
 			return list[this.listSetProp];
 		},
 
 		/**
-		 * @property {String} can-connect/base/base.listSetProp listSetProp
+		 * @property {Symbol} can-connect/base/base.listSetProp listSetProp
 		 * @parent can-connect/base/base.identifiers
 		 *
 		 * Specifies the property that uniquely identifies a list.
 		 *
-		 * @option {String} The name of the property that uniquely identifies the list.
-		 * Defaults to `"__listSet"`.
+		 * @option {Symbol} The property that uniquely identifies the list.
+		 * Defaults to `Symbol.for("can.listSet")`.
 		 *
-		 * ```
+		 * ```js
 		 * var dataUrl = require("can-connect/data/url/");
 		 * var connection = connect([dataUrl], {
 		 *   listSetProp: "set"
@@ -214,44 +148,45 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 * ```
 		 *
 		 */
-		listSetProp: "__listSet",
+		listSetProp: canSymbol.for("can.listSet"),
 
 		init: function(){}
 
 		/**
-		 * @property {can-set.Algebra} can-connect/base/base.algebra algebra
+		 * @property {can-query-logic} can-connect/base/base.queryLogic queryLogic
 		 * @parent can-connect/base/base.options
 		 *
-		 * `can-set` [can-set.Algebra set algebra] used for list comparison, instance identification and membership
+		 * A `can-query-logic` instance used for list comparison, instance identification and membership
 		 * calculations. A way for the `can-connect` behaviors to understand what the properties of a request mean and act
 		 * on them.
 		 *
-		 * @option {can-set.Algebra} A [can-set.Algebra set algebra] that is used to perform calculations using set
+		 * @option {can-query-logic} A [can-query-logic queryLogic] that is used to perform calculations using set
 		 * definition objects passed to [can-connect/connection.getListData] and [can-connect/connection.getList].
 		 * Needed to enable [can-connect/fall-through-cache/fall-through-cache caching],
 		 * [can-connect/data/combine-requests/combine-requests request combining], [can-connect/real-time/real-time] and other
-		 * behaviors. By default no algebra is provided.
+		 * behaviors. By default no queryLogic is provided.
 		 *
-		 * An example of the types of calculations behaviors will make using the algebra:
-		 * ```
-		 * var algebra = new set.Algebra(
-		 *   set.props.id('_uid'),
-		 *   set.props.rangeInclusive("first","last")
-		 * );
-		 *
-		 * var todoConnection = connect([...behaviors...],{
-		 *   algebra: algebra
+		 * An example of the types of calculations behaviors will make using the queryLogic:
+		 * ```js
+		 * var queryLogic = new QueryLogic({
+		 *   identity: ['_uid'],
+		 *   keys: {
+		 *     _uid: Number
+		 *   }
 		 * });
 		 *
-		 * todoConnection.algebra.id({_uid: 5, ...}); //-> 5
+		 * var todoConnection = connect([...behaviors...],{
+		 *   queryLogic: queryLogic
+		 * });
+		 *
+		 * todoConnection.queryLogic.memberIdentity({_uid: 5, ...}); //-> 5
 		 * todoConnection.id({_uid: 5, ...}); //-> 5
-		 * todoConnection.algebra.intersection({first: 0, last: 10}, {first:5, last:20}); //-> {first:5, last:10}
-		 * todoConnection.algebra.has({first: 0, last:10}, {_uid:5, ...}); //-> true
-		 * todoConnection.algebra.has({first: 0, last:10}, {_uid:11, ...}); //-> false
+		 * todoConnection.queryLogic.intersection({page: {first: 0, last: 10}},
+		 *   {page: {first:5, last:20}}); //-> {first:5, last:10}
 		 * ```
 		 */
 
-			/**
+		/**
 		 * @property {can-connect/DataInterface} can-connect/base/base.cacheConnection cacheConnection
 		 * @parent can-connect/base/base.options
 		 *
@@ -264,7 +199,7 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 *
 		 * ## Use
 		 *
-		 * ```
+		 * ```js
 		 * var cacheConnection = connect([
 		 *   require("can-connect/data/memory-cache/memory-cache")
 		 * ],{});

@@ -31,6 +31,9 @@ module.exports = {
 	},
 	logErrorAndStart: function(e){
 		ok(false,"Error "+e);
+		setTimeout(function(){
+			throw e;
+		},1);
 		start();
 	},
 	getId: function(o){

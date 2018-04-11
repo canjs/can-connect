@@ -94,12 +94,10 @@
  *
  * This does the same thing as the first `todoConnection` example.
  */
-var assign = require("can-util/js/assign/assign");
-var each = require("can-util/js/each/each");
 var ajax = require("can-ajax");
-var string = require("can-util/js/string/string");
-var getIdProps = require("../../helpers/get-id-props");
-var dev = require("can-util/js/dev/dev");
+var replaceWith = require("can-key/replace-with/replace-with");
+var canReflect = require("can-reflect");
+var dev = require("can-log/dev/dev");
 var connect = require("can-connect");
 var makeRest = require("can-make-rest");
 
@@ -112,7 +110,7 @@ var makePromise = require("can-util/js/make-promise/make-promise");
 // and creates an ajax request.
 var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 	var behavior = {};
-	each(defaultRest, function(defaultData, dataInterfaceName){
+	canReflect.eachKey(defaultRest, function(defaultData, dataInterfaceName){
 		behavior[dataInterfaceName] = function(params) {
 			var meta = methodMetaData[dataInterfaceName];
 
@@ -135,7 +133,7 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
-				var idProps = getIdProps(this);
+				var idProps = canReflect.getSchema(this.queryLogic).identity;
 				var resourceWithoutTrailingSlashes = resource.replace(/\/+$/, "");
 				var result = makeRest(resourceWithoutTrailingSlashes, idProps[0])[dataInterfaceName];
 				return makePromise(makeAjax( result.url,
@@ -352,22 +350,22 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 		}
 	} else {
 		// If the first argument is an object, just load it into `params`.
-		assign(params, ajaxOb);
+		canReflect.assignMap(params, ajaxOb);
 	}
 
 	// If the `data` argument is a plain object, copy it into `params`.
 	params.data = typeof data === "object" && !Array.isArray(data) ?
-		assign(params.data || {}, data) : data;
+		canReflect.assignMap(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = string.replaceWith(params.url, params.data, urlParamEncoder, true);
+	params.url = replaceWith(params.url, params.data, urlParamEncoder, true);
 	params.contentType = contentType;
 
 	if(reqOptions.includeData === false) {
 		delete params.data;
 	}
 
-	return ajax(assign({
+	return ajax(canReflect.assignMap({
 		type: type || 'post',
 		dataType: 'json'
 	}, params));

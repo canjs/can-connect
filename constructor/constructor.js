@@ -667,7 +667,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 		 * });
 		 * ```
 		 *
-		 * **Note:** we added the [can-connect/base/base.listSetProp] property (`__listSet` by default) on the list. This is
+		 * **Note:** we added the [can-connect/base/base.listSetProp] property (`Symbol.for("can.listSet")` by default) on the list. This is
 		 * expected by other behaviors.
 		 */
 

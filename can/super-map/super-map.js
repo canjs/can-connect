@@ -36,7 +36,7 @@ connect.superMap = function(options){
 			options.cacheConnection = connect([localCache],{
 				name: options.name+"Cache",
 				idProp: options.idProp,
-				algebra: options.algebra
+				queryLogic: options.queryLogic
 			});
 		}
 		behaviors.push(callbacksCache,fallThroughCache);

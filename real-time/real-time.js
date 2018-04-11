@@ -18,7 +18,7 @@
  *   updated, or destroyed instance.
  *
  *   An instance is put in a list if it is a
- *   [set.subset](https://github.com/canjs/can-set#setsubset)
+ *   [set.isSubset](https://github.com/canjs/can-set#setsubset)
  *   of the [can-connect/base/base.listSet].  The item is inserted using [can-set.Algebra.prototype.index].
  *
  * @body
@@ -361,10 +361,13 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		//!steal-remove-start
 		,gotListData: function(items, set) {
 			var self = this;
-			if (this.algebra) {
+			if (this.queryLogic) {
+				if(Array.isArray(items)) {
+					items = {data: items};
+				}
 				for(var item, i = 0, l = items.data.length; i < l; i++) {
 					item = items.data[i];
-					if( !self.algebra.has(set, item) ) {
+					if( !self.queryLogic.isMember(set, item) ) {
 						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
 							+ "Read the docs for more information: https://canjs.com/doc/can-set.html#SolvingCommonIssues"
 							+ "\n\nBelow are the 'Set' parameters:"
@@ -393,7 +396,7 @@ var create = function(props){
 
 		var index = indexOf(self, props, list);
 
-		if(self.algebra.has(set, props)) {
+		if(self.queryLogic.isMember(set, props)) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			if(index === -1) {
@@ -423,7 +426,7 @@ var update = function(props) {
 
 		var index = indexOf(self, props, list);
 
-		if(self.algebra.has( set, props )) {
+		if(self.queryLogic.isMember( set, props )) {
 
 			// if it's not in the list, update the list with this and the lists data merged
 			// in the future, this should update the position.
@@ -432,7 +435,7 @@ var update = function(props) {
 				// get back the list items
 				self.updatedList(list,  { data: setAdd(self, set,  items, props) }, set);
 			} else {
-				var sortedIndex = self.algebra.index(set, items, props);
+				var sortedIndex = self.queryLogic.index(set, items, props);
 				if(sortedIndex !== undefined && sortedIndex !== index) {
 					var copy = items.slice(0);
 					if(index < sortedIndex) {

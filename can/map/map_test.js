@@ -1,4 +1,4 @@
-var set = require("can-query/compat/compat");
+var set = require("can-set-legacy");
 var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
@@ -51,11 +51,11 @@ QUnit.module("can-connect/can/map/map with Map",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
-		var algebra = new set.Algebra();
+		var queryLogic = new set.Algebra();
 
 		var cacheConnection = connect([localCache],{
 			name: "todos",
-			algebra: algebra
+			queryLogic: queryLogic
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -79,7 +79,7 @@ QUnit.module("can-connect/can/map/map with Map",{
 				Map: Todo,
 				List: TodoList,
 				ajax: $.ajax,
-				algebra: algebra
+				queryLogic: queryLogic
 			});
 
 
@@ -106,7 +106,7 @@ QUnit.test("real-time super model", function(){
 
 	fixture({
 		"GET /services/todos": function(){
-			
+
 			if(state.get() === "getListData-important") {
 				state.next();
 				return {data: firstItems.slice(0) };
@@ -423,14 +423,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"});
+			deepEqual( todoConnection.listSet(list), {foo: "bar"}, "first");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"});
+			deepEqual( todoConnection.listSet(list), {zed: "ted"},"second");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
+		deepEqual(  todoConnection.listSet(list), {zak: "ack"}, "third");
 		start();
 	});
 
@@ -463,7 +463,7 @@ test("findAll and findOne alias", function(){
 	});
 });
 
-QUnit.test("reads id from set algebra (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(){
 	var Todo = Map.extend({seal: false}, {});
 	var TodoList = List.extend({
 		Map: Todo
@@ -486,7 +486,7 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			Map: Todo,
 			List: TodoList,
 			ajax: $.ajax,
-			algebra: new set.Algebra(
+			queryLogic: new set.Algebra(
 			   set.props.id("_id")
 			)
 		});

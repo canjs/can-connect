@@ -3,9 +3,9 @@ var cacheRequests = require("can-connect/cache-requests/");
 var memCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
 var map = [].map;
-var canSet = require("can-query/compat/compat");
+var canSet = require("can-set-legacy");
 
-var set = require("can-query/compat/compat");
+var set = require("can-set-legacy");
 
 var getId = function(d) {
 	return d.id;
@@ -24,7 +24,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 
 	var res = cacheRequests( {
 		getListData: function(params){
-			
+
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -37,8 +37,8 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		cacheConnection: memCache(connect.base({algebra: new canSet.Algebra()})),
-		algebra: new canSet.Algebra()
+		cacheConnection: memCache(connect.base({queryLogic: new canSet.Algebra()})),
+		queryLogic: new canSet.Algebra()
 	} );
 
 	res.getListData({}).then(function(list){
@@ -64,7 +64,7 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 
-	var algebra = new canSet.Algebra( set.props.rangeInclusive("start","end") );
+	var queryLogic = new canSet.Algebra( set.props.rangeInclusive("start","end") );
 
 	var behavior = cacheRequests( {
 		getListData: function(params){
@@ -82,8 +82,8 @@ QUnit.test("Incrementally load data", function(){
 			}
 			return Promise.resolve({data: items});
 		},
-		algebra: algebra,
-		cacheConnection: memCache(connect.base({algebra: algebra}))
+		queryLogic: queryLogic,
+		cacheConnection: memCache(connect.base({queryLogic: queryLogic}))
 	} );
 
 
@@ -126,7 +126,7 @@ QUnit.test("Filters are preserved for different pagination", function() {
 	stop();
 	var isSecondRun = false;
 
-	var algebra = new set.Algebra(
+	var queryLogic = new set.Algebra(
 		set.props.id('id'),
 		set.props.offsetLimit('$skip', '$limit'),
 		set.props.sort('$sort')
@@ -163,8 +163,8 @@ QUnit.test("Filters are preserved for different pagination", function() {
 			isSecondRun = true
 			return Promise.resolve({data: items});
 		},
-		algebra: algebra,
-		cacheConnection: memCache(connect.base({algebra: algebra}))
+		queryLogic: queryLogic,
+		cacheConnection: memCache(connect.base({queryLogic: queryLogic}))
 	} );
 
 

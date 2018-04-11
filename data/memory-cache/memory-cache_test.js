@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
 var memoryCache = require("can-connect/data/memory-cache/");
 var connect = require("can-connect");
-var canSet = require("can-query/compat/compat");
+var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -14,7 +14,7 @@ var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 QUnit.module("can-connect/data-memory-cache",{
 	setup: function(){
 		this.connection = connect([memoryCache],{
-			algebra: new canSet.Algebra()
+			queryLogic: new canSet.Algebra()
 		});
 		this.connection.clear();
 	}
@@ -250,7 +250,7 @@ QUnit.test("respect sort order (#80)", function(){
 	stop();
 
 	var connection = connect([memoryCache],{
-		algebra: new canSet.Algebra(canSet.props.sort("sortBy"))
+		queryLogic: new canSet.Algebra(canSet.props.sort("sortBy"))
 	});
 
 	connection.updateListData({ data: items.slice(0) }, {})
@@ -271,7 +271,7 @@ QUnit.test("non numeric ids (#79)", function(){
 	stop();
 
 	var connection = connect([memoryCache],{
-		algebra: new canSet.Algebra()
+		queryLogic: new canSet.Algebra()
 	});
 
 	// add data tot he store, remove an item, make sure it's gone
@@ -295,7 +295,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 
 	var connection = connect([memoryCache],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(
@@ -328,7 +328,7 @@ QUnit.asyncTest("pagination loses the bigger set (#128)", function(){
 
 	var connection = connect([memoryCache],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(

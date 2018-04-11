@@ -69,7 +69,7 @@ ClassRoom.List = DefineList.extend( {
 	"#": ClassRoom
 } );
 
-ClassRoom.algebra = new set.Algebra( { /* ... */ } );
+ClassRoom.queryLogic = new set.Algebra( { /* ... */ } );
 
 ClassRoom.connection = connect( [ /* ... */ , canMapBehavior, canMergeBehavior /* ... */ ], {
 	Map: ClassRoom,
@@ -79,7 +79,7 @@ ClassRoom.connection = connect( [ /* ... */ , canMapBehavior, canMergeBehavior /
 
 For [can-connect/helpers/map-deep-merge] to merge correctly, it needs to know how to uniquely identify an instance and
 be able to convert raw data to instances and lists.
-`map-deep-merge` looks for this configuration on the `.algebra` and `.connection` properties of the
+`map-deep-merge` looks for this configuration on the `.queryLogic` and `.connection` properties of the
 [can-define.types.TypeConstructor] setting on [can-define] types.
 
 This is more easily understood in an example.
@@ -91,13 +91,13 @@ const ClassRoom = DefineMap.extend( {
 } );
 ```
 
-To be able to uniquely identify `Student` instances within that list, make sure `Student` has an `algebra` property
+To be able to uniquely identify `Student` instances within that list, make sure `Student` has an `queryLogic` property
 that is configured with the identifier property:
 
 ```js
 Student = DefineMap.extend( { /* ... */ } );
 
-Student.algebra = new set.Algebra( set.props.id( "_id" ) );
+Student.queryLogic = new set.Algebra( set.props.id( "_id" ) );
 ```
 
 Also make sure that `Student.List` points its [can-define/list/list.prototype.wildcardItems] definition to `Student`

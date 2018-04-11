@@ -7,6 +7,7 @@ var instanceStore = require("can-connect/constructor/store/");
 var connect = require("can-connect/can-connect");
 var testHelpers = require("can-connect/test-helpers");
 var assign = require("can-util/js/assign/assign");
+var QueryLogic = require("can-query-logic");
 
 instanceStore.requestCleanupDelay = 1;
 
@@ -65,7 +66,10 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 		},
 		updatedList: function(list, updatedList, set){
 			list.splice(0, list.length, updatedList.data);
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	var person = new Person({id: 1, name: "Justin"});
@@ -97,14 +101,15 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	var Person = function(values){
 		assign(this, values);
 	};
+	var connection;
 	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
-		listed.__listSet = sets;
+		listed[connection.listSetProp] = sets;
 		return listed;
 	};
 
-	var connection = connect([function(){
+	connection = connect([function(){
 		var calls = 0;
 		return {
 			getListData: function(){
@@ -128,7 +133,10 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 		},
 		list: function(arr, sets){
 			return new PersonList(arr.data, sets);
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	var resolvedList;
@@ -166,15 +174,16 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 QUnit.test("list's without a listSet are not added to the store", function(){
 	var Person = function(values){
 		assign(this, values);
-	};
+	},
+		connection;
 	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
-		listed.__listSet = sets;
+		listed[connection.listSetProp] = sets;
 		return listed;
 	};
 
-	var connection = connect([function(){
+	connection = connect([function(){
 		var calls = 0;
 		return {
 			getListData: function(){
@@ -198,7 +207,10 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 		},
 		list: function(arr, sets){
 			return new PersonList(arr.data, sets);
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	connection.addListReference([]);
@@ -218,7 +230,10 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 		url: '/test/',
 		instance: function(values){
 			return new Address(values);
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	var Person = function(values){
@@ -253,7 +268,10 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 		},
 		instance: function(values){
 			return new Person(values);
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	QUnit.stop();
@@ -281,7 +299,11 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 		},
 		constructor,
 		instanceStore],
-		{});
+		{
+			queryLogic: new QueryLogic({
+				identity: ["id"]
+			})
+		});
 
 	var todo = {name: "test store"};
 	connection.addInstanceReference(todo);
@@ -308,7 +330,11 @@ QUnit.asyncTest("instanceStore adds instance references for list membership.", f
 		},
 		constructor,
 		instanceStore],
-	{});
+	{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	connection.getList({}).then(function(list) {
 		var instanceRef = connection.instanceStore.get("abc");
@@ -345,7 +371,11 @@ QUnit.asyncTest("instanceStore adds/removes instances based on list updates.", f
 		},
 		constructor,
 		instanceStore],
-	{});
+	{
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
 
 	connection.getList({}).then(function(list) {
 		connection.addListReference(list);

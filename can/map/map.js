@@ -12,6 +12,7 @@ var each = require("can-util/js/each/each");
 var dev = require("can-util/js/dev/dev");
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
+var QueryLogic = require("can-query-logic");
 
 
 var canMapBehavior = connect.behavior("can/map",function(baseConnection){
@@ -30,6 +31,10 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 
 			overwrite(this, this.Map, mapOverwrites);
 			overwrite(this, this.List, listOverwrites);
+
+			if(!this.queryLogic) {
+				this.queryLogic = new QueryLogic(this.Map);
+			}
 
 
 			var connection = this;
@@ -71,47 +76,6 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 				console.warn("can-connect/can/map is unable to listen to onInstancePatches on the Map type");
 			}
 			baseConnection.init.apply(this, arguments);
-		},
-		/**
-		 * @function can-connect/can/map/map.id id
-		 * @parent can-connect/can/map/map.identifiers
-		 *
-		 * Returns an observable identifier value for an instance.
-		 *
-		 * @signature `connection.id(instance)`
-		 *
-		 * Reads the instance's id (in the same manner as [can-connect/base/base.id `base.id()`]) but as an observable value.
-		 *
-		 * @param {can-connect/Instance} instance the instance to get an identifier of
-		 * @return {*} an identifier value
-		 */
-		id: function(instance) {
-
-			if(!isPlainObject(instance)) {
-				var ids = [],
-					algebra = this.algebra;
-
-				if(algebra && algebra.clauses && algebra.clauses.id) {
-					for(var prop in algebra.clauses.id) {
-						ids.push(canReflect.getKeyValue(instance,prop));
-					}
-				}
-				if(algebra && algebra.id) {
-					return algebra.id(instance);
-				}
-
-				if(this.idProp && !ids.length) {
-					ids.push(canReflect.getKeyValue(instance,this.idProp));
-				}
-				if(!ids.length) {
-					ids.push(canReflect.getKeyValue(instance,"id"));
-				}
-
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObservationRecorder.add`.)
-				return ids.length > 1 ? ids.join("@|@"): ids[0];
-			} else {
-				return baseConnection.id(instance);
-			}
 		},
 		/**
 		 * @function can-connect/can/map/map.serializeInstance serializeInstance
@@ -278,7 +242,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 				}
 			});
 
-			list.__listSet = set;
+			list[this.listSetProp] = set;
 			return list;
 		},
 
@@ -774,7 +738,7 @@ var listOverwrites = {
 				// If there was a plain object passed to the List constructor,
 				// we use those as parameters for an initial getList.
 				if (isPlainObject(params) && !Array.isArray(params)) {
-					this.__listSet = params;
+					this[connection.listSetProp] = params;
 					base.apply(this);
 					this.replace(canReflect.isPromise(params) ? params : connection.getList(params));
 				} else {

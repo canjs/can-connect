@@ -1,6 +1,6 @@
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
-var set = require('can-query/compat/compat');
+var set = require('can-set-legacy');
 var fixture = require('can-fixture');
 var canLog = require("can-util/js/log/log");
 
@@ -9,16 +9,14 @@ var canMap = require('can-connect/can/map/map');
 var dataUrl = require('can-connect/data/url/url');
 var constructor = require('can-connect/constructor/constructor');
 var constructorStore = require('can-connect/constructor/store/store');
+
 constructorStore.requestCleanupDelay = 1;
 
-var smartMerge = require('./map-deep-merge');
-var applyPatch = require('./map-deep-merge').applyPatch;
-var applyPatchPure = smartMerge.applyPatchPure;
-var mergeInstance = smartMerge.mergeInstance;
-var mergeList = smartMerge.mergeList;
-var idFromType = smartMerge.idFromType;
+
+var smartMerge = require('can-diff/merge-deep/merge-deep');
+
 var canSymbol = require("can-symbol");
-var get = require("can-util/js/get/get");
+var get = require("can-key/get/get");
 
 var QUnit = require('steal-qunit');
 QUnit.noop = function(){};
@@ -53,20 +51,19 @@ var OSProject, Author, ContributionMonth, origEventDispatch, onPatches,
 	};
 
 // Setup:
-Author = DefineMap.extend({
-	id: {type: 'number'},
+Author = DefineMap.extend("Author",{
+	id: {type: 'number', identity: true},
 	name: {type: 'string'}
 });
-Author.algebra = new set.Algebra( set.props.id('id') );
 
 OSProject = DefineMap.extend({
-	id: {type: 'number'},
+	id: {type: 'number', identity: true},
 	title: {type: 'string'}
 });
 OSProject.List = DefineList.extend({ '#' : OSProject });
-OSProject.algebra = new set.Algebra( set.props.id('id') );
+OSProject.queryLogic = new set.Algebra( set.props.id('id') );
 
-ContributionMonth = DefineMap.extend({
+ContributionMonth = DefineMap.extend("ContributionMonth",{
 	author: Author,
 	osProjects: OSProject.List
 });
@@ -237,14 +234,15 @@ QUnit.test('smartMerge can-connect behavior', function(assert) {
 
 QUnit.test('smartMerge a list of items which type has a connection', function(assert){
 	var Car = DefineMap.extend({
-		vin: 'number',
+		vin: {identity: true, type: 'number'},
 		brand: 'string'
 	});
-	Car.algebra = new set.Algebra( set.props.id('vin') );
+
 	Car.List = DefineList.extend( {'#': Car} );
 	Car.connection = connect([constructor, constructorStore, canMap],{
 		Map: Car
 	});
+
 	var list = new Car.List([
 		{id: 100, name: 'Feb'},
 		{id: 200, name: 'March'},
@@ -257,39 +255,9 @@ QUnit.test('smartMerge a list of items which type has a connection', function(as
 	assert.deepEqual(list.serialize(), data, 'List with a connection should be merged');
 });
 
-QUnit.test('applyPatch', function(assert) {
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]}
-	), [1,4,2,3], 'Patch insert' );
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 2, insert: [4]}
-	), [1,4], 'Patch delete/insert');
-
-	assert.deepEqual( applyPatch(
-		[1,2,3],
-		{index: 1, deleteCount: 0, insert: [4]},
-		function(a) { return a * 10; }
-	), [1,40,2,3], 'Patch with makeInstance');
-});
-QUnit.test('applyPatchPure', function(assert) {
-	var list = [1,2,3];
-	var patch = {index: 1, deleteCount: 2, insert: [4]};
-	var patchedList = applyPatchPure( list, patch );
-
-	assert.deepEqual( patchedList, [1,4], 'Patched correctly' );
-	assert.notEqual( list, patchedList, 'Patched list does not reference orig list' );
-	// make sure the original array was not mutated:
-	assert.deepEqual( list, [1,2,3], 'Original list was not mutated' );
-});
-
-
-
 QUnit.test("mergeInstance when properties are removed and added", function(){
 	var map = new DefineMap({a:"A"});
-	mergeInstance(map, {b: "B"});
+	smartMerge(map, {b: "B"});
 
 	QUnit.deepEqual(map.get(), {b: "B"});
 });
@@ -298,38 +266,25 @@ QUnit.test("Merging non-defined, but object, types", function(){
 	var first = new Date();
 	var last = new Date();
 	var map = new DefineMap({a: first});
-	mergeInstance(map, {a: last});
+	smartMerge(map, {a: last});
 
 	QUnit.equal(map.a, last);
-});
-
-QUnit.test("idFromType", function(assert){
-	var Car = DefineMap.extend({
-		vin: {type: 'string'},
-		color: {type: 'string'}
-	});
-	Car.algebra = new set.Algebra( set.props.id('vin') );
-	var id = idFromType(Car);
-	var myCar = new Car({vin: "1", color: "black"});
-
-	assert.equal(id(myCar), "1", "id is retrieved from algebra with a custom id prop");
 });
 
 QUnit.test("custom id prop for instance store", function(assert){
 
 	var Car = DefineMap.extend({
-		vin: {type: "string"},
+		vin: {type: "string", identity: true},
 		color: {type: "string"}
 	});
-	Car.algebra = new set.Algebra( set.props.id("vin") );
 	Car.List = DefineList.extend({ "#" : Car });
 
-	var id = idFromType(Car);
 	var items = new Car.List([
 		{ vin: "1", color: "black" },
 		{ vin: "2", color: "blue" },
 	]);
 	var toStore = function(map, item){ map[item.vin] = item; return map;};
+
 	var instanceStore = [].reduce.call(items, toStore, {});
 	var data = [
 		{ vin: "2", color: "blue" },
@@ -344,19 +299,3 @@ QUnit.test("custom id prop for instance store", function(assert){
 	assert.deepEqual(instanceStore["1"].serialize(), { vin: "1", color: "red" }, "The item with id=1 was updated correctly");
 	assert.ok(items[0].vin === "2", "items were swapped in the list which is what we expected");
 });
-
-/*
-QUnit.test("use .type for hydrator", function(){
-	var Person = DefineMap.extend({first: "string", last:"string"});
-	var makePerson = function(data) {
-		return new Person(data);
-	};
-	var People = DefineList.extend({
-		"#": {type: makePerson}
-	});
-
-	var people = new People();
-	mergeList(people,[{first: "R", last: "Wheale"},{first: "J", last: "Meyer"}]);
-
-	QUnit.ok(people[0] instanceof Person);
-});*/

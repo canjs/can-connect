@@ -10,7 +10,7 @@ var forEach = [].forEach;
  * @group can-connect/data/combine-requests.options 1 behavior options
  * @group can-connect/data/combine-requests.types 2 types
  * @group can-connect/data/combine-requests.data-methods 3 data methods
- * @group can-connect/data/combine-requests.algebra 4 algebra methods
+ * @group can-connect/data/combine-requests.queryLogic 4 queryLogic methods
  *
  * Combines multiple incoming lists requests into a single list request when possible.
  *
@@ -20,7 +20,7 @@ var forEach = [].forEach;
  * [can-connect/data/combine-requests.time].  Once the configured amount of time has passed, it tries to take the
  * [can-connect/data/combine-requests.unionPendingRequests union] of the requested sets. It then makes requests with
  * those unified sets. Once the unified set requests have returned, the original requests are resolved by taking
- * [can-connect/data/combine-requests.getSubset subsets] of the unified response data.
+ * [can-connect/data/combine-requests.filterMembers subsets] of the unified response data.
  *
  * @param {{}} baseConnection `can-connect` connection object that is having the `combine-requests` behavior added
  * on to it. Should already contain a behavior that provides `getListData` (e.g [can-connect/data/url/url]). If
@@ -54,7 +54,7 @@ var forEach = [].forEach;
  * The above requests can all be joined since [can-set] intuitively knows that
  * `{userId: 5, type: "critical"}` and `{userId: 5}` are subsets of the complete set of todos, `{}`.
  *
- * For more advanced combining, a [can-set.Algebra set algebra] must be configured. This allows [can-set] to understand
+ * For more advanced combining, a [can-set.Algebra set queryLogic] must be configured. This allows [can-set] to understand
  * what certain parameters of a set mean, and how they might be combined.
  *
  * The following connection supports combining ranges:
@@ -65,7 +65,7 @@ var forEach = [].forEach;
  * var dataUrl = require("can-connect/data/url/");
  * var todosConnection = connect([dataUrl, combineRequests], {
  *   url: "/todos",
- *   algebra: new set.Algebra(set.props.rangeInclusive("start","end"))
+ *   queryLogic: new set.Algebra(set.props.rangeInclusive("start","end"))
  * });
  * ```
  *
@@ -84,7 +84,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 	return {
 		/**
 		 * @function can-connect/data/combine-requests.unionPendingRequests unionPendingRequests
-		 * @parent can-connect/data/combine-requests.algebra
+		 * @parent can-connect/data/combine-requests.queryLogic
 		 *
 		 * Group pending requests by the request that they are a subset of.
 		 *
@@ -145,9 +145,9 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 
 			pendingRequests.sort(function(pReq1, pReq2){
 
-				if(self.algebra.subset(pReq1.set, pReq2.set)) {
+				if(self.queryLogic.isSubset(pReq1.set, pReq2.set)) {
 					return 1;
-				} else if( self.algebra.subset(pReq2.set, pReq1.set) ) {
+				} else if( self.queryLogic.isSubset(pReq2.set, pReq1.set) ) {
 					return -1;
 				} else {
 					return 0;
@@ -168,8 +168,8 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 					combineData.push(current);
 				},
 				iterate: function(pendingRequest){
-					var combined = self.algebra.union(current.set, pendingRequest.set);
-					if( self.algebra.isDefinedAndHasMembers(combined) ) {
+					var combined = self.queryLogic.union(current.set, pendingRequest.set);
+					if( self.queryLogic.isDefinedAndHasMembers(combined) ) {
 						// add next
 						current.set = combined;
 						current.pendingRequests.push(pendingRequest);
@@ -218,7 +218,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 		 * Waits for a configured [can-connect/data/combine-requests.time] then tries to unify the sets requested during it.
 		 * After unification, calls for the unified sets are made to the underlying `getListData`. Once the unified
 		 * data has returned, the individual calls to `getListData` are resolved with a
-		 * [can-set.Algebra.prototype.getSubset calculated subset] of the unified data.
+		 * [can-set.Algebra.prototype.filterMembers calculated subset] of the unified data.
 		 *
 		 * @param {can-set/Set} set the parameters of the requested set of data
 		 * @return {Promise<can-connect.listData>} `Promise` resolving the data of the requested set
@@ -250,7 +250,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 										// to baseConnection.getListData which might mutate it causing combinedRequests
 										// to resolve with an `undefined` value instead of an actual set
 										// https://github.com/canjs/can-connect/issues/139
-										pending.deferred.resolve( {data: self.algebra.getSubset(pending.set, combined.set, getItems(data))} );
+										pending.deferred.resolve( {data: self.queryLogic.filterMembers(pending.set, combined.set, getItems(data))} );
 									});
 								}
 							}, function(err){

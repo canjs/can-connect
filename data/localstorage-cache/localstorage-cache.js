@@ -300,7 +300,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 * @signature `connection.getListData(set)`
 		 *
 		 *   Goes through each set add by [can-connect/data/memory-cache.updateListData]. If
-		 *   `set` is a subset, uses [can-connect/base/base.algebra] to get the data for the requested `set`.
+		 *   `set` is a subset, uses [can-connect/base/base.queryLogic] to get the data for the requested `set`.
 		 *
 		 *   @param {can-set/Set} set An object that represents the data to load.
 		 *
@@ -330,8 +330,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			for(var i = 0; i < sets.length; i++) {
 				var checkSet = sets[i];
 
-				if( this.algebra.subset(set, checkSet) ) {
-					var items = this.algebra.getSubset(set, checkSet, this.__getListData(checkSet) );
+				if( this.queryLogic.isSubset(set, checkSet) ) {
+					var items = this.queryLogic.filterMembers(set, checkSet, this.__getListData(checkSet) );
 					return {data: items};
 				}
 			}
@@ -395,12 +395,12 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			var self = this;
 			for(var setKey in sets) {
 				var setDatum = sets[setKey];
-				var union = this.algebra.union(setDatum.set, set);
-				if( this.algebra.isDefinedAndHasMembers(union) ) {
+				var union = this.queryLogic.union(setDatum.set, set);
+				if( this.queryLogic.isDefinedAndHasMembers(union) ) {
 					// Get the data for the old set we can union with.
 					return this.getListData(setDatum.set).then(function(setData){
 						// update the old set to the new set
-						self.updateSet(setDatum, self.algebra.getUnion(setDatum.set, set, getItems(setData), items), union);
+						self.updateSet(setDatum, self.queryLogic.unionMembers(setDatum.set, set, getItems(setData), items), union);
 					});
 				}
 			}
@@ -426,7 +426,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			var instance = this.updateInstance(props);
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
-				if(this.algebra.has(setDatum.set, instance)) {
+				if(this.queryLogic.isMember(setDatum.set, instance)) {
 					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance), setDatum.set);
 				}
 			});
@@ -453,13 +453,13 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 				var items = getItems();
 				var index = indexOf(self, instance, items);
 
-				if( this.algebra.has( setDatum.set, instance )) {
+				if( this.queryLogic.isMember( setDatum.set, instance )) {
 
 					// if it's not in, add it
 					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.algebra) );
+						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.queryLogic) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, instance);

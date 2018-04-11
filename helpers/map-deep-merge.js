@@ -41,8 +41,8 @@ var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
  * `mapDeepMerge` solves this by first identifying the [can-define.types.TypeConstructor]
  * of the [can-define/list/list.prototype.wildcardItems] (index) property definition.
  *
- * With the `Type` known of each item in the list, `mapDeepMerge` looks for for a `Type.algebra` to
- * specify the unique [can-set.props.id] of `Type` instances.  If `Type.algebra` does
+ * With the `Type` known of each item in the list, `mapDeepMerge` looks for for a `Type.queryLogic` to
+ * specify the unique [can-set.props.id] of `Type` instances.  If `Type.queryLogic` does
  * not exist, it looks for an `id` and then `_id` property.
  *
  * With the `Type` known of each item in the list, `mapDeepMerge` looks for a `Type.connection.hydrateInstance(props)`
@@ -176,14 +176,14 @@ function idFromType( Type ){
 		return function(o){
 			return Type.connection.id(o);
 		};
-	} else if(Type && Type.algebra && Type.algebra.clauses && Type.algebra.clauses.id) {
+	} else if(Type && Type.queryLogic && Type.queryLogic.clauses && Type.queryLogic.clauses.id) {
 		return function(o){
-			var idProp = Object.keys(Type.algebra.clauses.id)[0];
+			var idProp = Object.keys(Type.queryLogic.clauses.id)[0];
 			return o[idProp];
 		};
-	} else if(Type && Type.algebra && Type.algebra) {
+	} else if(Type && Type.queryLogic && Type.queryLogic) {
 		return function(o) {
-			return Type.algebra.id(o);
+			return Type.queryLogic.memberIdentity(o);
 		};
 	} else {
 		return function(o){

@@ -154,14 +154,14 @@
 
 
 var connect = require("can-connect");
-var getIdProps = require("can-connect/helpers/get-id-props");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var ObservationRecorder = require("can-observation-recorder");
 var constructorStore = require("can-connect/constructor/store/store");
 var define = require("can-define");
+var canReflect = require("can-reflect");
 
 var makeRef = function(connection){
-	var idProp = getIdProps(connection)[0];
+	var idProp = canReflect.getSchema(connection.queryLogic).identity[0];
 	/**
 	 * @property {constructor} can-connect/can/ref/ref.Map.Ref Map.Ref
 	 * @parent can-connect/can/ref/ref.hydrators
