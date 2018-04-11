@@ -6,8 +6,8 @@ Minimally update nested data structures with the response from the server.
 
 @signature `canMergeBehavior( baseConnection )`
 
-Overwrites [can-connect/can/map/map]'s instance callbacks so they use [can-connect/helpers/map-deep-merge].
-[can-connect/helpers/map-deep-merge] is able to make minimal changes to the nested properties of [can-define] instances
+Overwrites [can-connect/can/map/map]'s instance callbacks so they use [can-diff/merge-deep/merge-deep].
+[can-diff/merge-deep/merge-deep] is able to make minimal changes to the nested properties of [can-define] instances
 and lists given raw data.
 E.g:
 
@@ -77,7 +77,7 @@ ClassRoom.connection = connect( [ /* ... */ , canMapBehavior, canMergeBehavior /
 } );
 ```
 
-For [can-connect/helpers/map-deep-merge] to merge correctly, it needs to know how to uniquely identify an instance and
+For [can-diff/merge-deep/merge-deep] to merge correctly, it needs to know how to uniquely identify an instance and
 be able to convert raw data to instances and lists.
 `map-deep-merge` looks for this configuration on the `.queryLogic` and `.connection` properties of the
 [can-define.types.TypeConstructor] setting on [can-define] types.
@@ -110,7 +110,7 @@ Student.List = DefineList.extend( {
 ```
 
 **Note:** the typical method used to create a `Student` is `new Student(props)`.
-However, if `Student`s have a `.connection`, [can-connect/helpers/map-deep-merge] will use
+However, if `Student`s have a `.connection`, [can-diff/merge-deep/merge-deep] will use
 `Student.connection.[can-connect/constructor/constructor.hydrateInstance](props)`.
 This is useful if `Student`s should be looked up in the connection [can-connect/constructor/store/store.instanceStore].
 

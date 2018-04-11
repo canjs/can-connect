@@ -47,35 +47,17 @@ var forEach = [].forEach;
  *
  * ```
  * todosConnection.getListData({})
- * todosConnection.getListData({userId: 5});
- * todosConnection.getListData({userId: 5, type: "critical"});
+ * todosConnection.getListData({filter: {userId: 5}});
+ * todosConnection.getListData({filter: {userId: 5, type: "critical"}});
  * ```
  *
  * The above requests can all be joined since [can-set] intuitively knows that
- * `{userId: 5, type: "critical"}` and `{userId: 5}` are subsets of the complete set of todos, `{}`.
+ * `({filter: {userId: 5}}` and `{filter: {userId: 5, type: "critical"}}` are subsets of the complete set of todos, `{}`.
  *
- * For more advanced combining, a [can-set.Algebra set queryLogic] must be configured. This allows [can-set] to understand
+ * For more advanced combining, a [can-query-logic queryLogic] must be configured. This allows `combine-requests` to understand
  * what certain parameters of a set mean, and how they might be combined.
  *
- * The following connection supports combining ranges:
  *
- * ```
- * var set = require("can-set");
- * var combineRequests = require("can-connect/data/combine-requests/");
- * var dataUrl = require("can-connect/data/url/");
- * var todosConnection = connect([dataUrl, combineRequests], {
- *   url: "/todos",
- *   queryLogic: new set.Algebra(set.props.rangeInclusive("start","end"))
- * });
- * ```
- *
- * Now the following will also be unified to make single request:
- *
- * ```
- * todosConnection.getListData({start: 0, end: 49})
- * todosConnection.getListData({start: 0, end: 5});
- * todosConnection.getListData({start: 50, end: 99});
- * ```
  *
  */
 var combineRequests = connect.behavior("data/combine-requests",function(baseConnection){
@@ -218,7 +200,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 		 * Waits for a configured [can-connect/data/combine-requests.time] then tries to unify the sets requested during it.
 		 * After unification, calls for the unified sets are made to the underlying `getListData`. Once the unified
 		 * data has returned, the individual calls to `getListData` are resolved with a
-		 * [can-set.Algebra.prototype.filterMembers calculated subset] of the unified data.
+		 * [can-query-logic.prototype.filterMembers calculated subset] of the unified data.
 		 *
 		 * @param {can-set/Set} set the parameters of the requested set of data
 		 * @return {Promise<can-connect.listData>} `Promise` resolving the data of the requested set

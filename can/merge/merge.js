@@ -1,4 +1,4 @@
-var smartMerge = require('can-connect/helpers/map-deep-merge');
+var smartMerge = require('can-diff/merge-deep/merge-deep');
 var connectMap = require('can-connect/can/map/map');
 var canBatch = require('can-event/batch/batch');
 var connect = require("can-connect");
@@ -10,11 +10,11 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 * @parent can-connect/can/merge/merge.instance-callbacks
 		 *
 		 * @description Makes minimal updates to an instance's properties and
-		 * its nested properties using [can-connect/helpers/map-deep-merge].
+		 * its nested properties using [can-diff/merge-deep/merge-deep].
 		 *
 		 * @signature `connection.createdInstance(instance, props)`
 		 *
-		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'created'` event on the instance and it's type
+		 *   Calls [can-diff/merge-deep/merge-deep] and triggers the `'created'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance the instance that was just created whose
@@ -33,11 +33,11 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 * @parent can-connect/can/merge/merge.instance-callbacks
 		 *
 		 * @description Makes minimal updates to an instance's properties and
-		 * its nested properties using [can-connect/helpers/map-deep-merge].
+		 * its nested properties using [can-diff/merge-deep/merge-deep].
 		 *
 		 * @signature `connection.destroyedInstance(instance, props)`
 		 *
-		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'destroyed'` event on the instance and it's type
+		 *   Calls [can-diff/merge-deep/merge-deep] and triggers the `'destroyed'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance The instance that was just destroyed whose
@@ -56,11 +56,11 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 * @parent can-connect/can/merge/merge.instance-callbacks
 		 *
 		 * @description Makes minimal updates to an instance's properties and
-		 * its nested properties using [can-connect/helpers/map-deep-merge].
+		 * its nested properties using [can-diff/merge-deep/merge-deep].
 		 *
 		 * @signature `connection.updatedInstance(instance, props)`
 		 *
-		 *   Calls [can-connect/helpers/map-deep-merge] and triggers the `'updated'` event on the instance and it's type
+		 *   Calls [can-diff/merge-deep/merge-deep] and triggers the `'updated'` event on the instance and it's type
 		 *   within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect/Instance} instance the instance that was just updated whose
@@ -79,11 +79,11 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 * @parent can-connect/can/merge/merge.instance-callbacks
 		 *
 		 * @description Makes minimal updates to an list's items and
-		 * those items' nested properties using [can-connect/helpers/map-deep-merge].
+		 * those items' nested properties using [can-diff/merge-deep/merge-deep].
 		 *
 		 * @signature `connection.updatedList(list, listData)`
 		 *
-		 *   Calls [can-connect/helpers/map-deep-merge] on the list within a [can-event/batch/batch batch].
+		 *   Calls [can-diff/merge-deep/merge-deep] on the list within a [can-event/batch/batch batch].
 		 *
 		 *   @param {can-connect.List} list the list that will be updated.
 		 *   @param {can-connect.listData} listData the new data the list and items in the

@@ -53,7 +53,7 @@ var map = [].map;
 var setAdd = require("can-connect/helpers/set-add");
 var indexOf = require("can-connect/helpers/get-index-by-id");
 var assign = require("can-util/js/assign/assign");
-var overwrite = require("can-connect/helpers/overwrite");
+var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 
 module.exports = connect.behavior("data/localstorage-cache",function(baseConnection){
 
@@ -108,7 +108,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			if(!instance) {
 				instance = props;
 			} else {
-				overwrite(instance, props, this.idProp);
+				updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
 			}
 			localStorage.setItem(this.name+"/instance/"+id, JSON.stringify(instance) );
 

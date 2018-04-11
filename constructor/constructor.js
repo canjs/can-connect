@@ -118,7 +118,7 @@ var makeArray = require("can-util/js/make-array/make-array");
 var assign = require("can-util/js/assign/assign");
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
-var overwrite = require("can-connect/helpers/overwrite");
+var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var idMerge = require("can-connect/helpers/id-merge");
 
 module.exports = connect.behavior("constructor",function(baseConnection){
@@ -503,7 +503,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 		 * @param {Object} props the data from [can-connect/connection.updateData] that will overwrite the properties of `instance`
 		 */
 		updatedInstance: function(instance, data){
-			overwrite(instance, data, this.idProp);
+			updateDeepExceptIdentity(instance, data, this.queryLogic.schema);
 		},
 
 		/**
@@ -553,7 +553,7 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 		 * properties of `instance`
 		 */
 		destroyedInstance: function(instance, data){
-			overwrite(instance, data, this.idProp);
+			updateDeepExceptIdentity(instance, data, this.queryLogic.schema);
 		},
 
 		/**

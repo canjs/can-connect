@@ -19,7 +19,7 @@
  *
  *   An instance is put in a list if it is a
  *   [set.isSubset](https://github.com/canjs/can-set#setsubset)
- *   of the [can-connect/base/base.listSet].  The item is inserted using [can-set.Algebra.prototype.index].
+ *   of the [can-connect/base/base.listSet].  The item is inserted using [can-query-logic.prototype.index].
  *
  * @body
  *
