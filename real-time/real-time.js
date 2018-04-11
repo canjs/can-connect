@@ -126,7 +126,6 @@
  * ```
  */
 var connect = require("../can-connect");
-var setAdd = require("can-connect/helpers/set-add");
 var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
 var canDev = require('can-util/js/dev/dev');
 
@@ -402,7 +401,7 @@ var create = function(props){
 			if(index === -1) {
 				// get back the list items
 				var items = self.serializeList(list);
-				self.updatedList(list,  { data: setAdd(self, set,  items, props) }, set);
+				self.updatedList(list,  { data: self.queryLogic.insert( set,  items, props ) }, set);
 			} else {
 				// if the index
 			}
@@ -433,7 +432,7 @@ var update = function(props) {
 			items = self.serializeList(list);
 			if(index === -1) {
 				// get back the list items
-				self.updatedList(list,  { data: setAdd(self, set,  items, props) }, set);
+				self.updatedList(list,  { data: self.queryLogic.insert( set,  items, props ) }, set);
 			} else {
 				var sortedIndex = self.queryLogic.index(set, items, props);
 				if(sortedIndex !== undefined && sortedIndex !== index) {

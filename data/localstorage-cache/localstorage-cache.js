@@ -50,7 +50,6 @@ var connect = require("can-connect");
 var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var forEach = [].forEach;
 var map = [].map;
-var setAdd = require("can-connect/helpers/set-add");
 var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
 var assign = require("can-util/js/assign/assign");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
@@ -427,7 +426,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 			// for now go through every set, if this belongs, add
 			this._eachSet(function(setDatum, setKey, getItems){
 				if(this.queryLogic.isMember(setDatum.set, instance)) {
-					self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance), setDatum.set);
+					self.updateSet(setDatum,
+						self.queryLogic.insert(setDatum.set, getItems(), instance), setDatum.set);
 				}
 			});
 			return Promise.resolve(assign({},instance));
@@ -459,7 +459,8 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 					if(index === -1) {
 						// how to insert things together?
 
-						self.updateSet(setDatum, setAdd(self, setDatum.set,  getItems(), instance, self.queryLogic) );
+						self.updateSet(setDatum,
+							self.queryLogic.insert(setDatum.set, getItems(), instance) );
 					} else {
 						// otherwise add it
 						items.splice(index,1, instance);
