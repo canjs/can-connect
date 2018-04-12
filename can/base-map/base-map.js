@@ -10,7 +10,7 @@ var dataParse = require("../../data/parse/parse");
 var dataUrl = require("../../data/url/url");
 var realTime = require("../../real-time/real-time");
 var callbacksOnce = require("../../constructor/callbacks-once/callbacks-once");
-var GLOBAL = require("can-util/js/global/global");
+var GLOBAL = require("can-globals/global/global");
 
 
 var $ = GLOBAL().$;

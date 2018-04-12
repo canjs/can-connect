@@ -1,4 +1,4 @@
-var assign = require("can-util/js/assign/assign");
+var canReflect = require("can-reflect");
 
 var PolyWeakSet = function(getKey){
 	this.set = {};
@@ -8,7 +8,7 @@ var PolyWeakSet = function(getKey){
 // if weakmap, we can add and never worry ...
 // otherwise, we need to have a count ...
 
-assign(PolyWeakSet,{
+canReflect.assignMap(PolyWeakSet,{
 	has: function(item){
 		return !!this.set( this.getKey(item) );
 	},

@@ -5,7 +5,7 @@ var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
 var superMap = require("can-connect/can/super-map/");
 var set = require("can-set-legacy");
-var GLOBAL = require("can-util/js/global/global");
+var GLOBAL = require("can-globals/global/global");
 var stealClone = require("steal-clone");
 var QueryLogic = require("can-query-logic");
 
