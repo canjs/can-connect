@@ -25,7 +25,6 @@
     "can-stache-bindings": "^4.0.0",
     "can-string": "<2.0.0",
     "can-symbol": "^1.6.1",
-    "can-util": "^3.11.0",
     "can-validate-interface": "^1.0.0",
     "can-view-callbacks": "^4.0.0",
     "can-view-import": "^4.0.0",

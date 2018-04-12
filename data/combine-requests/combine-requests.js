@@ -1,6 +1,6 @@
 var connect = require("can-connect");
 var getItems = require("can-connect/helpers/get-items");
-var deepAssign = require("can-util/js/deep-assign/deep-assign");
+var canReflect = require("can-reflect");
 
 var makeDeferred = require("can-connect/helpers/deferred");
 var forEach = [].forEach;
@@ -221,7 +221,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 						// farm out requests
 						forEach.call(combinedData, function(combined){
 							// clone combine.set to prevent mutations by baseConnection.getListData
-							var combinedSet = deepAssign({}, combined.set);
+							var combinedSet = canReflect.serialize(combined.set);
 
 							baseConnection.getListData(combinedSet).then(function(data){
 								if(combined.pendingRequests.length === 1) {

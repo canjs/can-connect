@@ -55,7 +55,7 @@
  */
  var connect = require("can-connect");
  var each = require("can-reflect").each;
- var getObject = require("can-util/js/get/get");
+ var getObject = require("can-key/get/get");
 
 
 module.exports = connect.behavior("data/parse",function(baseConnection){

@@ -71,7 +71,7 @@
  * 1. URL values can include simple templates like `{id}`
  *    that replace that part of the URL with values in the data
  *    passed to the method.
- * 2. GET and DELETE request data is put in the URL using [can-util/js/param/param].
+ * 2. GET and DELETE request data is put in the URL using [can-param].
  * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
  *    as JSON-encoded data.  To use form-encoded requests instead, add the property
  *    `contentType:'application/x-www-form-urlencoded'` to your [can-connect/data/url/url.url].
@@ -216,7 +216,7 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
   * Specify the ajax functionality that should be used to make the request.
   *
   * @option {function} Provides an alternate function to be used to make
-  * ajax requests.  By default [can-util/dom/ajax/ajax] provides the ajax
+  * ajax requests.  By default [can-ajax] provides the ajax
   * functionality. jQuery's ajax method can be substituted as follows:
   *
   * ```js
