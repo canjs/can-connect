@@ -5,7 +5,7 @@ var canReflect = require("can-reflect");
 var fixture = require("can-fixture");
 // load connections
 var testHelpers = require("can-connect/test-helpers");
-var assign = require("can-util/js/assign/assign");
+var assign = canReflect.assignMap;
 var map = [].map;
 var later = testHelpers.later;
 var queues = require("can-queues");

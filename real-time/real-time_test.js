@@ -9,7 +9,7 @@ var testHelpers = require("can-connect/test-helpers");
 var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var canDev = require('can-log/dev/dev');
 var QueryLogic = require("can-query-logic");
 

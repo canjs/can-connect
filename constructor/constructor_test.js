@@ -3,7 +3,7 @@ var fixture = require("can-fixture");
 var persist = require("can-connect/data/url/");
 var connect = require("can-connect/can-connect");
 var constructor = require("can-connect/constructor/");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var QueryLogic = require("can-query-logic");
 
 var logErrorAndStart = function(e){

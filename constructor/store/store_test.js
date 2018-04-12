@@ -6,7 +6,7 @@ var constructor = require("can-connect/constructor/");
 var instanceStore = require("can-connect/constructor/store/");
 var connect = require("can-connect/can-connect");
 var testHelpers = require("can-connect/test-helpers");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var QueryLogic = require("can-query-logic");
 
 instanceStore.requestCleanupDelay = 1;

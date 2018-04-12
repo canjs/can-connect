@@ -115,7 +115,7 @@
  *
  */
 var makeArray = require("can-util/js/make-array/make-array");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");

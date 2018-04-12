@@ -1,4 +1,4 @@
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 
 
 var WeakReferenceSet = function(){

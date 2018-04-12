@@ -1,4 +1,4 @@
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.

@@ -42,7 +42,7 @@
  * ```
  */
 var connect = require("can-connect");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var each = require("can-reflect").each;
 
 // wires up the following methods

@@ -51,7 +51,7 @@ var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
 var forEach = [].forEach;
 var map = [].map;
 var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 
 module.exports = connect.behavior("data/localstorage-cache",function(baseConnection){
