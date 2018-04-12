@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 
-var canLog = require("can-util/js/log/log");
+var canLog = require("can-log");
 var canReflect = require("can-reflect");
 var fixture = require("can-fixture");
 // load connections
@@ -91,7 +91,7 @@ module.exports = function(makeTypes){
     			if(state.get() === "destroyData-important-1") {
     				state.next();
     				// todo change to all props
-					
+
 					return assign({destroyed:  1},request.data);
     			}
     		}

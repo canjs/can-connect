@@ -1,6 +1,6 @@
 var connect = require("can-connect");
 var makeDeferred = require("can-connect/helpers/deferred");
-var canLog = require("can-util/js/log/log");
+var canLog = require("can-log");
 
 module.exports = connect.behavior("data/worker",function(baseConnection){
 

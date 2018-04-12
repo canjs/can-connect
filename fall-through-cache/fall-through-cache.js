@@ -71,7 +71,7 @@
  */
 var connect = require("can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
-var canLog = require("can-util/js/log/log");
+var canLog = require("can-log");
 
 var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnection){
 
