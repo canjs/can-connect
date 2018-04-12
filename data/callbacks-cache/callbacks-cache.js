@@ -43,7 +43,7 @@
  */
 var connect = require("can-connect");
 var assign = require("can-util/js/assign/assign");
-var each = require("can-util/js/each/each");
+var each = require("can-reflect").each;
 
 // wires up the following methods
 var pairs = {

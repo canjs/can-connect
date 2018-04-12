@@ -54,7 +54,7 @@
  *
  */
  var connect = require("can-connect");
- var each = require("can-util/js/each/each");
+ var each = require("can-reflect").each;
  var getObject = require("can-util/js/get/get");
 
 

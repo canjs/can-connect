@@ -25,7 +25,7 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var testHelpers = require("can-connect/test-helpers");
 var map = [].map;
-var assign = require("can-util/js/assign/assign");
+
 
 var later = testHelpers.later;
 
@@ -122,14 +122,14 @@ QUnit.test("real-time super model", function(){
 			if( state.get() === "createData-today+important" ) {
 				state.next();
 				// todo change to all props
-				return assign({id: 10}, request.data);
+				return canReflect.assignMap({id: 10}, request.data);
 			}
 		},
 		"PUT /services/todos/{id}": function(request){
 			if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 				state.next();
 				// todo change to all props
-				return assign({},request.data);
+				return canReflect.assignMap({},request.data);
 			} else {
 				ok(false, "bad state!");
 				start();
@@ -139,7 +139,7 @@ QUnit.test("real-time super model", function(){
 			if(state.get() === "destroyData-important-1") {
 				state.next();
 				// todo change to all props
-				return assign({destroyed:  1},request.data);
+				return canReflect.assignMap({destroyed:  1},request.data);
 			} else {
 				ok(false, "bad state!");
 				start();
@@ -328,13 +328,13 @@ test("isSaving and isDestroying", function(){
 
 	fixture({
 		"POST /services/todos": function(request){
-			return assign({id: 10}, request.data);
+			return canReflect.assignMap({id: 10}, request.data);
 		},
 		"PUT /services/todos/{id}": function(request){
-			return assign({},request.data);
+			return canReflect.assignMap({},request.data);
 		},
 		"DELETE /services/todos/{id}": function(request){
-			return assign({destroyed:  1},request.data);
+			return canReflect.assignMap({destroyed:  1},request.data);
 		}
 	});
 

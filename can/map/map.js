@@ -1,17 +1,19 @@
 "use strict";
-var each = require("can-util/js/each/each");
+
+var canReflect = require("can-reflect");
+var each = canReflect.each;
+var isPlainObject = canReflect.isPlainObject;
 
 var connect = require("can-connect");
 var queues = require("can-queues");
 var eventQueue = require("can-event-queue/map/map");
 var ObservationRecorder = require("can-observation-recorder");
-
-var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
-var each = require("can-util/js/each/each");
-var dev = require("can-util/js/dev/dev");
-var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 var QueryLogic = require("can-query-logic");
+
+var dev = require("can-log/dev/dev");
+
+
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var assignDeepExceptIdentity = require("can-diff/assign-deep-except-identity/assign-deep-except-identity");
 
@@ -235,7 +237,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		list: function(listData, set){
 			var _List = this.List || (this.Map && this.Map.List);
 			var list = new _List(listData.data);
-			each(listData, function (val, prop) {
+			canReflect.eachKey(listData, function (val, prop) {
 				if (prop !== 'data') {
 					canReflect.setKeyValue(list, prop, val);
 				}

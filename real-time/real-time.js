@@ -127,7 +127,7 @@
  */
 var connect = require("../can-connect");
 var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
-var canDev = require('can-util/js/dev/dev');
+var canDev = require('can-log/dev/dev');
 
 module.exports = connect.behavior("real-time",function(baseConnection){
 

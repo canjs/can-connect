@@ -10,7 +10,7 @@ var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
 var assign = require("can-util/js/assign/assign");
-var canDev = require('can-util/js/dev/dev');
+var canDev = require('can-log/dev/dev');
 var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/real-time",{});

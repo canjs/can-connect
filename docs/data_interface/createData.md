@@ -7,14 +7,14 @@
 
 Creates a new record given the serialized form of the data. Resolves to a promise with any additional
 properties that should be added to the
-instance. A [can-util/js/cid/cid client ID] is passed of the instance that is
+instance. A [can-cid client ID] is passed of the instance that is
 being created.
 
 The following shows how [can-connect/constructor/constructor] calls `createData`
 and what it does with the response:
 
 ```js
-import CID from "can-util/js/cid/cid";
+import CID from "can-cid";
 
 // Create an instance of a special type
 const myInstance = new MyType( { /* ... */ } );
