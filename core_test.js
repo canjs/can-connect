@@ -45,3 +45,35 @@ QUnit.test("Everything available at can-connect/all", function(){
 		QUnit.ok(all[behaviorName], 'behavior in place: ' + behaviorName);
 	});
 });
+
+QUnit.test("queryLogic falls", function(){
+    var algebra = {};
+
+    var connection = connect([{
+        methodThatChecksAlgebra: function(){
+            QUnit.equal(this.queryLogic, algebra);
+        }
+    }],
+    {
+        algebra: algebra
+    });
+
+    connection.methodThatChecksAlgebra();
+
+	connection = connect([{
+        methodThatChecksAlgebra: function(){
+            QUnit.equal(this.queryLogic, algebra);
+        }
+    }],
+    {
+        queryLogic: algebra
+    });
+
+	connection.methodThatChecksAlgebra();
+
+    /*
+    var connection = connect([
+        ,
+        base],
+    );*/
+});

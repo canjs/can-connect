@@ -150,7 +150,15 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 */
 		listSetProp: canSymbol.for("can.listSet"),
 
-		init: function(){}
+		init: function(){},
+
+		get queryLogic(){
+			if(baseConnection.queryLogic) {
+				return baseConnection.queryLogic;
+			} else if(baseConnection.algebra) {
+				return baseConnection.algebra;
+			}
+		}
 
 		/**
 		 * @property {can-query-logic} can-connect/base/base.queryLogic queryLogic
@@ -185,6 +193,7 @@ module.exports = connect.behavior("base",function(baseConnection){
 		 *   {page: {first:5, last:20}}); //-> {first:5, last:10}
 		 * ```
 		 */
+
 
 		/**
 		 * @property {can-connect/DataInterface} can-connect/base/base.cacheConnection cacheConnection
