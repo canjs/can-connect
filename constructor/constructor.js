@@ -114,8 +114,9 @@
  * - [can-connect/constructor/constructor.serializeList] - return raw data representing the state of the typed list argument
  *
  */
-var makeArray = require("can-util/js/make-array/make-array");
-var assign = require("can-reflect").assignMap;
+var canReflect = require("can-reflect");
+var makeArray = canReflect.toArray;
+var assign = canReflect.assignMap;
 var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
@@ -130,10 +131,10 @@ module.exports = connect.behavior("constructor",function(baseConnection){
 		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/constructor.cidStore cidStore
 		 * @parent can-connect/constructor/constructor.helpers
 		 *
-		 * Temporarily hold references to new instances via their [can-util/js/cid/cid] while they are undergoing creation.
+		 * Temporarily hold references to new instances via their [can-cid] while they are undergoing creation.
 		 *
 		 * @option {can-connect/helpers/weak-reference-map} Temporarily holds references to instances by
-		 * [can-util/js/cid/cid] when they are in the process of being created and don't yet have an `id`s. This is typically
+		 * [can-cid] when they are in the process of being created and don't yet have an `id`s. This is typically
 		 * accessed in `createdData` handlers (e.g [can-connect/real-time/real-time.createdData real-time.createdData]) that
 		 * need to lookup the instance that was being created during a particular request.
 		 */
