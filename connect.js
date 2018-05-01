@@ -1,4 +1,6 @@
 var assign = require("can-reflect").assignMap;
+var behavior = require("./behavior");
+
 /**
  *
  * @param {Array<String,Behavior,function>} behaviors - An array of behavior names or custom behaviors.
@@ -12,7 +14,7 @@ var connect = function(behaviors, options){
 		var sortedIndex = -1;
 		if(typeof behavior === "string") {
 			sortedIndex = connect.order.indexOf(behavior);
-			behavior = behaviorsMap[behavior];
+			behavior = behavior.map[behavior];
 		} else if(behavior.isBehavior) {
 			sortedIndex = connect.order.indexOf(behavior.behaviorName);
 		} else {
@@ -61,31 +63,8 @@ connect.order = ["data/localstorage-cache","data/url","data/parse","cache-reques
 	"data/callbacks-cache","data/callbacks","constructor/callbacks-once"
 ];
 
-connect.behavior = function(name, behavior){
-	if(typeof name !== "string") {
-		behavior = name;
-		name = undefined;
-	}
-	var behaviorMixin = function(base){
-		// basically Object.create
-		var Behavior = function(){};
-		Behavior.name = name;
-		Behavior.prototype = base;
-		var newBehavior = new Behavior();
-		// allows behaviors to be a simple object, not always a function
-		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
-		assign(newBehavior, res);
-		newBehavior.__behaviorName = name;
-		return newBehavior;
-	};
-	if(name) {
-		behaviorMixin.behaviorName = name;
-		behaviorsMap[name] = behaviorMixin;
-	}
-	behaviorMixin.isBehavior = true;
-	return behaviorMixin;
-};
+connect.behavior = behavior;
 
-var behaviorsMap = {};
+
 
 module.exports= connect;

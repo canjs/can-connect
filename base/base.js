@@ -1,4 +1,4 @@
-var connect = require("can-connect/connect");
+var behavior = require("../behavior");
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 
@@ -40,7 +40,7 @@ var canSymbol = require("can-symbol");
  *
  * @return {Object} A `can-connect` connection containing the methods provided by `base`.
  */
-module.exports = connect.behavior("base",function(baseConnection){
+module.exports = behavior("base",function(baseConnection){
 	return {
 		/**
 		 * @function can-connect/base/base.id id

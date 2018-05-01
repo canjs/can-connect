@@ -117,12 +117,12 @@
 var canReflect = require("can-reflect");
 var makeArray = canReflect.toArray;
 var assign = canReflect.assignMap;
-var connect = require("can-connect");
 var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var idMerge = require("can-connect/helpers/id-merge");
+var behavior = require("../../behavior");
 
-module.exports = connect.behavior("constructor",function(baseConnection){
+module.exports = behavior("constructor",function(baseConnection){
 
 	var behavior = {
 		// stores references to instances

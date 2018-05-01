@@ -98,7 +98,7 @@ var ajax = require("can-ajax");
 var replaceWith = require("can-key/replace-with/replace-with");
 var canReflect = require("can-reflect");
 var dev = require("can-log/dev/dev");
-var connect = require("can-connect");
+var behavior = require("../../behavior");
 var makeRest = require("can-make-rest");
 
 var defaultRest = makeRest("/resource/{id}");
@@ -108,7 +108,7 @@ var makePromise = require("can-util/js/make-promise/make-promise");
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-var urlBehavior = connect.behavior("data/url", function(baseConnection) {
+var urlBehavior = behavior("data/url", function(baseConnection) {
 	var behavior = {};
 	canReflect.eachKey(defaultRest, function(defaultData, dataInterfaceName){
 		behavior[dataInterfaceName] = function(params) {

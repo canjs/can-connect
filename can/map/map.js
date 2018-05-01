@@ -4,7 +4,6 @@ var canReflect = require("can-reflect");
 var each = canReflect.each;
 var isPlainObject = canReflect.isPlainObject;
 
-var connect = require("can-connect");
 var queues = require("can-queues");
 var eventQueue = require("can-event-queue/map/map");
 var ObservationRecorder = require("can-observation-recorder");
@@ -13,11 +12,11 @@ var QueryLogic = require("can-query-logic");
 
 var dev = require("can-log/dev/dev");
 
-
+var behavior = require("../../behavior");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var assignDeepExceptIdentity = require("can-diff/assign-deep-except-identity/assign-deep-except-identity");
 
-var canMapBehavior = connect.behavior("can/map",function(baseConnection){
+var canMapBehavior = behavior("can/map",function(baseConnection){
 
 	// overwrite
 	var behavior = {

@@ -53,12 +53,12 @@
  * ```
  *
  */
- var connect = require("can-connect");
- var each = require("can-reflect").each;
- var getObject = require("can-key/get/get");
 
+var each = require("can-reflect").each;
+var getObject = require("can-key/get/get");
+var behavior = require("../../behavior");
 
-module.exports = connect.behavior("data/parse",function(baseConnection){
+module.exports = behavior("data/parse",function(baseConnection){
 
 	var behavior = {
     /**
