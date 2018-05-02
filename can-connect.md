@@ -54,9 +54,9 @@ checkout:
 - [can-super-model] - Same as [can-realtime-rest-model], but adds fall-through localStorage caching.
 
 `can-connect` includes behaviors used to assemble _data models_. It includes the
-following behavior that:
+following behaviors that:
 
-Load data:
+__Load data:__
 
  - [can-connect/data/url/url data/url] —
     Persist data to RESTful or other types of HTTP services.
@@ -64,7 +64,7 @@ Load data:
  - [can-connect/data/parse/parse data/parse] —
     Convert response data into a format needed for other extensions.
 
-Convert data into special types:
+__Convert data into special types:__
 
  - [can-connect/constructor/constructor constructor/] —
     Create instances of a provided constructor function or list type.
@@ -72,12 +72,12 @@ Convert data into special types:
  - [can-connect/constructor/store/store constructor/store] —
     Prevent multiple instances of a given id or multiple lists of a given set from being created.
 
-Keep lists updated with the most current data:
+__Keep lists updated with the most current data:__
 
  - [can-connect/real-time/real-time real-time] —
     Lists updated when instances are created or deleted.
 
-Implement caching strategies:
+__Implement caching strategies:__
 
  - [can-connect/fall-through-cache/fall-through-cache fall-through-cache] —
     Use [connection.cacheConnection cache] data if possible when creating instances,
@@ -89,7 +89,7 @@ Implement caching strategies:
  - [can-connect/data/combine-requests/combine-requests data/combine-requests] —
     Combine overlapping or redundant requests.
 
-Provide caching storage (as a [connection.cacheConnection cacheConnection]):
+__Provide caching storage (as a [connection.cacheConnection cacheConnection]):__
 
  - [can-connect/data/localstorage-cache/localstorage-cache data/localstorage-cache] —
     LocalStorage caching connection.
@@ -97,7 +97,7 @@ Provide caching storage (as a [connection.cacheConnection cacheConnection]):
  - [can-connect/data/memory-cache/memory-cache data/memory-cache] —
     In-memory caching connection.
 
-Glue certain behaviors together:
+__Glue certain behaviors together:__
 
  - [can-connect/data/callbacks/callbacks data/callbacks] —
     Add callback hooks are passed the results of the DataInterface methods (CRUD operations).
@@ -106,7 +106,7 @@ Glue certain behaviors together:
     Handle [can-connect/data/callbacks/callbacks data/callbacks] and update the [connection.cacheConnection cache]
     when CRUD operations complete.
 
-Provide convenient integration with CanJS:
+__Provide convenient integration with CanJS:__
 
  - [can-connect/can/map/map can/map] —
     Create [can-define/map/map] or [can-define/list/list] instances from responses. Adds connection-aware
