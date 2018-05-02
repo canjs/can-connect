@@ -16,7 +16,11 @@ function behavior(name, behavior){
 		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function
 		var res = typeof behavior === "function" ? behavior.apply(newBehavior, arguments) : behavior;
-		assign(newBehavior, res);
+		for(var prop in res) {
+			if(res.hasOwnProperty(prop)) {
+				Object.defineProperty(newBehavior, prop, Object.getOwnPropertyDescriptor(res, prop));
+			}
+		}
 		newBehavior.__behaviorName = name;
 		return newBehavior;
 	};

@@ -267,9 +267,13 @@ QUnit.test("clearing localStorage clears set info", function(){
 
 QUnit.test("using queryLogic (#72)", function(){
 	var connection = this.connection;
+	
 	connection.queryLogic = new canSet.Algebra(new canSet.Translate("where","$where"));
 	QUnit.stop();
-	connection.updateListData({ data: [{id: 1, placeId: 2, name: "J"}] }, {$where: {placeId: 2}}).then(function(){
+	connection.updateListData(
+		{ data: [{id: 1, placeId: 2, name: "J"}] },
+		{$where: {placeId: 2}}
+		).then(function(){
 		connection.updateData({id: 1, placeId: 2, name: "B"}).then(function(){
 			connection.getListData({$where: {placeId: 2}}).then(function(items){
 				QUnit.equal(items.data.length, 1, "still have the item");

@@ -39,7 +39,7 @@
  * }
  * ```
  *
- * To correct this, you can configure `data-parse` to use the [can-connect/data/parse/parse.parseListProp] and [connection.parseInstanceProp]
+ * To correct this, you can configure `data-parse` to use the [can-connect/data/parse/parse.parseListProp] and [can-connect/data/parse/parse.parseInstanceProp]
  * as follows:
  *
  * ```
@@ -168,7 +168,7 @@ module.exports = behavior("data/parse",function(baseConnection){
      *
      * @signature `connection.parseInstanceData(responseData)`
      *
-     *   This function will use [connection.parseInstanceProp] to find the data object
+     *   This function will use [can-connect/data/parse/parse.parseInstanceProp] to find the data object
      *   representing the instance that will be created.
      *
      *   @param {Object} responseData The response data from [can-connect/connection.getData], [can-connect/connection.createData], or [can-connect/connection.updateData].
@@ -274,7 +274,7 @@ module.exports = behavior("data/parse",function(baseConnection){
 		 *
 		 */
 		/**
-		 * @property {String} connection.parseInstanceProp parseInstanceProp
+		 * @property {String} can-connect/data/parse/parse.parseInstanceProp parseInstanceProp
 		 * @parent can-connect/data/parse/parse
 		 *
 		 * The property to find the data that represents an instance item.

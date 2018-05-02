@@ -7,8 +7,7 @@
 @outline 2
 @package ./package.json
 
-@description `can-connect` provides persisted data middleware. Assemble powerful model layers for any JavaScript
-project from fully modularized behaviors (i.e. plugins).
+@description `can-connect` provides persisted data middleware. Assemble powerful model layers from fully modularized behaviors (i.e. plugins).
 
 
 @signature `connect(behaviors, options)`
@@ -18,8 +17,8 @@ Iterate through passed behaviors and assemble them into a connection.
 ```js
 import connect from "can-connect";
 import dataUrl from "can-connect/data/url/";
-import constructor from "can-connect/constructor/";
-const todosConnection = connect( [ dataUrl, constructor ], {
+import connectConstructor from "can-connect/constructor/";
+const todosConnection = connect( [ dataUrl, connectConstructor ], {
 	url: "/api/todos"
 } );
 ```
@@ -33,7 +32,29 @@ const todosConnection = connect( [ dataUrl, constructor ], {
 
 @body
 
-`can-connect` includes behaviors that:
+## Purpose
+
+`can-connect` provides a wide variety of functionality useful for building
+_data models_. _Data models_ are used to organize how an application
+connects with persisted data. _Data models_ can greatly simplify higher order
+functionality like components. Most commonly, `can-connect` is used to
+create _data models_ that make it easy to create, retrieve, update, and
+delete (CRUD) data by making HTTP requests to a backend server's service layer.
+
+Unfortunately, there is a wide variety of service layer APIs. While REST, JSONAPI,
+GRAPHQL and other specifications attempt to create a uniform service layer, a
+one-size-all approach would leave many CanJS users having to build their own data layer from scratch.
+
+Thus, `can-connect`'s primary design goal is flexibility and re-usability,
+__not ease of use__. Some assembly is required! For easier, pre-assembled, _data models_,
+checkout:
+
+- [can-rest-model] - Connect a data type to a restful service layer.
+- [can-realtime-rest-model] - Same as [can-rest-model], but adds automatic list management.
+- [can-super-model] - Same as [can-realtime-rest-model], but adds fall-through localStorage caching.
+
+`can-connect` includes behaviors used to assemble _data models_. It includes the
+following behavior that:
 
 Load data:
 
@@ -99,14 +120,6 @@ Provide convenient integration with CanJS:
  - [can-connect/can/constructor-hydrate/constructor-hydrate can/constructor-hydrate] - Always check the
     instanceStore when creating new instances of the connection Map type.
 
-`can-connect` also provides several other non-behavior utilities for connection ease of use in CanJS:
- - [can-connect/can/super-map/super-map] — Create a connection for [can-define/map/map can-define/map] or
-    [can-define/list/list can-define/list] types using nearly all behaviors.
-
- - [can-connect/can/model/model] — Create [can-map] types that emulate the interface of
-    [can.Model](http://v2.canjs.com/docs/can.Model.html). Used for CanJS 2.x migrations.
-
- - [can-connect/can/tag/tag] — Create a custom element that can load data into a template.
 
 
 ## Overview

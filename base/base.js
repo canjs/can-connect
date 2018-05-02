@@ -41,6 +41,7 @@ var canSymbol = require("can-symbol");
  * @return {Object} A `can-connect` connection containing the methods provided by `base`.
  */
 module.exports = behavior("base",function(baseConnection){
+	var setQueryLogic;
 	return {
 		/**
 		 * @function can-connect/base/base.id id
@@ -153,11 +154,16 @@ module.exports = behavior("base",function(baseConnection){
 		init: function(){},
 
 		get queryLogic(){
-			if(baseConnection.queryLogic) {
+			if(setQueryLogic) {
+				return setQueryLogic;
+			} else if(baseConnection.queryLogic) {
 				return baseConnection.queryLogic;
 			} else if(baseConnection.algebra) {
 				return baseConnection.algebra;
 			}
+		},
+		set queryLogic(newVal) {
+			setQueryLogic = newVal;
 		}
 
 		/**
