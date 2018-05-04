@@ -19,7 +19,7 @@ Those methods are:
 - [can-connect/connection.destroyData] - Destroy a record.
 - [can-connect/connection.getData] - Get a single record.
 - [can-connect/connection.getListData] - Get multiple records.
-- [can-connect/connection.getSets] - Get the [can-set/Set]s available within the persisted storage.
+- [can-connect/connection.getSets] - Get the [can-query-logic/query]s available within the persisted storage.
 - [can-connect/connection.updateData] - Update a single record.
 - [can-connect/connection.updateListData] - Update multiple records.
 

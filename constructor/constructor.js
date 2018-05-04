@@ -191,7 +191,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * [can-connect/constructor/constructor.hydrateList], creating a typed list of typed instances from  the retrieved
 		 * data.
 		 *
-		 * @param {can-set/Set} set data specifying the range of instances to retrieve. This might look something like:
+		 * @param {can-query-logic/query} query data specifying the range of instances to retrieve. This might look something like:
 		 * ```{start: 0, end: 50, due: 'today'}```
 		 *
 		 * @return {Promise<can-connect.List<can-connect/Instance>>} `Promise` resolving to the typed list returned by
@@ -233,7 +233,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *   provided as an argument or implemented by another behavior, a normal array is created.
 		 *
 		 *   @param {can-connect.listData} listData the raw list data returned by the data source, often via [can-connect/connection.getListData]
-		 *   @param {can-set/Set} set description of the set of data `listData` represents
+		 *   @param {can-query-logic/query} query description of the set of data `listData` represents
 		 *
 		 *   @return {can-connect.List} a typed list containing typed instances generated from `listData`
 		 */
@@ -522,7 +522,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * @param {can-connect/Instance} list an existing list
 		 * @param {can-connect.listData} listData raw data that should be included as part of `list` after conversion to typed instances
-		 * @param {can-set/Set} set description of the set of data `list` represents
+		 * @param {can-query-logic/query} query description of the set of data `list` represents
 		 */
 		updatedList: function(list, listData, set) {
 			var instanceList = [];
@@ -628,7 +628,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * Called by [can-connect/constructor/constructor.hydrateList].
 		 *
 		 * @param {can-connect.listData} listData an object with a `data` property, which is an array of instances.
-		 * @param {can-set/Set} set the set description of this list
+		 * @param {can-query-logic/query} query the set description of this list
 		 * @return {can-connect.List} a typed list type containing the typed instances
 		 *
 		 * ### Usage

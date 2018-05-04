@@ -246,7 +246,7 @@ var methodMetaData = {
 	 *   string, a request to that string will be made. If `url` is a string, a `GET` request is made to
 	 *   `url`.
 	 *
-	 *   @param {can-set/Set} set A object that represents the set of data needed to be loaded.
+	 *   @param {can-query-logic/query} query A object that represents the set of data needed to be loaded.
 	 *   @return {Promise<can-connect.listData>} A promise that resolves to the ListData format.
 	 */
 	getListData: {},

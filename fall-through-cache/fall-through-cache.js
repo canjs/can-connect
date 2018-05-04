@@ -90,7 +90,7 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 		 *   calls them.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {can-set/Set} set
+		 *   @param {can-query-logic/query} query
 		 *   @return {can-connect.List}
 		 */
 		hydrateList: function(listData, set){
@@ -136,7 +136,7 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 		 *   is used to load the data and the cached connection is updated with that
 		 *   data.
 		 *
-		 *   @param {can-set/Set} set The set to load.
+		 *   @param {can-query-logic/query} query The set to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that returns the
 		 *   raw data.

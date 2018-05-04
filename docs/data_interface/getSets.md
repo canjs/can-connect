@@ -5,7 +5,7 @@
 
 @option {function}
 
-  Returns a promise that resolves to a list of [can-set/Set] objects contained in the
+  Returns a promise that resolves to a list of [can-query-logic/query] objects contained in the
   connection.  This is useful for querying a [can-connect/base/base.cacheConnection]
   if it will be able to satisfy a request.
 
@@ -20,7 +20,7 @@ connection.getSets().then( function( sets ) {
 } );
 ```
 
-  @return {Promise<Array<can-set/Set>>} A promise that resolves to an an array of sets.
+  @return {Promise<Array<can-query-logic/query>>} A promise that resolves to an an array of sets.
 
 @body
 

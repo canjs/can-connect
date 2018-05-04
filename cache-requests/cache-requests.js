@@ -190,7 +190,7 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 *
 		 *   Uses [can-query-logic.prototype.unionMembers] to merge the two queries of data (`neededData` & `cachedData`).
 		 *
-		 * @param {can-set/Set} set The parameters of the data set requested.
+		 * @param {can-query-logic/query} query The parameters of the data set requested.
 		 * @param {Object} diff The result of [can-connect/cache-requests/cache-requests.getDiff].
 		 * @param {can-connect.listData} neededData The data loaded from the base connection.
 		 * @param {can-connect.listData} cachedData The data loaded from the [can-connect/base/base.cacheConnection].
@@ -219,7 +219,7 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 		 *   With that information, this `getListData` requests data from the cache or the base connection as needed.
 		 *   Data loaded from different sources is combined via [can-connect/cache-requests/cache-requests.unionMembers].
 		 *
-		 * @param {can-set/Set} set the parameters of the list that is being requested.
+		 * @param {can-query-logic/query} query the parameters of the list that is being requested.
 		 * @return {Promise<can-connect.listData>} a promise that returns an object conforming to the [can-connect.listData] format.
 		 */
 		getListData: function(set){

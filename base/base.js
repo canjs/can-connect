@@ -85,7 +85,13 @@ module.exports = behavior("base",function(baseConnection){
 		 *
 		 */
 		id: function(instance){
-			return canReflect.getIdentity(instance, this.queryLogic.schema);
+			if(this.queryLogic) {
+				return canReflect.getIdentity(instance, this.queryLogic.schema);
+			} else if(this.idProp) {
+				return instance[this.idProp];
+			} else {
+				throw new Error("can-connect/base/base - Please add a queryLogic option.")
+			}
 		},
 
 

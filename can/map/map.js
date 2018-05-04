@@ -229,7 +229,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		 *   ```
 		 *
 		 *   @param {can-connect.listData} listData the raw list data.
-		 *   @param {can-set/Set} set the set the data belongs to.
+		 *   @param {can-query-logic/query} query the set the data belongs to.
 		 *   @return {can-connect.List} a [can-connect/can/map/map._List] instance containing instances of
 		 *   [can-connect/can/map/map._Map] built from the list items in `listData`.
 		 */
@@ -259,7 +259,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		 *
 		 *   @param {can-connect.List} list the list to be updated.
 		 *   @param {can-connect.listData} listData raw list data.
-		 *   @param {can-set/Set} set the set of the list being updated.
+		 *   @param {can-query-logic/query} query the set of the list being updated.
 		 */
 		updatedList: function(list, listData, set){
 			queues.batch.start();
@@ -430,7 +430,7 @@ var mapOverwrites = {
 		 * [can-connect/can/map/map._Map] instances via the connection.
 		 *
 		 * @signature `Map.getList(set)`
-		 * @param {can-set/Set} set set definition of the list being retrieved
+		 * @param {can-query-logic/query} query set definition of the list being retrieved
 		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._List] of instances being retrieved
 		 *
 		 * ### Usage

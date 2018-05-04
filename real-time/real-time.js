@@ -18,7 +18,7 @@
  *   updated, or destroyed instance.
  *
  *   An instance is put in a list if it is a
- *   [set.isSubset](https://github.com/canjs/can-set#setsubset)
+ *   [can-query-logic/queryLogic.prototype.isSubset]
  *   of the [can-connect/base/base.listSet].  The item is inserted using [can-query-logic.prototype.index].
  *
  * @body
@@ -368,8 +368,8 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 					item = items.data[i];
 					if( !self.queryLogic.isMember(set, item) ) {
 						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
-							+ "Read the docs for more information: https://canjs.com/doc/can-set.html#SolvingCommonIssues"
-							+ "\n\nBelow are the 'Set' parameters:"
+							+ "Read the docs for more information: https://canjs.com/doc/can-query-logic.html#TestingyourQueryLogic"
+							+ "\n\nBelow are the 'query' parameters:"
 							+ "\n" + canDev.stringify(set)
 							+ "\n\nAnd below is an item which does not match those parameters:"
 							+ "\n" + canDev.stringify(item);

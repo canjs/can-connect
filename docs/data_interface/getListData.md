@@ -13,7 +13,7 @@ connection.getListData( { complete: true } ).then( function( listData ) {
 } );
 ```
 
-  @param {can-set/Set} set A object that represents the set of data needed to be loaded.  For example, `{complete: true}`
+  @param {can-query-logic/query} query A object that represents the set of data needed to be loaded.  For example, `{complete: true}`
   might represent the set of all completed records.
 
   @return {Promise<can-connect.listData>} A promise that resolves to the [can-connect.listData] format like:

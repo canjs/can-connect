@@ -301,7 +301,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 *   Goes through each set add by [can-connect/data/memory-cache.updateListData]. If
 		 *   `set` is a subset, uses [can-connect/base/base.queryLogic] to get the data for the requested `set`.
 		 *
-		 *   @param {can-set/Set} set An object that represents the data to load.
+		 *   @param {can-query-logic/query} query An object that represents the data to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that resolves if `set` is a subset of
 		 *   some data added by [can-connect/data/memory-cache.updateListData].  If it is not,
@@ -384,7 +384,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 		 *   unable to merge this data, saves the set by itself.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {can-set/Set} set
+		 *   @param {can-query-logic/query} query
 		 *   @return {Promise} Promise resolves if and when the data has been successfully saved.
 		 */
 		updateListData: function(data, set){

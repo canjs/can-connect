@@ -202,7 +202,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 		 * data has returned, the individual calls to `getListData` are resolved with a
 		 * [can-query-logic.prototype.filterMembers calculated subset] of the unified data.
 		 *
-		 * @param {can-set/Set} set the parameters of the requested set of data
+		 * @param {can-query-logic/query} query the parameters of the requested set of data
 		 * @return {Promise<can-connect.listData>} `Promise` resolving the data of the requested set
 		 */
 		getListData: function(set){
@@ -277,7 +277,7 @@ module.exports = validate(combineRequests, ['getListData']);
  * the unified request completes instances of these types are processed to complete the individual requests with the
  * subset of the unified data.
  *
- * @option {can-set/Set} set a requested [can-set/Set set] of data that has been unified into the combined request
+ * @option {can-query-logic/query} query a requested [can-set/Set set] of data that has been unified into the combined request
  * @option {{}} deferred a type that keeps track of the individual [can-connect/data/combine-requests.getListData]
  * promise that will be resolved after the unified request completes
  */

@@ -382,8 +382,8 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * [can-connect/constructor/store/store.listStore].  Keeps a count of the number of references, removing the list
 		 * from the store when the count reaches 0.
 		 *
-		 * @param {can-connect.List} list the list to add
-		 * @param {can-set/Set} [set] the set this list represents if it can't be identified with [can-connect/base/base.listSet]
+		 * @param {can-connect.List} list The list to add.
+		 * @param {can-query-logic/query} [query] The set this list represents if it can't be identified with [can-connect/base/base.listSet].
 		 *
 		 * @body
 		 *
@@ -573,7 +573,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *   If there isn't a matching list, the base `hydrateList` will be called.
 		 *
 		 *   @param {can-connect.listData} listData raw list data to hydrate into a list type
-		 *   @param {can-set/Set} set the parameters that represent the set of data in `listData`
+		 *   @param {can-query-logic/query} query the parameters that represent the set of data in `listData`
 		 *   @return {List} a typed list from either created or updated with the data from `listData`
 		 */
 		hydrateList: function(listData, set){
@@ -603,7 +603,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * decrements the counter after the request is complete. This prevents concurrent requests for the same data from
 		 * returning different instances.
 		 *
-		 * @param {can-set/Set} listSet parameters specifying the list to retrieve
+		 * @param {can-query-logic/query} listQuery parameters specifying the list to retrieve
 		 * @return {Promise<can-connect/Instance>} `Promise` returned by the underlying behavior's [can-connect/connection.getList]
 		 */
 		getList: function(listSet) {

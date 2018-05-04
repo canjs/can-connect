@@ -280,6 +280,11 @@ const todo = new Todo( {
 	name: "take out trash"
 } );
 
+```
+
+foo
+
+```js
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
 todoConnection.save( todo ).then( function( todo ) {
@@ -329,7 +334,7 @@ behavior with your own behavior.
 For example, [can-connect/constructor/constructor constructor/constructor]’s
 [can-connect/constructor/constructor.updatedInstance updatedInstance] method sets the instance’s
 properties to match the result of [can-connect/connection.updateData updateData]. But if the
-`PUT /api/todos/5 {name:"take out garbage""}` request returns `{}`, the following example would
+`PUT /api/todos/5 {name:"take out garbage"}` request returns `{}`, the following example would
 result in a todo with only an `id` property:
 
 ```js
