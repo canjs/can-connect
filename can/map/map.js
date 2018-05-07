@@ -15,6 +15,25 @@ var dev = require("can-log/dev/dev");
 var behavior = require("../../behavior");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var assignDeepExceptIdentity = require("can-diff/assign-deep-except-identity/assign-deep-except-identity");
+var smartMerge = require('can-diff/merge-deep/merge-deep');
+var canSymbol = require("can-symbol");
+var getNameSymbol = canSymbol.for("can.getName");
+
+function smartMergeExceptIdentity(dest, source, schema) {
+	if(!schema) {
+        schema = canReflect.getSchema(dest);
+    }
+    if(!schema) {
+        throw new Error("can-connect/can/map/ is unable to update without a schema.");
+    }
+	schema.identity.forEach(function(key){
+        var id = canReflect.getKeyValue(dest, key);
+        if(id!== undefined) {
+            canReflect.setKeyValue(source, key, id );
+        }
+    });
+	smartMerge(dest, source);
+}
 
 var canMapBehavior = behavior("can/map",function(baseConnection){
 
@@ -24,10 +43,23 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 			if(!this.Map) {
 				throw new Error("can-connect/can/map/map must be configured with a Map type");
 			}
+			if(!this[getNameSymbol]) {
+				this[getNameSymbol] = function(){
+					if(this.name) {
+						return "Connection{"+this.name+"}";
+					} else if(this.Map) {
+						return "Connection{"+canReflect.getName(this.Map)+"}";
+					} else if(typeof this.url === "string") {
+						return "Connection{"+this.url+"}";
+					} else {
+						return "Connection{}";
+					}
+				}
+			}
 
 			this.List = this.List || this.Map.List;
 			if(!this.List) {
-				throw new Error("can-connect/can/map/map must be configured with a List type");
+				throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" must be configured with a List type.");
 			}
 
 			overwrite(this, this.Map, mapOverwrites);
@@ -170,7 +202,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		 * });
 		 *
 		 * var Todo.List = DefineList.extend({
-		 *   "*": Todo,
+		 *   "#": Todo,
 		 *   completed: function(){
 		 *     this.filter(function(todo){
 		 *       return todo.completed;
@@ -188,6 +220,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		 *   list instanceOf Todo.List // true
 		 * })
 		 * ```
+		 *
 		 */
 
 		/**
@@ -242,7 +275,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 				}
 			});
 
-			list[this.listSetProp] = set;
+			list[this.listQueryProp] = set;
 			return list;
 		},
 
@@ -356,8 +389,10 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 
 				if(this.constructor.removeAttr) {
 					updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
-				} else {
+				} else if(this.updateInstanceWithAssignDeep){
 					assignDeepExceptIdentity(instance, props, this.queryLogic.schema);
+				} else {
+					smartMergeExceptIdentity( instance, props, this.queryLogic.schema);
 				}
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
@@ -426,16 +461,14 @@ var mapOverwrites = {
 		 * @function can-connect/can/map/map.getList getList
 		 * @parent can-connect/can/map/map.map-static
 		 *
-		 * Method added to the configured [can-connect/can/map/map._Map] type. Retrieves a [can-connect/can/map/map._List] of
+		 * Retrieve a list of instance.
+		 *
+		 * @signature `Map.getList(query)`
+		 *
+		 * `.getList` is added to the configured [can-connect/can/map/map._Map] type. Retrieves a [can-connect/can/map/map._List] of
 		 * [can-connect/can/map/map._Map] instances via the connection.
 		 *
-		 * @signature `Map.getList(set)`
-		 * @param {can-query-logic/query} query set definition of the list being retrieved
-		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._List] of instances being retrieved
-		 *
-		 * ### Usage
-		 *
-		 * ```
+		 * ```js
 		 * // import connection plugins
 		 * var canMap = require("can-connect/can/map/map");
 		 * var constructor = require("can-connect/constructor/constructor");
@@ -461,10 +494,17 @@ var mapOverwrites = {
 		 * })
 		 *
 		 * // retrieve instances
-		 * Todo.getList({due: "today"}).then(function(todos){
+		 * Todo.getList({filter: {due: "today"}}).then(function(todos){
 		 *   ...
 		 * });
 		 * ```
+		 *
+		 * @param {can-query-logic/query} query Definition of the list being retrieved.
+		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._List] of instances being retrieved
+		 *
+		 *
+		 *
+		 *
 		 */
 		getList: function (base, connection) {
 			return function(set) {
@@ -487,14 +527,12 @@ var mapOverwrites = {
 		 * @function can-connect/can/map/map.get get
 		 * @parent can-connect/can/map/map.map-static
 		 *
-		 * Method added to the configured [can-connect/can/map/map._Map] type. Retrieves an instance of the
-		 * [can-connect/can/map/map._Map] type via the connection.
+		 * Use it to get a single instance by id.
 		 *
 		 * @signature `Map.get(params)`
-		 * @param {Object} params identifying parameters of the instance to retrieve
-		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._Map] instance being retrieved
 		 *
-		 * ### Usage
+		 * `.get()` is added to the configured [can-connect/can/map/map._Map] type.
+		 * Use it to get a single instance by the identity keys of the Map type.
 		 *
 		 * ```js
 		 * // import connection plugins
@@ -520,6 +558,27 @@ var mapOverwrites = {
 		 *   ...
 		 * });
 		 * ```
+		 *
+		 * @param {Object} params Identifying parameters of the instance to retrieve. Typically, this is an object
+		 * with the identity property and its value like: `{_id: 5}`.
+		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._Map] instance being retrieved
+		 *
+		 * @body
+		 *
+		 * ## Get a single record by filtering non-identity keys
+		 *
+		 * Sometimes, you want a single record, but by filtering non-identity keys.  Instead of using
+		 * `.get`, use `.getList` like:
+		 *
+		 * ```js
+		 * var firstCompleteTodo = Todo.getList({
+		 *   filter: {complete: false},
+		 *   page: {start: 0, end: 0}
+		 * }).then(function(list){
+		 *   return list.length ? list[0] : Promise.reject({message: "reject message"});
+		 * });
+		 * ```
+		 *
 		 */
 		get: function (base, connection) {
 			return function(params) {
@@ -547,10 +606,26 @@ var mapOverwrites = {
 			 * @function can-connect/can/map/map.prototype.isNew isNew
 			 * @parent can-connect/can/map/map.map
 			 *
-			 * Returns if the instance has not been loaded from or saved to the data source.
+			 * If the data is not in the dat
 			 *
 			 * @signature `instance.isNew()`
-			 * @return {Boolean} `true` if [can-connect/base/base.id] is `null` or `undefined`
+			 *
+			 * Returns if the instance has not been loaded from or saved to the data source.
+			 *
+			 * ```js
+			 * connect([...],{
+			 *   Map: Todo
+			 * });
+			 *
+			 * var todo = new Todo();
+			 * todo.isNew()   //-> true
+			 *
+			 * todo.save().then(function(){
+			 *   todo.isNew() //-> false
+			 * })
+			 * ```
+			 *
+			 * @return {Boolean} Returns `true` if [can-connect/base/base.id] is `null` or `undefined`.
 			 */
 			return function () {
 				return connection.isNew(this);
@@ -569,14 +644,14 @@ var mapOverwrites = {
 			 * Observes if a promise returned by [can-connect/connection.save `connection.save`] is in progress for this
 			 * instance.  This is often used in a template like:
 			 *
-			 * ```
-			 * <button ($click)="todo.save()"
-			 *    {{#todo.isSaving}}disabled{{/todo.isSaving}}>
+			 * ```html
+			 * <button on:click="todo.save()"
+			 *    disabled:from="todo.isSaving()">
 			 *   Save Changes
 			 * </button>
 			 * ```
 			 *
-			 *   @return {Boolean} `true` if [can-connect/connection.save `connection.save`] has been called for this
+			 *   @return {Boolean} Returns `true` if [can-connect/connection.save `connection.save`] has been called for this
 			 *   instance but the returned promise has not yet resolved.
 			 */
 			return function () {
@@ -596,9 +671,9 @@ var mapOverwrites = {
 			 * Observes if a promise returned by [can-connect/connection.destroy `connection.destroy`] is in progress for this
 			 * instance.  This is often used in a template like:
 			 *
-			 * ```
-			 * <button ($click)="todo.destroy()"
-			 *    {{#todo.isDestroying}}disabled{{/todo.isDestroying}}>
+			 * ```html
+			 * <button on:click="todo.destroy()"
+			 *         disabled:from="todo.isDestroying()">
 			 *   Delete
 			 * </button>
 			 * ```
@@ -616,19 +691,13 @@ var mapOverwrites = {
 			 * @function can-connect/can/map/map.prototype.save save
 			 * @parent can-connect/can/map/map.map
 			 *
-			 * Save the instance's data to the service via the connection.
+			 * Save or update client data to the persisted data source.
 			 *
 			 * @signature `instance.save(success, error)`
 			 *
-			 *   Calls [can-connect/connection.save].
+			 * Calls [can-connect/connection.save].
 			 *
-			 *   @param {function} success A function that is called if the save is successful.
-			 *   @param {function} error A function that is called if the save is rejected.
-			 *   @return {Promise<Instance>} A promise that resolves to the instance if successful.
-			 *
-			 * ### Usage
-			 *
-			 * ```
+			 * ```js
 			 * // import connection plugins
 			 * var canMap = require("can-connect/can/map/map");
 			 * var constructor = require("can-connect/constructor/constructor");
@@ -649,6 +718,12 @@ var mapOverwrites = {
 			 *
 			 * new Todo({name: "dishes"}).save();
 			 * ```
+			 *
+			 *   @param {function} success A function that is called if the save is successful.
+			 *   @param {function} error A function that is called if the save is rejected.
+			 *   @return {Promise<Instance>} A promise that resolves to the instance if successful.
+			 *
+			 *
 			 */
 			return function(success, error){
 				// return only one item for compatability
@@ -668,12 +743,7 @@ var mapOverwrites = {
 			 *
 			 * Calls [can-connect/connection.destroy] for the `instance`.
 			 *
-			 * @param {function} success a function that is called if the [can-connect/connection.destroy] call is successful.
-			 * @param {function} error a function that is called if the [can-connect/connection.destroy] call is rejected.
-			 * @return {Promise<Instance>} a promise that resolves to the instance if successful
-			 *
-			 * ### Usage
-			 * ```
+			 * ```js
 			 * // import connection plugins
 			 * var canMap = require("can-connect/can/map/map");
 			 * var constructor = require("can-connect/constructor/constructor");
@@ -700,6 +770,12 @@ var mapOverwrites = {
 			 *   }
 			 * });
 			 * ```
+			 *
+			 * @param {function} success a function that is called if the [can-connect/connection.destroy] call is successful.
+			 * @param {function} error a function that is called if the [can-connect/connection.destroy] call is rejected.
+			 * @return {Promise<Instance>} a promise that resolves to the instance if successful
+			 *
+			 *
 			 */
 			return function(success, error){
 				var promise;
@@ -738,7 +814,7 @@ var listOverwrites = {
 				// If there was a plain object passed to the List constructor,
 				// we use those as parameters for an initial getList.
 				if (isPlainObject(params) && !Array.isArray(params)) {
-					this[connection.listSetProp] = params;
+					this[connection.listQueryProp] = params;
 					base.apply(this);
 					this.replace(canReflect.isPromise(params) ? params : connection.getList(params));
 				} else {

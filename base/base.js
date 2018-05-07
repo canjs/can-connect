@@ -31,12 +31,12 @@ var canSymbol = require("can-symbol");
  * This ensures the behaviors are called in the required order and is more elegant than requiring the user to chain
  * together the calls to all the behaviors.
  *
- * See the [can-connect/base/base.id id] and [can-connect/base/base.listSet listSet] methods for more specifics on
+ * See the [can-connect/base/base.id id] and [can-connect/base/base.listQuery listQuery] methods for more specifics on
  * how ids are determined.
  *
  * @param {Object} connectionOptions Object containing the configuration for the behaviors of the connection. Added to the
  * prototype of the returned connection object. `base` is almost always configured with an [can-connect/base/base.queryLogic] option since it
- * [can-connect/base/base.id defines the id property] and the majority of behaviors also require the queryLogic.
+ * [can-connect/base/base.id defines how to read the identity properties] and the majority of behaviors also require the queryLogic.
  *
  * @return {Object} A `can-connect` connection containing the methods provided by `base`.
  */
@@ -96,15 +96,15 @@ module.exports = behavior("base",function(baseConnection){
 
 
 		/**
-		 * @function can-connect/base/base.listSet listSet
+		 * @function can-connect/base/base.listQuery listQuery
 		 * @parent can-connect/base/base.identifiers
 		 *
 		 * Uniquely identify the set of data a list contains.
 		 *
-		 * @signature `connection.listSet(list)`
+		 * @signature `connection.listQuery(list)`
 		 *
-		 *   Returns the value of the property referenced by [can-connect/base/base.listSetProp] if it exists.
-		 *   By default, this will return `list[Symbol.for("can.listSet")]`.
+		 *   Returns the value of the property referenced by [can-connect/base/base.listQueryProp] if it exists.
+		 *   By default, this will return `list[Symbol.for("can.listQuery")]`.
 		 *
 		 *   @param {can-connect.List} list A list instance.
 		 *
@@ -115,7 +115,7 @@ module.exports = behavior("base",function(baseConnection){
 		 * ## Use
 		 *
 		 * Many behaviors, such as the [can-connect/constructor/store/store], need to have a unique identifier for a list.
-		 * This `connection.listSet` method should return that.
+		 * This `connection.listQuery` method should return that.
 		 *
 		 * Typically, a list's set identifier is a property on the list object.  As example, a list of Todos might look like
 		 * the following:
@@ -123,60 +123,48 @@ module.exports = behavior("base",function(baseConnection){
 		 * ```js
 		 * var dueTodos = todoConnection.getList({filter: {due: "today"}});
 		 * dueTodos; // [{_id: 5, name: "do dishes", due:"today"}, {_id: 6, name: "walk dog", due:"today"}, ...]
-		 * dueTodos[Symbol.for("can.listSet")]; //-> {filter: {due: "today"}}
-		 * todoConnection.listSet(dueTodos); //-> {filter: {due: "today"}}
+		 * dueTodos[Symbol.for("can.listQuery")]; //-> {filter: {due: "today"}}
+		 * todoConnection.listQuery(dueTodos); //-> {filter: {due: "today"}}
 		 * ```
 		 *
-		 * In the above example the [can-connect/base/base.listSetProp] would be the default `@can.listSet`.
+		 * In the above example the [can-connect/base/base.listQueryProp] would be the default `@can.listQuery`.
 		 */
-		listSet: function(list){
-			return list[this.listSetProp];
+		listQuery: function(list){
+			return list[this.listQueryProp];
 		},
 
 		/**
-		 * @property {Symbol} can-connect/base/base.listSetProp listSetProp
+		 * @property {Symbol} can-connect/base/base.listQueryProp listQueryProp
 		 * @parent can-connect/base/base.identifiers
 		 *
 		 * Specifies the property that uniquely identifies a list.
 		 *
 		 * @option {Symbol} The property that uniquely identifies the list.
-		 * Defaults to `Symbol.for("can.listSet")`.
+		 * Defaults to `Symbol.for("can.listQuery")`.
 		 *
 		 * ```js
 		 * var dataUrl = require("can-connect/data/url/");
 		 * var connection = connect([dataUrl], {
-		 *   listSetProp: "set"
+		 *   listQueryProp: "set"
 		 * });
 		 *
 		 * var list = [{id: 1, ...}, {id: 2, ...}]
 		 * list.set = {complete: true};
 		 *
-		 * connection.listSet(list) //-> {complete: true}
+		 * connection.listQuery(list) //-> {complete: true}
 		 * ```
 		 *
 		 */
-		listSetProp: canSymbol.for("can.listSet"),
+		listQueryProp: canSymbol.for("can.listQuery"),
 
 		init: function(){},
 
-		get queryLogic(){
-			if(setQueryLogic) {
-				return setQueryLogic;
-			} else if(baseConnection.queryLogic) {
-				return baseConnection.queryLogic;
-			} else if(baseConnection.algebra) {
-				return baseConnection.algebra;
-			}
-		},
-		set queryLogic(newVal) {
-			setQueryLogic = newVal;
-		}
 
 		/**
 		 * @property {can-query-logic} can-connect/base/base.queryLogic queryLogic
 		 * @parent can-connect/base/base.options
 		 *
-		 * A `can-query-logic` instance used for list comparison, instance identification and membership
+		 * Configuration for list comparison, instance identification and membership
 		 * calculations. A way for the `can-connect` behaviors to understand what the properties of a request mean and act
 		 * on them.
 		 *
@@ -201,11 +189,31 @@ module.exports = behavior("base",function(baseConnection){
 		 *
 		 * todoConnection.queryLogic.memberIdentity({_uid: 5, ...}); //-> 5
 		 * todoConnection.id({_uid: 5, ...}); //-> 5
-		 * todoConnection.queryLogic.intersection({page: {first: 0, last: 10}},
-		 *   {page: {first:5, last:20}}); //-> {first:5, last:10}
+		 * todoConnection.queryLogic.intersection(
+		 *   {page: {first: 0, last: 10}},
+		 *   {page: {first:  d5, last: 20}}); //-> {first:5, last:10}
 		 * ```
 		 */
 
+		get queryLogic(){
+			if(setQueryLogic) {
+				return setQueryLogic;
+			} else if(baseConnection.queryLogic) {
+				return baseConnection.queryLogic;
+			} else if(baseConnection.algebra) {
+				return baseConnection.algebra;
+			}
+		},
+		set queryLogic(newVal) {
+			setQueryLogic = newVal;
+		}
+
+		/**
+		 * @property {can-query-logic} can-connect/base/base.algebra algebra
+		 * @parent can-connect/base/base.options
+		 *
+		 * @description Legacy configuration for [can-set-legacy]. Use [can-connect/base/base.queryLogic] instead.
+		 */
 
 		/**
 		 * @property {can-connect/DataInterface} can-connect/base/base.cacheConnection cacheConnection
@@ -221,9 +229,11 @@ module.exports = behavior("base",function(baseConnection){
 		 * ## Use
 		 *
 		 * ```js
-		 * var cacheConnection = connect([
-		 *   require("can-connect/data/memory-cache/memory-cache")
-		 * ],{});
+		 * import {memoryStore, connect, QueryLogic} from "can";
+		 *
+		 * var cacheConnection = memoryStore({
+		 *   queryLogic: new QueryLogic({identity: ["id"]})
+		 * });
 		 *
 		 * var todoConnection = connect([...behaviors...],{
 		 *   cacheConnection: cacheConnection

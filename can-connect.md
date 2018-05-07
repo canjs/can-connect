@@ -4,6 +4,7 @@
 @group can-connect.behaviors 1 behaviors
 @group can-connect.modules 2 modules
 @group can-connect.types 3 data types
+@group can-connect.deprecated 4 deprecated
 @outline 2
 @package ./package.json
 
@@ -470,8 +471,8 @@ The following is a list of the primary interface methods and properties implemen
 
 `.id( props | instance ) -> String` - Returns a unique identifier for the instance or raw data.  
 `.idProp -> String="id"` - The name of the unique identifier property.  
-`.listSet(list) -> set` - Returns the set a list represents.  
-`.listSetProp -> Symbol=can.listSet` - The property on a List that contains its set.  
+`.listQuery(list) -> set` - Returns the set a list represents.  
+`.listQueryProp -> Symbol=can.listQuery` - The property on a List that contains its set.  
 
 Implemented by the [can-connect/base/base base] behavior.
 

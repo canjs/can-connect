@@ -13,7 +13,7 @@ var forEach = [].forEach;
  *
  * @signature `cacheRequests( baseConnection )`
  *
- *   Provide an implementation of [can-connect/cache-requests/cache-requests.getListData] that uses set logic to
+ *   Provide an implementation of [can-connect/cache-requests/cache-requests.getListData] that uses [can-connect/base/base.queryLogic] to
  *   determine what data is already in the [can-connect/base/base.cacheConnection cache] and what data needs to be
  *   loaded from the base connection.
  *
@@ -36,35 +36,39 @@ var forEach = [].forEach;
  * [can-connect/data/localstorage-cache/localstorage-cache].  For example, to make it so response data is cached
  * in memory:
  *
- * ```
- * var memoryCache = require("can-connect/data/memory-cache/");
- * var dataUrl = require("can-connect/data/url/");
- * var cacheRequests = require("can-connect/cache-requests/");
+ * ```js
+ * var memoryStore = require("can-memory-store");
+ * var dataUrl = require("can-connect/data/url/url");
+ * var cacheRequests = require("can-connect/cache-requests/cache-requests");
+ * var queryLogic = require("can-query-logic");
  *
- * var cacheConnection = connect([memoryCache], {});
+ * var todoQueryLogic = new QueryLogic({});
+ *
+ * var cacheConnection = memoryStore({queryLogic: todoQueryLogic});
  * var todoConnection = connect([dataUrl, cacheRequests],{
  *   cacheConnection: cacheConnection,
- *   url: "/todos"
+ *   url: "/todos",
+ *   queryLogic: todoQueryLogic
  * });
  * ```
  *
  * Now if today's todos are loaded:
  *
- * ```
+ * ```js
  * todoConnection.getListData({filter: {due: "today"}});
  * ```
  *
  * And later, a subset of those todos are loaded:
  *
- * ```
+ * ```js
  * todoConnection.getListData({filter: {due: "today", status: "critical"}});
  * ```
  *
- * The subset will be created from the original request's data.
+ * The second request will be created from the original request's data.
  *
  * ## QueryLogic Usage
  *
- * `cache-requests` can also "fill in" the data the cache is missing if you provide it the necessary [can-query-logic queryLogic].
+ * `cache-requests` will "fill-in" the `cacheConnection` using [can-query-logic queryLogic].
  *
  * For example, if you requested paginated data like:
  *
@@ -78,25 +82,28 @@ var forEach = [].forEach;
  * todoConnection.getListData({})
  * ```
  *
- * ... with the appropriate queryLogic configuration, `cache-requests` will only request `{filter: {status: ["low","medium"]}}`, merging
+ * `cache-requests` will only request `{filter: {status: ["low","medium"]}}`, merging
  * that response with the data already present in the cache.
  *
  * That configuration looks like:
  *
- * ```
- * import QueryLogic from "can-query-logic";
+ * ```js
+ * var memoryStore = require("can-memory-store");
+ * var dataUrl = require("can-connect/data/url/url");
+ * var cacheRequests = require("can-connect/cache-requests/cache-requests");
+ * var queryLogic = require("can-query-logic");
  *
- * var queryLogic = new QueryLogic({
+ * var todoQueryLogic = new QueryLogic({
  *   keys: {
  *     status: QueryLogic.makeEnum(["low","medium","critical"])
  *   }
  * });
  *
- * var cacheConnection = connect([memoryCache], {queryLogic: queryLogic});
+ * var cacheConnection = memoryStore({queryLogic: todoQueryLogic});
  * var todoConnection = connect([dataUrl, cacheRequests], {
  *   cacheConnection: cacheConnection,
  *   url: "/todos",
- *   queryLogic: queryLogic
+ *   queryLogic: todoQueryLogic
  * })
  * ```
  *

@@ -105,7 +105,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
-		listed[connection.listSetProp] = sets;
+		listed[connection.listQueryProp] = sets;
 		return listed;
 	};
 
@@ -171,7 +171,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 
 });
 
-QUnit.test("list's without a listSet are not added to the store", function(){
+QUnit.test("list's without a listQuery are not added to the store", function(){
 	var Person = function(values){
 		assign(this, values);
 	},
@@ -179,7 +179,7 @@ QUnit.test("list's without a listSet are not added to the store", function(){
 	var PersonList = function(people, sets){
 		var listed = people.slice(0);
 		listed.isList = true;
-		listed[connection.listSetProp] = sets;
+		listed[connection.listQueryProp] = sets;
 		return listed;
 	};
 

@@ -1,8 +1,10 @@
 @module {function} can-connect/can/super-map/super-map
-@parent can-connect.modules
+@parent can-connect.deprecated
 
 Create connection with many of the best behaviors in can-connect and hook it up to
 a [can-define/map/map].
+
+@deprecated {5.0} Use [can-super-model] instead.
 
 @signature `superMap(options)`
 

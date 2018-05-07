@@ -267,7 +267,7 @@ QUnit.test("clearing localStorage clears set info", function(){
 
 QUnit.test("using queryLogic (#72)", function(){
 	var connection = this.connection;
-	
+
 	connection.queryLogic = new canSet.Algebra(new canSet.Translate("where","$where"));
 	QUnit.stop();
 	connection.updateListData(
@@ -283,17 +283,6 @@ QUnit.test("using queryLogic (#72)", function(){
 	});
 });
 
-QUnit.test("Support passing undefined as a set to mean passing {} (#54)", function(){
-	var connection = this.connection;
-
-	QUnit.stop();
-
-	connection.updateListData({ data: items.slice(0) }, undefined).then(function(){
-		QUnit.equal(localStorage.getItem("todos-sets"),"[{}]", "contains universal set");
-		QUnit.equal(localStorage.getItem("todos/set/{}"),"[1,2,3]", "has set to id");
-		QUnit.start();
-	});
-});
 
 QUnit.test("subset data (#96)", function(){
 	var connection = this.connection;
@@ -330,7 +319,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 			{ offset: 2, limit: 2});
 	}).then(function(){
 		connection.getListData({ offset: 0, limit: 2}).then(function(listData){
-			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}] });
+			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}], count: 4 });
 			QUnit.start();
 		}, function(){
 			QUnit.ok(false, "no data");

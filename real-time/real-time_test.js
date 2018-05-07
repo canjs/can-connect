@@ -337,7 +337,7 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 
 //!steal-remove-start
 if (canDev) {
-	test("dev mode warning when listSet queryLogic doesn't match an item", function () {
+	test("dev mode warning when listQuery queryLogic doesn't match an item", function () {
 		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
@@ -371,7 +371,7 @@ if (canDev) {
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
 	});
 
-	test("listSet queryLogic warning includes any `undefined` values", function() {
+	test("listQuery queryLogic warning includes any `undefined` values", function() {
 		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){

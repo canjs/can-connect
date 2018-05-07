@@ -1,7 +1,9 @@
 var smartMerge = require('can-diff/merge-deep/merge-deep');
 var connectMap = require('can-connect/can/map/map');
-var canBatch = require('can-event/batch/batch');
+var queues = require('can-queues');
 var connect = require("can-connect");
+
+console.warn("can-connect/can/merge/merge is deprecated. It's built into can-connect/can/map/map by default.");
 
 var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 	return {
@@ -23,10 +25,10 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *   instance should be updated to look like.
 		 */
 		createdInstance: function(instance, props){
-			canBatch.start();
+			queues.batch.start();
 			smartMerge( instance, props );
 			connectMap.callbackInstanceEvents('created', instance);
-			canBatch.stop();
+			queues.batch.stop();
 		},
 		/**
 		 * @function can-connect/can/merge/merge.destroyedInstance destroyedInstance
@@ -46,10 +48,10 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *   instance should be updated to look like.
 		 */
 		destroyedInstance: function(instance, props){
-			canBatch.start();
+			queues.batch.start();
 			smartMerge( instance, props );
 			connectMap.callbackInstanceEvents('destroyed', instance);
-			canBatch.stop();
+			queues.batch.stop();
 		},
 		/**
 		 * @function can-connect/can/merge/merge.updatedInstance updatedInstance
@@ -69,10 +71,10 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *   instance should be updated to look like.
 		 */
 		updatedInstance: function(instance, props){
-			canBatch.start();
+			queues.batch.start();
 			smartMerge( instance, props );
 			connectMap.callbackInstanceEvents('updated', instance);
-			canBatch.stop();
+			queues.batch.stop();
 		},
 		/**
 		 * @function can-connect/can/merge/merge.updatedList updatedList
@@ -90,9 +92,9 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 		 *   list should be updated to look like.
 		 */
 		updatedList: function(list, listData){
-			canBatch.start();
+			queues.batch.start();
 			smartMerge( list, listData.data );
-			canBatch.stop();
+			queues.batch.stop();
 		}
 	};
 });

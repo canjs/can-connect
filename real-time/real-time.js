@@ -19,7 +19,7 @@
  *
  *   An instance is put in a list if it is a
  *   [can-query-logic/queryLogic.prototype.isSubset]
- *   of the [can-connect/base/base.listSet].  The item is inserted using [can-query-logic.prototype.index].
+ *   of the [can-connect/base/base.listQuery].  The item is inserted using [can-query-logic.prototype.index].
  *
  * @body
  *
@@ -28,7 +28,7 @@
  * To use `real-time`, create a connection with its dependent
  * behaviors like:
  *
- * ```
+ * ```js
  * var todoConnection = connect(
  *    ["real-time",
  *     "constructor",
@@ -42,7 +42,7 @@
  * Next, use the connection to load lists and save those lists in the
  * store:
  *
- * ```
+ * ```js
  * todoConnection.getList({complete: false}).then(function(todos){
  *   todoConnection.addListReference(todos);
  * })
@@ -76,14 +76,14 @@
  * this to get todos from the `todoConnection` like:
  *
  *
- * ```
+ * ```js
  * todosConnection.getList(set).then(function(retrievedTodos){
  * ```
  *
  * It then adds those `todos` to the [can-connect/constructor/store/store.listStore] so
  * they can be updated automatically.  And, it listens to changes in `todos` and calls an `update` function:
  *
- * ```
+ * ```js
  * todosConnection.addListReference(todos);
  * Object.observe(todos, update, ["add", "update", "delete"] );
  * ```
@@ -92,7 +92,7 @@
  * to or removed from `todos`.  We exploit that by calling `update` as if it just added
  * each todo in the list:
  *
- * ```
+ * ```js
  * update(todos.map(function(todo, i){
  *   return {
  *     type: "add",
@@ -108,7 +108,7 @@
  * the todo in the [can-connect/constructor/store/store.instanceStore] with the
  * following:
  *
- * ```
+ * ```js
  * Object.observe(todo, update, ["add", "update", "delete"] );
  * todosConnection.addInstanceReference(todo);
  * ```
@@ -118,7 +118,7 @@
  * functionality, `todoItem` listens to a `"removed"` event on its element and
  * `unobserves` the todo and removes it from the `instanceStore`:
  *
- * ```
+ * ```js
  * $(li).bind("removed", function(){
  *   Object.unobserve(todo, update, ["add", "update", "delete"] );
  *   todosConnection.deleteInstanceReference(todo);
@@ -157,9 +157,9 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   If this instance has already been created, calls
 		 *   [can-connect/real-time/real-time.updateInstance] with `props`.
 		 *
-		 *   @param {Object} props
+		 *   @param {Object} props The raw properties of the instance was created.
 		 *
-		 *   @return {Promise<Instance>}
+		 *   @return {Promise<Instance>} A promise that resolves to the created instance.
 		 *
 		 * @body
 		 *
@@ -170,9 +170,9 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 * [socket.io](http://socket.io/) for when a `todo` is created and update the connection
 		 * accordingly:
 		 *
-		 * ```
+		 * ```js
 		 * socket.on('todo created', function(todo){
-		 *   todoConnection.createInstance(order);
+		 *   todoConnection.createInstance(todo);
 		 * });
 		 * ```
 		 *
@@ -278,9 +278,19 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   that the instance is updated and added to or removed from
 		 *   any lists it belongs in.
 		 *
-		 *   @param {Object} props The properties of the instance that
+		 *   @param {Object} props The properties of the instance that needs to be updated.
 		 *
 		 *   @return {Promise<Instance>} the updated instance.
+		 *
+		 * @body
+		 *
+		 * ## Use
+		 *
+		 * ```js
+		 * socket.on('todo updated', function(todo){
+		 *   todoConnection.updateInstance(todo);
+		 * });
+		 * ```
 		 */
 		updateInstance: function(props){
 			var id = this.id(props);
@@ -338,6 +348,15 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *
 		 * @param {Object} props The properties of the destroyed instance.
 		 * @return {Promise<Instance>}  A promise with the destroyed instance.
+		 *
+		 * @body
+		 * ## Use
+		 *
+		 * ```js
+		 * socket.on('todo destroyed', function(todo){
+		 *   todoConnection.destroyInstance(todo);
+		 * });
+		 * ```
 		 */
 		destroyInstance: function(props){
 			var id = this.id(props);

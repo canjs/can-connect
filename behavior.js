@@ -19,6 +19,9 @@ function behavior(name, behavior){
 		for(var prop in res) {
 			if(res.hasOwnProperty(prop)) {
 				Object.defineProperty(newBehavior, prop, Object.getOwnPropertyDescriptor(res, prop));
+			} else {
+				// we only copy values from up the proto chain
+				newBehavior[prop] = res[prop];
 			}
 		}
 		newBehavior.__behaviorName = name;

@@ -1,9 +1,11 @@
 /**
  * @module can-connect/data/memory-cache/memory-cache memory-cache
- * @parent can-connect.behaviors
+ * @parent can-connect.deprecated
  * @group can-connect/data/memory-cache/memory-cache.data-methods data methods
  *
  * Saves raw data in JavaScript memory that disappears when the page refreshes.
+ *
+ * @deprecated {5.0} Use [can-memory-store] instead.
  *
  * @signature `memoryCache( baseConnection )`
  *

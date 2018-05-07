@@ -99,7 +99,7 @@ require("./test-real-time-super-model")(function(){
 	return {Todo: this.Todo, TodoList: this.TodoList};
 });
 
-test("listSet works", function(){
+test("listQuery works", function(){
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -113,14 +113,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"}, "first set");
+			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first set");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"}, "second set");
+			deepEqual( todoConnection.listQuery(list), {zed: "ted"}, "second set");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"}, "hydrated set");
+		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "hydrated set");
 		start();
 	});
 

@@ -4,14 +4,14 @@
  * @group can-connect/fall-through-cache/fall-through-cache.data data callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators hydrators
  *
- * A fall through cache that checks another `cacheConnection`.
+ * Add fall-through caching with the `cacheConnection`.
  *
  * @signature `fallThroughCache( baseConnection )`
  *
  *   Implements a `getData` and `getListData` that
- *   check their [can-connect/base/base.cacheConnection] for data and then
- *   in the background update the instance or list with data
- *   retrieved using the base connection.
+ *   check their [can-connect/base/base.cacheConnection] for data. If there is data,
+ *   this data will be immediately returned.
+ *   In the background, the `baseConnection` method will be called and used to update the instance or list.
  *
  * @body
  *
@@ -21,11 +21,16 @@
  * [can-connect/base/base.cacheConnection] and a behavior that implements
  * [can-connect/connection.getData] and [can-connect/connection.getListData].
  *
- * ```
+ * ```js
+ * var QueryLogic = require("can-query-logic");
+ *
+ * var queryLogic = new QueryLogic();
+ *
  * var cache = connect([
- *   require("can-connect/data/localstorage-cache/localstorage-cache")
+ *   require("can-local-store")
  * ],{
- *   name: "todos"
+ *   name: "todos",
+ *   queryLogic: queryLogic
  * });
  *
  * var todoConnection = connect([
@@ -35,7 +40,8 @@
  *    require("can-connect/constructor/store/store")
  *   ], {
  *   url: "/todos",
- *   cacheConnection: cache
+ *   cacheConnection: cache,
+ *   queryLogic: queryLogic
  * });
  * ```
  *
@@ -43,7 +49,7 @@
  * it will be returned immediately, and then the item or list updated later
  * with the response from the base connection:
  *
- * ```
+ * ```js
  * todoConnection.getList({due: "today"}).then(function(todos){
  *
  * })
@@ -94,7 +100,7 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 		 *   @return {can-connect.List}
 		 */
 		hydrateList: function(listData, set){
-			set = set || this.listSet(listData);
+			set = set || this.listQuery(listData);
 			var id = sortedSetJSON( set );
 			var list = baseConnection.hydrateList.call(this, listData, set);
 

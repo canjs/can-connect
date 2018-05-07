@@ -13,24 +13,25 @@ var QUnit = require('steal-qunit');
 QUnit.test("basics", function(){
 	// must have queryLogic connection and use #
 
-	var Author = DefineMap.extend({
-		id: 'number',
+	var Author = DefineMap.extend("Author",{
+		id: {type: 'number', identity: true},
 		name: 'string'
 	});
 	Author.queryLogic = new set.Algebra( set.props.id('id') );
 
-	var OSProject = DefineMap.extend({
-		id: 'number',
+	var OSProject = DefineMap.extend("OSProject",{
+		id: {type: 'number', identity: true},
 		title: 'string'
 	});
-	OSProject.List = DefineList.extend({ '#' : OSProject });
+	OSProject.List = DefineList.extend("OSProjectList",{ '#' : OSProject });
 	OSProject.queryLogic = new set.Algebra( set.props.id('id') );
 
-	var ContributionMonth = DefineMap.extend({
-		id: "string",
+	var ContributionMonth = DefineMap.extend("ContributionMonth",{
+		id: {type: 'string', identity: true},
 		author: Author,
 		osProjects: OSProject.List
 	});
+	ContributionMonth.List = DefineList.extend("ContributionMonthList",{ '#' : ContributionMonth });
 
 	var dataBehavior = {
 		createData: function(){
@@ -50,7 +51,8 @@ QUnit.test("basics", function(){
 	};
 
 	ContributionMonth.connection = connect([dataBehavior, constructorBehavior, constructorStore, canMap, canMapMerge], {
-		Map: ContributionMonth
+		Map: ContributionMonth,
+		List: ContributionMonth.List
 	});
 
 	var cm = new ContributionMonth({
@@ -70,7 +72,7 @@ QUnit.test("basics", function(){
 
 		cm.author.name = "Justin Meyer";
 		var canJSProject = cm.osProjects.shift();
-		QUnit.equal(canjs, canJSProject, "same canjs project");
+		QUnit.equal(canjs, canJSProject, "same canjs project in memory");
 
 		cm.osProjects.push({id: 202, name: "stealjs"}, canJSProject);
 		return cm.save();
@@ -86,6 +88,13 @@ QUnit.test("basics", function(){
 			osProjects: [{id: 201, name: "DoneJS"}, {id: 202, name: "StealJS"}, {id: 200, name: "CanJS"}]
 		}, "values look right");
 
+		QUnit.start();
+	})
+	.catch(function(err){
+		setTimeout(function(){
+			throw err;
+		},1);
+		debugger;
 		QUnit.start();
 	});
 

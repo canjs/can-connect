@@ -35,7 +35,7 @@
  * An example might be loading data from a `"/todos"` service and being able to call `.timeLeft()`  on the todos that
  * you get back like:
  *
- * ```
+ * ```js
  * todoConnection.get({id: 6}).then(function(todo){
  *   todo.timeLeft() //-> 60000
  * })
@@ -43,7 +43,7 @@
  *
  * The following creates a `todoConnection` that does exactly that:
  *
- * ```
+ * ```js
  * // require connection plugins
  * var constructor = require("can-connect/constructor/");
  * var dataUrl = require("can-connect/data/url/");
@@ -162,7 +162,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * Call `.get()` with the parameters that identify the instance you want to load.  `.get()` will return a promise
 		 * that resolves to that instance:
-		 * ```
+		 * ```js
 		 * todoConnection.get({id: 6}).then(function(todo){
 		 *   todo.id; // 6
 		 *   todo.name; // 'Take out the garbage'
@@ -202,7 +202,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * Call `getList` with the parameters that specify the set of data you want to load.  `.getList()` will return
 		 * a promise that resolves to a [can-connect.List] created from that set.
 		 *
-		 * ```
+		 * ```js
 		 * todoConnection.getList({due: 'today'}).then(function(todos){
 		 *   todos[0].name; // 'Take out the garbage'
 		 *   todos[0].due > startOfDay && todos[0].due < endOfDay; // true
@@ -251,7 +251,7 @@ module.exports = behavior("constructor",function(baseConnection){
 				return this.list(listData, set);
 			} else {
 				var list = listData.data.slice(0);
-				list[this.listSetProp || "__listSet"] = set;
+				list[this.listQueryProp || "__listQuery"] = set;
 				copyMetadata(listData, list);
 				return list;
 			}
@@ -308,9 +308,9 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * To use `save` to create an instance, create a connection, then an instance, and call `.save()` on it:
 		 *
-		 * ```
+		 * ```js
 		 * // Create a connection
-     * var constructor = require('can-connect/constructor/');
+	     * var constructor = require('can-connect/constructor/');
 		 * var dataUrl = require('can-connect/data/url/');
 		 * var todoConnection = connect([dataUrl, constructor], {
 		 *   url: "/todos"
@@ -327,7 +327,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * behavior, which will make an HTTP POST request to `/todos` with the serialized `todo` data.  The server response
 		 * data may look something like:
 		 *
-		 * ```
+		 * ```js
 		 * {
 		 *  id: 5,
 		 *  ownerId: 9
@@ -337,7 +337,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * That data will be passed to [can-connect/constructor/constructor.createdInstance] which by default
 		 * adds those properties to `todo`, resulting in `todo` looking like:
 		 *
-		 * ```
+		 * ```js
 		 * {
 		 *  name: "do dishes",
 		 *  id: 5,
@@ -347,7 +347,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * As an example of updating an instance, change a property on `todo` and call `.save()` again:
 		 *
-		 * ```
+		 * ```js
 		 * // Change a property
 		 * todo.name = "Do dishes now!!";
 		 *
@@ -361,7 +361,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * A successful server response body should look something like:
 		 *
-		 * ```
+		 * ```js
 		 * {
 		 *  name: "Do dishes now!!",
 		 *  id: 5,
@@ -425,7 +425,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * To use `destroy`, create a connection, retrieve an instance, and then call `.destroy()` with it.
 		 *
-		 * ```
+		 * ```js
 		 * // create a connection
 		 * var constructor = require('can-connect/constructor/');
 		 * var dataUrl = require('can-connect/data/url/');
@@ -444,7 +444,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * behavior, which will make an HTTP DELETE request to `/todos/5` with the serialized `todo` data.  The server
 		 * response data may look something like:
 		 *
-		 * ```
+		 * ```js
 		 * {
 		 *   deleted: true
 		 * }
@@ -635,7 +635,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * The following example makes the connection produce `MyList` typed lists including a `completed` method:
 		 *
-		 * ```
+		 * ```js
 		 * var constructor = require("can-connect/constructor/");
 		 * var dataUrl = require("can-connect/data/url/");
 		 *
@@ -657,7 +657,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *     // create custom list instance
 		 *     var collection = new MyList(listData.data);
 		 *     // add set info for use by other behaviors
-		 *     collection.__listSet = set;
+		 *     collection.__listQuery = set;
 		 *     return collection;
 		 *   }
 		 * });
@@ -668,7 +668,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 * });
 		 * ```
 		 *
-		 * **Note:** we added the [can-connect/base/base.listSetProp] property (`Symbol.for("can.listSet")` by default) on the list. This is
+		 * **Note:** we added the [can-connect/base/base.listQueryProp] property (`Symbol.for("can.listQuery")` by default) on the list. This is
 		 * expected by other behaviors.
 		 */
 
@@ -690,7 +690,7 @@ module.exports = behavior("constructor",function(baseConnection){
 		 *
 		 * The following example makes the connection produce `Todo` typed objects including a `complete` method:
 		 *
-		 * ```
+		 * ```js
 		 * var constructor = require("can-connect/constructor/");
 		 * var dataUrl = require("can-connect/data/url/");
 		 *

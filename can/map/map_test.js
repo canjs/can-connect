@@ -410,7 +410,7 @@ test("isSaving and isDestroying", function(){
 
 });
 
-test("listSet works", function(){
+test("listQuery works", function(){
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -423,14 +423,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"}, "first");
+			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"},"second");
+			deepEqual( todoConnection.listQuery(list), {zed: "ted"},"second");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"}, "third");
+		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "third");
 		start();
 	});
 

@@ -178,4 +178,48 @@ QUnit.test("Filters are preserved for different pagination", function() {
 		equal(list.length, 25, "got 25 items");
 		start();
 	});
-})
+});
+
+
+var memoryStore = memCache;
+
+var QueryLogic = require("can-query-logic");
+QUnit.test("QueryLogic usage example", function(){
+	var calls = 0;
+
+	var dataUrl = {
+		getListData: function(query){
+			if(calls++ === 0) {
+				return Promise.resolve({
+					data: [{id: 1, status: "critical"}]
+				});
+			} else {
+				QUnit.deepEqual(query, {filter: {status: ["low","medium"]}}, "query made right");
+				return Promise.resolve({
+					data: [{id: 2, status: "low"}]
+				});
+			}
+		}
+	};
+
+	var todoQueryLogic = new QueryLogic({
+		keys: {
+			status: QueryLogic.makeEnum(["low","medium","critical"])
+		}
+	});
+
+	var cacheConnection = memoryStore({queryLogic: todoQueryLogic});
+	var todoConnection = connect([dataUrl, cacheRequests], {
+		cacheConnection: cacheConnection,
+		url: "/todos",
+		queryLogic: todoQueryLogic
+	});
+	QUnit.stop();
+
+	todoConnection.getListData({filter: {status: "critical"}}).then(function(){
+		return todoConnection.getListData({})
+	}).then(function(){
+		QUnit.start();
+	});
+
+});

@@ -1,8 +1,10 @@
 @module {connect.Behavior} can-connect/can/merge/merge can/merge
 @group can-connect/can/merge/merge.instance-callbacks 5 instance callbacks
-@parent can-connect.behaviors
+@parent can-connect.deprecated
 
 Minimally update nested data structures with the response from the server.
+
+@deprecated {5.0} This behavior is built in to [can-connect/can/map/map].
 
 @signature `canMergeBehavior( baseConnection )`
 

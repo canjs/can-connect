@@ -1,3 +1,3 @@
-@function connection.listSet listSet
+@function connection.listQuery listQuery
 @parent can-connect.options
 @hide
