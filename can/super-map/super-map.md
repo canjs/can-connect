@@ -39,7 +39,10 @@ To use it, first define a Map and List constructor function:
 import DefineMap from "can-define/map/map";
 import DefineList from "can-define/list/list";
 
-const Todo = DefineMap.extend( { /* ... */ } );
+const Todo = DefineMap.extend( {
+    _id: {identity: true, type: "number"},
+    /* ... */
+} );
 const TodoList = DefineList.extend( {
 	"#": Todo
 } );
@@ -47,9 +50,8 @@ const TodoList = DefineList.extend( {
 
 Next, call `superMap` with all of the options needed by the behaviors that `superMap` adds:
 
-```
+```js
 var todoConnection = superMap({
-  idProp: "_id",
   Map: Todo,
   List: TodoList,
   url: "/services/todos",
@@ -60,7 +62,7 @@ var todoConnection = superMap({
 [can-connect/can/map/map] adds CRUD methods to the `Map` option, you can use those to create,
 read, update and destroy todos:
 
-```
+```js
 Todo.getList({}).then(function(todos){ ... });
 Todo.get({}).then(function(todo){ ... });
 

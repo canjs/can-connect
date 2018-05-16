@@ -274,16 +274,16 @@ The following demo shows the result:
 
 @demo demos/can-connect/basics.html
 
-This connection also lets you create, update, and destroy a Todo instance as follows:
+This connection also lets you create, update, and destroy a Todo instance. First create a todo instance:
 
 ```js
 const todo = new Todo( {
 	name: "take out trash"
 } );
-
 ```
 
-foo
+Then, use the connection's `save` to create and update the todo, and `destroy` to delete it:
+
 
 ```js
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
@@ -311,16 +311,20 @@ Whenever `connect` creates a connection, it always adds the [can-connect/base/ba
 This behavior is where the configuration options passed to `connect` are stored and it also defines
 several configurable options that are used by most other behaviors.  For example, if your backend
 uses a property named `_id` to uniquely identify todos, you can specify this with
-[can-connect/base/base.idProp idProp] like:
+[can-connect/base/base.queryLogic] like:
 
 ```js
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
+import QueryLogic from "can-query-logic";
+
+var queryLogic = new QueryLogic({identity: ["_id"]});
+
 const todoConnection = connect(
 	[ constructor, dataUrl ],
 	{
 		url: "/api/todos",
-		idProp: "_id"
+		queryLogic: queryLogic
 	}
 );
 ```
@@ -470,7 +474,7 @@ The following is a list of the primary interface methods and properties implemen
 ### Identifiers
 
 `.id( props | instance ) -> String` - Returns a unique identifier for the instance or raw data.  
-`.idProp -> String="id"` - The name of the unique identifier property.  
+`.queryLogic -> QueryLogic - A [can-query-logic] instance that defines the unique property and query behavior.
 `.listQuery(list) -> set` - Returns the set a list represents.  
 `.listQueryProp -> Symbol=can.listQuery` - The property on a List that contains its set.  
 
@@ -613,8 +617,8 @@ connect.behavior( "localstorage", function( baseConnection ) {
 			const nextId = JSON.parse( id ) + 1;
 
 			localStorage.setItem( baseConnection.name + "-ID", nextId );
-			return new Promise( function( resolve ) {
-				props[ this.idProp ] = nextId;
+			return new Promise( ( resolve ) => {
+				props[ this.queryLogic.identityKeys()[0] ] = nextId;
 				localStorage.setItem( baseConnection.name + "/" + nextId, props );
 				resolve( props );
 			} );

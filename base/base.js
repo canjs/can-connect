@@ -94,7 +94,6 @@ module.exports = behavior("base",function(baseConnection){
 			}
 		},
 
-
 		/**
 		 * @function can-connect/base/base.listQuery listQuery
 		 * @parent can-connect/base/base.identifiers
