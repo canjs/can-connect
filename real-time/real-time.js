@@ -128,6 +128,54 @@
 var connect = require("../can-connect");
 var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
 var canDev = require('can-log/dev/dev');
+var canSymbol = require("can-symbol");
+var canReflect = require("can-reflect");
+
+var spliceSymbol = canSymbol.for("can.splice");
+
+function updateList(list, getRecord, currentIndex, newIndex) {
+	if(currentIndex === -1) { // item is not in the list
+
+		if(newIndex !== -1) { // item should be in the list
+			canReflect.splice(list, newIndex, 0, [getRecord()]);
+		}
+	}
+	else { // item is already in the list
+		if(newIndex === -1) { // item should be removed from the lists
+			canReflect.splice(list, currentIndex, 1, []);
+		}
+		else if(newIndex !== currentIndex){ // item needs to be moved
+
+			if(currentIndex < newIndex) {
+				canReflect.splice(list, newIndex, 0, [getRecord()]);
+				canReflect.splice(list, currentIndex, 1, []);
+			} else {
+				canReflect.splice(list, currentIndex,1, []);
+				canReflect.splice(list, newIndex, 0, [getRecord()]);
+			}
+		}
+		else { // item in the same place
+
+		}
+	}
+}
+
+
+function updateListWithItem(list, recordData, currentIndex, newIndex, connection, set){
+	if(list[spliceSymbol] !== undefined) {
+		updateList(list, function(){
+			return connection.hydrateInstance(recordData);
+		},currentIndex, newIndex);
+
+	} else {
+		var copy = connection.serializeList(list);
+		updateList(copy, function(){
+			return recordData;
+		},currentIndex, newIndex);
+		connection.updatedList(list,  { data: copy }, set);
+	}
+}
+
 
 module.exports = connect.behavior("real-time",function(baseConnection){
 
@@ -415,16 +463,9 @@ var create = function(props){
 		var index = indexByIdentity(list, props, self.queryLogic.schema);
 
 		if(self.queryLogic.isMember(set, props)) {
+			var newIndex = self.queryLogic.index(set, list, props);
 
-			// if it's not in the list, update the list with this and the lists data merged
-			if(index === -1) {
-				// get back the list items
-				var items = self.serializeList(list);
-				self.updatedList(list,  { data: self.queryLogic.insert( set,  items, props ) }, set);
-			} else {
-				// if the index
-			}
-
+			updateListWithItem(list, props, index, newIndex, self, set);
 		}
 
 	});
@@ -437,46 +478,25 @@ var update = function(props) {
 	var self = this;
 
 	this.listStore.forEach(function(list, id){
-		var items;
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
 
-		var index = indexByIdentity(list, props, self.queryLogic.schema);
+		var currentIndex = indexByIdentity(list, props, self.queryLogic.schema);
 
 		if(self.queryLogic.isMember( set, props )) {
 
-			// if it's not in the list, update the list with this and the lists data merged
-			// in the future, this should update the position.
-			items = self.serializeList(list);
-			if(index === -1) {
-				// get back the list items
-				self.updatedList(list,  { data: self.queryLogic.insert( set,  items, props ) }, set);
-			} else {
-				var sortedIndex = self.queryLogic.index(set, items, props);
-				if(sortedIndex !== undefined && sortedIndex !== index) {
-					var copy = items.slice(0);
-					if(index < sortedIndex) {
-						copy.splice(sortedIndex, 0, props);
-						copy.splice(index,1);
-					} else {
-						copy.splice(index,1);
-						copy.splice(sortedIndex, 0, props);
-					}
-					self.updatedList(list,  { data: copy }, set);
-				}
-			}
+			var newIndex = self.queryLogic.index(set, list, props);
 
-		}  else if(index !== -1){
+			updateListWithItem(list, props, currentIndex, newIndex, self, set);
+
+		}  else if(currentIndex !== -1){ // its still in the list
 			// otherwise remove it
-			items = self.serializeList(list);
-			items.splice(index,1);
-			self.updatedList(list,  { data: items }, set);
+			updateListWithItem(list, props, currentIndex, -1, self, set);
 		}
 
 	});
 };
-
 
 var destroy = function(props) {
 	var self = this;
@@ -484,13 +504,11 @@ var destroy = function(props) {
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
-		var index = indexByIdentity(list, props, self.queryLogic.schema);
+		var currentIndex = indexByIdentity(list, props, self.queryLogic.schema);
 
-		if(index !== -1){
+		if(currentIndex !== -1){
 			// otherwise remove it
-			var items = self.serializeList(list);
-			items.splice(index,1);
-			self.updatedList(list,  { data: items }, set);
+			updateListWithItem(list, props, currentIndex, -1, self, set);
 		}
 
 	});
