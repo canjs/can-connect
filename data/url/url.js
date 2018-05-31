@@ -103,7 +103,7 @@ var makeRest = require("can-make-rest");
 
 var defaultRest = makeRest("/resource/{id}");
 
-var makePromise = require("can-util/js/make-promise/make-promise");
+var makePromise = require("../../helpers/make-promise");
 
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object

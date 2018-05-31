@@ -387,13 +387,22 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
 
-				if(this.constructor.removeAttr) {
-					updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
-				} else if(this.updateInstanceWithAssignDeep){
-					assignDeepExceptIdentity(instance, props, this.queryLogic.schema);
+				if(funcName === "destroyed" && canReflect.size(props) === 0) {
+					// If destroy is passed an empty object, ignore update
+					// This isn't tested except by can-rest-model.
 				} else {
-					smartMergeExceptIdentity( instance, props, this.queryLogic.schema);
+					if(this.constructor.removeAttr) {
+						updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
+					}
+					// this is legacy
+					else if(this.updateInstanceWithAssignDeep){
+						assignDeepExceptIdentity(instance, props, this.queryLogic.schema);
+					}
+					else {
+						smartMergeExceptIdentity( instance, props, this.queryLogic.schema);
+					}
 				}
+
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
 			if(funcName === "created" && this.moveCreatedInstanceToInstanceStore) {
