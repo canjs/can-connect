@@ -142,6 +142,60 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		serializeList: function(list){
 			return canReflect.serialize(list);
 		},
+		/**
+		 * @property {Boolean} can-connect/can/map/map.updateInstanceWithAssignDeep updateInstanceWithAssignDeep
+		 * @parent can-connect/can/map/map.options
+		 *
+		 * Use the response from `save()` and `destroy()` to assign properties, never delete them.
+		 *
+		 * @option {Boolean}
+		 *
+		 * Setting `updateInstanceWithAssignDeep` to `true` changes how instances get updated. Instead of using
+		 * [can-diff/merge-deep/merge-deep], records will be updated with [can-reflect.assignDeep].
+		 *
+		 * The following example shows that the response from `.save()` only includes the `id`
+		 * property. Normally, this would delete all other properties (`name`).  But setting `updateInstanceWithAssignDeep`
+		 * to `true` prevents this:
+		 *
+		 * **Usage:**
+		 *
+		 * ```js
+		 * import {DefineMap, restModel} from "can";
+		 *
+		 * var Todo = DefineMap.extend({
+		 *   id: {type: "number", identity: true},
+		 *   name: "string"
+		 * });
+		 *
+		 * // restModel uses `can-connect/can/map/map`
+		 * restModel({
+		 *   Map: Todo,
+		 *   url: "/todos",
+		 *   updateInstanceWithAssignDeep: true
+		 * });
+		 *
+		 *
+		 * var todo = new Todo({name: "learn canjs"})
+		 *
+		 * var savePromise = todo.save()
+		 * // SERVER SENDS
+		 * // -> POST /todos {name: "learn canjs"}
+		 *
+		 * // SERVER RESPONDS WITH:
+		 * // <- {id: 5}
+		 *
+		 * savePromise.then(function(){
+		 *   // Name still exists even though the server did not
+		 *   // respond with it.
+		 *   todo.name //-> "learn canjs"
+		 * })
+		 * ```
+		 *
+		 * __NOTE__: [can-diff/merge-deep/merge-deep] is able to work _MUCH_ better with nested
+		 * data than [can-reflect.assignDeep]. Specifically, it is able to better
+		 * prevent overwriting one instance's data with another. The _Use_ section of [can-diff/merge-deep/merge-deep]
+		 * goes over this ability. Make sure you understand its capabilities before turning it off.
+		 */
 
 		/**
 		 * @property {connection.Map} can-connect/can/map/map._Map Map
