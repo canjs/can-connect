@@ -604,7 +604,7 @@ var mapOverwrites = {
 			 *
 			 * ```
 			 * <button ($click)="todo.save()"
-			 *    {{#todo.isSaving}}disabled{{/todo.isSaving}}>
+			 *    {{#todo.isSaving()}}disabled{{/todo.isSaving}}>
 			 *   Save Changes
 			 * </button>
 			 * ```
