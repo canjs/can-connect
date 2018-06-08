@@ -30,9 +30,9 @@
  *
  * ```
  * var todoConnection = connect(
- *    ["real-time",
+ *    ["data-callbacks",
+ *     "real-time",
  *     "constructor-callbacks-once",
- *     "constructor-callbacks",
  *     "constructor-store",
  *     "constructor",
  *     "data-url"],{
