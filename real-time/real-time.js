@@ -32,10 +32,10 @@
  * var todoConnection = connect(
  *    ["data/callbacks",
  *     "real-time",
- *     "constructor-callbacks-once",
- *     "constructor-store",
+ *     "constructor/callbacks-once",
+ *     "constructor/store",
  *     "constructor",
- *     "data-url"],{
+ *     "data/url"],{
  *   url: "/todos"
  * });
  * ```
