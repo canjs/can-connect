@@ -5,5 +5,4 @@ require("./map/observe-test");
 require("./ref/ref-test");
 require("./super-map/super-map_test");
 require("./base-map/base-map_test");
-require("./tag/tag_test");
 require("./constructor-hydrate/constructor-hydrate-test");

@@ -38,7 +38,6 @@ QUnit.test("Everything available at can-connect/all", function(){
 		'fallThroughCache',
 		'realTime',
 		'superMap',
-		'tag',
 		'baseMap',
 	];
 	expectedBehaviors.forEach(function(behaviorName){
