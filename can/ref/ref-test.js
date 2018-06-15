@@ -267,6 +267,7 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 
 
 QUnit.test("serialize-able", function(){
+	QUnit.stop();
 
 	var Team = DefineMap.extend({
 		id: 'string'
@@ -283,12 +284,20 @@ QUnit.test("serialize-able", function(){
 
 	var Game = DefineMap.extend({
 		id: 'string',
-		teamRef: {type: Team.Ref.type},
-		score: "number"
+		teamRefA: {type: Team.Ref.type},
+		teamRefB: {type: Team.Ref.type},
 	});
 
-	var game = new Game({id: "123", score: 5, teamRef: "321"});
+	constructorStore.requests.on("end", function(){
+		QUnit.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
+		QUnit.start();
+	})
 
-	QUnit.deepEqual( canReflect.serialize(game), {id: "123", score: 5, teamRef: "321"} );
+	constructorStore.requests.increment();
+	var game = new Game({id: "123", teamRefA: "321", teamRefB: "321"});
+	constructorStore.requests.decrement();
+
+
+
 
 });
