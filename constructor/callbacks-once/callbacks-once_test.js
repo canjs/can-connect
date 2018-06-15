@@ -1,13 +1,13 @@
-var connect = require("can-connect/can-connect");
+var connect = require("../../can-connect");
 var QUnit = require("steal-qunit");
-var realTime = require("can-connect/real-time/");
-var constructor = require("can-connect/constructor/");
-var constructorStore = require("can-connect/constructor/store/");
-var canMap = require("can-connect/can/map/");
-var dataCallbacks = require("can-connect/data/callbacks/");
-var url = require("can-connect/data/url/");
-var callbacksOnce = require("can-connect/constructor/callbacks-once/");
-var DefineMap = require('can-define/map/');
+var realTime = require("../../real-time/real-time");
+var constructor = require("../constructor");
+var constructorStore = require("../store/store");
+var canMap = require("../../can/map/map");
+var dataCallbacks = require("../../data/callbacks/callbacks");
+var url = require("../../data/url/url");
+var callbacksOnce = require("./callbacks-once");
+var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 
 QUnit.module("can-connect/callbacks-once");

@@ -6,24 +6,24 @@ var Observation = require("can-observation");
 var canReflect = require("can-reflect");
 
 // load connections
-var constructor = require("can-connect/constructor/");
-var canMap = require("can-connect/can/map/");
-var constructorStore = require("can-connect/constructor/store/");
-var dataCallbacks = require("can-connect/data/callbacks/");
-var callbacksCache = require("can-connect/data/callbacks-cache/");
-var combineRequests = require("can-connect/data/combine-requests/");
-var localCache = require("can-connect/data/localstorage-cache/");
-var dataParse = require("can-connect/data/parse/");
-var dataUrl = require("can-connect/data/url/");
-var fallThroughCache = require("can-connect/fall-through-cache/");
-var realTime = require("can-connect/real-time/");
+var constructor = require("../../constructor/constructor");
+var canMap = require("./map");
+var constructorStore = require("../../constructor/store/store");
+var dataCallbacks = require("../../data/callbacks/callbacks");
+var callbacksCache = require("../../data/callbacks-cache/callbacks-cache");
+var combineRequests = require("../../data/combine-requests/combine-requests");
+var localCache = require("../../data/localstorage-cache/localstorage-cache");
+var dataParse = require("../../data/parse/parse");
+var dataUrl = require("../../data/url/url");
+var fallThroughCache = require("../../fall-through-cache/fall-through-cache");
+var realTime = require("../../real-time/real-time");
 
-var connect = require("can-connect/can-connect");
+var connect = require("../../can-connect");
 
 var QUnit = require("steal-qunit");
 
 var fixture = require("can-fixture");
-var testHelpers = require("can-connect/test-helpers");
+var testHelpers = require("../../test-helpers");
 var map = [].map;
 
 

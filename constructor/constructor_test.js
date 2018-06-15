@@ -1,8 +1,8 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var persist = require("can-connect/data/url/");
-var connect = require("can-connect/can-connect");
-var constructor = require("can-connect/constructor/");
+var persist = require("../data/url/url");
+var connect = require("../can-connect");
+var constructor = require("./constructor");
 var assign = require("can-reflect").assignMap;
 var QueryLogic = require("can-query-logic");
 

@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var workerBehavior = require("can-connect/data/worker/");
+var workerBehavior = require("./worker");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){

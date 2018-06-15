@@ -4,7 +4,7 @@ var canLog = require("can-log");
 var canReflect = require("can-reflect");
 var fixture = require("can-fixture");
 // load connections
-var testHelpers = require("can-connect/test-helpers");
+var testHelpers = require("../../test-helpers");
 var assign = canReflect.assignMap;
 var map = [].map;
 var later = testHelpers.later;

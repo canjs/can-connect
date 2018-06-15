@@ -41,7 +41,7 @@
  * });
  * ```
  */
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 var assign = require("can-reflect").assignMap;
 var each = require("can-reflect").each;
 
@@ -133,6 +133,6 @@ var callbackCache = connect.behavior("data/callbacks-cache",function(baseConnect
 module.exports = callbackCache;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(callbackCache, []);
 //!steal-remove-end

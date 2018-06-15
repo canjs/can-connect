@@ -39,7 +39,7 @@
  *
  * @return {{}} a `can-connect` connection containing the method implementations provided by `data/callbacks`.
  */
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 var each = require("can-reflect").each;
 
 // wires up the following methods
@@ -141,7 +141,7 @@ var dataCallbackBehavior = connect.behavior("data/callbacks",function(baseConnec
 module.exports = dataCallbackBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(dataCallbackBehavior, [
 	"getListData", "createData", "updateData", "destroyData"
 ]);

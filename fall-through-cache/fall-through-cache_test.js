@@ -1,12 +1,12 @@
 var QUnit = require("steal-qunit");
-var connect = require("can-connect");
+var connect = require("../can-connect");
 var map = [].map;
-var testHelpers = require("can-connect/test-helpers");
+var testHelpers = require("../test-helpers");
 
-var constructor = require("can-connect/constructor/constructor");
-var fallThroughCache = require("can-connect/fall-through-cache/fall-through-cache");
-var constructorStore = require("can-connect/constructor/store/store");
-var dataCallbacks = require("can-connect/data/callbacks/");
+var constructor = require("../constructor/constructor");
+var fallThroughCache = require("../fall-through-cache/fall-through-cache");
+var constructorStore = require("../constructor/store/store");
+var dataCallbacks = require("../data/callbacks/callbacks");
 var QueryLogic = require("can-query-logic");
 
 var getId = function(d){

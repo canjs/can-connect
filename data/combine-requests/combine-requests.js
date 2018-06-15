@@ -1,8 +1,8 @@
-var connect = require("can-connect");
-var getItems = require("can-connect/helpers/get-items");
+var connect = require("../../can-connect");
+var getItems = require("../../helpers/get-items");
 var canReflect = require("can-reflect");
 
-var makeDeferred = require("can-connect/helpers/deferred");
+var makeDeferred = require("../../helpers/deferred");
 var forEach = [].forEach;
 /**
  * @module can-connect/data/combine-requests/combine-requests combine-requests
@@ -263,7 +263,7 @@ var combineRequests = connect.behavior("data/combine-requests",function(baseConn
 module.exports = combineRequests;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(combineRequests, ['getListData']);
 //!steal-remove-end
 

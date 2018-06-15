@@ -75,7 +75,7 @@
  * updated after about a second.
  *
  */
-var connect = require("can-connect");
+var connect = require("../can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
 var canLog = require("can-log");
 
@@ -295,6 +295,6 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 module.exports = fallThroughCache;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../helpers/validate");
 module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
 //!steal-remove-end

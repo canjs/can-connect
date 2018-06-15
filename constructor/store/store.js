@@ -87,10 +87,10 @@
  * [can-connect/constructor/constructor.updatedInstance] which updates the shared instance properties with the new
  * server data.
  */
-var connect = require("can-connect");
-var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
-var WeakReferenceSet = require("can-connect/helpers/weak-reference-set");
-var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var connect = require("../../can-connect");
+var WeakReferenceMap = require("../../helpers/weak-reference-map");
+var WeakReferenceSet = require("../../helpers/weak-reference-set");
+var sortedSetJSON = require("../../helpers/sorted-set-json");
 var eventQueue = require("can-event-queue/map/map");
 
 // shared across all connections
@@ -766,6 +766,6 @@ constructorStore.requestCleanupDelay = 10;
 module.exports = constructorStore;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
 //!steal-remove-end

@@ -153,10 +153,10 @@
  */
 
 
-var connect = require("can-connect");
-var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
+var connect = require("../../can-connect");
+var WeakReferenceMap = require("../../helpers/weak-reference-map");
 var ObservationRecorder = require("can-observation-recorder");
-var constructorStore = require("can-connect/constructor/store/store");
+var constructorStore = require("../../constructor/store/store");
 var define = require("can-define");
 var canReflect = require("can-reflect");
 

@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var callbacksCache = require("can-connect/data/callbacks-cache/");
+var callbacksCache = require("./callbacks-cache");
 
 
 

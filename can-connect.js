@@ -1,5 +1,5 @@
-var connect = require("can-connect/connect");
-var base = require("can-connect/base/base");
+var connect = require("./connect");
+var base = require("./base/base");
 var ns = require("can-namespace");
 
 connect.base = base;

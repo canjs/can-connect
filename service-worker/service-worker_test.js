@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
-var serviceWorkerCache = require("can-connect/service-worker/");
-var connect = require("can-connect");
+var serviceWorkerCache = require("./service-worker");
+var connect = require("../can-connect");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);

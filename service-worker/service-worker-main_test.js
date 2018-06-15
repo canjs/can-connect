@@ -1,1 +1,1 @@
-require("can-connect/service-worker/service-worker-main");
+require("./service-worker-main");

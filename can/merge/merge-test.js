@@ -2,11 +2,11 @@ var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var set = require('can-set-legacy');
 
-var connect = require('can-connect');
-var canMap = require('can-connect/can/map/map');
-var constructorBehavior = require('can-connect/constructor/constructor');
-var constructorStore = require('can-connect/constructor/store/store');
-var canMapMerge = require('can-connect/can/merge/merge');
+var connect = require('../../can-connect');
+var canMap = require('../map/map');
+var constructorBehavior = require('../../constructor/constructor');
+var constructorStore = require('../../constructor/store/store');
+var canMapMerge = require('../merge/merge');
 
 var QUnit = require('steal-qunit');
 
