@@ -6,6 +6,7 @@ var constructor = require("../../constructor/");
 var canMap = require("../../can/map/");
 var canRef = require("../../can/ref/");
 var connect = require("../../can-connect");
+var canReflect = require("can-reflect");
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -262,4 +263,44 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 		QUnit.ok(false, "error");
 		QUnit.start();
 	});
+});
+
+
+QUnit.test("serialize-able", function(){
+	QUnit.stop();
+
+	var Team = DefineMap.extend({
+		id: 'string'
+	});
+	var Teams = DefineList.extend({
+		"#": Team
+	});
+	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+		getData: function() {
+			return Promise.resolve({ id: 3, name: "Bears" });
+		}
+	}],
+	{ Map: Team, List: Teams });
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRefA: {type: Team.Ref.type},
+		teamRefB: {type: Team.Ref.type},
+	});
+
+
+
+	constructorStore.requests.increment();
+	var game = new Game({id: "123", teamRefA: "321", teamRefB: "321"});
+
+	constructorStore.requests.one("end", function(){
+		QUnit.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
+		QUnit.start();
+	})
+
+	constructorStore.requests.decrement();
+
+
+
+
 });

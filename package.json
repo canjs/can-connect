@@ -20,7 +20,7 @@
     "can-observation-recorder": "<2.0.0",
     "can-query-logic": "<2.0.0",
     "can-queues": "<2.0.0",
-    "can-reflect": "^1.9.0",
+    "can-reflect": "^1.16.5",
     "can-string": "<2.0.0",
     "can-symbol": "^1.6.1",
     "can-validate-interface": "^1.0.0"

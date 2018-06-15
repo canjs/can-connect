@@ -151,8 +151,6 @@
  *
  *
  */
-
-
 var connect = require("../../can-connect");
 var WeakReferenceMap = require("../../helpers/weak-reference-map");
 var ObservationRecorder = require("can-observation-recorder");
@@ -160,7 +158,7 @@ var constructorStore = require("../../constructor/store/store");
 var define = require("can-define");
 var canReflect = require("can-reflect");
 
-var makeRef = function(connection){
+var makeRef = function(connection) {
 	var idProp = canReflect.getSchema(connection.queryLogic).identity[0];
 	/**
 	 * @property {constructor} can-connect/can/ref/ref.Map.Ref Map.Ref
@@ -176,16 +174,16 @@ var makeRef = function(connection){
 	 * @param  {Object} value properties to be loaded / hydrated
 	 * @return {Map.Ref}       instance reference object for the id
 	 */
-	var Ref = function(id, value){
-		if(typeof id === "object") {
+	var Ref = function(id, value) {
+		if (typeof id === "object") {
 			value = id;
 			id = value[idProp];
 		}
 		// check if this is in the store
 		var storeRef = Ref.store.get(id);
-		if(storeRef) {
-			if (value && !storeRef._value){
-				if(value instanceof connection.Map) {
+		if (storeRef) {
+			if (value && !storeRef._value) {
+				if (value instanceof connection.Map) {
 					storeRef._value = value;
 				} else {
 					storeRef._value = connection.hydrateInstance(value);
@@ -195,10 +193,10 @@ var makeRef = function(connection){
 		}
 		// if not, create it
 		this[idProp] = id;
-		if(value) {
+		if (value) {
 			// if the value is already an instance, use it.
 
-			if(value instanceof connection.Map) {
+			if (value instanceof connection.Map) {
 				this._value = value;
 			} else {
 				this._value = connection.hydrateInstance(value);
@@ -208,8 +206,8 @@ var makeRef = function(connection){
 
 		// check if this is being made during a request
 		// if it is, save it
-		if( constructorStore.requests.count() > 0 ) {
-			if(! Ref._requestInstances[id] ) {
+		if (constructorStore.requests.count() > 0) {
+			if (!Ref._requestInstances[id]) {
 				Ref.store.addReference(id, this);
 				Ref._requestInstances[id] = this;
 			}
@@ -235,13 +233,13 @@ var makeRef = function(connection){
 	 *   @return {can-connect/can/ref/ref.Map.Ref} reference instance for the passed data or identifier.
 	 */
 	Ref.type = function(ref) {
-		if(ref && typeof ref !== "object") {
+		if (ref && typeof ref !== "object") {
 			// get or make the existing reference from the store
 			return new Ref(ref);
-    } else {
-      // get or make the reference in the store, update the instance too
-      return new Ref(ref[idProp], ref);
-    }
+		} else {
+			// get or make the reference in the store, update the instance too
+			return new Ref(ref[idProp], ref);
+		}
 	};
 	var defs = {
 		/**
@@ -256,8 +254,8 @@ var makeRef = function(connection){
 		 * @return {Promise} Promise resolving the instance referenced
 		 */
 		promise: {
-			get: function(){
-				if(this._value) {
+			get: function() {
+				if (this._value) {
 					return Promise.resolve(this._value);
 				} else {
 					var props = {};
@@ -268,11 +266,11 @@ var makeRef = function(connection){
 		},
 
 		_state: {
-			get: function(lastSet, resolve){
-				if(resolve) {
-					this.promise.then(function(){
+			get: function(lastSet, resolve) {
+				if (resolve) {
+					this.promise.then(function() {
 						resolve("resolved");
-					}, function(){
+					}, function() {
 						resolve("rejected");
 					});
 				}
@@ -293,10 +291,10 @@ var makeRef = function(connection){
 		 */
 		value: {
 			get: function(lastSet, resolve) {
-				if(this._value) {
+				if (this._value) {
 					return this._value;
-				} else if(resolve){
-					this.promise.then(function(value){
+				} else if (resolve) {
+					this.promise.then(function(value) {
 						resolve(value);
 					});
 				}
@@ -314,11 +312,11 @@ var makeRef = function(connection){
 		 * @return {Object} error message if the promise is rejected
 		 */
 		reason: {
-			get: function(lastSet, resolve){
-				if(this._value) {
+			get: function(lastSet, resolve) {
+				if (this._value) {
 					return undefined;
 				} else {
-					this.promise.catch(function(value){
+					this.promise.catch(function(value) {
 						resolve(value);
 					});
 				}
@@ -327,14 +325,14 @@ var makeRef = function(connection){
 	};
 	defs[idProp] = {
 		type: "*",
-		set: function(){
+		set: function() {
 			this._value = undefined;
 		}
 	};
 
-	define(Ref.prototype,defs);
+	define(Ref.prototype, defs);
 
-	Ref.prototype.unobservedId = ObservationRecorder.ignore(function(){
+	Ref.prototype.unobservedId = ObservationRecorder.ignore(function() {
 		return this[idProp];
 	});
 	/**
@@ -346,7 +344,7 @@ var makeRef = function(connection){
 	 * @signature `ref.isResolved`
 	 * @return {boolean} `true` if the lazy loading promise was resolved.
 	 */
-	Ref.prototype.isResolved = function(){
+	Ref.prototype.isResolved = function() {
 		return !!this._value || this._state === "resolved";
 	};
 	/**
@@ -358,7 +356,7 @@ var makeRef = function(connection){
 	 * @signature `ref.isRejected`
 	 * @return {boolean} `true` if the lazy loading promise was rejected.
 	 */
-	Ref.prototype.isRejected = function(){
+	Ref.prototype.isRejected = function() {
 		return this._state === "rejected";
 	};
 
@@ -371,7 +369,7 @@ var makeRef = function(connection){
 	 * @signature `ref.isPending`
 	 * @return {boolean} `true` if the lazy loading promise state is not resolved or rejected.
 	 */
-	Ref.prototype.isPending = function(){
+	Ref.prototype.isPending = function() {
 		return !this._value && (this._state !== "resolved" || this._state !== "rejected");
 	};
 
@@ -388,21 +386,24 @@ var makeRef = function(connection){
 	Ref.prototype.serialize = function() {
 		return this[idProp];
 	};
+	canReflect.assignSymbols(Ref.prototype, {
+		"can.serialize": Ref.prototype.serialize
+	})
 
 	var baseEventSetup = Ref.prototype._eventSetup;
-	Ref.prototype._eventSetup = function(){
+	Ref.prototype._eventSetup = function() {
 		Ref.store.addReference(this.unobservedId(), this);
 		return baseEventSetup.apply(this, arguments);
 	};
 	var baseTeardown = Ref.prototype._eventTeardown;
-	Ref.prototype._eventTeardown = function(){
-		Ref.store.deleteReference(this.unobservedId(),this);
+	Ref.prototype._eventTeardown = function() {
+		Ref.store.deleteReference(this.unobservedId(), this);
 		return baseTeardown.apply(this, arguments);
 	};
 
 
-	constructorStore.requests.on("end", function(){
-		for(var id in Ref._requestInstances) {
+	constructorStore.requests.on("end", function() {
+		for (var id in Ref._requestInstances) {
 			Ref.store.deleteReference(id);
 		}
 		Ref._requestInstances = {};
@@ -412,7 +413,7 @@ var makeRef = function(connection){
 };
 
 
-module.exports = connect.behavior("can/ref",function(baseConnection){
+module.exports = connect.behavior("can/ref", function(baseConnection) {
 	return {
 		/**
 		 * @can-connect/can/ref/ref.init init
@@ -425,7 +426,7 @@ module.exports = connect.behavior("can/ref",function(baseConnection){
 		 *
 		 * @return {undefined} no return value
 		 **/
-		init: function(){
+		init: function() {
 			baseConnection.init.apply(this, arguments);
 			this.Map.Ref = makeRef(this);
 		}
