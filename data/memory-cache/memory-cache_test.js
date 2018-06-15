@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
-var memoryCache = require("can-connect/data/memory-cache/");
-var connect = require("can-connect");
+var memoryCache = require("./memory-cache");
+var connect = require("../../can-connect");
 var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){

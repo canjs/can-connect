@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
-var cacheRequests = require("can-connect/cache-requests/");
-var memCache = require("can-connect/data/memory-cache/");
-var connect = require("can-connect");
+var cacheRequests = require("../cache-requests/");
+var memCache = require("../data/memory-cache/");
+var connect = require("../can-connect");
 var map = [].map;
 var canSet = require("can-set-legacy");
 

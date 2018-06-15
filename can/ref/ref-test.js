@@ -1,11 +1,11 @@
 var QUnit = require("steal-qunit");
 var DefineMap = require("can-define/map/");
 var DefineList = require("can-define/list/");
-var constructorStore = require("can-connect/constructor/store/");
-var constructor = require("can-connect/constructor/");
-var canMap = require("can-connect/can/map/");
-var canRef = require("can-connect/can/ref/");
-var connect = require("can-connect");
+var constructorStore = require("../../constructor/store/");
+var constructor = require("../../constructor/");
+var canMap = require("../../can/map/");
+var canRef = require("../../can/ref/");
+var connect = require("../../can-connect");
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances

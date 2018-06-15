@@ -3,10 +3,10 @@ var QUnit = require('steal-qunit');
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
 var connect = require('can-connect');
-var constructorBehavior = require('can-connect/constructor/constructor');
-var constructorStore = require('can-connect/constructor/store/store');
-var mapBehavior = require('can-connect/can/map/map');
-var hydrateBehavior = require('can-connect/can/constructor-hydrate/constructor-hydrate');
+var constructorBehavior = require('../../constructor/constructor');
+var constructorStore = require('../../constructor/store/store');
+var mapBehavior = require('../map/map');
+var hydrateBehavior = require('./constructor-hydrate');
 
 QUnit.module("can-connect/can/constructor-hydrate");
 

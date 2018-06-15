@@ -1,4 +1,4 @@
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 
 var constructor = require("../../constructor/constructor");
 var canMap = require("../map/map");
@@ -33,7 +33,7 @@ connect.baseMap = function(options){
 	if($ && $.ajax) {
 		options.ajax = $.ajax;
 	}
-	
+
 	return connect(behaviors,options);
 };
 

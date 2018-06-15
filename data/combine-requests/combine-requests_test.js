@@ -1,6 +1,6 @@
 
 var QUnit = require("steal-qunit");
-var combineRequests = require("can-connect/data/combine-requests/");
+var combineRequests = require("./combine-requests");
 var set = require("can-set-legacy");
 var map = [].map;
 

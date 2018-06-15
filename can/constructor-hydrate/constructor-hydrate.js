@@ -92,7 +92,7 @@
  * ```
  */
 
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 var Construct = require("can-construct");
 
 var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){

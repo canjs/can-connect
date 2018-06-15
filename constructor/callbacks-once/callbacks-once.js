@@ -17,8 +17,8 @@
  *   @return {Object} A `can-connect` connection containing the methods provided by `callbacks-once`.
  *
  */
-var connect = require("can-connect");
-var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var connect = require("../../can-connect");
+var sortedSetJSON = require("../../helpers/sorted-set-json");
 var forEach = [].forEach;
 
 // wires up the following methods
@@ -94,6 +94,6 @@ var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",functi
 module.exports = callbacksOnceBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(callbacksOnceBehavior, callbacks);
 //!steal-remove-end

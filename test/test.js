@@ -1,4 +1,4 @@
-require("can-connect/helpers/helpers_test");
+require("../helpers/helpers_test");
 
 require("../core_test");
 

@@ -1,5 +1,5 @@
 var QUnit = require("steal-qunit");
-var connect = require("can-connect");
+var connect = require("./can-connect");
 var set = require("can-set-legacy");
 
 
@@ -22,7 +22,7 @@ QUnit.test("Determine .id() from queryLogic (#82)", function(){
 });
 
 QUnit.test("Everything available at can-connect/all", function(){
-	var all = require("can-connect/all");
+	var all = require("./all");
 	var expectedBehaviors = [
 		'cacheRequests',
 		'constructor',

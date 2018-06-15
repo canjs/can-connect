@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
-var dataLocalStorage = require("can-connect/data/localstorage-cache/");
-var connect = require("can-connect");
+var dataLocalStorage = require("./localstorage-cache");
+var connect = require("../../can-connect");
 var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){

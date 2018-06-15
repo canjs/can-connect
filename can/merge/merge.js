@@ -1,7 +1,7 @@
 var smartMerge = require('can-diff/merge-deep/merge-deep');
-var connectMap = require('can-connect/can/map/map');
+var connectMap = require('../map/map');
 var queues = require('can-queues');
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 
 console.warn("can-connect/can/merge/merge is deprecated. It's built into can-connect/can/map/map by default.");
 
@@ -102,6 +102,6 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 module.exports = mergeBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(mergeBehavior, ['createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList']);
 //!steal-remove-end

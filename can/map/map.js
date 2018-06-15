@@ -908,7 +908,7 @@ var overwrite = function( connection, Constructor, overwrites) {
 module.exports = canMapBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(
 	canMapBehavior,
 	[

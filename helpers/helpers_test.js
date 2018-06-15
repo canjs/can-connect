@@ -1,6 +1,6 @@
 require("./map-deep-merge-test");
 
-var idMerge = require("can-connect/helpers/id-merge");
+var idMerge = require("./id-merge");
 
 var QUnit = require("steal-qunit");
 

@@ -1,6 +1,6 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var persist = require("can-connect/data/url/");
+var persist = require("./url");
 var $ = require("jquery");
 var set = require("can-set-legacy");
 var QueryLogic = require("can-query-logic");

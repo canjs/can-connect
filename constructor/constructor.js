@@ -117,10 +117,10 @@
 var canReflect = require("can-reflect");
 var makeArray = canReflect.toArray;
 var assign = canReflect.assignMap;
-var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
+var WeakReferenceMap = require("../helpers/weak-reference-map");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
-var idMerge = require("can-connect/helpers/id-merge");
-var behavior = require("../../behavior");
+var idMerge = require("../helpers/id-merge");
+var behavior = require("../behavior");
 
 module.exports = behavior("constructor",function(baseConnection){
 

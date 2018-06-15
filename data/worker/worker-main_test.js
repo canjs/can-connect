@@ -1,5 +1,5 @@
 var connect = require("can-connect");
-var dataWorker = require("can-connect/data/worker/");
+var dataWorker = require("./worker");
 
 
 connect([dataWorker, {

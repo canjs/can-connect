@@ -374,6 +374,6 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 module.exports = urlBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+var validate = require("../../helpers/validate");
 module.exports = validate(urlBehavior, ['url']);
 //!steal-remove-end
