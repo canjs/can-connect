@@ -288,13 +288,16 @@ QUnit.test("serialize-able", function(){
 		teamRefB: {type: Team.Ref.type},
 	});
 
-	constructorStore.requests.on("end", function(){
+
+
+	constructorStore.requests.increment();
+	var game = new Game({id: "123", teamRefA: "321", teamRefB: "321"});
+
+	constructorStore.requests.one("end", function(){
 		QUnit.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
 		QUnit.start();
 	})
 
-	constructorStore.requests.increment();
-	var game = new Game({id: "123", teamRefA: "321", teamRefB: "321"});
 	constructorStore.requests.decrement();
 
 
