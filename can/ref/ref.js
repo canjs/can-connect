@@ -159,6 +159,7 @@ var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
 var ObservationRecorder = require("can-observation-recorder");
 var constructorStore = require("can-connect/constructor/store/store");
 var define = require("can-define");
+var canReflect = require("can-reflect");
 
 var makeRef = function(connection){
 	var idProp = getIdProps(connection)[0];
@@ -388,6 +389,9 @@ var makeRef = function(connection){
 	Ref.prototype.serialize = function() {
 		return this[idProp];
 	};
+	canReflect.assignSymbols(Ref.prototype,{
+		"can.serialize": Ref.prototype.serialize
+	})
 
 	var baseEventSetup = Ref.prototype._eventSetup;
 	Ref.prototype._eventSetup = function(){
