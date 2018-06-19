@@ -174,45 +174,47 @@ var makeRef = function(connection) {
 	 * @param  {Object} value properties to be loaded / hydrated
 	 * @return {Map.Ref}       instance reference object for the id
 	 */
-	var Ref = function(id, value) {
-		if (typeof id === "object") {
-			value = id;
-			id = value[idProp];
-		}
-		// check if this is in the store
-		var storeRef = Ref.store.get(id);
-		if (storeRef) {
-			if (value && !storeRef._value) {
+	var Ref = (function(){
+		return function(id, value) {
+			if (typeof id === "object") {
+				value = id;
+				id = value[idProp];
+			}
+			// check if this is in the store
+			var storeRef = Ref.store.get(id);
+			if (storeRef) {
+				if (value && !storeRef._value) {
+					if (value instanceof connection.Map) {
+						storeRef._value = value;
+					} else {
+						storeRef._value = connection.hydrateInstance(value);
+					}
+				}
+				return storeRef;
+			}
+			// if not, create it
+			this[idProp] = id;
+			if (value) {
+				// if the value is already an instance, use it.
+
 				if (value instanceof connection.Map) {
-					storeRef._value = value;
+					this._value = value;
 				} else {
-					storeRef._value = connection.hydrateInstance(value);
+					this._value = connection.hydrateInstance(value);
 				}
 			}
-			return storeRef;
-		}
-		// if not, create it
-		this[idProp] = id;
-		if (value) {
-			// if the value is already an instance, use it.
 
-			if (value instanceof connection.Map) {
-				this._value = value;
-			} else {
-				this._value = connection.hydrateInstance(value);
+
+			// check if this is being made during a request
+			// if it is, save it
+			if (constructorStore.requests.count() > 0) {
+				if (!Ref._requestInstances[id]) {
+					Ref.store.addReference(id, this);
+					Ref._requestInstances[id] = this;
+				}
 			}
-		}
-
-
-		// check if this is being made during a request
-		// if it is, save it
-		if (constructorStore.requests.count() > 0) {
-			if (!Ref._requestInstances[id]) {
-				Ref.store.addReference(id, this);
-				Ref._requestInstances[id] = this;
-			}
-		}
-	};
+		};
+	})();
 	/**
 	 * @property {can-connect/helpers/weak-reference-map} can-connect/can/ref/ref.Map.Ref.store store
 	 * @parent can-connect/can/ref/ref.Map.Ref.static
@@ -387,7 +389,10 @@ var makeRef = function(connection) {
 		return this[idProp];
 	};
 	canReflect.assignSymbols(Ref.prototype, {
-		"can.serialize": Ref.prototype.serialize
+		"can.serialize": Ref.prototype.serialize,
+		"can.getName": function(){
+			return canReflect.getName(this.constructor)+"{"+this[idProp]+"}";
+		}
 	})
 
 	var baseEventSetup = Ref.prototype._eventSetup;
@@ -408,6 +413,13 @@ var makeRef = function(connection) {
 		}
 		Ref._requestInstances = {};
 	});
+
+	//!steal-remove-start
+	Object.defineProperty(Ref, "name", {
+		value: canReflect.getName(connection.Map) + "Ref",
+		configurable: true
+	});
+	//!steal-remove-end
 
 	return Ref;
 };

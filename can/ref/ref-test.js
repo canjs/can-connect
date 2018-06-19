@@ -304,3 +304,29 @@ QUnit.test("serialize-able", function(){
 
 
 });
+
+QUnit.test("ref instances are named appropriately (#424)", function(){
+	var Team = DefineMap.extend("Team",{
+		name: "string",
+		id: {identity: true, type: 'string'}
+	});
+	var Teams = DefineList.extend({
+		"#": Team
+	});
+	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+		getData: function() {
+			return Promise.resolve({ id: 3, name: "Bears" });
+		}
+	}],
+	{ Map: Team, List: Teams });
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRefA: {type: Team.Ref.type},
+		teamRefB: {type: Team.Ref.type},
+	});
+
+	var game = new Game({id: "123", teamRefA: "123", teamRefB: {id: "321", name: "cubs"}});
+
+	QUnit.equal( canReflect.getName(game.teamRefA), "TeamRef{123}");
+});
