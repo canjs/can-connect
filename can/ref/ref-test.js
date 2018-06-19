@@ -7,6 +7,7 @@ var canMap = require("../../can/map/");
 var canRef = require("../../can/ref/");
 var connect = require("../../can-connect");
 var canReflect = require("can-reflect");
+var canTestHelpers = require("can-test-helpers/lib/dev");
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -305,7 +306,7 @@ QUnit.test("serialize-able", function(){
 
 });
 
-QUnit.test("ref instances are named appropriately (#424)", function(){
+canTestHelpers.devOnlyTest("ref instances are named appropriately (#424)", function(){
 	var Team = DefineMap.extend("Team",{
 		name: "string",
 		id: {identity: true, type: 'string'}
