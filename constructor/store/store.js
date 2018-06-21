@@ -181,7 +181,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 				this._requestLists = {};
 			}
 
-			requests.on("end", function(){
+			requests.on("end", function onRequestsEnd_deleteStoreReferences(){
 				var id;
 				for(id in this._requestInstances) {
 					this.instanceStore.deleteReference(id);

@@ -74,23 +74,37 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 
 			// ### Setup store updates
 			if(this.Map[canSymbol.for("can.onInstanceBoundChange")]) {
-				this.Map[canSymbol.for("can.onInstanceBoundChange")](function canConnectMap_onInstanceBoundChange(instance, isBound){
+				var canConnectMap_onMapBoundChange = function (instance, isBound){
 					var method = isBound ? "addInstanceReference" : "deleteInstanceReference";
 					if(connection[method]) {
 						connection[method](instance);
 					}
-				})
+				}
+				//!steal-remove-start
+				Object.defineProperty(canConnectMap_onMapBoundChange, "name", {
+					value: canReflect.getName(this.Map) + " boundChange",
+					configurable: true
+				});
+				//!steal-remove-end
+				this.Map[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onMapBoundChange)
 			} else {
 				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the Map type")
 			}
 
 			if(this.List[canSymbol.for("can.onInstanceBoundChange")]) {
-				this.List[canSymbol.for("can.onInstanceBoundChange")](function(list, isBound){
+				var canConnectMap_onListBoundChange = function(list, isBound){
 					var method = isBound ? "addListReference" : "deleteListReference";
 					if(connection[method]) {
 						connection[method](list);
 					}
-				})
+				}
+				//!steal-remove-start
+				Object.defineProperty(canConnectMap_onListBoundChange, "name", {
+					value: canReflect.getName(this.List) + " boundChange",
+					configurable: true
+				});
+				//!steal-remove-end
+				this.List[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onListBoundChange);
 			} else {
 				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the List type")
 			}
