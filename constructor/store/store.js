@@ -766,6 +766,8 @@ constructorStore.requestCleanupDelay = 10;
 module.exports = constructorStore;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+	module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+}
 //!steal-remove-end

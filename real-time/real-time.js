@@ -134,8 +134,9 @@ var canDev = require('can-util/js/dev/dev');
 module.exports = connect.behavior("real-time",function(baseConnection){
 
 	var createPromise = Promise.resolve();
+	var behavior;
 
-	return {
+	behavior = {
 		createData: function(){
 			var promise = baseConnection.createData.apply(this, arguments);
 			var cleanPromise = promise.catch(function () { return ''; })
@@ -358,9 +359,11 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				return instance;
 			});
 		}
+	};
 
-		//!steal-remove-start
-		,gotListData: function(items, set) {
+	//!steal-remove-start
+	if(process.env.NODE_ENV !== 'production') {
+		behavior.gotListData = function(items, set) {
 			var self = this;
 			if (this.algebra) {
 				for(var item, i = 0, l = items.data.length; i < l; i++) {
@@ -380,8 +383,10 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 
 			return Promise.resolve(items);
 		}
-		//!steal-remove-end
-	};
+	}
+	//!steal-remove-end
+
+	return behavior;
 });
 
 var create = function(props){

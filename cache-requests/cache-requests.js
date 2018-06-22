@@ -267,6 +267,8 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 module.exports = cacheRequestsBehaviour;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+}
 module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
 //!steal-remove-end

@@ -289,6 +289,8 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 module.exports = fallThroughCache;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+	module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
+}
 //!steal-remove-end

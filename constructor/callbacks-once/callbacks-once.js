@@ -94,6 +94,8 @@ var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",functi
 module.exports = callbacksOnceBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(callbacksOnceBehavior, callbacks);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+	module.exports = validate(callbacksOnceBehavior, callbacks);
+}
 //!steal-remove-end

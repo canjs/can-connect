@@ -296,11 +296,15 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 */
 		updatedList: function(list, listData, set){
 			queues.batch.start();
-			queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments,{
-				//!steal-remove-start
-				reasonLog: ["set", set,"list", list,"updated with", listData]
-				//!steal-remove-end
-			});
+			if(process.env.NODE_ENV !== 'production') {
+				queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments,{
+					//!steal-remove-start
+					reasonLog: ["set", set,"list", list,"updated with", listData]
+					//!steal-remove-end
+				});
+			} else {
+				queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments);
+			}
 			queues.batch.stop();
 
 		},
@@ -442,8 +446,10 @@ canMapBehavior.callbackInstanceEvents = function (funcName, instance) {
 	eventQueue.dispatch.call(instance, {type: funcName, target: instance});
 
 	//!steal-remove-start
-	if (this.id) {
-		dev.log("can-connect/can/map/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
+	if(process.env.NODE_ENV !== 'production') {
+		if (this.id) {
+			dev.log("can-connect/can/map/map.js - " + (constructor.shortName || this.name) + " " + this.id(instance) + " " + funcName);
+		}
 	}
 	//!steal-remove-end
 
@@ -802,11 +808,14 @@ var overwrite = function( connection, Constructor, overwrites) {
 module.exports = canMapBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(
-	canMapBehavior,
-	[
-		'id', 'get', 'updatedList', 'destroy', 'save', 'getList'
-	]
-);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+
+	module.exports = validate(
+		canMapBehavior,
+		[
+			'id', 'get', 'updatedList', 'destroy', 'save', 'getList'
+		]
+	);
+}
 //!steal-remove-end

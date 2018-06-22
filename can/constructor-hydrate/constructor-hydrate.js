@@ -113,6 +113,8 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 module.exports = constructorHydrateBehavior;
 
 //!steal-remove-start
-var validate = require('can-connect/helpers/validate');
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require('can-connect/helpers/validate');
+}
 module.exports = validate(constructorHydrateBehavior, ['Map', 'List', 'instanceStore', 'hydrateInstance']);
 //!steal-remove-end
