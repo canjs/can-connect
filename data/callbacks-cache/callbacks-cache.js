@@ -133,6 +133,8 @@ var callbackCache = connect.behavior("data/callbacks-cache",function(baseConnect
 module.exports = callbackCache;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(callbackCache, []);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+	module.exports = validate(callbackCache, []);
+}
 //!steal-remove-end

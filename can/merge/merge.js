@@ -100,6 +100,8 @@ var mergeBehavior = connect.behavior("can/merge",function(baseConnection){
 module.exports = mergeBehavior;
 
 //!steal-remove-start
-var validate = require("can-connect/helpers/validate");
-module.exports = validate(mergeBehavior, ['createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("can-connect/helpers/validate");
+	module.exports = validate(mergeBehavior, ['createdInstance', 'destroyedInstance', 'updatedInstance', 'updatedList']);
+}
 //!steal-remove-end
