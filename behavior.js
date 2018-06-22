@@ -1,6 +1,4 @@
-var assign = require("can-reflect").assignMap;
-
-
+"use strict";
 var behaviorsMap = {};
 
 function behavior(name, behavior){
@@ -11,7 +9,10 @@ function behavior(name, behavior){
 	var behaviorMixin = function(base){
 		// basically Object.create
 		var Behavior = function(){};
-		Behavior.name = name;
+		Object.defineProperty(Behavior,"name",{
+			value: name,
+			configurable: true
+		});
 		Behavior.prototype = base;
 		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function
