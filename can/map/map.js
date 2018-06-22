@@ -296,15 +296,16 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 */
 		updatedList: function(list, listData, set){
 			queues.batch.start();
+			var enqueueOptions = {};
+			//!steal-remove-start
 			if(process.env.NODE_ENV !== 'production') {
-				queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments,{
-					//!steal-remove-start
-					reasonLog: ["set", set,"list", list,"updated with", listData]
-					//!steal-remove-end
-				});
-			} else {
-				queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments);
+				enqueueOptions = {
+    				reasonLog: ["set", set,"list", list,"updated with", listData]
+  				};
 			}
+			//!steal-remove-end
+			
+			queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments, enqueueOptions);
 			queues.batch.stop();
 
 		},
