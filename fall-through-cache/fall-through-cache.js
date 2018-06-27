@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/fall-through-cache/fall-through-cache fall-through-cache
  * @parent can-connect.behaviors

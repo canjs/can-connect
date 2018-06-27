@@ -1,3 +1,4 @@
+"use strict";
 var hooks = {
 	// CRUD stuff
 	/**

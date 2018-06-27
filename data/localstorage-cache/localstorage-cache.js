@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/data/localstorage-cache/localstorage-cache localstorage-cache
  * @parent can-connect.behaviors

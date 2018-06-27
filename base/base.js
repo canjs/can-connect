@@ -1,3 +1,4 @@
+"use strict";
 var connect = require("can-connect/connect");
 /**
  * @module can-connect/base/base base

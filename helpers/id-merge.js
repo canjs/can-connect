@@ -1,3 +1,4 @@
+"use strict";
 var map = [].map;
 
 module.exports = function(list, update, id, make){

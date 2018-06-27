@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/real-time/real-time real-time
  * @parent can-connect.behaviors

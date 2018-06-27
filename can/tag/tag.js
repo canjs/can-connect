@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/can/tag/tag
  * @parent can-connect.modules

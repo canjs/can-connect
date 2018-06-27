@@ -1,3 +1,4 @@
+"use strict";
 var forEach = [].forEach;
 var keys = Object.keys;
 
