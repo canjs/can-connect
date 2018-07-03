@@ -402,7 +402,7 @@ module.exports = connect.behavior("data/localstorage-cache",function(baseConnect
 					// Get the data for the old set we can union with.
 					return this.getListData(setDatum.set).then(function(setData){
 						// update the old set to the new set
-						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, this.algebra), union);
+						self.updateSet(setDatum, canSet.getUnion(setDatum.set, set, getItems(setData), items, self.algebra), union);
 					});
 				}
 			}
