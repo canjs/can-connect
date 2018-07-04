@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/can/constructor-hydrate/constructor-hydrate constructor-hydrate
  * @parent can-connect.behaviors

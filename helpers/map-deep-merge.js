@@ -1,3 +1,4 @@
+"use strict";
 // TODO: This implementation deeply depends on `can-define/map/` and `can-define/list/`.
 // Track the issue `https://github.com/canjs/canjs/issues/2931` to figure out how to apply smartMerge
 // to regular objects and arrays.

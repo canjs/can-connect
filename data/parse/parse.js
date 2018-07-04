@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/data/parse/parse
  * @parent can-connect.behaviors
@@ -53,9 +54,9 @@
  * ```
  *
  */
- var connect = require("can-connect");
- var each = require("can-util/js/each/each");
- var getObject = require("can-util/js/get/get");
+var connect = require("can-connect");
+var each = require("can-util/js/each/each");
+var getObject = require("can-util/js/get/get");
 
 
 module.exports = connect.behavior("data/parse",function(baseConnection){

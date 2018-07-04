@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/can/ref/ref can/ref
  * @parent can-connect.behaviors

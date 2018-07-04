@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/data/url/url data/url
  * @parent can-connect.behaviors
@@ -211,28 +212,28 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
  */
 
 
- /**
-  * @property {function} can-connect/data/url/url.ajax ajax
-  * @parent can-connect/data/url/url.option
-  *
-  * Specify the ajax functionality that should be used to make the request.
-  *
-  * @option {function} Provides an alternate function to be used to make
-  * ajax requests.  By default [can-util/dom/ajax/ajax] provides the ajax
-  * functionality. jQuery's ajax method can be substituted as follows:
-  *
-  * ```js
-  * connect([
-  *   require("can-connect/data/url/url")
-  * ],{
-  *   url: "/things",
-  *   ajax: $.ajax
-  * });
-  * ```
-  *
-  *   @param {Object} settings Configuration options for the AJAX request.
-  *   @return {Promise} A Promise that resolves to the data.
-  */
+/**
+ * @property {function} can-connect/data/url/url.ajax ajax
+ * @parent can-connect/data/url/url.option
+ *
+ * Specify the ajax functionality that should be used to make the request.
+ *
+ * @option {function} Provides an alternate function to be used to make
+ * ajax requests.  By default [can-util/dom/ajax/ajax] provides the ajax
+ * functionality. jQuery's ajax method can be substituted as follows:
+ *
+ * ```js
+ * connect([
+ *   require("can-connect/data/url/url")
+ * ],{
+ *   url: "/things",
+ *   ajax: $.ajax
+ * });
+ * ```
+ *
+ *   @param {Object} settings Configuration options for the AJAX request.
+ *   @return {Promise} A Promise that resolves to the data.
+ */
 
 // ## methodMetaData
 // Metadata on different methods that is passed to makeAjax

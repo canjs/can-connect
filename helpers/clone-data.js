@@ -1,3 +1,4 @@
+"use strict";
 var deepAssign = require("can-util/js/deep-assign/deep-assign");
 
 module.exports = function(data) {

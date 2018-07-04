@@ -1,3 +1,4 @@
+"use strict";
 var digitTest = /^\d+$/,
 	keyBreaker = /([^\[\]]+)|(\[\])/g,
 	paramTest = /([^?#]*)(#.*)?$/,

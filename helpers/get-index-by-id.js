@@ -1,3 +1,4 @@
+"use strict";
 /*jshint eqeqeq: false */
 module.exports = function(connection, props, items){
 	var id = connection.id(props);

@@ -1,3 +1,4 @@
+"use strict";
 var constructor = require("can-connect/constructor/");
 var canMap = require("can-connect/can/map/");
 //var canRef = require("can-connect/can/ref/");

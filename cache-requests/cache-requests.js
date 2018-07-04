@@ -1,3 +1,4 @@
+"use strict";
 var connect = require("can-connect");
 var getItems = require("can-connect/helpers/get-items");
 var canSet = require("can-set");

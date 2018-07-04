@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/data/callbacks/callbacks data/callbacks
  * @parent can-connect.behaviors

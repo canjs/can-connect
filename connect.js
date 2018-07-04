@@ -1,3 +1,4 @@
+"use strict";
 var assign = require("can-util/js/assign/assign");
 /**
  *
@@ -69,7 +70,9 @@ connect.behavior = function(name, behavior){
 	var behaviorMixin = function(base){
 		// basically Object.create
 		var Behavior = function(){};
-		Behavior.name = name;
+		Object.defineProperty(Behavior, "name", {
+			value: name
+		});
 		Behavior.prototype = base;
 		var newBehavior = new Behavior();
 		// allows behaviors to be a simple object, not always a function

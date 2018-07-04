@@ -1,3 +1,4 @@
+"use strict";
 var smartMerge = require('can-connect/helpers/map-deep-merge');
 var connectMap = require('can-connect/can/map/map');
 var canBatch = require('can-event/batch/batch');
