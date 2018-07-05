@@ -48,6 +48,5 @@
  * ```
  *
  */
-
-
+ 
 module.exports = require("can-local-store");

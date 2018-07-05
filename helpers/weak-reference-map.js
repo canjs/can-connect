@@ -1,3 +1,4 @@
+"use strict";
 var assign = require("can-reflect").assignMap;
 
 /**
