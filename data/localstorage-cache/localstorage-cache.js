@@ -50,4 +50,4 @@
  */
 
 
-var memoryStore = require("can-local-store");
+module.exports = require("can-local-store");
