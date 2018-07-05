@@ -1,3 +1,3 @@
-@property {Algebra} connection.algebra algebra
+@property {Algebra} connection.queryLogic queryLogic
 @parent can-connect.options
 @hide

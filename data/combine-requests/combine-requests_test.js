@@ -1,7 +1,7 @@
 
 var QUnit = require("steal-qunit");
-var combineRequests = require("can-connect/data/combine-requests/");
-var set = require("can-set");
+var combineRequests = require("./combine-requests");
+var set = require("can-set-legacy");
 var map = [].map;
 
 var getId = function(d){
@@ -33,7 +33,8 @@ QUnit.test("basics", function(){
 				{id: 5, type: "critical"},
 				{id: 6, due: "yesterday"}
 			]);
-		}
+		},
+		queryLogic: new set.Algebra()
 	});
 
 	var p1 = res.getListData({type: "critical"});
@@ -74,7 +75,9 @@ QUnit.test("ranges", function(){
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		algebra: set.props.rangeInclusive("start","end")
+		queryLogic: new set.Algebra(
+			set.props.rangeInclusive("start","end")
+		)
 	});
 
 
@@ -98,7 +101,8 @@ QUnit.test("Rejects when getListData rejects", function(){
 	var res = combineRequests({
 		getListData: function(){
 			return Promise.reject(new Error("didn't work"));
-		}
+		},
+		queryLogic: new set.Algebra()
 	});
 
 	var promise = res.getListData({start: 0, end: 3});
@@ -127,7 +131,8 @@ QUnit.test("getListData mutates the set #139", function(assert) {
 				{ id: 3, type: "critical", due: "yesterday" },
 				{ id: 5, type: "critical" }
 			]);
-		}
+		},
+		queryLogic: new set.Algebra()
 	});
 
 	var p1 = res.getListData({});

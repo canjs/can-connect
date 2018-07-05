@@ -1,24 +1,24 @@
-var set = require("can-set");
+var set = require("can-set-legacy");
 var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");
 
 
 // load connections
-var constructor = require("can-connect/constructor/");
-var canMap = require("can-connect/can/map/");
-//var canRef = require("can-connect/can/ref/");
-var constructorStore = require("can-connect/constructor/store/");
-var dataCallbacks = require("can-connect/data/callbacks/");
-var callbacksCache = require("can-connect/data/callbacks-cache/");
-var combineRequests = require("can-connect/data/combine-requests/");
-var localCache = require("can-connect/data/localstorage-cache/");
-var dataParse = require("can-connect/data/parse/");
-var dataUrl = require("can-connect/data/url/");
-var fallThroughCache = require("can-connect/fall-through-cache/");
-var realTime = require("can-connect/real-time/");
+var constructor = require("../../constructor/constructor");
+var canMap = require("./map");
+//var canRef = require("../../can/ref/ref");
+var constructorStore = require("../../constructor/store/store");
+var dataCallbacks = require("../../data/callbacks/callbacks");
+var callbacksCache = require("../../data/callbacks-cache/callbacks-cache");
+var combineRequests = require("../../data/combine-requests/combine-requests");
+var localCache = require("../../data/localstorage-cache/localstorage-cache");
+var dataParse = require("../../data/parse/parse");
+var dataUrl = require("../../data/url/url");
+var fallThroughCache = require("../../fall-through-cache/fall-through-cache");
+var realTime = require("../../real-time/real-time");
 
-var connect = require("can-connect/can-connect");
+var connect = require("../../can-connect");
 
 var QUnit = require("steal-qunit");
 
@@ -61,8 +61,11 @@ QUnit.module("can-connect/can/map/map with define",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
+		var queryLogic = new set.Algebra();
+
 		var cacheConnection = connect([localCache],{
-			name: "todos"
+			name: "todos",
+			queryLogic: queryLogic
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -84,7 +87,8 @@ QUnit.module("can-connect/can/map/map with define",{
 				cacheConnection: cacheConnection,
 				Map: Todo,
 				List: TodoList,
-				ajax: $.ajax
+				ajax: $.ajax,
+				queryLogic: queryLogic
 			});
 
 
@@ -95,7 +99,7 @@ require("./test-real-time-super-model")(function(){
 	return {Todo: this.Todo, TodoList: this.TodoList};
 });
 
-test("listSet works", function(){
+test("listQuery works", function(){
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -109,14 +113,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"});
+			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first set");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"});
+			deepEqual( todoConnection.listQuery(list), {zed: "ted"}, "second set");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
+		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "hydrated set");
 		start();
 	});
 
@@ -149,7 +153,7 @@ test("findAll and findOne alias", function(){
 	});
 });
 
-QUnit.test("reads id from set algebra (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(){
 	var Todo = Map.extend({
 		_id: "*"
 	});
@@ -174,7 +178,7 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			Map: Todo,
 			List: TodoList,
 			ajax: $.ajax,
-			algebra: new set.Algebra(
+			queryLogic: new set.Algebra(
 			   set.props.id("_id")
 			)
 		});
@@ -219,7 +223,7 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 			Map: Todo,
 			List: Todo.List,
 			name: "todo",
-			algebra: todoAlgebra
+			queryLogic: todoAlgebra
 		});
 
 

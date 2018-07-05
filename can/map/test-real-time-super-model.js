@@ -1,12 +1,12 @@
 "use strict";
 var QUnit = require("steal-qunit");
 
-var canLog = require("can-util/js/log/log");
+var canLog = require("can-log");
 var canReflect = require("can-reflect");
 var fixture = require("can-fixture");
 // load connections
-var testHelpers = require("can-connect/test-helpers");
-var assign = require("can-util/js/assign/assign");
+var testHelpers = require("../../test-helpers");
+var assign = canReflect.assignMap;
 var map = [].map;
 var later = testHelpers.later;
 var queues = require("can-queues");
@@ -92,7 +92,8 @@ module.exports = function(makeTypes){
     			if(state.get() === "destroyData-important-1") {
     				state.next();
     				// todo change to all props
-    				return assign({destroyed:  1},request.data);
+
+					return assign({destroyed:  1},request.data);
     			}
     		}
     	});
@@ -226,7 +227,7 @@ module.exports = function(makeTypes){
     	}
 
     	function checkLists4(){
-    		equal( importantList.indexOf(firstImportant), -1, "in important");
+    		equal( importantList.indexOf(firstImportant), -1, "destroyed, should not be in important");
     		checkCache( "cache looks right afer destroy", {type: "important"}, canReflect.serialize(importantList), serverSideDestroy );
     	}
 

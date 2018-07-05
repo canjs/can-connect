@@ -40,8 +40,8 @@
  *
  * @return {{}} a `can-connect` connection containing the method implementations provided by `data/callbacks`.
  */
-var connect = require("can-connect");
-var each = require("can-util/js/each/each");
+var connect = require("../../can-connect");
+var each = require("can-reflect").each;
 
 // wires up the following methods
 var pairs = {
@@ -52,12 +52,12 @@ var pairs = {
 	 * Call `gotListData` with the data returned from underlying behavior's implementation of
 	 * [can-connect/connection.gotListData].
 	 *
-	 * @signature `getListData(listSet)`
+	 * @signature `getListData(listQuery)`
 	 *
 	 *   Extends the underlying behavior's [can-connect/connection.getListData] to call `gotListData` with the returned
 	 *   response data. The result of the call to `gotListData` will be used as the new response data.
 	 *
-	 *   @param {Object} listSet an object that represents the set of data to be loaded
+	 *   @param {Object} listQuery an object that represents the set of data to be loaded
 	 *   @return {Promise<Object>} `Promise` resolving the raw response data, possibly modified by `gotListData`.
 	 */
 	getListData: "gotListData",
@@ -143,7 +143,7 @@ module.exports = dataCallbackBehavior;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../../helpers/validate");
 	module.exports = validate(dataCallbackBehavior, [
 		"getListData", "createData", "updateData", "destroyData"
 	]);

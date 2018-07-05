@@ -1,5 +1,5 @@
 "use strict";
-var assign = require("can-util/js/assign/assign");
+var assign = require("can-reflect").assignMap;
 
 /**
  * @module {function} can-connect/helpers/weak-reference-map WeakReferenceMap

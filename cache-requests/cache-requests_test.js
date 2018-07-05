@@ -1,10 +1,11 @@
 var QUnit = require("steal-qunit");
-var cacheRequests = require("can-connect/cache-requests/");
-var memCache = require("can-connect/data/memory-cache/");
-var connect = require("can-connect");
+var cacheRequests = require("../cache-requests/");
+var memCache = require("../data/memory-cache/");
+var connect = require("../can-connect");
 var map = [].map;
+var canSet = require("can-set-legacy");
 
-var set = require("can-set");
+var set = require("can-set-legacy");
 
 var getId = function(d) {
 	return d.id;
@@ -23,6 +24,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 
 	var res = cacheRequests( {
 		getListData: function(params){
+
 			deepEqual(params,{},"called for everything");
 			count++;
 			equal(count,1,"only called once");
@@ -35,7 +37,8 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 				{id: 6, due: "yesterday"}
 			]);
 		},
-		cacheConnection: memCache(connect.base({}))
+		cacheConnection: memCache(connect.base({queryLogic: new canSet.Algebra()})),
+		queryLogic: new canSet.Algebra()
 	} );
 
 	res.getListData({}).then(function(list){
@@ -51,6 +54,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 		done();
 	}).then(null, function(error) {
 		assert.ok(false, error);
+		return Promise.reject(error);
 	});
 });
 
@@ -60,10 +64,11 @@ QUnit.test("Incrementally load data", function(){
 	stop();
 	var count = 0;
 
-	var algebra = set.props.rangeInclusive("start","end");
+	var queryLogic = new canSet.Algebra( set.props.rangeInclusive("start","end") );
 
 	var behavior = cacheRequests( {
 		getListData: function(params){
+			console.log("gld", params)
 			equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
 			equal(params.end, count * 10, "end is right "+params.end);
@@ -77,8 +82,8 @@ QUnit.test("Incrementally load data", function(){
 			}
 			return Promise.resolve({data: items});
 		},
-		algebra: algebra,
-		cacheConnection: memCache(connect.base({algebra: algebra}))
+		queryLogic: queryLogic,
+		cacheConnection: memCache(connect.base({queryLogic: queryLogic}))
 	} );
 
 
@@ -88,8 +93,8 @@ QUnit.test("Incrementally load data", function(){
 	}).then(function(listData){
 		var list = listData.data;
 		equal(list.length, 10, "got 10 items");
-		equal(list[0].id, 1);
-		equal(list[9].id, 10);
+		equal(list[0].id, 1,"first id is right");
+		equal(list[9].id, 10, "second id is right");
 
 		behavior.getListData({
 			start: 1,
@@ -121,7 +126,7 @@ QUnit.test("Filters are preserved for different pagination", function() {
 	stop();
 	var isSecondRun = false;
 
-	var algebra = new set.Algebra(
+	var queryLogic = new set.Algebra(
 		set.props.id('id'),
 		set.props.offsetLimit('$skip', '$limit'),
 		set.props.sort('$sort')
@@ -158,8 +163,8 @@ QUnit.test("Filters are preserved for different pagination", function() {
 			isSecondRun = true
 			return Promise.resolve({data: items});
 		},
-		algebra: algebra,
-		cacheConnection: memCache(connect.base({algebra: algebra}))
+		queryLogic: queryLogic,
+		cacheConnection: memCache(connect.base({queryLogic: queryLogic}))
 	} );
 
 
@@ -173,4 +178,48 @@ QUnit.test("Filters are preserved for different pagination", function() {
 		equal(list.length, 25, "got 25 items");
 		start();
 	});
-})
+});
+
+
+var memoryStore = memCache;
+
+var QueryLogic = require("can-query-logic");
+QUnit.test("QueryLogic usage example", function(){
+	var calls = 0;
+
+	var dataUrl = {
+		getListData: function(query){
+			if(calls++ === 0) {
+				return Promise.resolve({
+					data: [{id: 1, status: "critical"}]
+				});
+			} else {
+				QUnit.deepEqual(query, {filter: {status: ["low","medium"]}}, "query made right");
+				return Promise.resolve({
+					data: [{id: 2, status: "low"}]
+				});
+			}
+		}
+	};
+
+	var todoQueryLogic = new QueryLogic({
+		keys: {
+			status: QueryLogic.makeEnum(["low","medium","critical"])
+		}
+	});
+
+	var cacheConnection = memoryStore({queryLogic: todoQueryLogic});
+	var todoConnection = connect([dataUrl, cacheRequests], {
+		cacheConnection: cacheConnection,
+		url: "/todos",
+		queryLogic: todoQueryLogic
+	});
+	QUnit.stop();
+
+	todoConnection.getListData({filter: {status: "critical"}}).then(function(){
+		return todoConnection.getListData({})
+	}).then(function(){
+		QUnit.start();
+	});
+
+});

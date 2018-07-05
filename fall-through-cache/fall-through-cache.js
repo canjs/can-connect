@@ -5,14 +5,14 @@
  * @group can-connect/fall-through-cache/fall-through-cache.data data callbacks
  * @group can-connect/fall-through-cache/fall-through-cache.hydrators hydrators
  *
- * A fall through cache that checks another `cacheConnection`.
+ * Add fall-through caching with the `cacheConnection`.
  *
  * @signature `fallThroughCache( baseConnection )`
  *
  *   Implements a `getData` and `getListData` that
- *   check their [can-connect/base/base.cacheConnection] for data and then
- *   in the background update the instance or list with data
- *   retrieved using the base connection.
+ *   check their [can-connect/base/base.cacheConnection] for data. If there is data,
+ *   this data will be immediately returned.
+ *   In the background, the `baseConnection` method will be called and used to update the instance or list.
  *
  * @body
  *
@@ -22,11 +22,16 @@
  * [can-connect/base/base.cacheConnection] and a behavior that implements
  * [can-connect/connection.getData] and [can-connect/connection.getListData].
  *
- * ```
+ * ```js
+ * var QueryLogic = require("can-query-logic");
+ *
+ * var queryLogic = new QueryLogic();
+ *
  * var cache = connect([
- *   require("can-connect/data/localstorage-cache/localstorage-cache")
+ *   require("can-local-store")
  * ],{
- *   name: "todos"
+ *   name: "todos",
+ *   queryLogic: queryLogic
  * });
  *
  * var todoConnection = connect([
@@ -36,7 +41,8 @@
  *    require("can-connect/constructor/store/store")
  *   ], {
  *   url: "/todos",
- *   cacheConnection: cache
+ *   cacheConnection: cache,
+ *   queryLogic: queryLogic
  * });
  * ```
  *
@@ -44,7 +50,7 @@
  * it will be returned immediately, and then the item or list updated later
  * with the response from the base connection:
  *
- * ```
+ * ```js
  * todoConnection.getList({due: "today"}).then(function(todos){
  *
  * })
@@ -70,9 +76,9 @@
  * updated after about a second.
  *
  */
-var connect = require("can-connect");
+var connect = require("../can-connect");
 var sortedSetJSON = require("../helpers/sorted-set-json");
-var canLog = require("can-util/js/log/log");
+var canLog = require("can-log");
 
 var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnection){
 
@@ -91,11 +97,11 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 		 *   calls them.
 		 *
 		 *   @param {can-connect.listData} listData
-		 *   @param {can-set/Set} set
+		 *   @param {can-query-logic/query} query
 		 *   @return {can-connect.List}
 		 */
 		hydrateList: function(listData, set){
-			set = set || this.listSet(listData);
+			set = set || this.listQuery(listData);
 			var id = sortedSetJSON( set );
 			var list = baseConnection.hydrateList.call(this, listData, set);
 
@@ -137,7 +143,7 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 		 *   is used to load the data and the cached connection is updated with that
 		 *   data.
 		 *
-		 *   @param {can-set/Set} set The set to load.
+		 *   @param {can-query-logic/query} query The set to load.
 		 *
 		 *   @return {Promise<can-connect.listData>} A promise that returns the
 		 *   raw data.
@@ -291,7 +297,7 @@ module.exports = fallThroughCache;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../helpers/validate");
 	module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
 }
 //!steal-remove-end

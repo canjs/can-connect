@@ -1,9 +1,10 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var persist = require("can-connect/data/url/");
-var connect = require("can-connect/can-connect");
-var constructor = require("can-connect/constructor/");
-var assign = require("can-util/js/assign/assign");
+var persist = require("../data/url/url");
+var connect = require("../can-connect");
+var constructor = require("./constructor");
+var assign = require("can-reflect").assignMap;
+var QueryLogic = require("can-query-logic");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -66,7 +67,10 @@ QUnit.test("basics", function(){
 		list: function(arr){
 			return new PersonList(arr.data);
 		},
-		url: "/constructor/people"
+		url: "/constructor/people",
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	}) ));
 
 	stop();

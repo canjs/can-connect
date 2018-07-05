@@ -17,7 +17,6 @@ connect.fallThroughCache = require("./fall-through-cache/fall-through-cache");
 connect.realTime = require("./real-time/real-time");
 
 connect.superMap = require("./can/super-map/super-map");
-connect.tag = require("./can/tag/tag");
 connect.baseMap = require('./can/base-map/base-map');
 
 module.exports = connect;

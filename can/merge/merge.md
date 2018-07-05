@@ -1,13 +1,15 @@
 @module {connect.Behavior} can-connect/can/merge/merge can/merge
 @group can-connect/can/merge/merge.instance-callbacks 5 instance callbacks
-@parent can-connect.behaviors
+@parent can-connect.deprecated
 
 Minimally update nested data structures with the response from the server.
 
+@deprecated {5.0} This behavior is built in to [can-connect/can/map/map].
+
 @signature `canMergeBehavior( baseConnection )`
 
-Overwrites [can-connect/can/map/map]'s instance callbacks so they use [can-connect/helpers/map-deep-merge].
-[can-connect/helpers/map-deep-merge] is able to make minimal changes to the nested properties of [can-define] instances
+Overwrites [can-connect/can/map/map]'s instance callbacks so they use [can-diff/merge-deep/merge-deep].
+[can-diff/merge-deep/merge-deep] is able to make minimal changes to the nested properties of [can-define] instances
 and lists given raw data.
 E.g:
 
@@ -69,7 +71,7 @@ ClassRoom.List = DefineList.extend( {
 	"#": ClassRoom
 } );
 
-ClassRoom.algebra = new set.Algebra( { /* ... */ } );
+ClassRoom.queryLogic = new set.Algebra( { /* ... */ } );
 
 ClassRoom.connection = connect( [ /* ... */ , canMapBehavior, canMergeBehavior /* ... */ ], {
 	Map: ClassRoom,
@@ -77,9 +79,9 @@ ClassRoom.connection = connect( [ /* ... */ , canMapBehavior, canMergeBehavior /
 } );
 ```
 
-For [can-connect/helpers/map-deep-merge] to merge correctly, it needs to know how to uniquely identify an instance and
+For [can-diff/merge-deep/merge-deep] to merge correctly, it needs to know how to uniquely identify an instance and
 be able to convert raw data to instances and lists.
-`map-deep-merge` looks for this configuration on the `.algebra` and `.connection` properties of the
+`map-deep-merge` looks for this configuration on the `.queryLogic` and `.connection` properties of the
 [can-define.types.TypeConstructor] setting on [can-define] types.
 
 This is more easily understood in an example.
@@ -91,13 +93,13 @@ const ClassRoom = DefineMap.extend( {
 } );
 ```
 
-To be able to uniquely identify `Student` instances within that list, make sure `Student` has an `algebra` property
+To be able to uniquely identify `Student` instances within that list, make sure `Student` has an `queryLogic` property
 that is configured with the identifier property:
 
 ```js
 Student = DefineMap.extend( { /* ... */ } );
 
-Student.algebra = new set.Algebra( set.props.id( "_id" ) );
+Student.queryLogic = new set.Algebra( set.props.id( "_id" ) );
 ```
 
 Also make sure that `Student.List` points its [can-define/list/list.prototype.wildcardItems] definition to `Student`
@@ -110,7 +112,7 @@ Student.List = DefineList.extend( {
 ```
 
 **Note:** the typical method used to create a `Student` is `new Student(props)`.
-However, if `Student`s have a `.connection`, [can-connect/helpers/map-deep-merge] will use
+However, if `Student`s have a `.connection`, [can-diff/merge-deep/merge-deep] will use
 `Student.connection.[can-connect/constructor/constructor.hydrateInstance](props)`.
 This is useful if `Student`s should be looked up in the connection [can-connect/constructor/store/store.instanceStore].
 

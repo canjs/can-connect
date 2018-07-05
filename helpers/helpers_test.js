@@ -1,6 +1,6 @@
 require("./map-deep-merge-test");
 
-var idMerge = require("can-connect/helpers/id-merge");
+var idMerge = require("./id-merge");
 
 var QUnit = require("steal-qunit");
 
@@ -20,7 +20,7 @@ QUnit.test("id-merge", function(){
 	var returnArg = function(arg){ return arg; };
 
 	var list;
-	idMerge(list = [],[1,2,3],returnArg, returnArg);
+	/*idMerge(list = [],[1,2,3],returnArg, returnArg);
 	deepEqual(list,[1,2,3]);
 
 	list = onSplice([1,2,3], function(){
@@ -28,7 +28,7 @@ QUnit.test("id-merge", function(){
 	});
 
 	idMerge(list,[1,2,3],returnArg, returnArg);
-	deepEqual(list,[1,2,3]);
+	deepEqual(list,[1,2,3],"same list");
 
 	list = onSplice([1,2,4], function(index, howMany, insert){
 		equal(index,2);
@@ -37,7 +37,7 @@ QUnit.test("id-merge", function(){
 	});
 
 	idMerge(list,[1,2,3,4],returnArg, returnArg);
-	deepEqual(list,[1,2,3,4]);
+	deepEqual(list,[1,2,3,4], "added 4");
 
 
 	list = onSplice([1,2,3,4], function(index, howMany, insert){
@@ -47,7 +47,7 @@ QUnit.test("id-merge", function(){
 	});
 
 	idMerge(list,[1,2,4],returnArg, returnArg);
-	deepEqual(list,[1,2,4]);
+	deepEqual(list,[1,2,4]);*/
 
 
 

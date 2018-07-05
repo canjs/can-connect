@@ -1,5 +1,5 @@
 "use strict";
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 
 var constructor = require("../../constructor/constructor");
 var canMap = require("../map/map");
@@ -14,7 +14,7 @@ var dataUrl = require("../../data/url/url");
 var fallThroughCache = require("../../fall-through-cache/fall-through-cache");
 var realTime = require("../../real-time/real-time");
 var callbacksOnce = require("../../constructor/callbacks-once/callbacks-once");
-var GLOBAL = require("can-util/js/global/global");
+var GLOBAL = require("can-globals/global/global");
 
 var $ = GLOBAL().$;
 
@@ -37,7 +37,7 @@ connect.superMap = function(options){
 			options.cacheConnection = connect([localCache],{
 				name: options.name+"Cache",
 				idProp: options.idProp,
-				algebra: options.algebra
+				queryLogic: options.queryLogic
 			});
 		}
 		behaviors.push(callbacksCache,fallThroughCache);

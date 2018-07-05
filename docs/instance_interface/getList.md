@@ -18,7 +18,7 @@ Note that [can-connect/can/map/map] adds `getList` to the `instance`'s
 constructor function.
 
 
-  @param {can-set/Set} set A set object that represents the list of data to load.
+  @param {can-query-logic/query} query A set object that represents the list of data to load.
 
   @return {Promise<can-connect.List>} Returns a promise that
   resolve with a `List` if [can-connect/connection.getListData] is resolved.  The promise is rejected if [can-connect/connection.getListData] is rejected.

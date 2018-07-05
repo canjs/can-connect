@@ -3,10 +3,11 @@ var fixture = require("can-fixture");
 var Map = require("can-map");
 var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
-var superMap = require("can-connect/can/super-map/");
-var set = require("can-set");
-var GLOBAL = require("can-util/js/global/global");
+var superMap = require("./super-map");
+var set = require("can-set-legacy");
+var GLOBAL = require("can-globals/global/global");
 var stealClone = require("steal-clone");
+var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/can/super-map",{
 	setup: function(){
@@ -22,6 +23,9 @@ QUnit.test("uses idProp", function(){
 		url: "/api/restaurants",
 		idProp: '_id',
 		Map: Restaurant,
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		}),
 		List: Restaurant.List,
 		name: "restaurant"
 	});
@@ -95,7 +99,7 @@ QUnit.test("allow other caches (#59)", function(){
 	});
 });
 
-QUnit.test("uses idProp from algebra (#255)", function(){
+QUnit.test("uses idProp from queryLogic (#255)", function(){
 
 	var Restaurant = Map.extend({});
 
@@ -104,7 +108,7 @@ QUnit.test("uses idProp from algebra (#255)", function(){
 		Map: Restaurant,
 		List: Restaurant.List,
 		name: "restaurant",
-		algebra: new set.Algebra(
+		queryLogic: new set.Algebra(
 		   set.props.id("_id")
 		)
 	});

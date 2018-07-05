@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
-var memoryCache = require("can-connect/data/memory-cache/");
-var connect = require("can-connect");
-var canSet = require("can-set");
+var memoryCache = require("./memory-cache");
+var connect = require("../../can-connect");
+var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -13,7 +13,9 @@ var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 
 QUnit.module("can-connect/data-memory-cache",{
 	setup: function(){
-		this.connection = connect([memoryCache],{});
+		this.connection = connect([memoryCache],{
+			queryLogic: new canSet.Algebra()
+		});
 		this.connection.clear();
 	}
 });
@@ -87,7 +89,7 @@ QUnit.test("updateData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]), "id 4 should now have name A");
+			deepEqual(listData.data, [{id: 4, name:"A"}].concat(aItems), "id 4 should now have name A");
 
 			start();
 
@@ -134,7 +136,7 @@ QUnit.test("createData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 5, name:"A"}]));
+			deepEqual(listData.data, [{id: 5, name:"A"}].concat(aItems));
 
 			start();
 
@@ -248,7 +250,7 @@ QUnit.test("respect sort order (#80)", function(){
 	stop();
 
 	var connection = connect([memoryCache],{
-		algebra: new canSet.Algebra(canSet.props.sort("sortBy"))
+		queryLogic: new canSet.Algebra(canSet.props.sort("sortBy"))
 	});
 
 	connection.updateListData({ data: items.slice(0) }, {})
@@ -268,7 +270,9 @@ QUnit.test("non numeric ids (#79)", function(){
 
 	stop();
 
-	var connection = connect([memoryCache],{});
+	var connection = connect([memoryCache],{
+		queryLogic: new canSet.Algebra()
+	});
 
 	// add data tot he store, remove an item, make sure it's gone
 	connection.updateListData({ data: items.slice(0) }, {})
@@ -291,7 +295,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 
 	var connection = connect([memoryCache],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(
@@ -324,7 +328,7 @@ QUnit.asyncTest("pagination loses the bigger set (#128)", function(){
 
 	var connection = connect([memoryCache],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(
@@ -341,39 +345,4 @@ QUnit.asyncTest("pagination loses the bigger set (#128)", function(){
 	});
 
 
-});
-
-QUnit.test("should not mutate data passed from the outside", function(assert) {
-	var done = assert.async();
-	var connection = this.connection;
-
-	assert.expect(1);
-
-	var items = [
-		{ "_id": 1, role: "admin" },
-		{ "_id": 2, role: "editor" },
-		{ "_id": 3, role: "nurse" }
-	];
-
-	connection.updateListData({ data: items }, {})
-	.then(function(listData) {
-		return connection.updateListData({
-			data: [
-				{ "_id": 1, role: "nurse" },
-				{ "_id": 2, role: "admin" }
-			]
-		});
-	})
-	.then(function() {
-		assert.deepEqual(items, [
-			{ "_id": 1, role: "admin" },
-			{ "_id": 2, role: "editor" },
-			{ "_id": 3, role: "nurse" }
-		], "outside data should not be mutated");
-
-		done();
-	})
-	.then(null, function(error) {
-		assert.ok(false, error);
-	});
 });

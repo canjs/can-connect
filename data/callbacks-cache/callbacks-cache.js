@@ -42,9 +42,9 @@
  * });
  * ```
  */
-var connect = require("can-connect");
-var assign = require("can-util/js/assign/assign");
-var each = require("can-util/js/each/each");
+var connect = require("../../can-connect");
+var assign = require("can-reflect").assignMap;
+var each = require("can-reflect").each;
 
 // wires up the following methods
 var pairs = {
@@ -135,7 +135,7 @@ module.exports = callbackCache;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../../helpers/validate");
 	module.exports = validate(callbackCache, []);
 }
 //!steal-remove-end

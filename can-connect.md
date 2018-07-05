@@ -1,14 +1,14 @@
 @module {function} can-connect
 @parent can-data-modeling
-@collection can-core
+@collection can-infrastructure
 @group can-connect.behaviors 1 behaviors
 @group can-connect.modules 2 modules
 @group can-connect.types 3 data types
+@group can-connect.deprecated 4 deprecated
 @outline 2
 @package ./package.json
 
-@description `can-connect` provides persisted data middleware. Assemble powerful model layers for any JavaScript
-project from fully modularized behaviors (i.e. plugins).
+@description `can-connect` provides persisted data middleware. Assemble powerful model layers from fully modularized behaviors (i.e. plugins).
 
 
 @signature `connect(behaviors, options)`
@@ -18,8 +18,8 @@ Iterate through passed behaviors and assemble them into a connection.
 ```js
 import connect from "can-connect";
 import dataUrl from "can-connect/data/url/";
-import constructor from "can-connect/constructor/";
-const todosConnection = connect( [ dataUrl, constructor ], {
+import connectConstructor from "can-connect/constructor/";
+const todosConnection = connect( [ dataUrl, connectConstructor ], {
 	url: "/api/todos"
 } );
 ```
@@ -33,9 +33,31 @@ const todosConnection = connect( [ dataUrl, constructor ], {
 
 @body
 
-`can-connect` includes behaviors that:
+## Purpose
 
-Load data:
+`can-connect` provides a wide variety of functionality useful for building
+_data models_. _Data models_ are used to organize how an application
+connects with persisted data. _Data models_ can greatly simplify higher order
+functionality like components. Most commonly, `can-connect` is used to
+create _data models_ that make it easy to create, retrieve, update, and
+delete (CRUD) data by making HTTP requests to a backend server's service layer.
+
+Unfortunately, there is a wide variety of service layer APIs. While REST, JSONAPI,
+GRAPHQL and other specifications attempt to create a uniform service layer, a
+one-size-all approach would leave many CanJS users having to build their own data layer from scratch.
+
+Thus, `can-connect`'s primary design goal is flexibility and re-usability,
+__not ease of use__. Some assembly is required! For easier, pre-assembled, _data models_,
+checkout:
+
+- [can-rest-model] - Connect a data type to a restful service layer.
+- [can-realtime-rest-model] - Same as [can-rest-model], but adds automatic list management.
+- [can-super-model] - Same as [can-realtime-rest-model], but adds fall-through localStorage caching.
+
+`can-connect` includes behaviors used to assemble _data models_. It includes the
+following behaviors that:
+
+__Load data:__
 
  - [can-connect/data/url/url data/url] —
     Persist data to RESTful or other types of HTTP services.
@@ -43,7 +65,7 @@ Load data:
  - [can-connect/data/parse/parse data/parse] —
     Convert response data into a format needed for other extensions.
 
-Convert data into special types:
+__Convert data into special types:__
 
  - [can-connect/constructor/constructor constructor/] —
     Create instances of a provided constructor function or list type.
@@ -51,12 +73,12 @@ Convert data into special types:
  - [can-connect/constructor/store/store constructor/store] —
     Prevent multiple instances of a given id or multiple lists of a given set from being created.
 
-Keep lists updated with the most current data:
+__Keep lists updated with the most current data:__
 
  - [can-connect/real-time/real-time real-time] —
     Lists updated when instances are created or deleted.
 
-Implement caching strategies:
+__Implement caching strategies:__
 
  - [can-connect/fall-through-cache/fall-through-cache fall-through-cache] —
     Use [connection.cacheConnection cache] data if possible when creating instances,
@@ -68,7 +90,7 @@ Implement caching strategies:
  - [can-connect/data/combine-requests/combine-requests data/combine-requests] —
     Combine overlapping or redundant requests.
 
-Provide caching storage (as a [connection.cacheConnection cacheConnection]):
+__Provide caching storage (as a [connection.cacheConnection cacheConnection]):__
 
  - [can-connect/data/localstorage-cache/localstorage-cache data/localstorage-cache] —
     LocalStorage caching connection.
@@ -76,7 +98,7 @@ Provide caching storage (as a [connection.cacheConnection cacheConnection]):
  - [can-connect/data/memory-cache/memory-cache data/memory-cache] —
     In-memory caching connection.
 
-Glue certain behaviors together:
+__Glue certain behaviors together:__
 
  - [can-connect/data/callbacks/callbacks data/callbacks] —
     Add callback hooks are passed the results of the DataInterface methods (CRUD operations).
@@ -85,7 +107,7 @@ Glue certain behaviors together:
     Handle [can-connect/data/callbacks/callbacks data/callbacks] and update the [connection.cacheConnection cache]
     when CRUD operations complete.
 
-Provide convenient integration with CanJS:
+__Provide convenient integration with CanJS:__
 
  - [can-connect/can/map/map can/map] —
     Create [can-define/map/map] or [can-define/list/list] instances from responses. Adds connection-aware
@@ -99,14 +121,6 @@ Provide convenient integration with CanJS:
  - [can-connect/can/constructor-hydrate/constructor-hydrate can/constructor-hydrate] - Always check the
     instanceStore when creating new instances of the connection Map type.
 
-`can-connect` also provides several other non-behavior utilities for connection ease of use in CanJS:
- - [can-connect/can/super-map/super-map] — Create a connection for [can-define/map/map can-define/map] or
-    [can-define/list/list can-define/list] types using nearly all behaviors.
-
- - [can-connect/can/model/model] — Create [can-map] types that emulate the interface of
-    [can.Model](http://v2.canjs.com/docs/can.Model.html). Used for CanJS 2.x migrations.
-
- - [can-connect/can/tag/tag] — Create a custom element that can load data into a template.
 
 
 ## Overview
@@ -260,13 +274,18 @@ The following demo shows the result:
 
 @demo demos/can-connect/basics.html
 
-This connection also lets you create, update, and destroy a Todo instance as follows:
+This connection also lets you create, update, and destroy a Todo instance. First create a todo instance:
 
 ```js
 const todo = new Todo( {
 	name: "take out trash"
 } );
+```
 
+Then, use the connection's `save` to create and update the todo, and `destroy` to delete it:
+
+
+```js
 // POSTs to /api/todos with JSON request body {name:"take out trash"}
 // server returns {id: 5}
 todoConnection.save( todo ).then( function( todo ) {
@@ -292,16 +311,20 @@ Whenever `connect` creates a connection, it always adds the [can-connect/base/ba
 This behavior is where the configuration options passed to `connect` are stored and it also defines
 several configurable options that are used by most other behaviors.  For example, if your backend
 uses a property named `_id` to uniquely identify todos, you can specify this with
-[can-connect/base/base.idProp idProp] like:
+[can-connect/base/base.queryLogic] like:
 
 ```js
 import constructor from "can-connect/constructor/";
 import dataUrl from "can-connect/data/url/";
+import QueryLogic from "can-query-logic";
+
+var queryLogic = new QueryLogic({identity: ["_id"]});
+
 const todoConnection = connect(
 	[ constructor, dataUrl ],
 	{
 		url: "/api/todos",
-		idProp: "_id"
+		queryLogic: queryLogic
 	}
 );
 ```
@@ -316,7 +339,7 @@ behavior with your own behavior.
 For example, [can-connect/constructor/constructor constructor/constructor]’s
 [can-connect/constructor/constructor.updatedInstance updatedInstance] method sets the instance’s
 properties to match the result of [can-connect/connection.updateData updateData]. But if the
-`PUT /api/todos/5 {name:"take out garbage""}` request returns `{}`, the following example would
+`PUT /api/todos/5 {name:"take out garbage"}` request returns `{}`, the following example would
 result in a todo with only an `id` property:
 
 ```js
@@ -451,9 +474,9 @@ The following is a list of the primary interface methods and properties implemen
 ### Identifiers
 
 `.id( props | instance ) -> String` - Returns a unique identifier for the instance or raw data.  
-`.idProp -> String="id"` - The name of the unique identifier property.  
-`.listSet(list) -> set` - Returns the set a list represents.  
-`.listSetProp -> String="__listSet"` - The property on a List that contains its set.  
+`.queryLogic -> QueryLogic - A [can-query-logic] instance that defines the unique property and query behavior.
+`.listQuery(list) -> set` - Returns the set a list represents.  
+`.listQueryProp -> Symbol=can.listQuery` - The property on a List that contains its set.  
 
 Implemented by the [can-connect/base/base base] behavior.
 
@@ -594,8 +617,8 @@ connect.behavior( "localstorage", function( baseConnection ) {
 			const nextId = JSON.parse( id ) + 1;
 
 			localStorage.setItem( baseConnection.name + "-ID", nextId );
-			return new Promise( function( resolve ) {
-				props[ this.idProp ] = nextId;
+			return new Promise( ( resolve ) => {
+				props[ this.queryLogic.identityKeys()[0] ] = nextId;
 				localStorage.setItem( baseConnection.name + "/" + nextId, props );
 				resolve( props );
 			} );

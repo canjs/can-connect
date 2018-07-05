@@ -19,8 +19,8 @@
  *   updated, or destroyed instance.
  *
  *   An instance is put in a list if it is a
- *   [set.subset](https://github.com/canjs/can-set#setsubset)
- *   of the [can-connect/base/base.listSet].  The item is inserted using [can-set.Algebra.prototype.index].
+ *   [can-query-logic/queryLogic.prototype.isSubset]
+ *   of the [can-connect/base/base.listQuery].  The item is inserted using [can-query-logic.prototype.index].
  *
  * @body
  *
@@ -29,7 +29,7 @@
  * To use `real-time`, create a connection with its dependent
  * behaviors like:
  *
- * ```
+ * ```js
  * var todoConnection = connect(
  *    ["real-time",
  *     "constructor",
@@ -43,7 +43,7 @@
  * Next, use the connection to load lists and save those lists in the
  * store:
  *
- * ```
+ * ```js
  * todoConnection.getList({complete: false}).then(function(todos){
  *   todoConnection.addListReference(todos);
  * })
@@ -77,14 +77,14 @@
  * this to get todos from the `todoConnection` like:
  *
  *
- * ```
+ * ```js
  * todosConnection.getList(set).then(function(retrievedTodos){
  * ```
  *
  * It then adds those `todos` to the [can-connect/constructor/store/store.listStore] so
  * they can be updated automatically.  And, it listens to changes in `todos` and calls an `update` function:
  *
- * ```
+ * ```js
  * todosConnection.addListReference(todos);
  * Object.observe(todos, update, ["add", "update", "delete"] );
  * ```
@@ -93,7 +93,7 @@
  * to or removed from `todos`.  We exploit that by calling `update` as if it just added
  * each todo in the list:
  *
- * ```
+ * ```js
  * update(todos.map(function(todo, i){
  *   return {
  *     type: "add",
@@ -109,7 +109,7 @@
  * the todo in the [can-connect/constructor/store/store.instanceStore] with the
  * following:
  *
- * ```
+ * ```js
  * Object.observe(todo, update, ["add", "update", "delete"] );
  * todosConnection.addInstanceReference(todo);
  * ```
@@ -119,7 +119,7 @@
  * functionality, `todoItem` listens to a `"removed"` event on its element and
  * `unobserves` the todo and removes it from the `instanceStore`:
  *
- * ```
+ * ```js
  * $(li).bind("removed", function(){
  *   Object.unobserve(todo, update, ["add", "update", "delete"] );
  *   todosConnection.deleteInstanceReference(todo);
@@ -127,10 +127,56 @@
  * ```
  */
 var connect = require("../can-connect");
-var canSet = require("can-set");
-var setAdd = require("can-connect/helpers/set-add");
-var indexOf = require("can-connect/helpers/get-index-by-id");
-var canDev = require('can-util/js/dev/dev');
+var indexByIdentity = require("can-diff/index-by-identity/index-by-identity");
+var canDev = require('can-log/dev/dev');
+var canSymbol = require("can-symbol");
+var canReflect = require("can-reflect");
+
+var spliceSymbol = canSymbol.for("can.splice");
+
+function updateList(list, getRecord, currentIndex, newIndex) {
+	if(currentIndex === -1) { // item is not in the list
+
+		if(newIndex !== -1) { // item should be in the list
+			canReflect.splice(list, newIndex, 0, [getRecord()]);
+		}
+	}
+	else { // item is already in the list
+		if(newIndex === -1) { // item should be removed from the lists
+			canReflect.splice(list, currentIndex, 1, []);
+		}
+		else if(newIndex !== currentIndex){ // item needs to be moved
+
+			if(currentIndex < newIndex) {
+				canReflect.splice(list, newIndex, 0, [getRecord()]);
+				canReflect.splice(list, currentIndex, 1, []);
+			} else {
+				canReflect.splice(list, currentIndex,1, []);
+				canReflect.splice(list, newIndex, 0, [getRecord()]);
+			}
+		}
+		else { // item in the same place
+
+		}
+	}
+}
+
+
+function updateListWithItem(list, recordData, currentIndex, newIndex, connection, set){
+	if(list[spliceSymbol] !== undefined) {
+		updateList(list, function(){
+			return connection.hydrateInstance(recordData);
+		},currentIndex, newIndex);
+
+	} else {
+		var copy = connection.serializeList(list);
+		updateList(copy, function(){
+			return recordData;
+		},currentIndex, newIndex);
+		connection.updatedList(list,  { data: copy }, set);
+	}
+}
+
 
 module.exports = connect.behavior("real-time",function(baseConnection){
 
@@ -161,9 +207,9 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   If this instance has already been created, calls
 		 *   [can-connect/real-time/real-time.updateInstance] with `props`.
 		 *
-		 *   @param {Object} props
+		 *   @param {Object} props The raw properties of the instance was created.
 		 *
-		 *   @return {Promise<Instance>}
+		 *   @return {Promise<Instance>} A promise that resolves to the created instance.
 		 *
 		 * @body
 		 *
@@ -174,9 +220,9 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 * [socket.io](http://socket.io/) for when a `todo` is created and update the connection
 		 * accordingly:
 		 *
-		 * ```
+		 * ```js
 		 * socket.on('todo created', function(todo){
-		 *   todoConnection.createInstance(order);
+		 *   todoConnection.createInstance(todo);
 		 * });
 		 * ```
 		 *
@@ -282,9 +328,19 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *   that the instance is updated and added to or removed from
 		 *   any lists it belongs in.
 		 *
-		 *   @param {Object} props The properties of the instance that
+		 *   @param {Object} props The properties of the instance that needs to be updated.
 		 *
 		 *   @return {Promise<Instance>} the updated instance.
+		 *
+		 * @body
+		 *
+		 * ## Use
+		 *
+		 * ```js
+		 * socket.on('todo updated', function(todo){
+		 *   todoConnection.updateInstance(todo);
+		 * });
+		 * ```
 		 */
 		updateInstance: function(props){
 			var id = this.id(props);
@@ -342,6 +398,15 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 		 *
 		 * @param {Object} props The properties of the destroyed instance.
 		 * @return {Promise<Instance>}  A promise with the destroyed instance.
+		 *
+		 * @body
+		 * ## Use
+		 *
+		 * ```js
+		 * socket.on('todo destroyed', function(todo){
+		 *   todoConnection.destroyInstance(todo);
+		 * });
+		 * ```
 		 */
 		destroyInstance: function(props){
 			var id = this.id(props);
@@ -366,13 +431,16 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 	if(process.env.NODE_ENV !== 'production') {
 		behavior.gotListData = function(items, set) {
 			var self = this;
-			if (this.algebra) {
+			if (this.queryLogic) {
+				if(Array.isArray(items)) {
+					items = {data: items};
+				}
 				for(var item, i = 0, l = items.data.length; i < l; i++) {
 					item = items.data[i];
-					if( !self.algebra.has(set, item) ) {
+					if( !self.queryLogic.isMember(set, item) ) {
 						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
-							+ "Read the docs for more information: https://canjs.com/doc/can-set.html#SolvingCommonIssues"
-							+ "\n\nBelow are the 'Set' parameters:"
+							+ "Read the docs for more information: https://canjs.com/doc/can-query-logic.html#TestingyourQueryLogic"
+							+ "\n\nBelow are the 'query' parameters:"
 							+ "\n" + canDev.stringify(set)
 							+ "\n\nAnd below is an item which does not match those parameters:"
 							+ "\n" + canDev.stringify(item);
@@ -398,19 +466,12 @@ var create = function(props){
 		// ideally there should be speed up ... but this is fine for now.
 
 
-		var index = indexOf(self, props, list);
+		var index = indexByIdentity(list, props, self.queryLogic.schema);
 
-		if(canSet.has(set, props, self.algebra)) {
+		if(self.queryLogic.isMember(set, props)) {
+			var newIndex = self.queryLogic.index(set, list, props);
 
-			// if it's not in the list, update the list with this and the lists data merged
-			if(index === -1) {
-				// get back the list items
-				var items = self.serializeList(list);
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
-			} else {
-				// if the index
-			}
-
+			updateListWithItem(list, props, index, newIndex, self, set);
 		}
 
 	});
@@ -423,46 +484,25 @@ var update = function(props) {
 	var self = this;
 
 	this.listStore.forEach(function(list, id){
-		var items;
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
 
-		var index = indexOf(self, props, list);
+		var currentIndex = indexByIdentity(list, props, self.queryLogic.schema);
 
-		if(canSet.has(set, props, self.algebra)) {
+		if(self.queryLogic.isMember( set, props )) {
 
-			// if it's not in the list, update the list with this and the lists data merged
-			// in the future, this should update the position.
-			items = self.serializeList(list);
-			if(index === -1) {
-				// get back the list items
-				self.updatedList(list,  { data: setAdd(self, set,  items, props, self.algebra) }, set);
-			} else {
-				var sortedIndex = canSet.index(set, items, props, self.algebra);
-				if(sortedIndex !== undefined && sortedIndex !== index) {
-					var copy = items.slice(0);
-					if(index < sortedIndex) {
-						copy.splice(sortedIndex, 0, props);
-						copy.splice(index,1);
-					} else {
-						copy.splice(index,1);
-						copy.splice(sortedIndex, 0, props);
-					}
-					self.updatedList(list,  { data: copy }, set);
-				}
-			}
+			var newIndex = self.queryLogic.index(set, list, props);
 
-		}  else if(index !== -1){
+			updateListWithItem(list, props, currentIndex, newIndex, self, set);
+
+		}  else if(currentIndex !== -1){ // its still in the list
 			// otherwise remove it
-			items = self.serializeList(list);
-			items.splice(index,1);
-			self.updatedList(list,  { data: items }, set);
+			updateListWithItem(list, props, currentIndex, -1, self, set);
 		}
 
 	});
 };
-
 
 var destroy = function(props) {
 	var self = this;
@@ -470,13 +510,11 @@ var destroy = function(props) {
 		var set = JSON.parse(id);
 		// ideally there should be speed up ... but this is fine for now.
 
-		var index = indexOf(self, props, list);
+		var currentIndex = indexByIdentity(list, props, self.queryLogic.schema);
 
-		if(index !== -1){
+		if(currentIndex !== -1){
 			// otherwise remove it
-			var items = self.serializeList(list);
-			items.splice(index,1);
-			self.updatedList(list,  { data: items }, set);
+			updateListWithItem(list, props, currentIndex, -1, self, set);
 		}
 
 	});

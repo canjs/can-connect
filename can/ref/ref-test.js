@@ -1,12 +1,13 @@
 var QUnit = require("steal-qunit");
 var DefineMap = require("can-define/map/");
 var DefineList = require("can-define/list/");
-var constructorStore = require("can-connect/constructor/store/");
-var constructor = require("can-connect/constructor/");
-var canMap = require("can-connect/can/map/");
-var canRef = require("can-connect/can/ref/");
-var connect = require("can-connect");
+var constructorStore = require("../../constructor/store/");
+var constructor = require("../../constructor/");
+var canMap = require("../../can/map/");
+var canRef = require("../../can/ref/");
+var connect = require("../../can-connect");
 var canReflect = require("can-reflect");
+var canTestHelpers = require("can-test-helpers/lib/dev");
 
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
@@ -303,4 +304,30 @@ QUnit.test("serialize-able", function(){
 
 
 
+});
+
+canTestHelpers.devOnlyTest("ref instances are named appropriately (#424)", function(){
+	var Team = DefineMap.extend("Team",{
+		name: "string",
+		id: {identity: true, type: 'string'}
+	});
+	var Teams = DefineList.extend({
+		"#": Team
+	});
+	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+		getData: function() {
+			return Promise.resolve({ id: 3, name: "Bears" });
+		}
+	}],
+	{ Map: Team, List: Teams });
+
+	var Game = DefineMap.extend({
+		id: 'string',
+		teamRefA: {type: Team.Ref.type},
+		teamRefB: {type: Team.Ref.type},
+	});
+
+	var game = new Game({id: "123", teamRefA: "123", teamRefB: {id: "321", name: "cubs"}});
+
+	QUnit.equal( canReflect.getName(game.teamRefA), "TeamRef{123}");
 });

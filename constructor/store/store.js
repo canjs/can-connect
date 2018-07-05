@@ -35,10 +35,10 @@
  * The `constructor-store` behavior is used to:
  *  - provide a store of instances and lists in use by the client
  *  - prevent multiple instances from being generated for the same [can-connect/base/base.id] or multiple
- *    lists for the same [can-connect/base/base.listSet].
+ *    lists for the same [can-connect/base/base.listQuery].
  *
  * The store provides access to an instance by its [can-connect/base/base.id] or a list by its
- * [can-connect/base/base.listSet]. This is used by other behaviors to lookup instances that should have changes applied.
+ * [can-connect/base/base.listQuery]. This is used by other behaviors to lookup instances that should have changes applied.
  * Two examples, when there is a new instance that should be added to a list ([can-connect/real-time/real-time]) or
  * when newer data is available for a cached instance that is used in the page
  * ([can-connect/fall-through-cache/fall-through-cache]).
@@ -88,10 +88,10 @@
  * [can-connect/constructor/constructor.updatedInstance] which updates the shared instance properties with the new
  * server data.
  */
-var connect = require("can-connect");
-var WeakReferenceMap = require("can-connect/helpers/weak-reference-map");
-var WeakReferenceSet = require("can-connect/helpers/weak-reference-set");
-var sortedSetJSON = require("can-connect/helpers/sorted-set-json");
+var connect = require("../../can-connect");
+var WeakReferenceMap = require("../../helpers/weak-reference-map");
+var WeakReferenceSet = require("../../helpers/weak-reference-set");
+var sortedSetJSON = require("../../helpers/sorted-set-json");
 var eventQueue = require("can-event-queue/map/map");
 
 // shared across all connections
@@ -149,11 +149,11 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * @property {can-connect/helpers/weak-reference-map} can-connect/constructor/store/store.listStore listStore
 		 * @parent can-connect/constructor/store/store.stores
 		 *
-		 * A mapping of lists keyed by their [can-connect/base/base.listSet].
+		 * A mapping of lists keyed by their [can-connect/base/base.listQuery].
 		 *
 		 * @type {can-connect/helpers/weak-reference-map}
 		 *
-		 * Stores lists by their [can-connect/base/base.listSet]. Hold lists based on reference counts which are incremented
+		 * Stores lists by their [can-connect/base/base.listQuery]. Hold lists based on reference counts which are incremented
 		 * by [can-connect/constructor/store/store.addListReference] and decremented by
 		 * [can-connect/constructor/store/store.deleteListReference]. Once a reference count is 0, the list is no
 		 * longer held in the store. Once a reference count is greater than 0, the list is added to the store.
@@ -182,7 +182,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 				this._requestLists = {};
 			}
 
-			requests.on("end", function(){
+			requests.on("end", function onRequestsEnd_deleteStoreReferences(){
 				var id;
 				for(id in this._requestInstances) {
 					this.instanceStore.deleteReference(id);
@@ -379,12 +379,12 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * Add a reference to the [can-connect/constructor/store/store.listStore] so a list can be easily looked up.
 		 *
 		 * @signature `connection.addListReference( list[, set] )`
-		 * Adds a reference to a list by `set` (or by [can-connect/base/base.listSet]) to the
+		 * Adds a reference to a list by `set` (or by [can-connect/base/base.listQuery]) to the
 		 * [can-connect/constructor/store/store.listStore].  Keeps a count of the number of references, removing the list
 		 * from the store when the count reaches 0.
 		 *
-		 * @param {can-connect.List} list the list to add
-		 * @param {can-set/Set} [set] the set this list represents if it can't be identified with [can-connect/base/base.listSet]
+		 * @param {can-connect.List} list The list to add.
+		 * @param {can-query-logic/query} [query] The set this list represents if it can't be identified with [can-connect/base/base.listQuery].
 		 *
 		 * @body
 		 *
@@ -434,7 +434,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *
 		 */
 		addListReference: function(list, set) {
-			var id = sortedSetJSON( set || this.listSet(list) );
+			var id = sortedSetJSON( set || this.listQuery(list) );
 			if(id) {
 				this.listStore.addReference( id, list );
 				list.forEach(function(instance) {
@@ -472,7 +472,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * example of the lifecycle of a reference.
 		 */
 		deleteListReference: function(list, set) {
-			var id = sortedSetJSON( set || this.listSet(list) );
+			var id = sortedSetJSON( set || this.listQuery(list) );
 			if(id) {
 				this.listStore.deleteReference( id, list );
 				list.forEach(this.deleteInstanceReference.bind(this));
@@ -549,7 +549,7 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 */
 		hydratedList: function(list, set){
 			if( requests.count() > 0) {
-				var id = sortedSetJSON( set || this.listSet(list) );
+				var id = sortedSetJSON( set || this.listQuery(list) );
 				if(id) {
 					if(! this._requestLists[id] ) {
 						this.addListReference(list, set);
@@ -574,11 +574,11 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 *   If there isn't a matching list, the base `hydrateList` will be called.
 		 *
 		 *   @param {can-connect.listData} listData raw list data to hydrate into a list type
-		 *   @param {can-set/Set} set the parameters that represent the set of data in `listData`
+		 *   @param {can-query-logic/query} query the parameters that represent the set of data in `listData`
 		 *   @return {List} a typed list from either created or updated with the data from `listData`
 		 */
 		hydrateList: function(listData, set){
-			set = set || this.listSet(listData);
+			set = set || this.listQuery(listData);
 			var id = sortedSetJSON( set );
 
 			if( id && this.listStore.has(id) ) {
@@ -604,13 +604,13 @@ var constructorStore = connect.behavior("constructor/store",function(baseConnect
 		 * decrements the counter after the request is complete. This prevents concurrent requests for the same data from
 		 * returning different instances.
 		 *
-		 * @param {can-set/Set} listSet parameters specifying the list to retrieve
+		 * @param {can-query-logic/query} listQuery parameters specifying the list to retrieve
 		 * @return {Promise<can-connect/Instance>} `Promise` returned by the underlying behavior's [can-connect/connection.getList]
 		 */
-		getList: function(listSet) {
+		getList: function(listQuery) {
 			var self = this;
 			requests.increment(this);
-			var promise = baseConnection.getList.call(this, listSet);
+			var promise = baseConnection.getList.call(this, listQuery);
 
 			promise.then(function(instances){
 				self._finishedRequest();
@@ -768,7 +768,7 @@ module.exports = constructorStore;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../../helpers/validate");
 	module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
 }
 //!steal-remove-end

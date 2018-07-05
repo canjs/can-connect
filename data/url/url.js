@@ -72,7 +72,7 @@
  * 1. URL values can include simple templates like `{id}`
  *    that replace that part of the URL with values in the data
  *    passed to the method.
- * 2. GET and DELETE request data is put in the URL using [can-util/js/param/param].
+ * 2. GET and DELETE request data is put in the URL using [can-param].
  * 3. POST and PUT requests put data that is not templated in the URL in POST or PUT body
  *    as JSON-encoded data.  To use form-encoded requests instead, add the property
  *    `contentType:'application/x-www-form-urlencoded'` to your [can-connect/data/url/url.url].
@@ -95,25 +95,23 @@
  *
  * This does the same thing as the first `todoConnection` example.
  */
-var assign = require("can-util/js/assign/assign");
-var each = require("can-util/js/each/each");
 var ajax = require("can-ajax");
-var string = require("can-util/js/string/string");
-var getIdProps = require("../../helpers/get-id-props");
-var dev = require("can-util/js/dev/dev");
-var connect = require("can-connect");
+var replaceWith = require("can-key/replace-with/replace-with");
+var canReflect = require("can-reflect");
+var dev = require("can-log/dev/dev");
+var behavior = require("../../behavior");
 var makeRest = require("can-make-rest");
 
 var defaultRest = makeRest("/resource/{id}");
 
-var makePromise = require("can-util/js/make-promise/make-promise");
+var makePromise = require("../../helpers/make-promise");
 
 // # can-connect/data/url/url
 // For each pair, create a function that checks the url object
 // and creates an ajax request.
-var urlBehavior = connect.behavior("data/url", function(baseConnection) {
+var urlBehavior = behavior("data/url", function(baseConnection) {
 	var behavior = {};
-	each(defaultRest, function(defaultData, dataInterfaceName){
+	canReflect.eachKey(defaultRest, function(defaultData, dataInterfaceName){
 		behavior[dataInterfaceName] = function(params) {
 			var meta = methodMetaData[dataInterfaceName];
 
@@ -136,7 +134,7 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
 
 			var resource = typeof this.url === "string" ? this.url : this.url.resource;
 			if( resource ) {
-				var idProps = getIdProps(this);
+				var idProps = canReflect.getSchema(this.queryLogic).identity;
 				var resourceWithoutTrailingSlashes = resource.replace(/\/+$/, "");
 				var result = makeRest(resourceWithoutTrailingSlashes, idProps[0])[dataInterfaceName];
 				return makePromise(makeAjax( result.url,
@@ -212,28 +210,28 @@ var urlBehavior = connect.behavior("data/url", function(baseConnection) {
  */
 
 
-/**
- * @property {function} can-connect/data/url/url.ajax ajax
- * @parent can-connect/data/url/url.option
- *
- * Specify the ajax functionality that should be used to make the request.
- *
- * @option {function} Provides an alternate function to be used to make
- * ajax requests.  By default [can-util/dom/ajax/ajax] provides the ajax
- * functionality. jQuery's ajax method can be substituted as follows:
- *
- * ```js
- * connect([
- *   require("can-connect/data/url/url")
- * ],{
- *   url: "/things",
- *   ajax: $.ajax
- * });
- * ```
- *
- *   @param {Object} settings Configuration options for the AJAX request.
- *   @return {Promise} A Promise that resolves to the data.
- */
+ /**
+  * @property {function} can-connect/data/url/url.ajax ajax
+  * @parent can-connect/data/url/url.option
+  *
+  * Specify the ajax functionality that should be used to make the request.
+  *
+  * @option {function} Provides an alternate function to be used to make
+  * ajax requests.  By default [can-ajax] provides the ajax
+  * functionality. jQuery's ajax method can be substituted as follows:
+  *
+  * ```js
+  * connect([
+  *   require("can-connect/data/url/url")
+  * ],{
+  *   url: "/things",
+  *   ajax: $.ajax
+  * });
+  * ```
+  *
+  *   @param {Object} settings Configuration options for the AJAX request.
+  *   @return {Promise} A Promise that resolves to the data.
+  */
 
 // ## methodMetaData
 // Metadata on different methods that is passed to makeAjax
@@ -249,7 +247,7 @@ var methodMetaData = {
 	 *   string, a request to that string will be made. If `url` is a string, a `GET` request is made to
 	 *   `url`.
 	 *
-	 *   @param {can-set/Set} set A object that represents the set of data needed to be loaded.
+	 *   @param {can-query-logic/query} query A object that represents the set of data needed to be loaded.
 	 *   @return {Promise<can-connect.listData>} A promise that resolves to the ListData format.
 	 */
 	getListData: {},
@@ -355,22 +353,22 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 		}
 	} else {
 		// If the first argument is an object, just load it into `params`.
-		assign(params, ajaxOb);
+		canReflect.assignMap(params, ajaxOb);
 	}
 
 	// If the `data` argument is a plain object, copy it into `params`.
 	params.data = typeof data === "object" && !Array.isArray(data) ?
-		assign(params.data || {}, data) : data;
+		canReflect.assignMap(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = string.replaceWith(params.url, params.data, urlParamEncoder, true);
+	params.url = replaceWith(params.url, params.data, urlParamEncoder, true);
 	params.contentType = contentType;
 
 	if(reqOptions.includeData === false) {
 		delete params.data;
 	}
 
-	return ajax(assign({
+	return ajax(canReflect.assignMap({
 		type: type || 'post',
 		dataType: 'json'
 	}, params));
@@ -380,7 +378,7 @@ module.exports = urlBehavior;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../../helpers/validate");
 	module.exports = validate(urlBehavior, ['url']);
 }
 //!steal-remove-end

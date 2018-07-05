@@ -1,4 +1,4 @@
-var set = require("can-set");
+var set = require("can-set-legacy");
 var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
@@ -6,26 +6,26 @@ var Observation = require("can-observation");
 var canReflect = require("can-reflect");
 
 // load connections
-var constructor = require("can-connect/constructor/");
-var canMap = require("can-connect/can/map/");
-var constructorStore = require("can-connect/constructor/store/");
-var dataCallbacks = require("can-connect/data/callbacks/");
-var callbacksCache = require("can-connect/data/callbacks-cache/");
-var combineRequests = require("can-connect/data/combine-requests/");
-var localCache = require("can-connect/data/localstorage-cache/");
-var dataParse = require("can-connect/data/parse/");
-var dataUrl = require("can-connect/data/url/");
-var fallThroughCache = require("can-connect/fall-through-cache/");
-var realTime = require("can-connect/real-time/");
+var constructor = require("../../constructor/constructor");
+var canMap = require("./map");
+var constructorStore = require("../../constructor/store/store");
+var dataCallbacks = require("../../data/callbacks/callbacks");
+var callbacksCache = require("../../data/callbacks-cache/callbacks-cache");
+var combineRequests = require("../../data/combine-requests/combine-requests");
+var localCache = require("../../data/localstorage-cache/localstorage-cache");
+var dataParse = require("../../data/parse/parse");
+var dataUrl = require("../../data/url/url");
+var fallThroughCache = require("../../fall-through-cache/fall-through-cache");
+var realTime = require("../../real-time/real-time");
 
-var connect = require("can-connect/can-connect");
+var connect = require("../../can-connect");
 
 var QUnit = require("steal-qunit");
 
 var fixture = require("can-fixture");
-var testHelpers = require("can-connect/test-helpers");
+var testHelpers = require("../../test-helpers");
 var map = [].map;
-var assign = require("can-util/js/assign/assign");
+
 
 var later = testHelpers.later;
 
@@ -51,8 +51,11 @@ QUnit.module("can-connect/can/map/map with Map",{
 		this.Todo = Todo;
 		this.TodoList = TodoList;
 
+		var queryLogic = new set.Algebra();
+
 		var cacheConnection = connect([localCache],{
-			name: "todos"
+			name: "todos",
+			queryLogic: queryLogic
 		});
 		cacheConnection.clear();
 		this.cacheConnection = cacheConnection;
@@ -75,7 +78,8 @@ QUnit.module("can-connect/can/map/map with Map",{
 				cacheConnection: cacheConnection,
 				Map: Todo,
 				List: TodoList,
-				ajax: $.ajax
+				ajax: $.ajax,
+				queryLogic: queryLogic
 			});
 
 
@@ -102,6 +106,7 @@ QUnit.test("real-time super model", function(){
 
 	fixture({
 		"GET /services/todos": function(){
+
 			if(state.get() === "getListData-important") {
 				state.next();
 				return {data: firstItems.slice(0) };
@@ -117,14 +122,14 @@ QUnit.test("real-time super model", function(){
 			if( state.get() === "createData-today+important" ) {
 				state.next();
 				// todo change to all props
-				return assign({id: 10}, request.data);
+				return canReflect.assignMap({id: 10}, request.data);
 			}
 		},
 		"PUT /services/todos/{id}": function(request){
 			if( state.get() === "updateData-important" || state.get() === "updateData-today" ) {
 				state.next();
 				// todo change to all props
-				return assign({},request.data);
+				return canReflect.assignMap({},request.data);
 			} else {
 				ok(false, "bad state!");
 				start();
@@ -134,7 +139,7 @@ QUnit.test("real-time super model", function(){
 			if(state.get() === "destroyData-important-1") {
 				state.next();
 				// todo change to all props
-				return assign({destroyed:  1},request.data);
+				return canReflect.assignMap({destroyed:  1},request.data);
 			} else {
 				ok(false, "bad state!");
 				start();
@@ -164,6 +169,8 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
+		QUnit.ok(importantList.length, "got important");
+		QUnit.ok(todayList.length, "got today");
 
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);
@@ -321,13 +328,13 @@ test("isSaving and isDestroying", function(){
 
 	fixture({
 		"POST /services/todos": function(request){
-			return assign({id: 10}, request.data);
+			return canReflect.assignMap({id: 10}, request.data);
 		},
 		"PUT /services/todos/{id}": function(request){
-			return assign({},request.data);
+			return canReflect.assignMap({},request.data);
 		},
 		"DELETE /services/todos/{id}": function(request){
-			return assign({destroyed:  1},request.data);
+			return canReflect.assignMap({destroyed:  1},request.data);
 		}
 	});
 
@@ -403,7 +410,7 @@ test("isSaving and isDestroying", function(){
 
 });
 
-test("listSet works", function(){
+test("listQuery works", function(){
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -416,14 +423,14 @@ test("listSet works", function(){
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {foo: "bar"});
+			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listSet(list), {zed: "ted"});
+			deepEqual( todoConnection.listQuery(list), {zed: "ted"},"second");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listSet(list), {zak: "ack"});
+		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "third");
 		start();
 	});
 
@@ -456,7 +463,7 @@ test("findAll and findOne alias", function(){
 	});
 });
 
-QUnit.test("reads id from set algebra (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(){
 	var Todo = Map.extend({seal: false}, {});
 	var TodoList = List.extend({
 		Map: Todo
@@ -479,7 +486,7 @@ QUnit.test("reads id from set algebra (#82)", function(){
 			Map: Todo,
 			List: TodoList,
 			ajax: $.ajax,
-			algebra: new set.Algebra(
+			queryLogic: new set.Algebra(
 			   set.props.id("_id")
 			)
 		});

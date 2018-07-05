@@ -1,5 +1,4 @@
-"use strict";
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 
 var constructor = require("../../constructor/constructor");
 var canMap = require("../map/map");
@@ -11,7 +10,7 @@ var dataParse = require("../../data/parse/parse");
 var dataUrl = require("../../data/url/url");
 var realTime = require("../../real-time/real-time");
 var callbacksOnce = require("../../constructor/callbacks-once/callbacks-once");
-var GLOBAL = require("can-util/js/global/global");
+var GLOBAL = require("can-globals/global/global");
 
 
 var $ = GLOBAL().$;
@@ -34,7 +33,7 @@ connect.baseMap = function(options){
 	if($ && $.ajax) {
 		options.ajax = $.ajax;
 	}
-	
+
 	return connect(behaviors,options);
 };
 

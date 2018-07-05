@@ -25,7 +25,7 @@
  *
  * ## Use
  *
- * During all initializations of the connection [can-connect/can/map/map._Map Map type], if an id property exists then
+ * During all initializations of the connection [can-connect/can/map/map._Map Map type], if an identity property exists then
  * the `constructor-hydrate` behavior will check the connection [can-connect/constructor/store/store.instanceStore] for
  * a matching instance. If one is found it will be returned instead of a new object.
  *
@@ -44,10 +44,11 @@
  * The type `Student` is a DefineMap that has had a `can-connect` connection attached:
  * ```js
  * var dataUrl = require("can-connect/data/url/");
- * var constructor = require("can-connect/constructor/");
- * var store = require("can-connect/constructor/store/");
- * var canMap = require("can-connect/can/map/");
- * var constructorHydrate = require("can-connect/can/constructor-hydrate/");
+ * var constructor = require("can-connect/constructor/contructor");
+ * var store = require("can-connect/constructor/store/store");
+ * var dataUrl = require("can-connect/data/url/url");
+ * var canMap = require("can-connect/can/map/map");
+ * var constructorHydrate = require("can-connect/can/constructor-hydrate/constructor-hydrate");
  *
  * var Student = DefineMap.extend({...});
  * Student.List = DefineList.extend({
@@ -55,7 +56,7 @@
  * });
  *
  * Student.connection = connect(
- *   [dataUrl, constructor, store, canMap, constructorHydrate], {
+ *   [dataUrl, constructor, store, canMap, constructorHydrate, dataUrl], {
  * 	   Map: Student,
  * 	   List: Student.List,
  * 	   url: "api/students"
@@ -92,7 +93,7 @@
  * ```
  */
 
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 var Construct = require("can-construct");
 
 var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){

@@ -1,8 +1,9 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
-var persist = require("can-connect/data/url/");
+var persist = require("./url");
 var $ = require("jquery");
-var set = require("can-set");
+var set = require("can-set-legacy");
+var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/data/url",{
 	setup: function(){
@@ -70,7 +71,9 @@ QUnit.test("basics", function(assert){
 
 QUnit.test('idProp is not part of the parameters', function() {
 	var connection = persist({
-		idProp: 'id',
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		}),
 		url: "api/todos/"
 	});
 
@@ -91,8 +94,10 @@ QUnit.test('idProp is not part of the parameters', function() {
 
 QUnit.test("destroyData()", function(){
 	var connection = persist({
-		idProp: "id",
-		url: "/api/todos"
+		url: "/api/todos",
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture("DELETE /api/todos/3", function(req) {
@@ -109,7 +114,9 @@ QUnit.test("destroyData()", function(){
 QUnit.test("Ajax requests should default to 'application/json' (#134)", function() {
 	var connection = persist({
 		url: "/api/restaurants",
-		idProp: '_id',
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture({
@@ -134,7 +141,10 @@ QUnit.test("contentType can be form-urlencoded (#134)", function() {
 		url: {
 			createData: "POST /api/restaurants",
 			contentType: "application/x-www-form-urlencoded"
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture({
@@ -158,7 +168,10 @@ QUnit.test("contentType defaults to form-urlencoded for GET", function() {
 	var connection = persist({
 		url: {
 			getData: "GET /api/restaurants"
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture({
@@ -183,7 +196,10 @@ QUnit.test("getting a real Promise back with functions", function() {
 			getData: function() {
 				return $.get("GET /getInstance/{id}");
 			}
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture({
@@ -214,7 +230,10 @@ QUnit.test("getting a real Promise back with object using makeAjax", function() 
 				type: "get",
 				url: "/getList"
 			}
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 	fixture({
 		"GET /getList": function(){
@@ -241,7 +260,10 @@ QUnit.test('URL parameters should be encoded', function (assert) {
 				type: 'get',
 				url: '/dogs/{id}'
 			}
-		}
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 	fixture({
 		"GET /dogs/%23asher": function () {
@@ -271,7 +293,10 @@ QUnit.test("getting a real Promise back with objects using makeAjax setting this
 				url: "/getList"
 			}
 		},
-		ajax: $.ajax
+		ajax: $.ajax,
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
 	});
 
 	fixture({
@@ -293,40 +318,47 @@ QUnit.test("getting a real Promise back with objects using makeAjax setting this
 
 QUnit.asyncTest("fixture stores work with data (#298)", function(){
 
+	var basicAlgebra = new set.Algebra();
+
 	var todoStore = fixture.store([{
 		id: "1",
 		name: "todo 1"
-	}]);
+	}], basicAlgebra);
 
 	fixture("/v1/places/todos/{id}", todoStore);
 
 	var connection = persist({
-		url: "/v1/places/todos/{id}"
+		url: "/v1/places/todos/{id}",
+		queryLogic: basicAlgebra
 	});
 
 	connection.getData({id: 1}).then(function(todo){
-		QUnit.equal(todo.name, "todo 1");
+		QUnit.equal(todo.name, "todo 1", "got one item");
 	}).then(function(){
 
-		var algebra = new set.Algebra(
+		var queryLogic = new set.Algebra(
 			set.props.id("_todoId")
 		);
 
 		var todoStore = fixture.store([{
 			_todoId: "1",
 			name: "todo 1"
-		}], algebra);
+		}], queryLogic);
 
 		fixture("/v2/places/todos", todoStore);
 
 		var connection = persist({
 			url: "/v2/places/todos",
-			algebra: algebra
+			queryLogic: queryLogic
 		});
 
 		connection.getData({_todoId: "1"}).then(function(todo){
 			QUnit.equal(todo.name, "todo 1");
 			QUnit.start();
+		}, function(error){
+			debugger;
 		});
+	}, function(){
+		debugger;
 	});
 });

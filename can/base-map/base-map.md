@@ -1,8 +1,11 @@
 @module {function} can-connect/can/base-map/base-map
-@parent can-connect.modules
+@parent can-connect.deprecated
 
 Create connection with many of the best behaviors in can-connect and hook it up to
 a [can-define/map/map].
+
+
+@deprecated {5.0} Use [can-realtime-rest-model] instead.
 
 @signature `baseMap(options)`
 

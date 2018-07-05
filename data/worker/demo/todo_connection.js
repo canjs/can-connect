@@ -1,5 +1,6 @@
+<<<<<<< HEAD
 "use strict";
-var connect = require("can-connect");
+var connect = require("../../can-connect");
 var fixture = require("can-fixture");
 
 // If we are in the main thread, see if we can load this same
@@ -12,7 +13,7 @@ if(typeof document !== "undefined") {
 
 // create cache connection
 var cache = connect([
-	require("can-connect/data/memory-cache/")
+	require("../../data/memory-cache/memory-cache")
 ],{
 	name: "todos"
 });
@@ -20,11 +21,11 @@ var cache = connect([
 // Create the main connection with everything you need.  If there is a worker,
 // all data interface methods will be sent to the worker.
 var todosConnection = connect([
-	require("can-connect/data/url/url"),
-	require("can-connect/cache-requests/cache-requests"),
-	require("can-connect/data/worker/worker"),
-	require("can-connect/constructor/constructor"),
-	require("can-connect/constructor/store/store")
+	require("../../data/url/url"),
+	require("../../cache-requests/cache-requests"),
+	require("../../data/worker/worker"),
+	require("../../constructor/constructor"),
+	require("../../constructor/store/store")
 ],{
     url: "/todos",
     cacheConnection: cache,

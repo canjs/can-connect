@@ -4,7 +4,6 @@
 @group can-connect/can/map/map.map 2 map instance methods
 @group can-connect/can/map/map.hydrators 3 hydrators
 @group can-connect/can/map/map.serializers 4 serializers
-@group can-connect/can/map/map.identifiers 5 identifiers
 @group can-connect/can/map/map.instance-callbacks 6 instance callbacks
 @group can-connect/can/map/map.static 7 behavior static methods
 @parent can-connect.behaviors
@@ -44,7 +43,7 @@ observable values to the [can-connect/can/map/map._Map] that offer connection fu
 
 To use the `can/map` behavior, first create a Map and List constructor function:
 
-```
+```js
 var Todo = DefineMap.extend({
   allowComplete: function(ownerId) {
     return this.ownerId === ownerId;

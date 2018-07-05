@@ -1,20 +1,41 @@
 "use strict";
-var each = require("can-util/js/each/each");
 
-var connect = require("can-connect");
+var canReflect = require("can-reflect");
+var each = canReflect.each;
+var isPlainObject = canReflect.isPlainObject;
+
 var queues = require("can-queues");
 var eventQueue = require("can-event-queue/map/map");
 var ObservationRecorder = require("can-observation-recorder");
-
-var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
-var types = require("can-types");
-var each = require("can-util/js/each/each");
-var dev = require("can-util/js/dev/dev");
-var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
+var QueryLogic = require("can-query-logic");
 
+var dev = require("can-log/dev/dev");
 
-var canMapBehavior = connect.behavior("can/map",function(baseConnection){
+var behavior = require("../../behavior");
+var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
+var assignDeepExceptIdentity = require("can-diff/assign-deep-except-identity/assign-deep-except-identity");
+var smartMerge = require('can-diff/merge-deep/merge-deep');
+var canSymbol = require("can-symbol");
+var getNameSymbol = canSymbol.for("can.getName");
+
+function smartMergeExceptIdentity(dest, source, schema) {
+	if(!schema) {
+        schema = canReflect.getSchema(dest);
+    }
+    if(!schema) {
+        throw new Error("can-connect/can/map/ is unable to update without a schema.");
+    }
+	schema.identity.forEach(function(key){
+        var id = canReflect.getKeyValue(dest, key);
+        if(id!== undefined) {
+            canReflect.setKeyValue(source, key, id );
+        }
+    });
+	smartMerge(dest, source);
+}
+
+var canMapBehavior = behavior("can/map",function(baseConnection){
 
 	// overwrite
 	var behavior = {
@@ -22,37 +43,68 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 			if(!this.Map) {
 				throw new Error("can-connect/can/map/map must be configured with a Map type");
 			}
+			if(!this[getNameSymbol]) {
+				this[getNameSymbol] = function(){
+					if(this.name) {
+						return "Connection{"+this.name+"}";
+					} else if(this.Map) {
+						return "Connection{"+canReflect.getName(this.Map)+"}";
+					} else if(typeof this.url === "string") {
+						return "Connection{"+this.url+"}";
+					} else {
+						return "Connection{}";
+					}
+				}
+			}
 
 			this.List = this.List || this.Map.List;
 			if(!this.List) {
-				throw new Error("can-connect/can/map/map must be configured with a List type");
+				throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" must be configured with a List type.");
 			}
 
 			overwrite(this, this.Map, mapOverwrites);
 			overwrite(this, this.List, listOverwrites);
+
+			if(!this.queryLogic) {
+				this.queryLogic = new QueryLogic(this.Map);
+			}
 
 
 			var connection = this;
 
 			// ### Setup store updates
 			if(this.Map[canSymbol.for("can.onInstanceBoundChange")]) {
-				this.Map[canSymbol.for("can.onInstanceBoundChange")](function canConnectMap_onInstanceBoundChange(instance, isBound){
+				var canConnectMap_onMapBoundChange = function (instance, isBound){
 					var method = isBound ? "addInstanceReference" : "deleteInstanceReference";
 					if(connection[method]) {
 						connection[method](instance);
 					}
-				})
+				}
+				//!steal-remove-start
+				Object.defineProperty(canConnectMap_onMapBoundChange, "name", {
+					value: canReflect.getName(this.Map) + " boundChange",
+					configurable: true
+				});
+				//!steal-remove-end
+				this.Map[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onMapBoundChange)
 			} else {
 				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the Map type")
 			}
 
 			if(this.List[canSymbol.for("can.onInstanceBoundChange")]) {
-				this.List[canSymbol.for("can.onInstanceBoundChange")](function(list, isBound){
+				var canConnectMap_onListBoundChange = function(list, isBound){
 					var method = isBound ? "addListReference" : "deleteListReference";
 					if(connection[method]) {
 						connection[method](list);
 					}
-				})
+				}
+				//!steal-remove-start
+				Object.defineProperty(canConnectMap_onListBoundChange, "name", {
+					value: canReflect.getName(this.List) + " boundChange",
+					configurable: true
+				});
+				//!steal-remove-end
+				this.List[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onListBoundChange);
 			} else {
 				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the List type")
 			}
@@ -71,44 +123,6 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 				console.warn("can-connect/can/map is unable to listen to onInstancePatches on the Map type");
 			}
 			baseConnection.init.apply(this, arguments);
-		},
-		/**
-		 * @function can-connect/can/map/map.id id
-		 * @parent can-connect/can/map/map.identifiers
-		 *
-		 * Returns an observable identifier value for an instance.
-		 *
-		 * @signature `connection.id(instance)`
-		 *
-		 * Reads the instance's id (in the same manner as [can-connect/base/base.id `base.id()`]) but as an observable value.
-		 *
-		 * @param {can-connect/Instance} instance the instance to get an identifier of
-		 * @return {*} an identifier value
-		 */
-		id: function(instance) {
-
-			if(!isPlainObject(instance)) {
-				var ids = [],
-					algebra = this.algebra;
-
-				if(algebra && algebra.clauses && algebra.clauses.id) {
-					for(var prop in algebra.clauses.id) {
-						ids.push(canReflect.getKeyValue(instance,prop));
-					}
-				}
-
-				if(this.idProp && !ids.length) {
-					ids.push(canReflect.getKeyValue(instance,this.idProp));
-				}
-				if(!ids.length) {
-					ids.push(canReflect.getKeyValue(instance,"id"));
-				}
-
-				// Use `__get` instead of `attr` for performance. (But that means we have to remember to call `ObservationRecorder.add`.)
-				return ids.length > 1 ? ids.join("@|@"): ids[0];
-			} else {
-				return baseConnection.id(instance);
-			}
 		},
 		/**
 		 * @function can-connect/can/map/map.serializeInstance serializeInstance
@@ -142,6 +156,60 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		serializeList: function(list){
 			return canReflect.serialize(list);
 		},
+		/**
+		 * @property {Boolean} can-connect/can/map/map.updateInstanceWithAssignDeep updateInstanceWithAssignDeep
+		 * @parent can-connect/can/map/map.options
+		 *
+		 * Use the response from `save()` and `destroy()` to assign properties, never delete them.
+		 *
+		 * @option {Boolean}
+		 *
+		 * Setting `updateInstanceWithAssignDeep` to `true` changes how instances get updated. Instead of using
+		 * [can-diff/merge-deep/merge-deep], records will be updated with [can-reflect.assignDeep].
+		 *
+		 * The following example shows that the response from `.save()` only includes the `id`
+		 * property. Normally, this would delete all other properties (`name`).  But setting `updateInstanceWithAssignDeep`
+		 * to `true` prevents this:
+		 *
+		 * **Usage:**
+		 *
+		 * ```js
+		 * import {DefineMap, restModel} from "can";
+		 *
+		 * var Todo = DefineMap.extend({
+		 *   id: {type: "number", identity: true},
+		 *   name: "string"
+		 * });
+		 *
+		 * // restModel uses `can-connect/can/map/map`
+		 * restModel({
+		 *   Map: Todo,
+		 *   url: "/todos",
+		 *   updateInstanceWithAssignDeep: true
+		 * });
+		 *
+		 *
+		 * var todo = new Todo({name: "learn canjs"})
+		 *
+		 * var savePromise = todo.save()
+		 * // SERVER SENDS
+		 * // -> POST /todos {name: "learn canjs"}
+		 *
+		 * // SERVER RESPONDS WITH:
+		 * // <- {id: 5}
+		 *
+		 * savePromise.then(function(){
+		 *   // Name still exists even though the server did not
+		 *   // respond with it.
+		 *   todo.name //-> "learn canjs"
+		 * })
+		 * ```
+		 *
+		 * __NOTE__: [can-diff/merge-deep/merge-deep] is able to work _MUCH_ better with nested
+		 * data than [can-reflect.assignDeep]. Specifically, it is able to better
+		 * prevent overwriting one instance's data with another. The _Use_ section of [can-diff/merge-deep/merge-deep]
+		 * goes over this ability. Make sure you understand its capabilities before turning it off.
+		 */
 
 		/**
 		 * @property {connection.Map} can-connect/can/map/map._Map Map
@@ -149,7 +217,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * Specify the type of the `[can-define/map/map DefineMap]` that should be instantiated by the connection.
 		 *
-		 * @option {connection.Map} Defaults to [can-types.DefaultMap] if this option is not specified.
+		 * @option {connection.Map}
 		 *
 		 * **Usage:**
 		 *
@@ -184,7 +252,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * Specify the type of the `[can-define/list/list DefineList]` that should be instantiated by the connection.
 		 *
 		 * @option {connection.List} If this option is not specified it defaults to the [can-connect/can/map/map._Map Map].List
-		 * property and then [can-types.DefaultList].
+		 * property.
 		 *
 		 * **Usage:**
 		 * ```js
@@ -202,7 +270,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * });
 		 *
 		 * var Todo.List = DefineList.extend({
-		 *   "*": Todo,
+		 *   "#": Todo,
 		 *   completed: function(){
 		 *     this.filter(function(todo){
 		 *       return todo.completed;
@@ -220,6 +288,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *   list instanceOf Todo.List // true
 		 * })
 		 * ```
+		 *
 		 */
 
 		/**
@@ -230,14 +299,13 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 * @signature `connection.instance(props)`
 		 *
-		 *   Create an instance of [can-connect/can/map/map._Map] if available, otherwise creates an instance of
-		 *   [can-types.DefaultMap].
+		 *   Create an instance of [can-connect/can/map/map._Map].
 		 *
 		 *   @param {Object} props the raw instance data.
 		 *   @return [can-connect/can/map/map._Map] a [can-connect/can/map/map._Map] instance containing the `props`.
 		 */
 		instance: function(props){
-			var _Map = this.Map || types.DefaultMap;
+			var _Map = this.Map;
 			return new _Map(props);
 		},
 
@@ -250,7 +318,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 * @signature `connection.list(listData, set)`
 		 *
 		 *   Creates an instance of [can-connect/can/map/map._List] if available, otherwise creates
-		 *   [can-connect/can/map/map._Map].List if available, and then finally defaulting to [can-types.DefaultList].
+		 *   [can-connect/can/map/map._Map].List if available.
 		 *
 		 *   This will add properties on the raw `listData` array to the created list instance. e.g:
 		 *   ```js
@@ -262,20 +330,20 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *   ```
 		 *
 		 *   @param {can-connect.listData} listData the raw list data.
-		 *   @param {can-set/Set} set the set the data belongs to.
+		 *   @param {can-query-logic/query} query the set the data belongs to.
 		 *   @return {can-connect.List} a [can-connect/can/map/map._List] instance containing instances of
 		 *   [can-connect/can/map/map._Map] built from the list items in `listData`.
 		 */
 		list: function(listData, set){
-			var _List = this.List || (this.Map && this.Map.List) || types.DefaultList;
+			var _List = this.List || (this.Map && this.Map.List);
 			var list = new _List(listData.data);
-			each(listData, function (val, prop) {
+			canReflect.eachKey(listData, function (val, prop) {
 				if (prop !== 'data') {
 					canReflect.setKeyValue(list, prop, val);
 				}
 			});
 
-			list.__listSet = set;
+			list[this.listQueryProp] = set;
 			return list;
 		},
 
@@ -292,7 +360,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 		 *
 		 *   @param {can-connect.List} list the list to be updated.
 		 *   @param {can-connect.listData} listData raw list data.
-		 *   @param {can-set/Set} set the set of the list being updated.
+		 *   @param {can-query-logic/query} query the set of the list being updated.
 		 */
 		updatedList: function(list, listData, set){
 			queues.batch.start();
@@ -304,7 +372,7 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
   				};
 			}
 			//!steal-remove-end
-			
+
 			queues.mutateQueue.enqueue(baseConnection.updatedList, this, arguments, enqueueOptions);
 			queues.batch.stop();
 
@@ -392,11 +460,22 @@ var canMapBehavior = connect.behavior("can/map",function(baseConnection){
 			// Update attributes if attributes have been passed
 			if(props && typeof props === 'object') {
 
-				if(this.constructor.removeAttr) {
-					canReflect.updateDeep(instance, props);
+				if(funcName === "destroyed" && canReflect.size(props) === 0) {
+					// If destroy is passed an empty object, ignore update
+					// This isn't tested except by can-rest-model.
 				} else {
-					canReflect.assignDeep(instance, props);
+					if(this.constructor.removeAttr) {
+						updateDeepExceptIdentity(instance, props, this.queryLogic.schema);
+					}
+					// this is legacy
+					else if(this.updateInstanceWithAssignDeep){
+						assignDeepExceptIdentity(instance, props, this.queryLogic.schema);
+					}
+					else {
+						smartMergeExceptIdentity( instance, props, this.queryLogic.schema);
+					}
 				}
+
 			}
 			// This happens in constructor/store, but we don't call base, so we have to do it ourselves.
 			if(funcName === "created" && this.moveCreatedInstanceToInstanceStore) {
@@ -466,16 +545,14 @@ var mapOverwrites = {
 		 * @function can-connect/can/map/map.getList getList
 		 * @parent can-connect/can/map/map.map-static
 		 *
-		 * Method added to the configured [can-connect/can/map/map._Map] type. Retrieves a [can-connect/can/map/map._List] of
+		 * Retrieve a list of instance.
+		 *
+		 * @signature `Map.getList(query)`
+		 *
+		 * `.getList` is added to the configured [can-connect/can/map/map._Map] type. Retrieves a [can-connect/can/map/map._List] of
 		 * [can-connect/can/map/map._Map] instances via the connection.
 		 *
-		 * @signature `Map.getList(set)`
-		 * @param {can-set/Set} set set definition of the list being retrieved
-		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._List] of instances being retrieved
-		 *
-		 * ### Usage
-		 *
-		 * ```
+		 * ```js
 		 * // import connection plugins
 		 * var canMap = require("can-connect/can/map/map");
 		 * var constructor = require("can-connect/constructor/constructor");
@@ -501,10 +578,17 @@ var mapOverwrites = {
 		 * })
 		 *
 		 * // retrieve instances
-		 * Todo.getList({due: "today"}).then(function(todos){
+		 * Todo.getList({filter: {due: "today"}}).then(function(todos){
 		 *   ...
 		 * });
 		 * ```
+		 *
+		 * @param {can-query-logic/query} query Definition of the list being retrieved.
+		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._List] of instances being retrieved
+		 *
+		 *
+		 *
+		 *
 		 */
 		getList: function (base, connection) {
 			return function(set) {
@@ -527,14 +611,12 @@ var mapOverwrites = {
 		 * @function can-connect/can/map/map.get get
 		 * @parent can-connect/can/map/map.map-static
 		 *
-		 * Method added to the configured [can-connect/can/map/map._Map] type. Retrieves an instance of the
-		 * [can-connect/can/map/map._Map] type via the connection.
+		 * Use it to get a single instance by id.
 		 *
 		 * @signature `Map.get(params)`
-		 * @param {Object} params identifying parameters of the instance to retrieve
-		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._Map] instance being retrieved
 		 *
-		 * ### Usage
+		 * `.get()` is added to the configured [can-connect/can/map/map._Map] type.
+		 * Use it to get a single instance by the identity keys of the Map type.
 		 *
 		 * ```js
 		 * // import connection plugins
@@ -560,6 +642,27 @@ var mapOverwrites = {
 		 *   ...
 		 * });
 		 * ```
+		 *
+		 * @param {Object} params Identifying parameters of the instance to retrieve. Typically, this is an object
+		 * with the identity property and its value like: `{_id: 5}`.
+		 * @return {Promise<Map>} `Promise` returning the [can-connect/can/map/map._Map] instance being retrieved
+		 *
+		 * @body
+		 *
+		 * ## Get a single record by filtering non-identity keys
+		 *
+		 * Sometimes, you want a single record, but by filtering non-identity keys.  Instead of using
+		 * `.get`, use `.getList` like:
+		 *
+		 * ```js
+		 * var firstCompleteTodo = Todo.getList({
+		 *   filter: {complete: false},
+		 *   page: {start: 0, end: 0}
+		 * }).then(function(list){
+		 *   return list.length ? list[0] : Promise.reject({message: "reject message"});
+		 * });
+		 * ```
+		 *
 		 */
 		get: function (base, connection) {
 			return function(params) {
@@ -587,10 +690,26 @@ var mapOverwrites = {
 			 * @function can-connect/can/map/map.prototype.isNew isNew
 			 * @parent can-connect/can/map/map.map
 			 *
-			 * Returns if the instance has not been loaded from or saved to the data source.
+			 * If the data is not in the dat
 			 *
 			 * @signature `instance.isNew()`
-			 * @return {Boolean} `true` if [can-connect/base/base.id] is `null` or `undefined`
+			 *
+			 * Returns if the instance has not been loaded from or saved to the data source.
+			 *
+			 * ```js
+			 * connect([...],{
+			 *   Map: Todo
+			 * });
+			 *
+			 * var todo = new Todo();
+			 * todo.isNew()   //-> true
+			 *
+			 * todo.save().then(function(){
+			 *   todo.isNew() //-> false
+			 * })
+			 * ```
+			 *
+			 * @return {Boolean} Returns `true` if [can-connect/base/base.id] is `null` or `undefined`.
 			 */
 			return function () {
 				return connection.isNew(this);
@@ -609,14 +728,14 @@ var mapOverwrites = {
 			 * Observes if a promise returned by [can-connect/connection.save `connection.save`] is in progress for this
 			 * instance.  This is often used in a template like:
 			 *
-			 * ```
-			 * <button ($click)="todo.save()"
-			 *    {{#todo.isSaving()}}disabled{{/todo.isSaving}}>
+			 * ```html
+			 * <button on:click="todo.save()"
+			 *    disabled:from="todo.isSaving()">
 			 *   Save Changes
 			 * </button>
 			 * ```
 			 *
-			 *   @return {Boolean} `true` if [can-connect/connection.save `connection.save`] has been called for this
+			 *   @return {Boolean} Returns `true` if [can-connect/connection.save `connection.save`] has been called for this
 			 *   instance but the returned promise has not yet resolved.
 			 */
 			return function () {
@@ -636,9 +755,9 @@ var mapOverwrites = {
 			 * Observes if a promise returned by [can-connect/connection.destroy `connection.destroy`] is in progress for this
 			 * instance.  This is often used in a template like:
 			 *
-			 * ```
-			 * <button ($click)="todo.destroy()"
-			 *    {{#todo.isDestroying}}disabled{{/todo.isDestroying}}>
+			 * ```html
+			 * <button on:click="todo.destroy()"
+			 *         disabled:from="todo.isDestroying()">
 			 *   Delete
 			 * </button>
 			 * ```
@@ -656,19 +775,13 @@ var mapOverwrites = {
 			 * @function can-connect/can/map/map.prototype.save save
 			 * @parent can-connect/can/map/map.map
 			 *
-			 * Save the instance's data to the service via the connection.
+			 * Save or update client data to the persisted data source.
 			 *
 			 * @signature `instance.save(success, error)`
 			 *
-			 *   Calls [can-connect/connection.save].
+			 * Calls [can-connect/connection.save].
 			 *
-			 *   @param {function} success A function that is called if the save is successful.
-			 *   @param {function} error A function that is called if the save is rejected.
-			 *   @return {Promise<Instance>} A promise that resolves to the instance if successful.
-			 *
-			 * ### Usage
-			 *
-			 * ```
+			 * ```js
 			 * // import connection plugins
 			 * var canMap = require("can-connect/can/map/map");
 			 * var constructor = require("can-connect/constructor/constructor");
@@ -689,6 +802,12 @@ var mapOverwrites = {
 			 *
 			 * new Todo({name: "dishes"}).save();
 			 * ```
+			 *
+			 *   @param {function} success A function that is called if the save is successful.
+			 *   @param {function} error A function that is called if the save is rejected.
+			 *   @return {Promise<Instance>} A promise that resolves to the instance if successful.
+			 *
+			 *
 			 */
 			return function(success, error){
 				// return only one item for compatability
@@ -708,12 +827,7 @@ var mapOverwrites = {
 			 *
 			 * Calls [can-connect/connection.destroy] for the `instance`.
 			 *
-			 * @param {function} success a function that is called if the [can-connect/connection.destroy] call is successful.
-			 * @param {function} error a function that is called if the [can-connect/connection.destroy] call is rejected.
-			 * @return {Promise<Instance>} a promise that resolves to the instance if successful
-			 *
-			 * ### Usage
-			 * ```
+			 * ```js
 			 * // import connection plugins
 			 * var canMap = require("can-connect/can/map/map");
 			 * var constructor = require("can-connect/constructor/constructor");
@@ -740,6 +854,12 @@ var mapOverwrites = {
 			 *   }
 			 * });
 			 * ```
+			 *
+			 * @param {function} success a function that is called if the [can-connect/connection.destroy] call is successful.
+			 * @param {function} error a function that is called if the [can-connect/connection.destroy] call is rejected.
+			 * @return {Promise<Instance>} a promise that resolves to the instance if successful
+			 *
+			 *
 			 */
 			return function(success, error){
 				var promise;
@@ -778,7 +898,7 @@ var listOverwrites = {
 				// If there was a plain object passed to the List constructor,
 				// we use those as parameters for an initial getList.
 				if (isPlainObject(params) && !Array.isArray(params)) {
-					this.__listSet = params;
+					this[connection.listQueryProp] = params;
 					base.apply(this);
 					this.replace(canReflect.isPromise(params) ? params : connection.getList(params));
 				} else {
@@ -810,7 +930,7 @@ module.exports = canMapBehavior;
 
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
-	var validate = require("can-connect/helpers/validate");
+	var validate = require("../../helpers/validate");
 
 	module.exports = validate(
 		canMapBehavior,

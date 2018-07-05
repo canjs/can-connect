@@ -1,7 +1,7 @@
 var QUnit = require("steal-qunit");
-var dataLocalStorage = require("can-connect/data/localstorage-cache/");
-var connect = require("can-connect");
-var canSet = require("can-set");
+var dataLocalStorage = require("./localstorage-cache");
+var connect = require("../../can-connect");
+var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){
 	ok(false,"Error "+e);
@@ -14,7 +14,8 @@ var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 QUnit.module("can-connect/data-localstorage-cache",{
 	setup: function(){
 		this.connection = connect([dataLocalStorage],{
-			name: "todos"
+			name: "todos",
+			queryLogic: new canSet.Algebra()
 		});
 		this.connection.clear();
 	}
@@ -68,7 +69,7 @@ QUnit.test("updateData", function(){
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
+			deepEqual(listData.data, items.concat([{id: 4, foo:"bar"}]), "updateData added item 4");
 
 			updateItem2();
 
@@ -89,7 +90,7 @@ QUnit.test("updateData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 4, name:"A"}]), "id 4 should now have name A");
+			deepEqual(listData.data, [{id: 4, name:"A"}].concat(aItems), "id 4 should now have name A");
 
 			start();
 
@@ -136,7 +137,7 @@ QUnit.test("createData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.concat([{id: 5, name:"A"}]));
+			deepEqual(listData.data, [{id: 5, name:"A"}].concat(aItems));
 
 			start();
 
@@ -264,11 +265,15 @@ QUnit.test("clearing localStorage clears set info", function(){
 	});
 });
 
-QUnit.test("using algebra (#72)", function(){
+QUnit.test("using queryLogic (#72)", function(){
 	var connection = this.connection;
-	connection.algebra = new canSet.Algebra(new canSet.Translate("where","$where"));
+
+	connection.queryLogic = new canSet.Algebra(new canSet.Translate("where","$where"));
 	QUnit.stop();
-	connection.updateListData({ data: [{id: 1, placeId: 2, name: "J"}] }, {$where: {placeId: 2}}).then(function(){
+	connection.updateListData(
+		{ data: [{id: 1, placeId: 2, name: "J"}] },
+		{$where: {placeId: 2}}
+		).then(function(){
 		connection.updateData({id: 1, placeId: 2, name: "B"}).then(function(){
 			connection.getListData({$where: {placeId: 2}}).then(function(items){
 				QUnit.equal(items.data.length, 1, "still have the item");
@@ -278,17 +283,6 @@ QUnit.test("using algebra (#72)", function(){
 	});
 });
 
-QUnit.test("Support passing undefined as a set to mean passing {} (#54)", function(){
-	var connection = this.connection;
-
-	QUnit.stop();
-
-	connection.updateListData({ data: items.slice(0) }, undefined).then(function(){
-		QUnit.equal(localStorage.getItem("todos-sets"),"[{}]", "contains universal set");
-		QUnit.equal(localStorage.getItem("todos/set/{}"),"[1,2,3]", "has set to id");
-		QUnit.start();
-	});
-});
 
 QUnit.test("subset data (#96)", function(){
 	var connection = this.connection;
@@ -313,7 +307,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 
 	var connection = connect([dataLocalStorage],{
 		name: "todos",
-		algebra: todosAlgebra
+		queryLogic: todosAlgebra
 	});
 
 	connection.updateListData(
@@ -325,7 +319,7 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 			{ offset: 2, limit: 2});
 	}).then(function(){
 		connection.getListData({ offset: 0, limit: 2}).then(function(listData){
-			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}] });
+			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}], count: 4 });
 			QUnit.start();
 		}, function(){
 			QUnit.ok(false, "no data");

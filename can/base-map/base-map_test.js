@@ -1,9 +1,10 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var Map = require("can-map");
-var baseMap = require("can-connect/can/base-map/");
-var GLOBAL = require("can-util/js/global/global");
+var baseMap = require("./base-map");
+var GLOBAL = require("can-globals/global/global");
 var stealClone = require("steal-clone");
+var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/can/base-map");
 
@@ -13,7 +14,9 @@ QUnit.test("uses idProp", function(){
 
 	var connection = baseMap({
 		url: "/api/restaurants",
-		idProp: '_id',
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		}),
 		Map: Restaurant,
 		List: Restaurant.List,
 		name: "restaurant"
