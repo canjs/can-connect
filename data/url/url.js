@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/data/url/url data/url
  * @parent can-connect.behaviors
@@ -324,8 +325,10 @@ var findContentType = function( url, method ) {
 			return url.contentType;
 		} else {
 			//!steal-remove-start
-			dev.warn("Unacceptable contentType on can-connect request. " +
-				"Use 'application/json' or 'application/x-www-form-urlencoded'");
+			if(process.env.NODE_ENV !== 'production') {
+				dev.warn("Unacceptable contentType on can-connect request. " +
+					"Use 'application/json' or 'application/x-www-form-urlencoded'");
+			}
 			//!steal-remove-end
 		}
 	}
@@ -374,6 +377,8 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 module.exports = urlBehavior;
 
 //!steal-remove-start
-var validate = require("../../helpers/validate");
-module.exports = validate(urlBehavior, ['url']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../../helpers/validate");
+	module.exports = validate(urlBehavior, ['url']);
+}
 //!steal-remove-end

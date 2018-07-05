@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {function} can-connect/constructor/callbacks-once/callbacks-once constructor/callbacks-once
  * @parent can-connect.behaviors
@@ -94,6 +95,8 @@ var callbacksOnceBehavior = connect.behavior("constructor/callbacks-once",functi
 module.exports = callbacksOnceBehavior;
 
 //!steal-remove-start
-var validate = require("../../helpers/validate");
-module.exports = validate(callbacksOnceBehavior, callbacks);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../../helpers/validate");
+	module.exports = validate(callbacksOnceBehavior, callbacks);
+}
 //!steal-remove-end

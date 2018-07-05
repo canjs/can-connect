@@ -1,8 +1,7 @@
+"use strict";
 var behavior = require("../behavior");
 var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
-
-
 /**
  * @module can-connect/base/base base
  * @group can-connect/base/base.options 0 behavior options

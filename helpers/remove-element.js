@@ -1,3 +1,4 @@
+"use strict";
 var observer = new MutationObserver( function(mutations){
 	var mutation;
 	for(var i = 0; i < mutations.length; i++) {

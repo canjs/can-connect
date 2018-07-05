@@ -1,3 +1,4 @@
+"use strict";
 var map = [].map;
 
 var diffList = require("can-diff/list/list")

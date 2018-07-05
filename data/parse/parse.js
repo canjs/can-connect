@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/data/parse/parse
  * @parent can-connect.behaviors
@@ -53,7 +54,6 @@
  * ```
  *
  */
-
 var each = require("can-reflect").each;
 var getObject = require("can-key/get/get");
 var behavior = require("../../behavior");

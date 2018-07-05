@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/real-time/real-time real-time
  * @parent can-connect.behaviors
@@ -180,8 +181,9 @@ function updateListWithItem(list, recordData, currentIndex, newIndex, connection
 module.exports = connect.behavior("real-time",function(baseConnection){
 
 	var createPromise = Promise.resolve();
+	var behavior;
 
-	return {
+	behavior = {
 		createData: function(){
 			var promise = baseConnection.createData.apply(this, arguments);
 			var cleanPromise = promise.catch(function () { return ''; })
@@ -423,9 +425,11 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				return instance;
 			});
 		}
+	};
 
-		//!steal-remove-start
-		,gotListData: function(items, set) {
+	//!steal-remove-start
+	if(process.env.NODE_ENV !== 'production') {
+		behavior.gotListData = function(items, set) {
 			var self = this;
 			if (this.queryLogic) {
 				if(Array.isArray(items)) {
@@ -448,8 +452,10 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 
 			return Promise.resolve(items);
 		}
-		//!steal-remove-end
-	};
+	}
+	//!steal-remove-end
+
+	return behavior;
 });
 
 var create = function(props){

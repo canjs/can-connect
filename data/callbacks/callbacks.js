@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/data/callbacks/callbacks data/callbacks
  * @parent can-connect.behaviors
@@ -141,8 +142,10 @@ var dataCallbackBehavior = connect.behavior("data/callbacks",function(baseConnec
 module.exports = dataCallbackBehavior;
 
 //!steal-remove-start
-var validate = require("../../helpers/validate");
-module.exports = validate(dataCallbackBehavior, [
-	"getListData", "createData", "updateData", "destroyData"
-]);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../../helpers/validate");
+	module.exports = validate(dataCallbackBehavior, [
+		"getListData", "createData", "updateData", "destroyData"
+	]);
+}
 //!steal-remove-end

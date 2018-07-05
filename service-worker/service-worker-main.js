@@ -1,3 +1,4 @@
+"use strict";
 console.log("WORKER - LISTENING");
 addEventListener("message", function(ev){
 

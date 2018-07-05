@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module {connect.Behavior} can-connect/constructor/store/store constructor/store
  * @parent can-connect.behaviors
@@ -766,6 +767,8 @@ constructorStore.requestCleanupDelay = 10;
 module.exports = constructorStore;
 
 //!steal-remove-start
-var validate = require("../../helpers/validate");
-module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../../helpers/validate");
+	module.exports = validate(constructorStore, ['hydrateInstance', 'hydrateList', 'getList', 'get', 'save', 'destroy']);
+}
 //!steal-remove-end
