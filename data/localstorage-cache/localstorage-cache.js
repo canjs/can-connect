@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/data/localstorage-cache/localstorage-cache localstorage-cache
  * @parent can-connect.deprecated
@@ -5,7 +6,7 @@
  * @group can-connect/data/localstorage-cache/localstorage-cache.data-methods 1 data methods
  *
  * Saves raw data in localStorage.
- * 
+ *
  * @deprecated {5.0} Use [can-local-store] instead.
  *
  * @signature `localStorage( baseConnection )`
@@ -50,5 +51,3 @@
 
 
 var memoryStore = require("can-local-store");
-
-module.exports = memoryStore;

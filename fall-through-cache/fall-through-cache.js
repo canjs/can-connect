@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/fall-through-cache/fall-through-cache fall-through-cache
  * @parent can-connect.behaviors
@@ -295,6 +296,8 @@ var fallThroughCache = connect.behavior("fall-through-cache",function(baseConnec
 module.exports = fallThroughCache;
 
 //!steal-remove-start
-var validate = require("../helpers/validate");
-module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../helpers/validate");
+	module.exports = validate(fallThroughCache, ['hydrateList', 'hydrateInstance', 'getListData', 'getData']);
+}
 //!steal-remove-end

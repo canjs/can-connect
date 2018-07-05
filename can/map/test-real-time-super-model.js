@@ -1,3 +1,4 @@
+"use strict";
 var QUnit = require("steal-qunit");
 
 var canLog = require("can-log");

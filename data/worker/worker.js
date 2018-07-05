@@ -1,3 +1,4 @@
+"use strict";
 var connect = require("can-connect");
 var makeDeferred = require("../../helpers/deferred");
 var canLog = require("can-log");

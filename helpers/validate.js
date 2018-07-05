@@ -1,3 +1,4 @@
+"use strict";
 // return wrapped can-connect behavior mixin that validates interface of the input behavior being extended
 // deprecate this and use can-validate-interface decorator once available
 

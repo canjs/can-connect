@@ -1,6 +1,6 @@
 var connect = require("../can-connect");
 var getItems = require("../helpers/get-items");
-var forEach = [].forEach;
+var forEach = Array.prototype.forEach;
 
 
 /**
@@ -280,6 +280,8 @@ var cacheRequestsBehaviour = connect.behavior("cache-requests",function(baseConn
 module.exports = cacheRequestsBehaviour;
 
 //!steal-remove-start
-var validate = require("../helpers/validate");
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../helpers/validate");
+}
 module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
 //!steal-remove-end

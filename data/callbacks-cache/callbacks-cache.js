@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module can-connect/data/callbacks-cache/callbacks-cache data/callbacks-cache
  * @parent can-connect.behaviors
@@ -133,6 +134,8 @@ var callbackCache = connect.behavior("data/callbacks-cache",function(baseConnect
 module.exports = callbackCache;
 
 //!steal-remove-start
-var validate = require("../../helpers/validate");
-module.exports = validate(callbackCache, []);
+if(process.env.NODE_ENV !== 'production') {
+	var validate = require("../../helpers/validate");
+	module.exports = validate(callbackCache, []);
+}
 //!steal-remove-end

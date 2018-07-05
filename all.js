@@ -1,3 +1,4 @@
+"use strict";
 var connect = require("./can-connect");
 
 connect.cacheRequests = require("./cache-requests/cache-requests");

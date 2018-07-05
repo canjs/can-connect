@@ -1,5 +1,7 @@
 
 
+"use strict";
+
 /**
  * @module {connect.Behavior} can-connect/constructor/constructor constructor
  * @parent can-connect.behaviors
