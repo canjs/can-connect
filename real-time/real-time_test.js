@@ -12,6 +12,7 @@ var QUnit = require("steal-qunit");
 var assign = require("can-reflect").assignMap;
 var canDev = require('can-log/dev/dev');
 var QueryLogic = require("can-query-logic");
+var canReflect = require("can-reflect");
 
 QUnit.module("can-connect/real-time",{});
 
@@ -582,4 +583,73 @@ QUnit.test("instances should be removed from 'length-bound' lists when destroyed
 		},1);
 		done();
 	});
+});
+
+QUnit.test("real-time doesn't handle updates when the id doesn't change (#436)", function (assert) {
+	var done = assert.async();
+	assert.expect(1);
+
+	var todos = [{
+		name: "test the store",
+		id: "def"
+	}, {
+		name: "rock the house",
+		id: "ghi"
+	}];
+	var connection = connect([
+		function(){
+			return {
+				list: function(items) {
+					var list = new DefineList(items.data);
+					// simulate the can-connet/can/map/map behaviour
+					// adding the list to the listStore
+					connection.addListReference(list, {});
+					return list;
+				},
+				getListData: function(){
+					return Promise.resolve(todos);
+				},
+				destroyData: function() {
+					// simulate an empty object response from server
+					return Promise.resolve({});
+				},
+				updateData: function(data){
+					return Promise.resolve(canReflect.serialize(data));
+				}
+			};
+		},
+		dataCallbacks,
+		realTime,
+		constructor,
+		constructorStore
+	], {
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
+
+	connection.getList({}).then(function(list){
+		list.on("length", function(){
+			assert.ok(false, "Length should not change");
+		});
+		connection.save( list[0] );
+		return list;
+	}).then(function(list) {
+		list.off("length");
+		list.on("length", function(){
+			assert.ok(true, "Length should change when adding item in position 0");
+		});
+		return connection.save({
+			name: "go to sleep",
+			id: "abc"
+		});
+	}).then(function(){
+		done();
+	}, function(err){
+		setTimeout(function(){
+			throw err;
+		},1);
+		done();
+	})
+
 });
