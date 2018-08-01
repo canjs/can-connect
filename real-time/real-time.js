@@ -164,7 +164,7 @@ function updateList(list, getRecord, currentIndex, newIndex) {
 
 function updateListWithItem(list, recordData, currentIndex, newIndex, connection, set){
 	// we are inserting right where we already are.
-	if(newIndex === currentIndex+1 || newIndex === currentIndex) {
+	if(currentIndex !== -1 && (newIndex === currentIndex + 1 || newIndex === currentIndex)) {
 		return;
 	}
 	if(list[spliceSymbol] !== undefined) {

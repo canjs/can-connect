@@ -587,15 +587,15 @@ QUnit.test("instances should be removed from 'length-bound' lists when destroyed
 
 QUnit.test("real-time doesn't handle updates when the id doesn't change (#436)", function (assert) {
 	var done = assert.async();
-	assert.expect(0);
+	assert.expect(1);
 
 	var todos = [{
 		name: "test the store",
-		id: "abc"
+		id: "def"
 	}, {
 		name: "rock the house",
-		id: "def"}
-	];
+		id: "ghi"
+	}];
 	var connection = connect([
 		function(){
 			return {
@@ -631,8 +631,18 @@ QUnit.test("real-time doesn't handle updates when the id doesn't change (#436)",
 	connection.getList({}).then(function(list){
 		list.on("length", function(){
 			assert.ok(false, "Length should not change");
-		})
-		return connection.save( list[0] );
+		});
+		connection.save( list[0] );
+		return list;
+	}).then(function(list) {
+		list.off("length");
+		list.on("length", function(){
+			assert.ok(true, "Length should change when adding item in position 0");
+		});
+		return connection.save({
+			name: "go to sleep",
+			id: "abc"
+		});
 	}).then(function(){
 		done();
 	}, function(err){
