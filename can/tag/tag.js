@@ -44,7 +44,7 @@ var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 var domMutate = require('can-dom-mutate');
 var domMutateNode = require("can-dom-mutate/node");
-var each = require("can-util/js/each/each");
+var each = require("can-reflect").each;
 
 var convertToValue = function(arg){
 	if(typeof arg === "function") {
