@@ -18,5 +18,6 @@ connect.realTime = require("./real-time/real-time");
 
 connect.superMap = require("./can/super-map/super-map");
 connect.baseMap = require('./can/base-map/base-map');
+connect.tag = require('./can/tag/tag');
 
 module.exports = connect;
