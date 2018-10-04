@@ -44,7 +44,7 @@
     "steal": "^1.0.1",
     "steal-css": "^1.0.0",
     "steal-qunit": "^1.0.0",
-    "steal-tools": "^1.0.0",
+    "steal-tools": "^2.0.6",
     "testee": "^0.8.0"
   },
   "steal": {
