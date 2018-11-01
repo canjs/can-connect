@@ -45,8 +45,7 @@
     "steal-css": "^1.0.0",
     "steal-qunit": "^1.0.0",
     "steal-tools": "^1.0.0",
-    "testee": "^0.8.0",
-    "weakset": "^1.0.0"
+    "testee": "^0.8.0"
   },
   "steal": {
     "plugins": [
