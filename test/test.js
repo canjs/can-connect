@@ -4,7 +4,7 @@ require("../core_test");
 
 require("../cache-requests/cache-requests_test");
 
-require("../can/test");
+require("../can/test-without-observe");
 
 require("../constructor/callbacks-once/callbacks-once_test");
 require("../constructor/constructor_test");
