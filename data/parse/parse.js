@@ -92,7 +92,7 @@ module.exports = behavior("data/parse",function(baseConnection){
      *
      * A request to `/services/todos` may return:
      *
-     * ```
+     * ```js
      * {
      *   todos: [
      *     {todo: {id: 0, name: "dishes"}},
@@ -112,7 +112,7 @@ module.exports = behavior("data/parse",function(baseConnection){
      * This response breaks its own schema. One way to bring it in line
      * with a format compatible with [can-connect.listData] is:
      *
-     * ```
+     * ```js
      * connect([
      *   require("can-connect/data/parse/parse"),
      *   require("can-connect/data/url/url")
