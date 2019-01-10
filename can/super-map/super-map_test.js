@@ -156,3 +156,41 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 		start();
 	});
 });
+
+QUnit.test("weird _data behavior", function(){
+
+	const Todo = DefineMap.extend({
+	  id: {identity: true, type: "number"},
+	  task: "string",
+	  get _serialize() {
+	    return this.serialize();
+	  }
+	});
+	const TodoList = DefineList.extend({
+	  "#": Todo
+	});
+
+	const todoConnection = superMap({
+	  Map: Todo,
+	  List: TodoList,
+	  url: "/services/todos",
+	  name: "todo"
+	});
+
+	const t1 = new Todo({ id: 1, task: "Do something 1" });
+
+	t1.on("_serialize", () => {});
+	t1.off("_serialize", () => {});
+
+	const todoList = new TodoList([
+		{ id: 2, task: "Do something 2" },
+		{ id: 3, task: "Do something 3" }
+	]);
+
+	QUnit.deepEqual( todoList.serialize(), [
+		{ id: 2, task: "Do something 2" },
+		{ id: 3, task: "Do something 3" }
+	]);
+
+
+});
