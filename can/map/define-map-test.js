@@ -2,7 +2,8 @@ var set = require("can-set-legacy");
 var $ = require("jquery");
 var Map = require("can-define/map/map");
 var List = require("can-define/list/list");
-
+var DefineMap = Map;
+var DefineList = List;
 
 // load connections
 var constructor = require("../../constructor/constructor");
@@ -238,5 +239,67 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 		});
 	});
 
+
+});
+
+
+var queues = require("can-queues");
+QUnit.test("recompute getList (#449)", function(assert){
+	const Person = DefineMap.extend("Person",{
+		name: "string"
+	});
+
+	const People = DefineList.extend("People", {
+	  "#": Person
+	});
+
+	const Todo = DefineMap.extend("Todo",{
+	  id: {type: "number", identity: true},
+		name: "string",
+		assignedTo: People
+	});
+
+	Todo.List = DefineList.extend({
+		"#": Todo,
+		get mappedList() {
+			return this.map(({id, name, assignedTo}) => ({id, name, numberOfPeople: assignedTo.length}));
+		}
+	});
+
+	fixture("GET /api/todos", [
+		{ name: "mow lawn", id: 5, assignedTo: [{ name:"john"}]},
+		{ name: "learn canjs", id: 6, assignedTo: [{ name:"john"}, { name:"jane"}]},
+	]);
+
+	fixture.delay = 200;
+
+    connect([
+        constructor,
+        canMap,
+        constructorStore,
+        dataCallbacks,
+        callbacksCache,
+        combineRequests,
+        dataParse,
+        dataUrl,
+        realTime],
+        {
+            url: "/api/todos",
+            Map: Todo,
+            List: Todo.List
+        });
+
+	const done = assert.async();
+	Todo.getList().then(firstResult => {
+		firstResult.on("mappedList", function todosChanged(ev, newVal, oldVal){
+			assert.notOk(true, "call not expected");
+			queues.logStack();
+		});
+
+		Todo.getList().then(secondResult => {
+			assert.equal(secondResult, firstResult, "Is the same todos list");
+			done();
+		});
+	});
 
 });
