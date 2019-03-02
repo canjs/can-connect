@@ -5,8 +5,6 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canjs/can-connect/blob/master/LICENSE.md)
 [![npm version](https://badge.fury.io/js/can-connect.svg)](https://www.npmjs.com/package/can-connect)
 [![Travis build status](https://travis-ci.org/canjs/can-connect.svg?branch=master)](https://travis-ci.org/canjs/can-connect)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/canjs/can-connect?branch=master&svg=true)](https://ci.appveyor.com/project/matthewp/can-connect)
-[![Coverage status](https://coveralls.io/repos/github/canjs/can-connect/badge.svg?branch=master)](https://coveralls.io/github/canjs/can-connect?branch=master)
 [![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-connect.svg)](https://greenkeeper.io/)
 
 any JavaScript framework, not just CanJS.
