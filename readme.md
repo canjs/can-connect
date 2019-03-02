@@ -7,6 +7,7 @@
 [![Travis build status](https://travis-ci.org/canjs/can-connect.svg?branch=master)](https://travis-ci.org/canjs/can-connect)
 [![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-connect.svg)](https://greenkeeper.io/)
 
+`can-connect` provides persisted data middleware. Use it to assemble powerful model layers for
 any JavaScript framework, not just CanJS.
 
 ## Documentation
