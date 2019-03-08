@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use strict";
 var connect = require("../../can-connect");
 var fixture = require("can-fixture");
