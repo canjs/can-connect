@@ -39,7 +39,7 @@
     "can-set-legacy": "<2.0.0",
     "can-simple-observable": "^2.0.0",
     "can-test-helpers": "^1.1.2",
-    "jquery": "2.x - 3.x",
+    "jquery": "3.4.1",
     "jshint": "^2.9.4",
     "steal": "^1.0.1",
     "steal-css": "^1.0.0",
