@@ -3,24 +3,24 @@ var workerBehavior = require("./worker");
 var connect = require("can-connect");
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 	QUnit.module("can-connect/data-worker");
 
-	QUnit.test("getListData", function(){
+	QUnit.test("getListData", function(assert) {
 		var connection = connect([workerBehavior],{
 			name: "todos",
 			worker: new Worker(System.stealURL + "?main=can-connect/data/worker/worker-main_test")
 		});
 
-		stop();
+		var done = assert.async();
 		connection.getListData({foo: "bar"})
 			.then(function(listData){
-				deepEqual(listData,{data: [{id: 1},{id: 2}]}, "got back data");
-				start();
+				assert.deepEqual(listData,{data: [{id: 1},{id: 2}]}, "got back data");
+				done();
 			}, logErrorAndStart);
 	});
 }

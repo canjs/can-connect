@@ -10,7 +10,7 @@ var canMapMerge = require('../merge/merge');
 
 var QUnit = require('steal-qunit');
 
-QUnit.test("basics", function(){
+QUnit.test("basics", function(assert) {
 	// must have queryLogic connection and use #
 
 	var Author = DefineMap.extend("Author",{
@@ -63,39 +63,39 @@ QUnit.test("basics", function(){
 	var canjs = cm.osProjects[0];
 	var donejs = cm.osProjects[1];
 
-	QUnit.stop();
+	var done = assert.async();
 	var promise = cm.save().then(function(cm){
-		QUnit.deepEqual(cm.id, "abc", "updated id");
-		QUnit.deepEqual(
+		assert.deepEqual(cm.id, "abc", "updated id");
+		assert.deepEqual(
 			cm.osProjects.get(), [{id: 200, name: "canjs"}, {id: 201, name: "donejs"}], "updated by save");
 
 
 		cm.author.name = "Justin Meyer";
 		var canJSProject = cm.osProjects.shift();
-		QUnit.equal(canjs, canJSProject, "same canjs project in memory");
+		assert.equal(canjs, canJSProject, "same canjs project in memory");
 
 		cm.osProjects.push({id: 202, name: "stealjs"}, canJSProject);
 		return cm.save();
 	});
 
 	promise.then(function(cm){
-		QUnit.equal(cm.osProjects[0], donejs, "same donejs" );
-		QUnit.equal(cm.osProjects[2], canjs, "still canjs" );
+		assert.equal(cm.osProjects[0], donejs, "same donejs" );
+		assert.equal(cm.osProjects[2], canjs, "still canjs" );
 
-		QUnit.deepEqual(cm.get(), {
+		assert.deepEqual(cm.get(), {
 			id: "abc",
 			author: {id: 1, name: "justin meyer"},
 			osProjects: [{id: 201, name: "DoneJS"}, {id: 202, name: "StealJS"}, {id: 200, name: "CanJS"}]
 		}, "values look right");
 
-		QUnit.start();
+		done();
 	})
 	.catch(function(err){
 		setTimeout(function(){
 			throw err;
 		},1);
 		debugger;
-		QUnit.start();
+		done();
 	});
 
 });

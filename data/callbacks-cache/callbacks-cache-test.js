@@ -4,7 +4,7 @@ var callbacksCache = require("./callbacks-cache");
 
 
 QUnit.module("can-connect/data/callbacks-cache",{
-	setup: function(){
+	beforeEach: function(assert) {
 	}
 });
 
@@ -13,13 +13,13 @@ QUnit.module("can-connect/data/callbacks-cache",{
 QUnit.test("basics", function(){
 	var cacheConnection = {
 		createData: function(data){
-			QUnit.deepEqual(data, {id: 1});
+			assert.deepEqual(data, {id: 1});
 		},
 		updateData: function(data){
-			QUnit.deepEqual(data, {createdAt:3, id: 2});
+			assert.deepEqual(data, {createdAt:3, id: 2});
 		},
 		destroyData: function(){
-			QUnit.deepEqual(data, {createdAt:4, id: 3});
+			assert.deepEqual(data, {createdAt:4, id: 3});
 		}
 	};
 
@@ -36,16 +36,16 @@ QUnit.test("basics", function(){
 });*/
 
 
-QUnit.test("if the server responds with success, the callbacks still get passed the original object", function(){
+QUnit.test("if the server responds with success, the callbacks still get passed the original object", function(assert) {
 	var cacheConnection = {
 		createData: function(data){
-			QUnit.deepEqual(data, {id: 1, foo: "bar"});
+			assert.deepEqual(data, {id: 1, foo: "bar"});
 		},
 		updateData: function(data){
-			QUnit.deepEqual(data, {foo: "bar", id: 1, createdAt: 3});
+			assert.deepEqual(data, {foo: "bar", id: 1, createdAt: 3});
 		},
 		destroyData: function(data){
-			QUnit.deepEqual(data, {foo: "bar", id: 1, createdAt: 4});
+			assert.deepEqual(data, {foo: "bar", id: 1, createdAt: 4});
 		}
 	};
 

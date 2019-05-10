@@ -80,7 +80,7 @@ function prop(prop){
 }
 
 QUnit.module('helpers map-deep-merge', {
-	setup: function(){
+	beforeEach: function(assert) {
 
 		onPatches = [];
 
@@ -89,7 +89,7 @@ QUnit.module('helpers map-deep-merge', {
 		OSProject[canSymbol.for("can.onInstancePatches")](addPatches);
 		OSProject.List[canSymbol.for("can.onInstancePatches")](addPatches);
 	},
-	teardown: function(){
+	afterEach: function(assert) {
 		ContributionMonth[canSymbol.for("can.offInstancePatches")](addPatches);
 		Author[canSymbol.for("can.offInstancePatches")](addPatches);
 		OSProject[canSymbol.for("can.offInstancePatches")](addPatches);
@@ -255,20 +255,20 @@ QUnit.test('smartMerge a list of items which type has a connection', function(as
 	assert.deepEqual(list.serialize(), data, 'List with a connection should be merged');
 });
 
-QUnit.test("mergeInstance when properties are removed and added", function(){
+QUnit.test("mergeInstance when properties are removed and added", function(assert) {
 	var map = new DefineMap({a:"A"});
 	smartMerge(map, {b: "B"});
 
-	QUnit.deepEqual(map.get(), {b: "B"});
+	assert.deepEqual(map.get(), {b: "B"});
 });
 
-QUnit.test("Merging non-defined, but object, types", function(){
+QUnit.test("Merging non-defined, but object, types", function(assert) {
 	var first = new Date();
 	var last = new Date();
 	var map = new DefineMap({a: first});
 	smartMerge(map, {a: last});
 
-	QUnit.equal(map.a, last);
+	assert.equal(map.a, last);
 });
 
 QUnit.test("custom id prop for instance store", function(assert){

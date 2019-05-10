@@ -5,9 +5,9 @@ module.exports = {
 		return {
 			check: function(value){
 				var state = names.shift();
-				QUnit.equal( state, value, "state check "+state );
+				assert.equal( state, value, "state check "+state );
 				if(state !== value) {
-					QUnit.start();
+					done();
 				}
 				return state;
 			},
@@ -31,11 +31,11 @@ module.exports = {
 		};
 	},
 	logErrorAndStart: function(e){
-		ok(false,"Error "+e);
+		assert.ok(false,"Error "+e);
 		setTimeout(function(){
 			throw e;
 		},1);
-		start();
+		done();
 	},
 	getId: function(o){
 		return o.id;

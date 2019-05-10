@@ -10,12 +10,12 @@ var stealClone = require("steal-clone");
 var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/can/super-map",{
-	setup: function(){
+	beforeEach: function(assert) {
 		localStorage.clear();
 	}
 });
 
-QUnit.test("uses idProp", function(){
+QUnit.test("uses idProp", function(assert) {
 
 	var Restaurant = Map.extend({});
 
@@ -36,10 +36,10 @@ QUnit.test("uses idProp", function(){
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({_id: 5}).then(function(data){
-		deepEqual(data, {id: 5}, "findOne");
-		start();
+		assert.deepEqual(data, {id: 5}, "findOne");
+		done();
 	});
 
 
@@ -60,20 +60,20 @@ QUnit.skip("creates map if none is provided (#8)", function(){
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({_id: 5}).then(function(data){
-		deepEqual(data, {id: 5}, "findOne");
-		start();
+		assert.deepEqual(data, {id: 5}, "findOne");
+		done();
 	});
 
 
 });
 
-QUnit.test("allow other caches (#59)", function(){
+QUnit.test("allow other caches (#59)", function(assert) {
 
 	var cacheConnection = {
 		getData: function(){
-			ok(true, "called this cacheConnection");
+			assert.ok(true, "called this cacheConnection");
 			return Promise.resolve({id: 5});
 		}
 	};
@@ -93,13 +93,13 @@ QUnit.test("allow other caches (#59)", function(){
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({_id: 5}).then(function(data){
-		start();
+		done();
 	});
 });
 
-QUnit.test("uses idProp from queryLogic (#255)", function(){
+QUnit.test("uses idProp from queryLogic (#255)", function(assert) {
 
 	var Restaurant = Map.extend({});
 
@@ -119,17 +119,17 @@ QUnit.test("uses idProp from queryLogic (#255)", function(){
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({_id: 5}).then(function(data){
-		deepEqual(data, {id: 5}, "findOne");
-		start();
+		assert.deepEqual(data, {id: 5}, "findOne");
+		done();
 	});
 
 
 });
 
-QUnit.test("uses jQuery if loaded", 2, function() {
-	stop();
+QUnit.test("uses jQuery if loaded", 2, function(assert) {
+	var done = assert.async();
 	var old$ = GLOBAL().$;
 	var fake$ = {
 		ajax: function() {}
@@ -141,7 +141,7 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 			List: function() {},
 			url: ''
 		});
-		QUnit.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
+		assert.equal(connection.ajax, fake$.ajax, "ajax is set from existing $");
 	}).then(function() {
 		GLOBAL().$ = undefined;
 		return stealClone({}).import("can-connect/can/super-map/super-map");
@@ -151,8 +151,8 @@ QUnit.test("uses jQuery if loaded", 2, function() {
 			List: function() {},
 			url: ''
 		});
-		QUnit.equal(connection.ajax, undefined, "ajax is not set when no $");
+		assert.equal(connection.ajax, undefined, "ajax is not set when no $");
 		GLOBAL().$ = old$;
-		start();
+		done();
 	});
 });

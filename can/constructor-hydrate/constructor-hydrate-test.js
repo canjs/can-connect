@@ -10,7 +10,7 @@ var hydrateBehavior = require('./constructor-hydrate');
 
 QUnit.module("can-connect/can/constructor-hydrate");
 
-QUnit.test("basics", function(){
+QUnit.test("basics", function(assert) {
 	var Hub = DefineMap.extend({});
 	Hub.List = DefineList.extend({
 		'#': { Type: Hub }
@@ -28,15 +28,15 @@ QUnit.test("basics", function(){
 
 	myPage.hub = {id: 1, name: 'One'};
 	HubConnection.addInstanceReference(myPage.hub);
-	QUnit.equal(myPage.hub, HubConnection.instanceStore.get(1), 'Should be the same instance');
+	assert.equal(myPage.hub, HubConnection.instanceStore.get(1), 'Should be the same instance');
 
 	myPage.hub2 = {id: 1, name: 'OnePlus'};
-	QUnit.equal(myPage.hub2, HubConnection.instanceStore.get(1), 'Should also be the same instance');
-	QUnit.equal(myPage.hub2, myPage.hub, 'Both properties refer to the same instance');
-	QUnit.equal(myPage.hub.name, 'OnePlus', 'The name of the 1st property should be changed since its the same instance now');
+	assert.equal(myPage.hub2, HubConnection.instanceStore.get(1), 'Should also be the same instance');
+	assert.equal(myPage.hub2, myPage.hub, 'Both properties refer to the same instance');
+	assert.equal(myPage.hub.name, 'OnePlus', 'The name of the 1st property should be changed since its the same instance now');
 });
 
-QUnit.test("Two objects with no id", function(){
+QUnit.test("Two objects with no id", function(assert) {
 	var Hub = DefineMap.extend({});
 	Hub.List = DefineList.extend({
 		'#': { Type: Hub }
@@ -50,7 +50,7 @@ QUnit.test("Two objects with no id", function(){
 
 	var hub1 = new Hub({name: 'One'});
 	HubConnection.addInstanceReference(hub1);
-	QUnit.ok(!HubConnection.instanceStore.has(undefined), 'The instanceStore should not have an "undefined" key item');
+	assert.ok(!HubConnection.instanceStore.has(undefined), 'The instanceStore should not have an "undefined" key item');
 	var hub2 = new Hub({name: 'One'});
-	QUnit.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
+	assert.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
 });

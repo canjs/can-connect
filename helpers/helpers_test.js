@@ -6,7 +6,7 @@ var QUnit = require("steal-qunit");
 
 QUnit.module("helpers");
 
-QUnit.test("id-merge", function(){
+QUnit.test("id-merge", function(assert) {
 
 	var onSplice = function(arr, fn) {
 		var splice = arr.splice;
@@ -52,7 +52,7 @@ QUnit.test("id-merge", function(){
 
 
 	idMerge(list = ["a","b","z","f","x"],["a","b","f","w","z"],returnArg, returnArg);
-	deepEqual(list,["a","b","f","w","z"]);
+	assert.deepEqual(list,["a","b","f","w","z"]);
 
 
 });

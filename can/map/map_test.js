@@ -30,8 +30,8 @@ var map = [].map;
 var later = testHelpers.later;
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 	return Promise.reject(e);
 
 };
@@ -40,7 +40,7 @@ constructorStore.requestCleanupDelay = 1;
 var queues = require("can-queues");
 
 QUnit.module("can-connect/can/map/map with Map",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 		var Todo = Map.extend({
 
@@ -87,7 +87,7 @@ QUnit.module("can-connect/can/map/map with Map",{
 });
 
 
-QUnit.test("real-time super model", function(){
+QUnit.test("real-time super model", function(assert) {
 
 	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
 	var secondItems = [ {id: 2, due: "today"}, {id: 3, due: "today"} ];
@@ -102,7 +102,7 @@ QUnit.test("real-time super model", function(){
 		"getListData-today-2"
 	]);
 
-	stop();
+	var done = assert.async();
 
 	fixture({
 		"GET /services/todos": function(){
@@ -131,8 +131,8 @@ QUnit.test("real-time super model", function(){
 				// todo change to all props
 				return canReflect.assignMap({},request.data);
 			} else {
-				ok(false, "bad state!");
-				start();
+				assert.ok(false, "bad state!");
+				done();
 			}
 		},
 		"DELETE /services/todos/{id}": function(request){
@@ -141,15 +141,15 @@ QUnit.test("real-time super model", function(){
 				// todo change to all props
 				return canReflect.assignMap({destroyed:  1},request.data);
 			} else {
-				ok(false, "bad state!");
-				start();
+				assert.ok(false, "bad state!");
+				done();
 			}
 		}
 	});
 
 	function checkCache(name, set, expectData, next) {
 		cacheConnection.getListData(set).then(function(data){
-			deepEqual(map.call(data.data, testHelpers.getId),
+			assert.deepEqual(map.call(data.data, testHelpers.getId),
 					  map.call(expectData, testHelpers.getId), name);
 			setTimeout(next, 1);
 		});
@@ -169,8 +169,8 @@ QUnit.test("real-time super model", function(){
 
 		importantList = result[0];
 		todayList = result[1];
-		QUnit.ok(importantList.length, "got important");
-		QUnit.ok(todayList.length, "got today");
+		assert.ok(importantList.length, "got important");
+		assert.ok(todayList.length, "got today");
 
 		importantList.bind("length", bindFunc);
 		todayList.bind("length",bindFunc);
@@ -193,8 +193,8 @@ QUnit.test("real-time super model", function(){
 
 
 	function checkLists() {
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf(created) >= 0, "in today");
+		assert.ok( importantList.indexOf(created) >= 0, "in important");
+		assert.ok( todayList.indexOf(created) >= 0, "in today");
 
 		checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),serverSideDuplicateCreate );
 	}
@@ -203,12 +203,12 @@ QUnit.test("real-time super model", function(){
 
 	function serverSideDuplicateCreate(){
 		connection.createInstance({id: 10, due: "today",createdId: 1, type: "important"}).then(function(createdInstance){
-			equal(createdInstance, created, "created instance returned from SSE is the same as what we created earlier");
+			assert.equal(createdInstance, created, "created instance returned from SSE is the same as what we created earlier");
 
-			ok( importantList.indexOf(created) >= 0, "in important");
-			ok( todayList.indexOf(created) >= 0, "in today");
+			assert.ok( importantList.indexOf(created) >= 0, "in important");
+			assert.ok( todayList.indexOf(created) >= 0, "in today");
 
-			equal(importantList.length, 3, "items stays the same");
+			assert.equal(importantList.length, 3, "items stays the same");
 
 			checkCache("cache looks right", {type: "important"}, firstItems.concat(created.serialize()),serverSideCreate );
 		});
@@ -220,8 +220,8 @@ QUnit.test("real-time super model", function(){
 		connection.createInstance({id: 11, due: "today", createdId: 2, type: "important"}).then(function(createdInstance){
 			serverCreatedInstance = createdInstance;
 
-			ok( importantList.indexOf(createdInstance) >= 0, "in important");
-			ok( todayList.indexOf(createdInstance) >= 0, "in today");
+			assert.ok( importantList.indexOf(createdInstance) >= 0, "in important");
+			assert.ok( todayList.indexOf(createdInstance) >= 0, "in today");
 
 			checkCache( "cache looks right afer SS create", {type: "important"}, firstItems.concat(created.serialize(), serverCreatedInstance.serialize()), update1 );
 		});
@@ -232,8 +232,8 @@ QUnit.test("real-time super model", function(){
 		connection.save(created).then(later(checkLists2), logErrorAndStart);
 	}
 	function checkLists2() {
-		ok( importantList.indexOf(created) >= 0, "still in important");
-		equal( todayList.indexOf(created) , -1, "removed from today");
+		assert.ok( importantList.indexOf(created) >= 0, "still in important");
+		assert.equal( todayList.indexOf(created) , -1, "removed from today");
 		update2();
 	}
 
@@ -243,8 +243,8 @@ QUnit.test("real-time super model", function(){
 		connection.save(created).then(later(checkLists3), logErrorAndStart);
 	}
 	function checkLists3() {
-		equal( importantList.indexOf(created),  -1, "removed from important");
-		ok( todayList.indexOf(created) >= 1, "added to today");
+		assert.equal( importantList.indexOf(created),  -1, "removed from important");
+		assert.ok( todayList.indexOf(created) >= 1, "added to today");
 
 		checkCache("cache looks right after update2", {type: "important"}, firstItems.concat(serverCreatedInstance.serialize()),serverSideUpdate );
 	}
@@ -257,9 +257,9 @@ QUnit.test("real-time super model", function(){
 			createId: 1,
 			id: 10
 		}).then(function(instance){
-			equal(created, instance);
-			ok( importantList.indexOf(created) >= 0, "in important");
-			ok( todayList.indexOf(created) >= 0, "in today");
+			assert.equal(created, instance);
+			assert.ok( importantList.indexOf(created) >= 0, "in important");
+			assert.ok( todayList.indexOf(created) >= 0, "in today");
 
 
 			checkCache( "cache looks right afer SS update", {type: "important"}, importantList.serialize(), destroyItem );
@@ -277,7 +277,7 @@ QUnit.test("real-time super model", function(){
 	}
 
 	function checkLists4(){
-		equal( importantList.indexOf(firstImportant), -1, "in important");
+		assert.equal( importantList.indexOf(firstImportant), -1, "in important");
 		checkCache( "cache looks right afer destroy", {type: "important"}, importantList.serialize(), serverSideDestroy );
 	}
 
@@ -288,9 +288,9 @@ QUnit.test("real-time super model", function(){
 			createId: 1,
 			id: 10
 		}).then(function(instance){
-			equal(instance, created, "got back deleted instance");
-			equal( importantList.indexOf(created), -1, "still in important");
-			equal( todayList.indexOf(created) , -1, "removed from today");
+			assert.equal(instance, created, "got back deleted instance");
+			assert.equal( importantList.indexOf(created), -1, "still in important");
+			assert.equal( todayList.indexOf(created) , -1, "removed from today");
 
 			checkCache( "cache looks right afer ss destroy", {type: "important"}, importantList.serialize(), function(){
 				checkCache( "cache looks right afer SS destroy", {due: "today"}, todayList.serialize(), getListDueTodayAgainstCache);
@@ -303,15 +303,15 @@ QUnit.test("real-time super model", function(){
 
 		connection.getList({due: "today"}).then(function(updatedTodayList){
 			var added = serverCreatedInstance.serialize();
-			equal(todayList, updatedTodayList, "same todo list returned");
+			assert.equal(todayList, updatedTodayList, "same todo list returned");
 
-			deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
+			assert.deepEqual( updatedTodayList.serialize(), secondItems.concat([added]), "got initial items from cache");
 
 			var batchNum;
 			todayList.bind("length", function lengthChanged(ev){
 				if(batchNum && ev.batchNum !== batchNum) {
-					deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
-					start();
+					assert.deepEqual( updatedTodayList.serialize(), secondItems.slice(1), "updated cache");
+					done();
 				} else {
 					batchNum = ev.batchNum;
 				}
@@ -322,9 +322,9 @@ QUnit.test("real-time super model", function(){
 
 });
 
-test("isSaving and isDestroying", function(){
+QUnit.test("isSaving and isDestroying", function(assert) {
 
-	stop();
+	var done = assert.async();
 
 	fixture({
 		"POST /services/todos": function(request){
@@ -355,62 +355,62 @@ test("isSaving and isDestroying", function(){
 	canReflect.onValue(isSaving, function(newVal, oldVal){
 		isSavingCalls++;
 		if(isSavingCalls === 1) {
-			equal(state,"hydrated");
-			equal(newVal, true);
-			equal(todo.isNew(), true);
+			assert.equal(state,"hydrated");
+			assert.equal(newVal, true);
+			assert.equal(todo.isNew(), true);
 		} else if(isSavingCalls === 2) {
-			equal(state,"hydrated");
-			equal(newVal, false);
-			equal(todo.isNew(), false);
+			assert.equal(state,"hydrated");
+			assert.equal(newVal, false);
+			assert.equal(todo.isNew(), false);
 		} else if(isSavingCalls === 3) {
-			equal(state,"created");
-			equal(newVal, true);
-			equal(todo.isNew(), false);
+			assert.equal(state,"created");
+			assert.equal(newVal, true);
+			assert.equal(todo.isNew(), false);
 		} else if(isSavingCalls === 4) {
-			equal(state,"created");
-			equal(newVal, false);
+			assert.equal(state,"created");
+			assert.equal(newVal, false);
 		} else {
-			ok(false, "extra saving call");
+			assert.ok(false, "extra saving call");
 		}
 	});
 
 	canReflect.onValue(isDestroying, function(newVal, oldVal){
 		isDestroyingCalls++;
 		if(isSavingCalls === 1) {
-			equal(state,"updated");
-			equal(newVal, true);
+			assert.equal(state,"updated");
+			assert.equal(newVal, true);
 		} else if(isSavingCalls === 2) {
-			equal(state,"updated");
-			equal(newVal, false);
+			assert.equal(state,"updated");
+			assert.equal(newVal, false);
 		}
 	});
 
 
 	todoConnection.save(todo).then(function(){
 		state = "created";
-		equal( todo.isSaving(), false, "isSaving is false" );
+		assert.equal( todo.isSaving(), false, "isSaving is false" );
 
 		todoConnection.save(todo).then(function(){
 			state = "updated";
-			equal( todo.isSaving(), false, "isSaving is false" );
+			assert.equal( todo.isSaving(), false, "isSaving is false" );
 
 			todoConnection.destroy(todo).then(function(){
-				equal( todo.isDestroying(), false, "isDestroying is false" );
-				start();
+				assert.equal( todo.isDestroying(), false, "isDestroying is false" );
+				done();
 			});
-			equal( todo.isSaving(), false, "isSaving is false" );
-			equal( todo.isDestroying(), true, "isDestroying is true" );
+			assert.equal( todo.isSaving(), false, "isSaving is false" );
+			assert.equal( todo.isDestroying(), true, "isDestroying is true" );
 		});
 
-		equal( todo.isSaving(), true, "isSaving is true" );
+		assert.equal( todo.isSaving(), true, "isSaving is true" );
 	});
 
-	equal( todo.isSaving(), true, "isSaving is true" );
+	assert.equal( todo.isSaving(), true, "isSaving is true" );
 
 
 });
 
-test("listQuery works", function(){
+QUnit.test("listQuery works", function(assert) {
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -419,24 +419,24 @@ test("listQuery works", function(){
 	var Todo = this.Todo;
 	var TodoList = this.TodoList;
 	var todoConnection = this.todoConnection;
-	stop();
+	var done = assert.async();
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first");
+			assert.deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listQuery(list), {zed: "ted"},"second");
+			assert.deepEqual( todoConnection.listQuery(list), {zed: "ted"},"second");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "third");
-		start();
+		assert.deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "third");
+		done();
 	});
 
 });
 
-test("findAll and findOne alias", function(){
+QUnit.test("findAll and findOne alias", function(assert) {
 
 	fixture({
 		"GET /services/todos": function(){
@@ -449,21 +449,21 @@ test("findAll and findOne alias", function(){
 
 	var Todo = this.Todo;
 
-	stop();
+	var done = assert.async();
 	Promise.all([
 		Todo.findOne({id: 1}).then(function(todo){
-			equal(todo.name, "findOne");
+			assert.equal(todo.name, "findOne");
 		}),
 		Todo.findAll({}).then(function(todos){
-			equal(todos.length, 1);
-			equal(todos[0].name, "findAll");
+			assert.equal(todos.length, 1);
+			assert.equal(todos[0].name, "findAll");
 		})
 	]).then(function(){
-		start();
+		done();
 	});
 });
 
-QUnit.test("reads id from set queryLogic (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(assert) {
 	var Todo = Map.extend({seal: false}, {});
 	var TodoList = List.extend({
 		Map: Todo
@@ -491,10 +491,10 @@ QUnit.test("reads id from set queryLogic (#82)", function(){
 			)
 		});
 
-	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
+	assert.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
 });
 
-QUnit.test("additional properties are included in getList responses", function(){
+QUnit.test("additional properties are included in getList responses", function(assert) {
 	fixture({
 		"GET /services/todos": function(){
 			return {
@@ -506,14 +506,14 @@ QUnit.test("additional properties are included in getList responses", function()
 
 	var Todo = this.Todo;
 
-	stop();
+	var done = assert.async();
 	Todo.getList({}).then(function(todos){
-		equal(todos.count, 1);
-		start();
+		assert.equal(todos.count, 1);
+		done();
 	});
 });
 
-QUnit.test("should batch model events", function () {
+QUnit.test("should batch model events", function(assert) {
 	var eventOrder = [];
 	var Type = Map.extend({})
 	var instance = new Type();
@@ -536,5 +536,5 @@ QUnit.test("should batch model events", function () {
 	canMap.callbackInstanceEvents("updated", instance);
 	queues.batch.stop();
 
-	QUnit.equal(eventOrder.join(""), "1234", "events are batched");
+	assert.equal(eventOrder.join(""), "1234", "events are batched");
 });

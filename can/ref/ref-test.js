@@ -12,31 +12,33 @@ var canTestHelpers = require("can-test-helpers/lib/dev");
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/can/ref",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 	}
 });
 
-QUnit.asyncTest("basics", function(){
-	var Team = DefineMap.extend({
+QUnit.test("basics", function(assert) {
+    var ready1 = assert.async();
+    var ready = assert.async();
+    var Team = DefineMap.extend({
 		id: 'string'
 	});
-	var Teams = DefineList.extend({
+    var Teams = DefineList.extend({
 		"#": Team
 	});
-	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+    Team.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
 	}],
 	{ Map: Team, List: Teams });
 
-	var Game = DefineMap.extend({
+    var Game = DefineMap.extend({
 		id: 'string',
 		teamRef: {type: Team.Ref.type},
 		score: "number"
 	});
-	Game.connection = connect([constructor, constructorStore, canMap, canRef, {
+    Game.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getListData: function() {
 			return Promise.resolve({data: [
 	 			{id: 1, score: 50, teamRef: 2},
@@ -54,47 +56,49 @@ QUnit.asyncTest("basics", function(){
 	}],
 	{ Map: Game, List: DefineList.extend({ 	"#": Game }) });
 
-	var handler = function(){};
-	Game.get({id: 1, populate: "teamRef"}).then(function(game){
+    var handler = function(){};
+    Game.get({id: 1, populate: "teamRef"}).then(function(game){
 		game.on("teamRef", handler);
 		game.teamRef.on("value", handler);
 		var teamRef = game.teamRef;
-		QUnit.ok( teamRef.value instanceof Team);
-		QUnit.equal(teamRef.value.name, "Cubs");
-		QUnit.equal(teamRef.id, 2);
+		assert.ok( teamRef.value instanceof Team);
+		assert.equal(teamRef.value.name, "Cubs");
+		assert.equal(teamRef.id, 2);
 
 		Game.getList({}).then(function(games){
-			QUnit.ok( games[0].teamRef === teamRef, "same team ref");
-			QUnit.ok( games[2].teamRef === teamRef, "same team ref on a different object");
-			QUnit.ok( teamRef.value instanceof Team);
-			QUnit.equal(teamRef.id, 2);
-			QUnit.equal(teamRef.value.name, "Cubs");
-			QUnit.equal(games[1].teamRef.id, 3);
+			assert.ok( games[0].teamRef === teamRef, "same team ref");
+			assert.ok( games[2].teamRef === teamRef, "same team ref on a different object");
+			assert.ok( teamRef.value instanceof Team);
+			assert.equal(teamRef.id, 2);
+			assert.equal(teamRef.value.name, "Cubs");
+			assert.equal(games[1].teamRef.id, 3);
 
-			QUnit.equal(games[0].teamRef.isResolved(), true);
+			assert.equal(games[0].teamRef.isResolved(), true);
 
 			games[1].teamRef.on("value", function(ev, newVal){
-				QUnit.ok(newVal instanceof Team);
-				QUnit.equal(newVal.name, "Bears");
-				QUnit.start();
+				assert.ok(newVal instanceof Team);
+				assert.equal(newVal.name, "Bears");
+				ready();
 			});
 
-			QUnit.equal(games[1].teamRef.isResolved(), false);
+			assert.equal(games[1].teamRef.isResolved(), false);
 
 		});
 	}, function(error){
-		QUnit.ok(false, "error");
-		QUnit.start();
+		assert.ok(false, "error");
+		ready1();
 	});
 });
 
-QUnit.asyncTest("using Ref as type", function(){
+QUnit.test("using Ref as type", function(assert) {
+    var ready1 = assert.async();
+    var ready = assert.async();
 
-	var Team = DefineMap.extend({
+    var Team = DefineMap.extend({
 		id: 'string'
 	});
 
-	connect([constructor, constructorStore, canMap, canRef, {
+    connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
 			return Promise.resolve({ id: 3, name: "Bears" });
 		}
@@ -104,13 +108,13 @@ QUnit.asyncTest("using Ref as type", function(){
 		List: DefineList.extend({ "#": Team })
 	});
 
-	var Game = DefineMap.extend({
+    var Game = DefineMap.extend({
 		id: 'string',
 		teamRef: Team.Ref,
 		score: "number"
 	});
 
-	connect([constructor, constructorStore, canMap, canRef,
+    connect([constructor, constructorStore, canMap, canRef,
 	{
 		getListData: function() {
 			return Promise.resolve({data: [
@@ -132,41 +136,41 @@ QUnit.asyncTest("using Ref as type", function(){
 		List: DefineList.extend({ "#": Game })
   	});
 
-	var handler = function(){};
-	Game.get({id: 1, populate: "teamRef"}).then(function(game){
+    var handler = function(){};
+    Game.get({id: 1, populate: "teamRef"}).then(function(game){
 		game.on("teamRef", handler);
 		game.teamRef.on("value", handler);
 		var teamRef = game.teamRef;
-		QUnit.ok( teamRef.value instanceof Team);
-		QUnit.equal(teamRef.value.name, "Cubs");
-		QUnit.equal(teamRef.id, 2);
+		assert.ok( teamRef.value instanceof Team);
+		assert.equal(teamRef.value.name, "Cubs");
+		assert.equal(teamRef.id, 2);
 
 		Game.getList({}).then(function(games){
-			QUnit.ok( games[0].teamRef === teamRef, "same team ref");
-			QUnit.ok( games[2].teamRef === teamRef, "same team ref on a different object");
-			QUnit.ok( teamRef.value instanceof Team);
-			QUnit.equal(teamRef.id, 2);
-			QUnit.equal(teamRef.value.name, "Cubs");
-			QUnit.equal(games[1].teamRef.id, 3);
+			assert.ok( games[0].teamRef === teamRef, "same team ref");
+			assert.ok( games[2].teamRef === teamRef, "same team ref on a different object");
+			assert.ok( teamRef.value instanceof Team);
+			assert.equal(teamRef.id, 2);
+			assert.equal(teamRef.value.name, "Cubs");
+			assert.equal(games[1].teamRef.id, 3);
 
-			QUnit.equal(games[0].teamRef.isResolved(), true);
+			assert.equal(games[0].teamRef.isResolved(), true);
 
 			games[1].teamRef.on("value", function(ev, newVal){
-				QUnit.ok(newVal instanceof Team);
-				QUnit.equal(newVal.name, "Bears");
-				QUnit.start();
+				assert.ok(newVal instanceof Team);
+				assert.equal(newVal.name, "Bears");
+				ready();
 			});
 
-			QUnit.equal(games[1].teamRef.isResolved(), false);
+			assert.equal(games[1].teamRef.isResolved(), false);
 
 		});
 	}, function(error){
-		QUnit.ok(false, "error");
-		QUnit.start();
+		assert.ok(false, "error");
+		ready1();
 	});
 });
 
-QUnit.test("Ref can be passed an instance of what it references (#236)", function(){
+QUnit.test("Ref can be passed an instance of what it references (#236)", function(assert) {
 
 	var Team = DefineMap.extend({
 		id: 'string'
@@ -199,17 +203,19 @@ QUnit.test("Ref can be passed an instance of what it references (#236)", functio
 		score: 22
 	});
 
-	QUnit.ok( game.teamRef.value instanceof Team, "is an instance");
-	QUnit.equal(game.teamRef.value, team, "same instance");
+	assert.ok( game.teamRef.value instanceof Team, "is an instance");
+	assert.equal(game.teamRef.value, team, "same instance");
 });
 
 
-QUnit.asyncTest("populate Ref that was already created without a value", function(){
-	var Team = DefineMap.extend({
+QUnit.test("populate Ref that was already created without a value", function(assert) {
+    var ready1 = assert.async();
+    var ready = assert.async();
+    var Team = DefineMap.extend({
 		id: "string"
 	});
-	var getDataCallCounter = 0;
-	Team.connection = connect([constructor, constructorStore, canMap, canRef, {
+    var getDataCallCounter = 0;
+    Team.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function() {
 			getDataCallCounter++;
 			return Promise.resolve({ id: 3, name: "Bears" });
@@ -220,12 +226,12 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 		List: DefineList.extend({ "#": Team })
 	});
 
-	var Game = DefineMap.extend({
+    var Game = DefineMap.extend({
 		id: "string",
 		teamRef: {type: Team.Ref.type},
 		score: "number"
 	});
-	Game.connection = connect([constructor, constructorStore, canMap, canRef, {
+    Game.connection = connect([constructor, constructorStore, canMap, canRef, {
 		getData: function(params) {
 			return Promise.resolve({
 				id: 1,
@@ -239,36 +245,36 @@ QUnit.asyncTest("populate Ref that was already created without a value", functio
 		List: DefineList.extend({ "#": Game })
 	});
 
-	var handler = function(){};
+    var handler = function(){};
 
-	Game.get({id: 1}).then(function(game){
+    Game.get({id: 1}).then(function(game){
 		game.on("teamRef", handler);
 		var teamRef = game.teamRef;
 
-		QUnit.ok( typeof teamRef.value === "undefined", "Value should be undefined");
-		QUnit.equal(teamRef.id, 3, "Id should be the correct one");
-		QUnit.equal(getDataCallCounter, 0, "Team getData should NOT be called");
+		assert.ok( typeof teamRef.value === "undefined", "Value should be undefined");
+		assert.equal(teamRef.id, 3, "Id should be the correct one");
+		assert.equal(getDataCallCounter, 0, "Team getData should NOT be called");
 
 		Game.get({id: 1, populate: "teamRef"}).then(function(game){
 			// Now bind to teamRef:
 			game.teamRef.on("value", handler);
 
-			QUnit.ok( teamRef.value instanceof Team, "Value should be a Team");
-			QUnit.equal(teamRef.value.name, "Cubs", "Name should be Cubs");
-			QUnit.equal(teamRef.id, 3, "Id should be the correct one");
-			QUnit.equal(getDataCallCounter, 0, "Team getData should still NOT be called");
-			QUnit.start();
+			assert.ok( teamRef.value instanceof Team, "Value should be a Team");
+			assert.equal(teamRef.value.name, "Cubs", "Name should be Cubs");
+			assert.equal(teamRef.id, 3, "Id should be the correct one");
+			assert.equal(getDataCallCounter, 0, "Team getData should still NOT be called");
+			ready();
 		});
 
 	}, function(error){
-		QUnit.ok(false, "error");
-		QUnit.start();
+		assert.ok(false, "error");
+		ready1();
 	});
 });
 
 
-QUnit.test("serialize-able", function(){
-	QUnit.stop();
+QUnit.test("serialize-able", function(assert) {
+	var done = assert.async();
 
 	var Team = DefineMap.extend({
 		id: 'string'
@@ -295,8 +301,8 @@ QUnit.test("serialize-able", function(){
 	var game = new Game({id: "123", teamRefA: "321", teamRefB: "321"});
 
 	constructorStore.requests.one("end", function(){
-		QUnit.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
-		QUnit.start();
+		assert.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
+		done();
 	})
 
 	constructorStore.requests.decrement();
@@ -306,7 +312,7 @@ QUnit.test("serialize-able", function(){
 
 });
 
-canTestHelpers.devOnlyTest("ref instances are named appropriately (#424)", function(){
+canTestHelpers.devOnlyTest("ref instances are named appropriately (#424)", function(assert){
 	var Team = DefineMap.extend("Team",{
 		name: "string",
 		id: {identity: true, type: 'string'}
@@ -329,5 +335,5 @@ canTestHelpers.devOnlyTest("ref instances are named appropriately (#424)", funct
 
 	var game = new Game({id: "123", teamRefA: "123", teamRefB: {id: "321", name: "cubs"}});
 
-	QUnit.equal( canReflect.getName(game.teamRefA), "TeamRef{123}");
+	assert.equal( canReflect.getName(game.teamRefA), "TeamRef{123}");
 });

@@ -10,21 +10,21 @@ var getId = function(d){
 
 
 QUnit.module("can-connect/data/combine-requests",{
-	setup: function(){
+	beforeEach: function(assert) {
 	}
 });
 
 
-QUnit.test("basics", function(){
-	stop();
+QUnit.test("basics", function(assert) {
+	var done = assert.async();
 	var count = 0;
 
 
 	var res = combineRequests( {
 		getListData: function(params){
-			deepEqual(params,{},"called for everything");
+			assert.deepEqual(params,{},"called for everything");
 			count++;
-			equal(count,1,"only called once");
+			assert.equal(count,1,"only called once");
 			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
@@ -47,25 +47,25 @@ QUnit.test("basics", function(){
 			res3 = result[2];
 
 
-		deepEqual(map.call(res1.data, getId), [1,3,5]);
-		deepEqual(map.call(res2.data, getId), [1,2]);
-		deepEqual(map.call(res3.data, getId), [1,2,3,4,5,6]);
-		start();
+		assert.deepEqual(map.call(res1.data, getId), [1,3,5]);
+		assert.deepEqual(map.call(res2.data, getId), [1,2]);
+		assert.deepEqual(map.call(res3.data, getId), [1,2,3,4,5,6]);
+		done();
 	}, function(error){
-		ok(false, error);
-		start();
+		assert.ok(false, error);
+		done();
 	});
 });
 
-QUnit.test("ranges", function(){
-	stop();
+QUnit.test("ranges", function(assert) {
+	var done = assert.async();
 	var count = 0;
 
 	var res = combineRequests(  {
 		getListData: function(params){
-			deepEqual(params,{start: 0, end: 5},"called for everything");
+			assert.deepEqual(params,{start: 0, end: 5},"called for everything");
 			count++;
-			equal(count,1,"only called once");
+			assert.equal(count,1,"only called once");
 			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
@@ -87,16 +87,16 @@ QUnit.test("ranges", function(){
 	Promise.all([p1,p2]).then(function(result){
 		var res1 = result[0], res2 = result[1];
 
-		deepEqual(map.call(res1.data, getId), [1,2,3,4]);
-		deepEqual(map.call(res2.data, getId), [3,4,5,6]);
-		start();
+		assert.deepEqual(map.call(res1.data, getId), [1,2,3,4]);
+		assert.deepEqual(map.call(res2.data, getId), [3,4,5,6]);
+		done();
 	});
 
 
 });
 
-QUnit.test("Rejects when getListData rejects", function(){
-	stop();
+QUnit.test("Rejects when getListData rejects", function(assert) {
+	var done = assert.async();
 
 	var res = combineRequests({
 		getListData: function(){
@@ -108,8 +108,8 @@ QUnit.test("Rejects when getListData rejects", function(){
 	var promise = res.getListData({start: 0, end: 3});
 
 	promise.then(null, function(err){
-		equal(err.message, "didn't work", "promise was rejected");
-		start();
+		assert.equal(err.message, "didn't work", "promise was rejected");
+		done();
 	});
 });
 

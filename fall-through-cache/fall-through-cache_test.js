@@ -17,8 +17,8 @@ constructorStore.requestCleanupDelay = 1;
 
 QUnit.module("can-connect/fall-through-cache");
 
-QUnit.test("basics", function(){
-	stop();
+QUnit.test("basics", function(assert) {
+	var done = assert.async();
 	var firstItems = [ {id: 0, foo: "bar"}, {id: 1, foo: "bar"} ];
 	var secondItems = [ {id: 1, foo: "BAZ"}, {id: 2, foo: "bar"} ];
 
@@ -51,11 +51,11 @@ QUnit.test("basics", function(){
 			updateListData: function(data, set) {
 				if(state.get() === "cache-updateListData") {
 					state.next();
-					deepEqual(set,{},"got the right set");
-					deepEqual(data.data,firstItems, "updateListData items are right");
+					assert.deepEqual(set,{},"got the right set");
+					assert.deepEqual(data.data,firstItems, "updateListData items are right");
 					return testHelpers.asyncResolve();
 				} else {
-					deepEqual(data.data,secondItems, "updateListData 2 items are right");
+					assert.deepEqual(data.data,secondItems, "updateListData 2 items are right");
 					state.check("cache-updateListData-2");
 					return testHelpers.asyncResolve();
 				}
@@ -85,8 +85,8 @@ QUnit.test("basics", function(){
 		return {
 			updatedList: function(list, updated){
 				state.check("updatedList");
-				deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
-				start();
+				assert.deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
+				done();
 			}
 		};
 	};
@@ -101,7 +101,7 @@ QUnit.test("basics", function(){
 	// first time, it takes the whole time
 	connection.getList({}).then(function( list ){
 		state.check("connection-foundAll");
-		deepEqual( map.call(list, getId), map.call(firstItems, getId) );
+		assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
@@ -109,7 +109,7 @@ QUnit.test("basics", function(){
 		state.check("connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check("connection-foundAll-2");
-			deepEqual( map.call(list, getId), map.call(firstItems, getId) );
+			assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);
 	}
 
@@ -122,8 +122,8 @@ QUnit.test("basics", function(){
 });
 
 
-QUnit.test("getInstance and getData", function(){
-	stop();
+QUnit.test("getInstance and getData", function(assert) {
+	var done = assert.async();
 	var firstData =  {id: 0, foo: "bar"};
 	var secondData = {id: 0, foo: "BAR"};
 
@@ -155,11 +155,11 @@ QUnit.test("getInstance and getData", function(){
 			updateData: function(data) {
 				if(state.get() === "cache-updateData") {
 					state.next();
-					deepEqual(data,firstData, "updateData items are right");
+					assert.deepEqual(data,firstData, "updateData items are right");
 					return testHelpers.asyncResolve();
 				} else {
 					//debugger;
-					deepEqual(data,secondData, "updateData 2 items are right");
+					assert.deepEqual(data,secondData, "updateData 2 items are right");
 					state.check("cache-updateData-2");
 					return testHelpers.asyncResolve();
 				}
@@ -190,8 +190,8 @@ QUnit.test("getInstance and getData", function(){
 		return {
 			updatedInstance: function(instance, data){
 				state.check("updatedInstance");
-				deepEqual( data,secondData );
-				start();
+				assert.deepEqual( data,secondData );
+				done();
 			}
 		};
 	};
@@ -206,7 +206,7 @@ QUnit.test("getInstance and getData", function(){
 	// first time, it takes the whole time
 	connection.get({id: 0}).then(function( instance ){
 		state.check("connection-foundOne");
-		deepEqual( instance, {id: 0, foo: "bar"} );
+		assert.deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
@@ -214,22 +214,23 @@ QUnit.test("getInstance and getData", function(){
 		state.check("connection-getInstance-2");
 		connection.get({id: 0}).then(function(instance){
 			state.check("connection-foundOne-2");
-			deepEqual( instance, {id: 0, foo: "bar"}  );
+			assert.deepEqual( instance, {id: 0, foo: "bar"}  );
 		}, testHelpers.logErrorAndStart);
 	}
 
 });
 
-asyncTest("metadata transfered through fall through cache (#125)", function(){
-	var getDataBehaviorDataPromise;
-	var cacheConnection = {
+QUnit.test("metadata transfered through fall through cache (#125)", function(assert) {
+    var ready = assert.async();
+    var getDataBehaviorDataPromise;
+    var cacheConnection = {
 		getListData: function(){
 			return testHelpers.asyncResolve({data: [{id: 1}]});
 		},
 		updateListData: function(){}
 	};
 
-	var getDataBehavior = function(base, options){
+    var getDataBehavior = function(base, options){
 		return {
 			getListData: function(){
 				getDataBehaviorDataPromise = testHelpers.asyncResolve({data: [{id: 1}], count: 5});
@@ -239,20 +240,19 @@ asyncTest("metadata transfered through fall through cache (#125)", function(){
 		};
 	};
 
-	var connection = connect([getDataBehavior,constructor,fallThroughCache,constructorStore],{
+    var connection = connect([getDataBehavior,constructor,fallThroughCache,constructorStore],{
 		cacheConnection: cacheConnection,
 		queryLogic: new QueryLogic({
 			identity: ["id"]
 		})
 	});
 
-	connection.getList({}).then(function(list){
+    connection.getList({}).then(function(list){
 		setTimeout(function(){
 			getDataBehaviorDataPromise.then(function() {
-				QUnit.equal(list.count, 5, "expando added");
-				QUnit.start();
+				assert.equal(list.count, 5, "expando added");
+				ready();
 			});
 		}, 50);
 	});
-
 });

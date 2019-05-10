@@ -12,7 +12,7 @@ var getId = function(d) {
 };
 
 QUnit.module("can-connect/cache-requests/",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 	}
 });
@@ -25,9 +25,9 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 	var res = cacheRequests( {
 		getListData: function(params){
 
-			deepEqual(params,{},"called for everything");
+			assert.deepEqual(params,{},"called for everything");
 			count++;
-			equal(count,1,"only called once");
+			assert.equal(count,1,"only called once");
 			return Promise.resolve([
 				{id: 1, type: "critical", due: "today"},
 				{id: 2, type: "notcritical", due: "today"},
@@ -50,7 +50,7 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 
 		return res.getListData({due: "today"});
 	}).then(function(list) {
-		deepEqual(map.call(list.data, getId), [1,2]);
+		assert.deepEqual(map.call(list.data, getId), [1,2]);
 		done();
 	}).then(null, function(error) {
 		assert.ok(false, error);
@@ -60,8 +60,8 @@ QUnit.test("Get everything and all future requests should hit cache", function(a
 
 
 
-QUnit.test("Incrementally load data", function(){
-	stop();
+QUnit.test("Incrementally load data", function(assert) {
+	var done = assert.async();
 	var count = 0;
 
 	var queryLogic = new canSet.Algebra( set.props.rangeInclusive("start","end") );
@@ -69,9 +69,9 @@ QUnit.test("Incrementally load data", function(){
 	var behavior = cacheRequests( {
 		getListData: function(params){
 			console.log("gld", params)
-			equal(params.start, count * 10 + 1, "start is right "+params.start);
+			assert.equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
-			equal(params.end, count * 10, "end is right "+params.end);
+			assert.equal(params.end, count * 10, "end is right "+params.end);
 
 
 			var items = [];
@@ -92,26 +92,26 @@ QUnit.test("Incrementally load data", function(){
 		end: 10
 	}).then(function(listData){
 		var list = listData.data;
-		equal(list.length, 10, "got 10 items");
-		equal(list[0].id, 1,"first id is right");
-		equal(list[9].id, 10, "second id is right");
+		assert.equal(list.length, 10, "got 10 items");
+		assert.equal(list[0].id, 1,"first id is right");
+		assert.equal(list[9].id, 10, "second id is right");
 
 		behavior.getListData({
 			start: 1,
 			end: 20
 		}).then(function(listData){
 			var list = listData.data;
-			equal(list.length, 20, "got 20 items");
-			equal(list[0].id, 1, "0th object's id'");
-			equal(list[19].id, 20, "19th object's id");
+			assert.equal(list.length, 20, "got 20 items");
+			assert.equal(list[0].id, 1, "0th object's id'");
+			assert.equal(list[19].id, 20, "19th object's id");
 
 
 			behavior.getListData({start: 9, end: 12}).then(function(listData){
 				var list = listData.data;
-				equal(list.length, 4, "got 4 items");
-				equal(list[0].id, 9);
-				equal(list[3].id, 12);
-				start();
+				assert.equal(list.length, 4, "got 4 items");
+				assert.equal(list[0].id, 9);
+				assert.equal(list[3].id, 12);
+				done();
 			});
 
 
@@ -122,8 +122,8 @@ QUnit.test("Incrementally load data", function(){
 
 });
 
-QUnit.test("Filters are preserved for different pagination", function() {
-	stop();
+QUnit.test("Filters are preserved for different pagination", function(assert) {
+	var done = assert.async();
 	var isSecondRun = false;
 
 	var queryLogic = new set.Algebra(
@@ -147,10 +147,10 @@ QUnit.test("Filters are preserved for different pagination", function() {
 
 	var behavior = cacheRequests( {
 		getListData: function(params){
-			equal(params.$skip, isSecondRun ? 10 : 0, "$skip is right "+params.$skip);
-			equal(params.$limit, isSecondRun ? 15 : 10, "$limit is right "+params.$limit);
-			equal(params.$sort, "price", "$sort is right "+params.$sort);
-			equal(params.type, "a", "type is right "+params.type);
+			assert.equal(params.$skip, isSecondRun ? 10 : 0, "$skip is right "+params.$skip);
+			assert.equal(params.$limit, isSecondRun ? 15 : 10, "$limit is right "+params.$limit);
+			assert.equal(params.$sort, "price", "$sort is right "+params.$sort);
+			assert.equal(params.type, "a", "type is right "+params.type);
 
 			var items = [];
 			for(var i = (+params.$skip); i < (+params.$skip + (+params.$limit)); i++) {
@@ -170,13 +170,13 @@ QUnit.test("Filters are preserved for different pagination", function() {
 
 	behavior.getListData(params).then(function(listData){
 		var list = listData.data;
-		equal(list.length, 10, "got 10 items");
+		assert.equal(list.length, 10, "got 10 items");
 
 		return behavior.getListData(params2);
 	}).then(function(listData){
 		var list = listData.data;
-		equal(list.length, 25, "got 25 items");
-		start();
+		assert.equal(list.length, 25, "got 25 items");
+		done();
 	});
 });
 
@@ -184,7 +184,7 @@ QUnit.test("Filters are preserved for different pagination", function() {
 var memoryStore = memCache;
 
 var QueryLogic = require("can-query-logic");
-QUnit.test("QueryLogic usage example", function(){
+QUnit.test("QueryLogic usage example", function(assert) {
 	var calls = 0;
 
 	var dataUrl = {
@@ -194,7 +194,7 @@ QUnit.test("QueryLogic usage example", function(){
 					data: [{id: 1, status: "critical"}]
 				});
 			} else {
-				QUnit.deepEqual(query, {filter: {status: ["low","medium"]}}, "query made right");
+				assert.deepEqual(query, {filter: {status: ["low","medium"]}}, "query made right");
 				return Promise.resolve({
 					data: [{id: 2, status: "low"}]
 				});
@@ -214,12 +214,12 @@ QUnit.test("QueryLogic usage example", function(){
 		url: "/todos",
 		queryLogic: todoQueryLogic
 	});
-	QUnit.stop();
+	var done = assert.async();
 
 	todoConnection.getListData({filter: {status: "critical"}}).then(function(){
 		return todoConnection.getListData({})
 	}).then(function(){
-		QUnit.start();
+		done();
 	});
 
 });
