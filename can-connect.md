@@ -81,7 +81,7 @@ __Keep lists updated with the most current data:__
 __Implement caching strategies:__
 
  - [can-connect/fall-through-cache/fall-through-cache fall-through-cache] —
-    Use [connection.cacheConnection cache] data if possible when creating instances,
+    Use [can-connect/base/base.cacheConnection cache] data if possible when creating instances,
     then update the instance with server data upon completion of a background request.
 
  - [can-connect/cache-requests/cache-requests cache-requests] —
@@ -90,7 +90,7 @@ __Implement caching strategies:__
  - [can-connect/data/combine-requests/combine-requests data/combine-requests] —
     Combine overlapping or redundant requests.
 
-__Provide caching storage (as a [connection.cacheConnection cacheConnection]):__
+__Provide caching storage (as a [can-connect/base/base.cacheConnection cacheConnection]):__
 
  - [can-connect/data/localstorage-cache/localstorage-cache data/localstorage-cache] —
     LocalStorage caching connection.
@@ -104,7 +104,7 @@ __Glue certain behaviors together:__
     Add callback hooks are passed the results of the DataInterface methods (CRUD operations).
 
  - [can-connect/data/callbacks-cache/callbacks-cache data/callbacks-cache] —
-    Handle [can-connect/data/callbacks/callbacks data/callbacks] and update the [connection.cacheConnection cache]
+    Handle [can-connect/data/callbacks/callbacks data/callbacks] and update the [can-connect/base/base.cacheConnection cache]
     when CRUD operations complete.
 
 __Provide convenient integration with CanJS:__
@@ -522,6 +522,15 @@ Implemented by [can-connect/constructor/constructor constructor/constructor] beh
 
 Overwritten by [can-connect/constructor/store/store] and [can-connect/fall-through-cache/fall-through-cache] behaviors.
 
+#### Store Interface
+
+`.addInstanceReference(instance)` - Add a reference to an instance so that multiple copies can be avoided.  
+`.deleteInstanceReference(instance)` - Remove a reference to an instance, freeing memory when an instance is no longer bound to.
+`.addListReference(list)` - Add a reference to a list so that multiple copies can be avoided.  
+`.deleteListReference(list)` - Remove a reference to an list, freeing memory when a list is no longer bound to.
+
+Implemented by the [can-connect/constructor/store/store constructor/store] behavior.
+
 ### Data Interface
 
 The raw-data connection methods.  
@@ -530,7 +539,7 @@ The raw-data connection methods.
 
 `.getListData(set) -> Promise<ListData>` - Retrieve list data.  
 `.updateListData(listData[, set]) -> Promise<ListData>` - Update a list’s data.
-`.getSets() -> Promise<Array<Set>>` - Return the sets available to the connection, typically those stored in a [connection.cacheConnection cache connection].  
+`.getSets() -> Promise<Array<Set>>` - Return the sets available to the connection, typically those stored in a [can-connect/base/base.cacheConnection cache connection].  
 `.getData(params) -> Promise<Object>` - Retrieve data for a particular item.  
 `.createData(props, cid) -> Promise<props>` - Create a data store record given the serialized form of the data. A
   client ID is passed of the instance that is being created.  
@@ -568,15 +577,6 @@ Overwritten by [can-connect/data/callbacks-cache/callbacks-cache data/callbacks-
 return the required object format.
 
 Implemented by the [can-connect/data/parse/parse data/parse] behavior.
-
-#### Store Interface
-
-`.addInstanceReference(instance)` - Add a reference to an instance so that multiple copies can be avoided.  
-`.deleteInstanceReference(instance)` - Remove a reference to an instance, freeing memory when an instance is no longer bound to.
-`.addListReference(list)` - Add a reference to a list so that multiple copies can be avoided.  
-`.deleteListReference(list)` - Remove a reference to an list, freeing memory when a list is no longer bound to.
-
-Implemented by the [can-connect/constructor/store/store constructor/store] behavior.
 
 #### Real-time Methods
 
