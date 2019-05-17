@@ -60,7 +60,8 @@ QUnit.skip("creates map if none is provided (#8)", function(){
 
 });
 
-QUnit.test("uses jQuery if loaded", 2, function(assert) {
+QUnit.test("uses jQuery if loaded", function(assert) {
+	assert.expect(2);
 	var done = assert.async();
 	var old$ = GLOBAL().$;
 	var fake$ = {

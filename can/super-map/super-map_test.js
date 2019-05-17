@@ -128,7 +128,8 @@ QUnit.test("uses idProp from queryLogic (#255)", function(assert) {
 
 });
 
-QUnit.test("uses jQuery if loaded", 2, function(assert) {
+QUnit.test("uses jQuery if loaded", function(assert) {
+	assert.expect(2);
 	var done = assert.async();
 	var old$ = GLOBAL().$;
 	var fake$ = {

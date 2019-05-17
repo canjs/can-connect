@@ -416,7 +416,8 @@ if (canDev) {
  * to the server, the socket 'created' event is emitted before
  * the AJAX request is done, and finally the AJAX response resolves.
  */
-QUnit.test("handling if createInstance happens before createdData", 4, function (assert) {
+QUnit.test("handling if createInstance happens before createdData", function (assert) {
+	assert.expect(4);
 	var done = assert.async();
 	var createdPromiseResolve;
 
@@ -473,7 +474,8 @@ QUnit.test("handling if createInstance happens before createdData", 4, function 
  * The createData method will swallow any failures before adding
  * the promise onto the promise stack used by createInstance.
  */
-QUnit.test("createInstance doesn't fail if createData fails", 3, function (assert) {
+QUnit.test("createInstance doesn't fail if createData fails", function (assert) {
+	assert.expect(3);
 	var done = assert.async();
 	var createdPromiseReject;
 
