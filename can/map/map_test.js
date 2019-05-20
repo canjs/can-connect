@@ -114,7 +114,7 @@ QUnit.test("real-time super model", function(assert) {
 				state.next();
 				return {data: secondItems.slice(0) };
 			} else {
-				state.check("getListData-today-2");
+				state.check(assert, "getListData-today-2");
 				return { data: secondItems.slice(1) };
 			}
 		},

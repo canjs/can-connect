@@ -289,9 +289,7 @@ QUnit.test("non numeric ids (#79)", function(assert) {
 });
 
 QUnit.test("pagination loses the bigger set (#126)", function(assert) {
-    var ready2 = assert.async();
-    var ready1 = assert.async();
-    var ready = assert.async();
+    var done = assert.async();
     var todosAlgebra = new canSet.Algebra(
 		canSet.props.offsetLimit("offset","limit")
 	);
@@ -311,20 +309,19 @@ QUnit.test("pagination loses the bigger set (#126)", function(assert) {
 	}).then(function(){
 		connection.getListData({ offset: 0, limit: 2}).then(function(listData){
 			assert.deepEqual(listData, { data: [{id: 0},{id: 1}], count: 4 });
-			ready();
+			done();
 		}, function(){
 			assert.ok(false, "no data");
-			ready1();
+			done();
 		});
 	}).catch(function(e){
 		assert.ok(false, "something broke");
-		ready2();
+		done();
 	});
 });
 
 QUnit.test("pagination loses the bigger set (#128)", function(assert) {
-    var ready1 = assert.async();
-    var ready = assert.async();
+    var done = assert.async();
     var todosAlgebra = new canSet.Algebra(
 		canSet.props.offsetLimit("offset","limit")
 	);
@@ -341,9 +338,9 @@ QUnit.test("pagination loses the bigger set (#128)", function(assert) {
 		return connection.getListData({ offset: 1, limit: 2});
 	}).then(function(listData){
 		assert.deepEqual(listData, { data: [{id: 1},{id: 2}], count: 4 });
-		ready();
+		done();
 	}).catch(function(e){
 		assert.ok(false, "something broke");
-		ready1();
+		done();
 	});
 });

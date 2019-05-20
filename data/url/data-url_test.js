@@ -46,22 +46,17 @@ QUnit.test("basics", function(assert){
 	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
 		assert.deepEqual(items, [{id: 1}], "getList");
-		done();
 	});
 
-	var done = assert.async();
+
 	connection.getData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 2}, "getInstance");
-		done();
 	});
 
-	var done = assert.async();
 	connection.createData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 3}, "create");
-		done();
 	});
 
-	var done = assert.async();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		assert.deepEqual(data, {destroy: true}, "update");
 		done();

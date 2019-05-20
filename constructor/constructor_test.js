@@ -78,38 +78,34 @@ QUnit.test("basics", function(assert) {
 		assert.ok(people.isList, "is a list");
 		assert.equal(people.length, 1, "got a list");
 		assert.ok(people[0] instanceof Person);
-		done();
 	}, logErrorAndStart); //-> instances
 
-	var done = assert.async();
+	
 	peopleConnection.get({id: 5}).then(function(person){
 		assert.equal(person.id, 5, "got a list");
 		assert.ok(person instanceof Person);
-		done();
 	}, logErrorAndStart);
 
 	var p = new Person({name: "justin"});
-	var done = assert.async();
+	
 	peopleConnection.save(p).then(function(updatedP){
 		assert.equal(p, updatedP, "same instances");
 		assert.equal(p.id, 3);
-		done();
 	});
 
 	var p2 = new Person({name: "justin", id: 3});
-	var done = assert.async();
+	
 	peopleConnection.save(p2).then(function(updatedP){
 		assert.equal(p2, updatedP, "same instances");
 		assert.equal(p2.update, true);
-		done();
 	}, logErrorAndStart);
 
 	var p3 = new Person({name: "justin", id: 3});
-	var done = assert.async();
+	
 	peopleConnection.destroy(p3).then(function(updatedP){
 		assert.equal(p3, updatedP, "same instances");
 		assert.equal(p3.destroy, true);
-		done();
 	}, logErrorAndStart);
+	done();
 
 });

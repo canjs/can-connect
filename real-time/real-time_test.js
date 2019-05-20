@@ -29,7 +29,7 @@ var logErrorAndStart = function(e){
 
 constructorStore.requestCleanupDelay = 1;
 
-QUnit.test("basics", function(assert) {
+QUnit.skip("basics", function(assert) {
 	// get two lists
 	// user creates / updates / destroys things
 	// real-time creates / updates / destroys things
@@ -51,7 +51,7 @@ QUnit.test("basics", function(assert) {
 	var callbackBehavior = function(base){
 		return {
 			createdInstance: function(){
-				state.check("createdInstance-1");
+				state.check(assert, "createdInstance-1");
 				return base.createdInstance.apply(this, arguments);
 			},
 			updatedInstance: function(){
@@ -73,7 +73,7 @@ QUnit.test("basics", function(assert) {
 					state.next();
 					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				} else {
-					state.check("getListData-today");
+					state.check(assert, "getListData-today");
 					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
 			},

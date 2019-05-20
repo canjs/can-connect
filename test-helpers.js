@@ -3,7 +3,7 @@ module.exports = {
 	makeStateChecker: function(QUnit, names){
 
 		return {
-			check: function(value){
+			check: function(assert, value){
 				var state = names.shift();
 				assert.equal( state, value, "state check "+state );
 				if(state !== value) {

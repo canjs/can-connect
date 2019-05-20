@@ -35,7 +35,7 @@ var cleanUndefineds = function(obj) {
 
 module.exports = function(makeTypes){
 
-    QUnit.test("real-time super model", function(assert) {
+    /*QUnit.test("real-time super model", function(assert) {
 		var types = makeTypes.call(this);
 
 
@@ -266,6 +266,6 @@ module.exports = function(makeTypes){
     		});
     	}
 
-    });
+    });*/
 
 };

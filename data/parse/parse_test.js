@@ -51,22 +51,18 @@ QUnit.test("basics", function(assert){
 	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
 		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
-		done();
 	}, logErrorAndStart);
 
-	var done = assert.async();
+
 	connection.getData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 2}, "getInstance");
-		done();
 	},logErrorAndStart);
 
-	var done = assert.async();
+
 	connection.createData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 3}, "create");
-		done();
 	},logErrorAndStart);
 
-	var done = assert.async();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		assert.deepEqual(data, {destroy: true}, "update");
 		done();
@@ -115,10 +111,8 @@ QUnit.test("parseListData and parseInstanceData don't use options correctly (#27
 	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
 		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
-		done();
 	}, logErrorAndStart);
 
-	var done = assert.async();
 	connection.getData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 2}, "getInstance");
 		done();

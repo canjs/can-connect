@@ -18,8 +18,7 @@ QUnit.module("can-connect/can/ref",{
 });
 
 QUnit.test("basics", function(assert) {
-    var ready1 = assert.async();
-    var ready = assert.async();
+    var done = assert.async();
     var Team = DefineMap.extend({
 		id: 'string'
 	});
@@ -78,7 +77,7 @@ QUnit.test("basics", function(assert) {
 			games[1].teamRef.on("value", function(ev, newVal){
 				assert.ok(newVal instanceof Team);
 				assert.equal(newVal.name, "Bears");
-				ready();
+				done();
 			});
 
 			assert.equal(games[1].teamRef.isResolved(), false);
@@ -86,13 +85,12 @@ QUnit.test("basics", function(assert) {
 		});
 	}, function(error){
 		assert.ok(false, "error");
-		ready1();
+		done();
 	});
 });
 
 QUnit.test("using Ref as type", function(assert) {
-    var ready1 = assert.async();
-    var ready = assert.async();
+    var done = assert.async();
 
     var Team = DefineMap.extend({
 		id: 'string'
@@ -158,7 +156,7 @@ QUnit.test("using Ref as type", function(assert) {
 			games[1].teamRef.on("value", function(ev, newVal){
 				assert.ok(newVal instanceof Team);
 				assert.equal(newVal.name, "Bears");
-				ready();
+				done();
 			});
 
 			assert.equal(games[1].teamRef.isResolved(), false);
@@ -166,7 +164,7 @@ QUnit.test("using Ref as type", function(assert) {
 		});
 	}, function(error){
 		assert.ok(false, "error");
-		ready1();
+		done();
 	});
 });
 
@@ -209,8 +207,7 @@ QUnit.test("Ref can be passed an instance of what it references (#236)", functio
 
 
 QUnit.test("populate Ref that was already created without a value", function(assert) {
-    var ready1 = assert.async();
-    var ready = assert.async();
+    var done = assert.async();
     var Team = DefineMap.extend({
 		id: "string"
 	});
@@ -263,12 +260,12 @@ QUnit.test("populate Ref that was already created without a value", function(ass
 			assert.equal(teamRef.value.name, "Cubs", "Name should be Cubs");
 			assert.equal(teamRef.id, 3, "Id should be the correct one");
 			assert.equal(getDataCallCounter, 0, "Team getData should still NOT be called");
-			ready();
+			done();
 		});
 
 	}, function(error){
 		assert.ok(false, "error");
-		ready1();
+
 	});
 });
 

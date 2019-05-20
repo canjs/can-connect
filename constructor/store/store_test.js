@@ -217,7 +217,7 @@ QUnit.test("list's without a listQuery are not added to the store", function(ass
 	connection.listStore.forEach(function(){
 		assert.ok(false);
 	});
-	QUnit.expect(0);
+	assert.expect(0);
 
 
 });
@@ -319,6 +319,7 @@ QUnit.test("instances bound before create are moved to instance store (#296)", f
 });
 
 QUnit.test("instanceStore adds instance references for list membership.", function(assert) {
+	var done = assert.async();
 	var connection = connect([
 		function(){
 			return {
@@ -350,10 +351,11 @@ QUnit.test("instanceStore adds instance references for list membership.", functi
 				resolve()
 			}, 1);
 		});
-	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
+	}).then(done);
 });
 
 QUnit.test("instanceStore adds/removes instances based on list updates.", function(assert) {
+	var done = assert.async();
 	var connection = connect([
 		function(){
 			var calls = 0;
@@ -392,5 +394,5 @@ QUnit.test("instanceStore adds/removes instances based on list updates.", functi
 				resolve();
 			}, 10);
 		});
-	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
+	}).then(done, done);
 });

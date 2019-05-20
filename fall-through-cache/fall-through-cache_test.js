@@ -44,7 +44,7 @@ QUnit.test("basics", function(assert) {
 					state.next();
 					return testHelpers.asyncReject();
 				} else {
-					state.check("cache-getListData-items");
+					state.check(assert, "cache-getListData-items");
 					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				}
 			},
@@ -56,7 +56,7 @@ QUnit.test("basics", function(assert) {
 					return testHelpers.asyncResolve();
 				} else {
 					assert.deepEqual(data.data,secondItems, "updateListData 2 items are right");
-					state.check("cache-updateListData-2");
+					state.check(assert, "cache-updateListData-2");
 					return testHelpers.asyncResolve();
 				}
 			}
@@ -74,7 +74,7 @@ QUnit.test("basics", function(assert) {
 					state.next();
 					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				} else {
-					state.check("base-getListData-2");
+					state.check(assert, "base-getListData-2");
 					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
 			},
@@ -84,7 +84,7 @@ QUnit.test("basics", function(assert) {
 	var updater = function(){
 		return {
 			updatedList: function(list, updated){
-				state.check("updatedList");
+				state.check(assert, "updatedList");
 				assert.deepEqual( map.call(updated.data, getId), map.call(secondItems, getId) );
 				done();
 			}
@@ -100,15 +100,15 @@ QUnit.test("basics", function(assert) {
 
 	// first time, it takes the whole time
 	connection.getList({}).then(function( list ){
-		state.check("connection-foundAll");
+		state.check(assert, "connection-foundAll");
 		assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
 	function secondCall() {
-		state.check("connection-getList-2");
+		state.check(assert, "connection-getList-2");
 		connection.getList({}).then(function(list){
-			state.check("connection-foundAll-2");
+			state.check(assert, "connection-foundAll-2");
 			assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		}, testHelpers.logErrorAndStart);
 	}
@@ -148,7 +148,7 @@ QUnit.test("getInstance and getData", function(assert) {
 					state.next();
 					return testHelpers.asyncReject();
 				} else {
-					state.check("cache-getData-item");
+					state.check(assert, "cache-getData-item");
 					return testHelpers.asyncResolve(firstData);
 				}
 			},
@@ -160,7 +160,7 @@ QUnit.test("getInstance and getData", function(assert) {
 				} else {
 					//debugger;
 					assert.deepEqual(data,secondData, "updateData 2 items are right");
-					state.check("cache-updateData-2");
+					state.check(assert, "cache-updateData-2");
 					return testHelpers.asyncResolve();
 				}
 			}
@@ -179,7 +179,7 @@ QUnit.test("getInstance and getData", function(assert) {
 					return testHelpers.asyncResolve({id: 0, foo: "bar"});
 				} else {
 					//debugger;
-					state.check("base-getData-2");
+					state.check(assert, "base-getData-2");
 					return testHelpers.asyncResolve({id: 0, foo: "BAR"});
 				}
 			},
@@ -189,7 +189,7 @@ QUnit.test("getInstance and getData", function(assert) {
 	var updater = function(){
 		return {
 			updatedInstance: function(instance, data){
-				state.check("updatedInstance");
+				state.check(assert, "updatedInstance");
 				assert.deepEqual( data,secondData );
 				done();
 			}
@@ -205,15 +205,15 @@ QUnit.test("getInstance and getData", function(assert) {
 
 	// first time, it takes the whole time
 	connection.get({id: 0}).then(function( instance ){
-		state.check("connection-foundOne");
+		state.check(assert, "connection-foundOne");
 		assert.deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
 	}, testHelpers.logErrorAndStart);
 
 	function secondCall() {
-		state.check("connection-getInstance-2");
+		state.check(assert, "connection-getInstance-2");
 		connection.get({id: 0}).then(function(instance){
-			state.check("connection-foundOne-2");
+			state.check(assert, "connection-foundOne-2");
 			assert.deepEqual( instance, {id: 0, foo: "bar"}  );
 		}, testHelpers.logErrorAndStart);
 	}
