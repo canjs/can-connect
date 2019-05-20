@@ -1,6 +1,6 @@
 "use strict";
 module.exports = {
-	makeStateChecker: function(QUnit, names){
+	makeStateChecker: function(assert, names){
 
 		return {
 			check: function(assert, value){

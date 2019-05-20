@@ -92,7 +92,7 @@ QUnit.test("real-time super model", function(assert) {
 	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
 	var secondItems = [ {id: 2, due: "today"}, {id: 3, due: "today"} ];
 
-	var state = testHelpers.makeStateChecker(QUnit, [
+	var state = testHelpers.makeStateChecker(assert, [
 		"getListData-important",
 		"getListData-today",
 		"createData-today+important",

@@ -35,7 +35,7 @@ var cleanUndefineds = function(obj) {
 
 module.exports = function(makeTypes){
 
-    /*QUnit.test("real-time super model", function(assert) {
+    QUnit.test("real-time super model", function(assert) {
 		var types = makeTypes.call(this);
 
 
@@ -46,7 +46,7 @@ module.exports = function(makeTypes){
     	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
     	var secondItems = [ {id: 2, due: "today"}, {id: 3, due: "today"} ];
 
-    	var state = testHelpers.makeStateChecker(QUnit, [
+    	var state = testHelpers.makeStateChecker(assert, [
     		"getListData-important",
     		"getListData-today",
     		"createData-today+important",
@@ -67,7 +67,7 @@ module.exports = function(makeTypes){
     				state.next();
     				return {data: secondItems.slice(0) };
     			} else {
-    				state.check("getListData-today-2");
+    				state.check(assert, "getListData-today-2");
     				return { data: secondItems.slice(1) };
     			}
     		},
@@ -266,6 +266,6 @@ module.exports = function(makeTypes){
     		});
     	}
 
-    });*/
+    });
 
 };
