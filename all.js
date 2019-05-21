@@ -16,6 +16,10 @@ connect.dataUrl = require("./data/url/url");
 connect.fallThroughCache = require("./fall-through-cache/fall-through-cache");
 connect.realTime = require("./real-time/real-time");
 
+connect.canMap = require("./can/map/map");
+connect.canRef = require("./can/ref/ref");
+connect.canMerge = require("./can/merge/merge");
+
 connect.superMap = require("./can/super-map/super-map");
 connect.baseMap = require('./can/base-map/base-map');
 
