@@ -395,3 +395,55 @@ QUnit.asyncTest("instanceStore adds/removes instances based on list updates.", f
 		});
 	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
 });
+
+QUnit.test("list store keeps date types with query", function(){
+	var Person = function(values){
+		assign(this, values);
+	};
+	var connection;
+	var PersonList = function(people, sets){
+		var listed = people.slice(0);
+		listed.isList = true;
+		listed[connection.listQueryProp] = sets;
+		return listed;
+	};
+
+	connection = connect([function(){
+		var calls = 0;
+		return {
+			getListData: function(){
+				// nothing to get, it's just about the list set.
+				return testHelpers.asyncResolve({data: [] });
+			},
+			updatedList: function(list, updatedList, set){
+				list.splice.apply(list, [0, list.length].concat( updatedList.data ) );
+			}
+		};
+	},instanceStore,constructor],{
+		instance: function(values){
+			return new Person(values);
+		},
+		list: function(arr, sets){
+			return new PersonList(arr.data, sets);
+		},
+		queryLogic: new QueryLogic({
+			identity: ["id"],
+			filter: ["date"]
+		})
+	});
+
+	var d = new Date();
+
+	connection.getList({date: d}).then(function(list){
+		// put in store
+		connection.addListReference(list);
+		//var query = list[connection.listQueryProp];
+		var listKey = Object.keys(connection.listStore.set)[0];
+		var listKeyObject = JSON.parse(listKey);
+		QUnit.equal(listKeyObject.date, d.toISOString());
+		start();
+	}, testHelpers.logErrorAndStart);
+
+	stop();
+
+});
