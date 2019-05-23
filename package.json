@@ -4,7 +4,7 @@
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
-    "can-ajax": "^2.0.1",
+    "can-ajax": "^2.4.2",
     "can-construct": "^3.5.5",
     "can-define": "^2.7.13",
     "can-diff": "<2.0.0",
