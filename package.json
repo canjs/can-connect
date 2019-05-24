@@ -15,7 +15,7 @@
     "can-local-store": "<2.0.0",
     "can-log": "^1.0.0",
     "can-make-rest": "<2.0.0",
-    "can-memory-store": "<2.0.0",
+    "can-memory-store": "1.0.2",
     "can-namespace": "1.0.0",
     "can-observation-recorder": "<2.0.0",
     "can-query-logic": "^1.0.0",
