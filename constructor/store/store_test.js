@@ -397,7 +397,9 @@ QUnit.test("instanceStore adds/removes instances based on list updates.", functi
 	}).then(done, done);
 });
 
-QUnit.test("list store keeps date types with query", function(){
+QUnit.test("list store keeps date types with query", function(assert){
+	var done = assert.async();
+
 	var Person = function(values){
 		assign(this, values);
 	};
@@ -441,10 +443,8 @@ QUnit.test("list store keeps date types with query", function(){
 		//var query = list[connection.listQueryProp];
 		var listKey = Object.keys(connection.listStore.set)[0];
 		var listKeyObject = JSON.parse(listKey);
-		QUnit.equal(listKeyObject.date, d.toISOString());
-		start();
+		assert.equal(listKeyObject.date, d.toISOString());
+		done();
 	}, testHelpers.logErrorAndStart);
-
-	stop();
 
 });
