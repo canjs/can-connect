@@ -44,7 +44,7 @@ QUnit.test('createInstance triggers a "created" event', function(assert){
 	});
 });
 
-QUnit.test("different methods should not refer to the same last item", function(){
+QUnit.test("different methods should not refer to the same last item", function(assert) {
 	function Session(data){
 		this.id = data.id;
 		this.email = data.email;
@@ -87,6 +87,6 @@ QUnit.test("different methods should not refer to the same last item", function(
 	Session.connection.destroyedInstance(instance, data);
 	Session.connection.destroyedInstance(instance, data);
 
-	QUnit.equal(createdCalled, 1, "created event should be called once");
-	QUnit.equal(destroyedCalled, 1, "destroyed event should be called once");
+	assert.equal(createdCalled, 1, "created event should be called once");
+	assert.equal(destroyedCalled, 1, "destroyed event should be called once");
 });

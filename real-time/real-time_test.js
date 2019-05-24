@@ -23,17 +23,17 @@ var later = function(fn){
 };
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 constructorStore.requestCleanupDelay = 1;
 
-QUnit.test("basics", function(){
+QUnit.skip("basics", function(assert) {
 	// get two lists
 	// user creates / updates / destroys things
 	// real-time creates / updates / destroys things
-	stop();
+	var done = assert.async();
 
 	var state = testHelpers.makeStateChecker(QUnit, [
 		"getListData-important",
@@ -51,7 +51,7 @@ QUnit.test("basics", function(){
 	var callbackBehavior = function(base){
 		return {
 			createdInstance: function(){
-				state.check("createdInstance-1");
+				state.check(assert, "createdInstance-1");
 				return base.createdInstance.apply(this, arguments);
 			},
 			updatedInstance: function(){
@@ -73,7 +73,7 @@ QUnit.test("basics", function(){
 					state.next();
 					return testHelpers.asyncResolve({data: firstItems.slice(0) });
 				} else {
-					state.check("getListData-today");
+					state.check(assert, "getListData-today");
 					return testHelpers.asyncResolve({data: secondItems.slice(0) });
 				}
 			},
@@ -83,8 +83,8 @@ QUnit.test("basics", function(){
 					// todo change to all props
 					return testHelpers.asyncResolve({id: 10});
 				} else {
-					ok(false, "bad state!");
-					start();
+					assert.ok(false, "bad state!");
+					done();
 				}
 
 
@@ -96,8 +96,8 @@ QUnit.test("basics", function(){
 					// todo change to all props
 					return testHelpers.asyncResolve(assign({},props));
 				} else {
-					ok(false, "bad state!");
-					start();
+					assert.ok(false, "bad state!");
+					done();
 				}
 			},
 			destroyData: function(props){
@@ -150,20 +150,20 @@ QUnit.test("basics", function(){
 	var created;
 	function checkLists() {
 		created = connection.instanceStore.get(10);
-		ok( importantList.indexOf(created) >= 0, "in important");
-		ok( todayList.indexOf( created) >= 0, "in today");
+		assert.ok( importantList.indexOf(created) >= 0, "in important");
+		assert.ok( todayList.indexOf( created) >= 0, "in today");
 		setTimeout(serverSideDuplicateCreate, 1);
 
 	}
 
 	function serverSideDuplicateCreate(){
 		connection.createInstance({id: 10, due: "today", type: "important"}).then(function(createdInstance){
-			equal(createdInstance, created);
+			assert.equal(createdInstance, created);
 
-			ok( importantList.indexOf(created) >= 0, "in important");
-			ok( todayList.indexOf(created) >= 0, "in today");
+			assert.ok( importantList.indexOf(created) >= 0, "in important");
+			assert.ok( todayList.indexOf(created) >= 0, "in today");
 
-			equal(importantList.length, 3, "items stays the same");
+			assert.equal(importantList.length, 3, "items stays the same");
 			setTimeout(update1, 1);
 		});
 	}
@@ -173,8 +173,8 @@ QUnit.test("basics", function(){
 		connection.save(created).then(later(checkLists2), logErrorAndStart);
 	}
 	function checkLists2() {
-		ok( importantList.indexOf(created) >= 0, "still in important");
-		equal( todayList.indexOf(created) , -1, "removed from today");
+		assert.ok( importantList.indexOf(created) >= 0, "still in important");
+		assert.equal( todayList.indexOf(created) , -1, "removed from today");
 		update2();
 	}
 
@@ -184,8 +184,8 @@ QUnit.test("basics", function(){
 		connection.save(created).then(later(checkLists3), logErrorAndStart);
 	}
 	function checkLists3() {
-		equal( importantList.indexOf(created),  -1, "removed from important");
-		ok( todayList.indexOf(created) >= 1, "added to today");
+		assert.equal( importantList.indexOf(created),  -1, "removed from important");
+		assert.ok( todayList.indexOf(created) >= 1, "added to today");
 		serverSideUpdate();
 	}
 
@@ -197,9 +197,9 @@ QUnit.test("basics", function(){
 			createId: 1,
 			id: 10
 		}).then(function(instance){
-			equal(created, instance);
-			ok( importantList.indexOf(created) >= 0, "in important");
-			ok( todayList.indexOf(created) >= 0, "in today");
+			assert.equal(created, instance);
+			assert.ok( importantList.indexOf(created) >= 0, "in important");
+			assert.ok( todayList.indexOf(created) >= 0, "in today");
 			destroyItem();
 		});
 
@@ -214,7 +214,7 @@ QUnit.test("basics", function(){
 	}
 
 	function checkLists4(){
-		equal( importantList.indexOf(firstImportant), -1, "in important");
+		assert.equal( importantList.indexOf(firstImportant), -1, "in important");
 		serverSideDestroy();
 	}
 
@@ -225,16 +225,16 @@ QUnit.test("basics", function(){
 			createId: 1,
 			id: 10
 		}).then(function(instance){
-			equal( importantList.indexOf(created), -1, "still in important");
-			equal( todayList.indexOf(created) , -1, "removed from today");
-			start();
+			assert.equal( importantList.indexOf(created), -1, "still in important");
+			assert.equal( todayList.indexOf(created) , -1, "removed from today");
+			done();
 		});
 
 	}
 
 });
 
-QUnit.test("sorting by id works", function(){
+QUnit.test("sorting by id works", function(assert) {
 	var queryLogic = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"g"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
@@ -251,7 +251,7 @@ QUnit.test("sorting by id works", function(){
 			queryLogic: queryLogic
 	});
 
-	stop();
+	var done = assert.async();
 	var listItems;
 	connection.getList({}).then(function(list){
 		listItems = list;
@@ -268,13 +268,13 @@ QUnit.test("sorting by id works", function(){
 	function checkList(){
 		var itemsCopy = items.slice(0);
 		itemsCopy.splice(1, 0, {id: 2, name: "a"});
-		deepEqual(listItems, itemsCopy);
-		start();
+		assert.deepEqual(listItems, itemsCopy);
+		done();
 	}
 });
 
 
-QUnit.test("sorting by sort clause works with updates", function(){
+QUnit.test("sorting by sort clause works with updates", function(assert) {
 	var queryLogic = new set.Algebra(set.props.id("id"), set.props.sort("sortBy"));
 
 	var items = [{id: 1, name:"d"}, {id: 3, name:"j"}, {id: 4, name:"m"}, {id: 5, name:"s"}];
@@ -291,7 +291,7 @@ QUnit.test("sorting by sort clause works with updates", function(){
 			queryLogic: queryLogic
 	});
 
-	stop();
+	var done = assert.async();
 	var listItems;
 	connection.getList({sortBy: "name"}).then(function(list){
 		listItems = list;
@@ -309,8 +309,8 @@ QUnit.test("sorting by sort clause works with updates", function(){
 		});
 	}
 	function checkList(){
-		deepEqual(listItems, [{id: 1, name:"d"}, {id: 4, name:"m"}, {id: 3, name:"p"}, {id: 5, name:"s"}]);
-		start();
+		assert.deepEqual(listItems, [{id: 1, name:"d"}, {id: 4, name:"m"}, {id: 3, name:"p"}, {id: 5, name:"s"}]);
+		done();
 	}
 });
 
@@ -338,7 +338,7 @@ QUnit.test("destroyInstance calls destroyedInstance", function (assert) {
 
 //!steal-remove-start
 if (canDev) {
-	test("dev mode warning when listQuery queryLogic doesn't match an item", function () {
+	QUnit.test("dev mode warning when listQuery queryLogic doesn't match an item", function(assert) {
 		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d"}, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
@@ -360,19 +360,19 @@ if (canDev) {
 		var oldlog = canDev.warn;
 		canDev.warn = function () {
 			clearTimeout(failSafeTimer);
-			ok(true, 'warns about item not being in list');
+			assert.ok(true, 'warns about item not being in list');
 			canDev.warn = oldlog;
-			start();
+			done();
 		};
 
-		stop();
+		var done = assert.async();
 		var failSafeTimer = setTimeout(function () {
-			notOk(true, 'canDev.warn was never called!');
+			assert.notOk(true, 'canDev.warn was never called!');
 		}, 500);
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }});
 	});
 
-	test("listQuery queryLogic warning includes any `undefined` values", function() {
+	QUnit.test("listQuery queryLogic warning includes any `undefined` values", function(assert) {
 		var queryLogic = new set.Algebra(set.props.id("id"));
 		var items = [{id: 1, name:"d", foo: undefined }, {id: 3, name:"j", foo: {bar: 5678}}];
 		var dataBehavior = function(){
@@ -394,16 +394,16 @@ if (canDev) {
 		var oldlog = canDev.warn;
 		canDev.warn = function (message) {
 			clearTimeout(failSafeTimer);
-			ok(true, 'warns about item not being in list');
-			ok(/"nope": undefined/.test(message), 'undefined value in set');
-			ok(/"foo": undefined/.test(message), 'undefined value in item');
+			assert.ok(true, 'warns about item not being in list');
+			assert.ok(/"nope": undefined/.test(message), 'undefined value in set');
+			assert.ok(/"foo": undefined/.test(message), 'undefined value in item');
 			canDev.warn = oldlog;
-			start();
+			done();
 		};
 
-		stop();
+		var done = assert.async();
 		var failSafeTimer = setTimeout(function () {
-			notOk(true, 'canDev.warn was never called!');
+			assert.notOk(true, 'canDev.warn was never called!');
 		}, 500);
 		connection.getList({ "fooBar": true, foo: { bar: 1234 }, nope: undefined });
 	});
@@ -416,8 +416,9 @@ if (canDev) {
  * to the server, the socket 'created' event is emitted before
  * the AJAX request is done, and finally the AJAX response resolves.
  */
-QUnit.test("handling if createInstance happens before createdData", 4, function (assert) {
-	QUnit.stop();
+QUnit.test("handling if createInstance happens before createdData", function (assert) {
+	assert.expect(4);
+	var done = assert.async();
 	var createdPromiseResolve;
 
 	var dataBehavior = function(){
@@ -449,18 +450,18 @@ QUnit.test("handling if createInstance happens before createdData", 4, function 
 
 	var savePromise = connection.save(data).then(function(dataAgain){
 		connection.addInstanceReference(data);
-		QUnit.equal(data, dataAgain, "same instance in memory .save()")
-		QUnit.equal(data.id, 1, ".save() has the id");
+		assert.equal(data, dataAgain, "same instance in memory .save()")
+		assert.equal(data.id, 1, ".save() has the id");
 	});
 
 	setTimeout(function(){
 		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
-			QUnit.equal(data, instance, ".createInstance() same instance in memory");
-			QUnit.equal(data.id, 1, ".createInstance() has the id");
+			assert.equal(data, instance, ".createInstance() same instance in memory");
+			assert.equal(data.id, 1, ".createInstance() has the id");
 		}).then(function(){
 			return savePromise;
 		}).then(function(){
-			QUnit.start();
+			done();
 		});
 
 		createdPromiseResolve({name: "Ryan", id: 1});
@@ -473,8 +474,9 @@ QUnit.test("handling if createInstance happens before createdData", 4, function 
  * The createData method will swallow any failures before adding
  * the promise onto the promise stack used by createInstance.
  */
-QUnit.test("createInstance doesn't fail if createData fails", 3, function (assert) {
-	QUnit.stop();
+QUnit.test("createInstance doesn't fail if createData fails", function (assert) {
+	assert.expect(3);
+	var done = assert.async();
 	var createdPromiseReject;
 
 	var dataBehavior = function(){
@@ -505,20 +507,20 @@ QUnit.test("createInstance doesn't fail if createData fails", 3, function (asser
 	var data = {name: "Ryan"};
 
 	var savePromise = connection.save(data).then(function(dataAgain){
-		QUnit.notOk(true, "save() should not have succeeded");
+		assert.notOk(true, "save() should not have succeeded");
 	}).catch(function(){
-		QUnit.ok(true, "save() caused an error.");
+		assert.ok(true, "save() caused an error.");
 		return '';
 	});
 
 	setTimeout(function(){
 		connection.createInstance({name: "Ryan", id: 1}).then(function(instance){
-			QUnit.notEqual(data, instance, ".createInstance() should create a new instance b/c save() failed");
-			QUnit.ok(!data.id, 'data should not have an id');
+			assert.notEqual(data, instance, ".createInstance() should create a new instance b/c save() failed");
+			assert.ok(!data.id, 'data should not have an id');
 		}).then(function(){
 			return savePromise;
 		}).then(function(){
-			QUnit.start();
+			done();
 		});
 
 		createdPromiseReject('Simulated AJAX error');

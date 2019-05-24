@@ -7,8 +7,8 @@ var assign = require("can-reflect").assignMap;
 var QueryLogic = require("can-query-logic");
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 var makeIframe = function(src){
@@ -16,7 +16,7 @@ var makeIframe = function(src){
 	window.removeMyself = function(){
 		delete window.removeMyself;
 		document.body.removeChild(iframe);
-		QUnit.start();
+		done();
 	};
 	document.body.appendChild(iframe);
 	iframe.src = src;
@@ -25,7 +25,7 @@ var makeIframe = function(src){
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor",{
-	setup: function(){
+	beforeEach: function(assert) {
 		fixture({
 			"GET /constructor/people": function(){
 				return [{id: 1}];
@@ -37,11 +37,11 @@ QUnit.module("can-connect/constructor",{
 				return {id: 3};
 			},
 			"PUT /constructor/people/{id}": function(request){
-				equal(request.data.id, 3, "update id!");
+				assert.equal(request.data.id, 3, "update id!");
 				return {update: true};
 			},
 			"DELETE /constructor/people/{id}": function(request){
-				equal(request.data.id, 3, "update id");
+				assert.equal(request.data.id, 3, "update id");
 				return {destroy: true};
 			}
 		});
@@ -49,7 +49,7 @@ QUnit.module("can-connect/constructor",{
 	}
 });
 
-QUnit.test("basics", function(){
+QUnit.test("basics", function(assert) {
 
 	var Person = function(values){
 		assign(this, values);
@@ -73,43 +73,39 @@ QUnit.test("basics", function(){
 		})
 	}) ));
 
-	stop();
+	var done = assert.async();
 	peopleConnection.getList().then(function(people){
-		ok(people.isList, "is a list");
-		equal(people.length, 1, "got a list");
-		ok(people[0] instanceof Person);
-		start();
+		assert.ok(people.isList, "is a list");
+		assert.equal(people.length, 1, "got a list");
+		assert.ok(people[0] instanceof Person);
 	}, logErrorAndStart); //-> instances
 
-	stop();
+	
 	peopleConnection.get({id: 5}).then(function(person){
-		equal(person.id, 5, "got a list");
-		ok(person instanceof Person);
-		start();
+		assert.equal(person.id, 5, "got a list");
+		assert.ok(person instanceof Person);
 	}, logErrorAndStart);
 
 	var p = new Person({name: "justin"});
-	stop();
+	
 	peopleConnection.save(p).then(function(updatedP){
-		equal(p, updatedP, "same instances");
-		equal(p.id, 3);
-		start();
+		assert.equal(p, updatedP, "same instances");
+		assert.equal(p.id, 3);
 	});
 
 	var p2 = new Person({name: "justin", id: 3});
-	stop();
+	
 	peopleConnection.save(p2).then(function(updatedP){
-		equal(p2, updatedP, "same instances");
-		equal(p2.update, true);
-		start();
+		assert.equal(p2, updatedP, "same instances");
+		assert.equal(p2.update, true);
 	}, logErrorAndStart);
 
 	var p3 = new Person({name: "justin", id: 3});
-	stop();
+	
 	peopleConnection.destroy(p3).then(function(updatedP){
-		equal(p3, updatedP, "same instances");
-		equal(p3.destroy, true);
-		start();
+		assert.equal(p3, updatedP, "same instances");
+		assert.equal(p3.destroy, true);
 	}, logErrorAndStart);
+	done();
 
 });

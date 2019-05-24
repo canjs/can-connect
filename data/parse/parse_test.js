@@ -5,13 +5,13 @@ var dataUrl = require("../../data/url/url"),
 	dataParse = require("../../data/parse/parse");
 
 QUnit.module("can-connect/data-parse",{
-	setup: function(){
+	beforeEach: function(assert) {
 		fixture.delay = 1;
 	}
 });
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 QUnit.test("basics", function(assert){
@@ -39,42 +39,38 @@ QUnit.test("basics", function(assert){
 			return {datas: {id: 3}};
 		},
 		"GET /update/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {datas: {update: true}};
 		},
 		"GET /delete/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {datas: {destroy: true}};
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, {data: [{id: 1}]}, "getList");
-		start();
+		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
 	}, logErrorAndStart);
 
-	stop();
+
 	connection.getData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 2}, "getInstance");
-		start();
+		assert.deepEqual(data, {id: 2}, "getInstance");
 	},logErrorAndStart);
 
-	stop();
+
 	connection.createData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 3}, "create");
-		start();
+		assert.deepEqual(data, {id: 3}, "create");
 	},logErrorAndStart);
 
-	stop();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
-		deepEqual(data, {destroy: true}, "update");
-		start();
+		assert.deepEqual(data, {destroy: true}, "update");
+		done();
 	},logErrorAndStart);
 
 });
 
-test("parseListData and parseInstanceData don't use options correctly (#27)", function(){
+QUnit.test("parseListData and parseInstanceData don't use options correctly (#27)", function(assert) {
 
 	var connection = connect([dataUrl,dataParse],{
 		url: {
@@ -103,25 +99,23 @@ test("parseListData and parseInstanceData don't use options correctly (#27)", fu
 			return {datas: {id: 3}};
 		},
 		"GET /update/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {datas: {update: true}};
 		},
 		"GET /delete/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {datas: {destroy: true}};
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, {data: [{id: 1}]}, "getList");
-		start();
+		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
 	}, logErrorAndStart);
 
-	stop();
 	connection.getData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 2}, "getInstance");
-		start();
+		assert.deepEqual(data, {id: 2}, "getInstance");
+		done();
 	},logErrorAndStart);
 
 });

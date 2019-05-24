@@ -4,15 +4,15 @@ var connect = require("../../can-connect");
 var canSet = require("can-set-legacy");
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
 
 QUnit.module("can-connect/data-memory-cache",{
-	setup: function(){
+	beforeEach: function(assert) {
 		this.connection = connect([memoryCache],{
 			queryLogic: new canSet.Algebra()
 		});
@@ -20,25 +20,25 @@ QUnit.module("can-connect/data-memory-cache",{
 	}
 });
 
-QUnit.test("updateListData", function(){
+QUnit.test("updateListData", function(assert) {
 	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 
 	var connection = this.connection;
 
-	stop();
+	var done = assert.async();
 	connection.getListData({foo: "bar"})
 		.then(function(){
-			ok(false, "should have rejected, nothing there");
-			start();
+			assert.ok(false, "should have rejected, nothing there");
+			done();
 		}, function(){
 			connection.updateListData({ data: items.slice(0) }, {foo: "bar"})
 				.then(function(){
 
 					connection.getListData({foo: "bar"}).then(function(listData){
 
-						deepEqual(listData.data, items);
+						assert.deepEqual(listData.data, items);
 
-						start();
+						done();
 
 					},logErrorAndStart);
 
@@ -50,11 +50,11 @@ QUnit.test("updateListData", function(){
 
 
 
-QUnit.test("updateData", function(){
+QUnit.test("updateData", function(assert) {
 
 	var connection = this.connection;
 
-	stop();
+	var done = assert.async();
 
 
 	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
@@ -68,7 +68,7 @@ QUnit.test("updateData", function(){
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
+			assert.deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
 
 			updateItem2();
 
@@ -80,7 +80,7 @@ QUnit.test("updateData", function(){
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items,"item 4 no longer in foo");
+			assert.deepEqual(listData.data, items,"item 4 no longer in foo");
 
 			checkItems3();
 
@@ -89,19 +89,19 @@ QUnit.test("updateData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, [{id: 4, name:"A"}].concat(aItems), "id 4 should now have name A");
+			assert.deepEqual(listData.data, [{id: 4, name:"A"}].concat(aItems), "id 4 should now have name A");
 
-			start();
+			done();
 
 		},logErrorAndStart);
 	}
 });
 
-QUnit.test("createData", function(){
+QUnit.test("createData", function(assert) {
 
 	var connection = this.connection;
 
-	stop();
+	var done = assert.async();
 
 
 	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
@@ -115,7 +115,7 @@ QUnit.test("createData", function(){
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
+			assert.deepEqual(listData.data, items.concat({id: 4, foo:"bar"}), "updateData added item 4");
 
 			createItem2();
 
@@ -127,7 +127,7 @@ QUnit.test("createData", function(){
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.concat({id: 4, foo:"bar"}),"item 4 sill in foo");
+			assert.deepEqual(listData.data, items.concat({id: 4, foo:"bar"}),"item 4 sill in foo");
 
 			checkItems3();
 
@@ -136,19 +136,19 @@ QUnit.test("createData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, [{id: 5, name:"A"}].concat(aItems));
+			assert.deepEqual(listData.data, [{id: 5, name:"A"}].concat(aItems));
 
-			start();
+			done();
 
 		},logErrorAndStart);
 	}
 });
 
-QUnit.test("destroyData", function(){
+QUnit.test("destroyData", function(assert) {
 
 	var connection = this.connection;
 
-	stop();
+	var done = assert.async();
 
 
 	var a1 = connection.updateListData({ data: items.slice(0) }, {foo: "bar"});
@@ -162,7 +162,7 @@ QUnit.test("destroyData", function(){
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.slice(1), "updateData removed 1st item");
+			assert.deepEqual(listData.data, items.slice(1), "updateData removed 1st item");
 
 			destroyItem2();
 
@@ -174,7 +174,7 @@ QUnit.test("destroyData", function(){
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
 
-			deepEqual(listData.data, items.slice(1),"item 4 sill in foo");
+			assert.deepEqual(listData.data, items.slice(1),"item 4 sill in foo");
 
 			checkItems3();
 
@@ -183,24 +183,24 @@ QUnit.test("destroyData", function(){
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
 
-			deepEqual(listData.data, aItems.slice(1) );
+			assert.deepEqual(listData.data, aItems.slice(1) );
 
-			start();
+			done();
 
 		},logErrorAndStart);
 	}
 });
 
-QUnit.test("getData can pull from updateListData", function(){
+QUnit.test("getData can pull from updateListData", function(assert) {
 	var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 
 	var connection = this.connection;
 
-	stop();
+	var done = assert.async();
 	connection.getData({id: 1})
 		.then(function(){
-			ok(false, "should have rejected, nothing there");
-			start();
+			assert.ok(false, "should have rejected, nothing there");
+			done();
 		}, updateListData);
 
 	function updateListData(){
@@ -208,7 +208,7 @@ QUnit.test("getData can pull from updateListData", function(){
 			.then(function(){
 				connection.getData({id: 1}).then(function(instanceData){
 
-					deepEqual(instanceData, items[0]);
+					assert.deepEqual(instanceData, items[0]);
 
 					updateData();
 
@@ -222,7 +222,7 @@ QUnit.test("getData can pull from updateListData", function(){
 
 			connection.getData({id: 1}).then(function(instanceData){
 
-				deepEqual(instanceData, {id: 1, foo:"BAR"});
+				assert.deepEqual(instanceData, {id: 1, foo:"BAR"});
 
 				setTimeout(destroyData, 1);
 
@@ -235,8 +235,8 @@ QUnit.test("getData can pull from updateListData", function(){
 		connection.destroyData({id: 1, foo:"BAR"}).then(function(){
 
 			connection.getData({id: 1}).then(logErrorAndStart,function(){
-				ok(true, "nothing there!");
-				start();
+				assert.ok(true, "nothing there!");
+				done();
 			});
 
 		}, logErrorAndStart);
@@ -244,10 +244,10 @@ QUnit.test("getData can pull from updateListData", function(){
 
 });
 
-QUnit.test("respect sort order (#80)", function(){
+QUnit.test("respect sort order (#80)", function(assert) {
 	var items = [{id: 1, name:"zed"},{id: 2, name:"bar"},{id: 3, name:"foo"}];
 
-	stop();
+	var done = assert.async();
 
 	var connection = connect([memoryCache],{
 		queryLogic: new canSet.Algebra(canSet.props.sort("sortBy"))
@@ -258,17 +258,17 @@ QUnit.test("respect sort order (#80)", function(){
 
 		return connection.getListData({sortBy: "name"});
 	}).then(function(res){
-		QUnit.deepEqual( res.data,
+		assert.deepEqual( res.data,
 			[{id: 2, name:"bar"},{id: 3, name:"foo"},{id: 1, name:"zed"}] );
-		QUnit.start();
+		done();
 	});
 
 });
 
-QUnit.test("non numeric ids (#79)", function(){
+QUnit.test("non numeric ids (#79)", function(assert) {
 	var items = [{id: "a", name:"zed"},{id: "b", name:"bar"},{id: "c", name:"foo"}];
 
-	stop();
+	var done = assert.async();
 
 	var connection = connect([memoryCache],{
 		queryLogic: new canSet.Algebra()
@@ -281,24 +281,25 @@ QUnit.test("non numeric ids (#79)", function(){
 	}).then(function(){
 		return connection.getListData({});
 	}).then(function(res){
-		QUnit.deepEqual( res.data,
+		assert.deepEqual( res.data,
 			[{id: "a", name:"zed"},{id: "c", name:"foo"}] );
-		QUnit.start();
+		done();
 	});
 
 });
 
-QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
-	var todosAlgebra = new canSet.Algebra(
+QUnit.test("pagination loses the bigger set (#126)", function(assert) {
+    var done = assert.async();
+    var todosAlgebra = new canSet.Algebra(
 		canSet.props.offsetLimit("offset","limit")
 	);
 
-	var connection = connect([memoryCache],{
+    var connection = connect([memoryCache],{
 		name: "todos",
 		queryLogic: todosAlgebra
 	});
 
-	connection.updateListData(
+    connection.updateListData(
 		{ data: [{id: 0},{id: 1}] },
 		{ offset: 0, limit: 2}).then(function(){
 
@@ -307,42 +308,39 @@ QUnit.asyncTest("pagination loses the bigger set (#126)", function(){
 			{ offset: 2, limit: 2});
 	}).then(function(){
 		connection.getListData({ offset: 0, limit: 2}).then(function(listData){
-			QUnit.deepEqual(listData, { data: [{id: 0},{id: 1}], count: 4 });
-			QUnit.start();
+			assert.deepEqual(listData, { data: [{id: 0},{id: 1}], count: 4 });
+			done();
 		}, function(){
-			QUnit.ok(false, "no data");
-			QUnit.start();
+			assert.ok(false, "no data");
+			done();
 		});
 	}).catch(function(e){
-		QUnit.ok(false, "something broke");
-		QUnit.start();
+		assert.ok(false, "something broke");
+		done();
 	});
-
-
 });
 
-QUnit.asyncTest("pagination loses the bigger set (#128)", function(){
-	var todosAlgebra = new canSet.Algebra(
+QUnit.test("pagination loses the bigger set (#128)", function(assert) {
+    var done = assert.async();
+    var todosAlgebra = new canSet.Algebra(
 		canSet.props.offsetLimit("offset","limit")
 	);
 
-	var connection = connect([memoryCache],{
+    var connection = connect([memoryCache],{
 		name: "todos",
 		queryLogic: todosAlgebra
 	});
 
-	connection.updateListData(
+    connection.updateListData(
 		{ data: [{id: 0},{id: 1},{id: 2},{id: 3}] },
 		{}).then(function(){
 
 		return connection.getListData({ offset: 1, limit: 2});
 	}).then(function(listData){
-		QUnit.deepEqual(listData, { data: [{id: 1},{id: 2}], count: 4 });
-		QUnit.start();
+		assert.deepEqual(listData, { data: [{id: 1},{id: 2}], count: 4 });
+		done();
 	}).catch(function(e){
-		QUnit.ok(false, "something broke");
-		QUnit.start();
+		assert.ok(false, "something broke");
+		done();
 	});
-
-
 });

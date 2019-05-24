@@ -6,7 +6,7 @@ var set = require("can-set-legacy");
 var QueryLogic = require("can-query-logic");
 
 QUnit.module("can-connect/data/url",{
-	setup: function(){
+	beforeEach: function(assert) {
 		fixture.delay = 1;
 	}
 });
@@ -34,42 +34,37 @@ QUnit.test("basics", function(assert){
 			return {id: 3};
 		},
 		"GET /update/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {update: true};
 		},
 		"GET /delete/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {destroy: true};
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
-		deepEqual(items, [{id: 1}], "getList");
-		start();
+		assert.deepEqual(items, [{id: 1}], "getList");
 	});
 
-	stop();
+
 	connection.getData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 2}, "getInstance");
-		start();
+		assert.deepEqual(data, {id: 2}, "getInstance");
 	});
 
-	stop();
 	connection.createData({foo: "bar"}).then(function(data){
-		deepEqual(data, {id: 3}, "create");
-		start();
+		assert.deepEqual(data, {id: 3}, "create");
 	});
 
-	stop();
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
-		deepEqual(data, {destroy: true}, "update");
-		start();
+		assert.deepEqual(data, {destroy: true}, "update");
+		done();
 	});
 
 });
 
-QUnit.test('idProp is not part of the parameters', function() {
+QUnit.test('idProp is not part of the parameters', function(assert) {
 	var connection = persist({
 		queryLogic: new QueryLogic({
 			identity: ["id"]
@@ -79,20 +74,20 @@ QUnit.test('idProp is not part of the parameters', function() {
 
 	fixture({
 		"GET api/todos/2": function (req) {
-			ok(!req.data.id);
-			deepEqual(req.data, {other: 'prop'});
+			assert.ok(!req.data.id);
+			assert.deepEqual(req.data, {other: 'prop'});
 			return [{id: 1}];
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({id: 2, other: 'prop'}).then(function() {
-		start();
+		done();
 	});
 
 });
 
-QUnit.test("destroyData()", function(){
+QUnit.test("destroyData()", function(assert) {
 	var connection = persist({
 		url: "/api/todos",
 		queryLogic: new QueryLogic({
@@ -101,17 +96,17 @@ QUnit.test("destroyData()", function(){
 	});
 
 	fixture("DELETE /api/todos/3", function(req) {
-		notEqual(req.data.other, "prop", "don't include it");
+		assert.notEqual(req.data.other, "prop", "don't include it");
 		return {};
 	});
 
-	stop();
+	var done = assert.async();
 	connection.destroyData({ id: 3, other: "prop" }).then(function(){
-		start();
+		done();
 	});
 });
 
-QUnit.test("Ajax requests should default to 'application/json' (#134)", function() {
+QUnit.test("Ajax requests should default to 'application/json' (#134)", function(assert) {
 	var connection = persist({
 		url: "/api/restaurants",
 		queryLogic: new QueryLogic({
@@ -122,21 +117,21 @@ QUnit.test("Ajax requests should default to 'application/json' (#134)", function
 	fixture({
 		"POST /api/restaurants": function(request) {
 			if (typeof request.data === "object") {
-				ok(true);
+				assert.ok(true);
 			} else {
-				ok(false);
+				assert.ok(false);
 			}
 			return request.data;
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.createData({foo: "bar"}).then(function() {
-		start();
+		done();
 	});
 });
 
-QUnit.test("contentType can be form-urlencoded (#134)", function() {
+QUnit.test("contentType can be form-urlencoded (#134)", function(assert) {
 	var connection = persist({
 		url: {
 			createData: "POST /api/restaurants",
@@ -150,21 +145,21 @@ QUnit.test("contentType can be form-urlencoded (#134)", function() {
 	fixture({
 		"POST /api/restaurants": function(request) {
 			if (typeof request.data === "object") {
-				ok(true);
+				assert.ok(true);
 			} else {
-				ok(false);
+				assert.ok(false);
 			}
 			return request.data;
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.createData({foo: "bar"}).then(function() {
-		start();
+		done();
 	});
 });
 
-QUnit.test("contentType defaults to form-urlencoded for GET", function() {
+QUnit.test("contentType defaults to form-urlencoded for GET", function(assert) {
 	var connection = persist({
 		url: {
 			getData: "GET /api/restaurants"
@@ -176,18 +171,18 @@ QUnit.test("contentType defaults to form-urlencoded for GET", function() {
 
 	fixture({
 		"GET /api/restaurants": function(request){
-			equal(request.headers["Content-Type"], "application/x-www-form-urlencoded");
+			assert.equal(request.headers["Content-Type"], "application/x-www-form-urlencoded");
 			return request.data;
 		}
 	});
 
-	stop();
+	var done = assert.async();
 	connection.getData({foo:"bar"}).then(function() {
-		start();
+		done();
 	});
 });
 
-QUnit.test("getting a real Promise back with functions", function() {
+QUnit.test("getting a real Promise back with functions", function(assert) {
 	var connection = persist({
 		url: {
 			getListData: function() {
@@ -211,15 +206,15 @@ QUnit.test("getting a real Promise back with functions", function() {
 		}
 	});
 
-	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
-	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+	assert.ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	assert.ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
 
-	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
-	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+	assert.ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	assert.ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
 
 });
 
-QUnit.test("getting a real Promise back with object using makeAjax", function() {
+QUnit.test("getting a real Promise back with object using makeAjax", function(assert) {
 	var connection = persist({
 		url: {
 			getListData: {
@@ -244,11 +239,11 @@ QUnit.test("getting a real Promise back with object using makeAjax", function() 
 		}
 	});
 
-	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
-	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+	assert.ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	assert.ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
 
-	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
-	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+	assert.ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	assert.ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
 
 });
 
@@ -281,7 +276,7 @@ QUnit.test('URL parameters should be encoded', function (assert) {
 		});
 });
 
-QUnit.test("getting a real Promise back with objects using makeAjax setting this.ajax", function() {
+QUnit.test("getting a real Promise back with objects using makeAjax setting this.ajax", function(assert) {
 	var connection = persist({
 		url: {
 			getListData: {
@@ -308,32 +303,33 @@ QUnit.test("getting a real Promise back with objects using makeAjax setting this
 		}
 	});
 
-	ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
-	ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
+	assert.ok(connection.getListData({foo: "bar"}).catch, 'getListData Promise has a catch method');
+	assert.ok(!connection.getListData({foo: "bar"}).fail, 'getListData Promise does not have a fail method');
 
-	ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
-	ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
+	assert.ok(connection.getData({foo: "bar", id: 2}).catch, 'getData Promise has a catch method');
+	assert.ok(!connection.getData({foo: "bar", id: 2}).fail, 'getData Promise does not have a fail method');
 
 });
 
-QUnit.asyncTest("fixture stores work with data (#298)", function(){
+QUnit.test("fixture stores work with data (#298)", function(assert) {
+    var ready = assert.async();
 
-	var basicAlgebra = new set.Algebra();
+    var basicAlgebra = new set.Algebra();
 
-	var todoStore = fixture.store([{
+    var todoStore = fixture.store([{
 		id: "1",
 		name: "todo 1"
 	}], basicAlgebra);
 
-	fixture("/v1/places/todos/{id}", todoStore);
+    fixture("/v1/places/todos/{id}", todoStore);
 
-	var connection = persist({
+    var connection = persist({
 		url: "/v1/places/todos/{id}",
 		queryLogic: basicAlgebra
 	});
 
-	connection.getData({id: 1}).then(function(todo){
-		QUnit.equal(todo.name, "todo 1", "got one item");
+    connection.getData({id: 1}).then(function(todo){
+		assert.equal(todo.name, "todo 1", "got one item");
 	}).then(function(){
 
 		var queryLogic = new set.Algebra(
@@ -353,8 +349,8 @@ QUnit.asyncTest("fixture stores work with data (#298)", function(){
 		});
 
 		connection.getData({_todoId: "1"}).then(function(todo){
-			QUnit.equal(todo.name, "todo 1");
-			QUnit.start();
+			assert.equal(todo.name, "todo 1");
+			ready();
 		}, function(error){
 			debugger;
 		});

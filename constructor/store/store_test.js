@@ -14,13 +14,13 @@ instanceStore.requestCleanupDelay = 1;
 // connects the "raw" data to a a constructor function
 // creates ways to CRUD the instances
 QUnit.module("can-connect/constructor/store",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 	}
 });
 
 
-QUnit.test("instance reference is updated and then discarded after reference is deleted", function(){
+QUnit.test("instance reference is updated and then discarded after reference is deleted", function(assert) {
 	fixture({
 		"GET /constructor/people": function(){
 			return [{id: 1, age: 32}];
@@ -32,11 +32,11 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 			return {id: 3};
 		},
 		"PUT /constructor/people/{id}": function(request){
-			equal(request.data.id, 3, "update id!");
+			assert.equal(request.data.id, 3, "update id!");
 			return {update: true};
 		},
 		"DELETE /constructor/people/{id}": function(request){
-			equal(request.data.id, 3, "update id");
+			assert.equal(request.data.id, 3, "update id");
 			return {destroy: true};
 		}
 	});
@@ -76,28 +76,28 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 
 	peopleConnection.addInstanceReference(person);
 
-	stop();
+	var done = assert.async();
 	peopleConnection.getList({}).then(function(people){
-		equal(people[0], person, "same instances");
+		assert.equal(people[0], person, "same instances");
 
-		equal(person.age, 32, "age property added");
+		assert.equal(person.age, 32, "age property added");
 
 		// allows the request to finish
 		setTimeout(function(){
 			peopleConnection.deleteInstanceReference(person);
 
 			peopleConnection.getList({}).then(function(people){
-				ok(people[0] !== person, "not the same instances");
-				equal(people[0].age, 32, "age property from data");
-				ok(!people[0].name, "does not have name");
-				start();
+				assert.ok(people[0] !== person, "not the same instances");
+				assert.equal(people[0].age, 32, "age property from data");
+				assert.ok(!people[0].name, "does not have name");
+				done();
 			}, testHelpers.logErrorAndStart);
 		},1);
 	}, testHelpers.logErrorAndStart);
 
 });
 
-QUnit.test("list store is kept and re-used and possibly discarded", function(){
+QUnit.test("list store is kept and re-used and possibly discarded", function(assert) {
 	var Person = function(values){
 		assign(this, values);
 	};
@@ -147,14 +147,14 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 		setTimeout(checkStore,1);
 	}, testHelpers.logErrorAndStart);
 
-	stop();
+	var done = assert.async();
 
 	function checkStore(){
 		connection.getList({}).then(function(list){
-			equal(list, resolvedList);
-			equal(list.length, 2);
-			equal(list[0].id, 1);
-			equal(list[1].id, 2);
+			assert.equal(list, resolvedList);
+			assert.equal(list.length, 2);
+			assert.equal(list[0].id, 1);
+			assert.equal(list[1].id, 2);
 			connection.deleteListReference(list);
 			setTimeout(checkEmpty,1);
 		}, testHelpers.logErrorAndStart);
@@ -163,15 +163,15 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(){
 	function checkEmpty() {
 		connection.getList({}).then(function(list){
 
-			ok(list !== resolvedList);
-			start();
+			assert.ok(list !== resolvedList);
+			done();
 		}, testHelpers.logErrorAndStart);
 
 	}
 
 });
 
-QUnit.test("list's without a listQuery are not added to the store", function(){
+QUnit.test("list's without a listQuery are not added to the store", function(assert) {
 	var Person = function(values){
 		assign(this, values);
 	},
@@ -215,14 +215,14 @@ QUnit.test("list's without a listQuery are not added to the store", function(){
 
 	connection.addListReference([]);
 	connection.listStore.forEach(function(){
-		ok(false);
+		assert.ok(false);
 	});
-	QUnit.expect(0);
+	assert.expect(0);
 
 
 });
 
-QUnit.test("pending requests should be shared by all connections (#115)", function(){
+QUnit.test("pending requests should be shared by all connections (#115)", function(assert) {
 	var Address = function(values){
 		assign(this, values);
 	};
@@ -274,18 +274,19 @@ QUnit.test("pending requests should be shared by all connections (#115)", functi
 		})
 	});
 
-	QUnit.stop();
+	var done = assert.async();
 	peopleConnection.getList({}).then(function(people){
-		QUnit.ok(people[0].address === people[1].address);
-		QUnit.start();
+		assert.ok(people[0].address === people[1].address);
+		done();
 	});
 
 });
 
 
-QUnit.asyncTest("instances bound before create are moved to instance store (#296)", function(){
+QUnit.test("instances bound before create are moved to instance store (#296)", function(assert) {
+    var ready = assert.async();
 
-	var connection = connect([
+    var connection = connect([
 		function(){
 			var calls = 0;
 			return {
@@ -305,21 +306,20 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 			})
 		});
 
-	var todo = {name: "test store"};
-	connection.addInstanceReference(todo);
+    var todo = {name: "test store"};
+    connection.addInstanceReference(todo);
 
-	connection.save(todo).then(function(savedTodo){
+    connection.save(todo).then(function(savedTodo){
 
 		connection.get({id: savedTodo.id}).then(function(t){
-			QUnit.ok(t === todo, "instances the same");
-			QUnit.start();
+			assert.ok(t === todo, "instances the same");
+			ready();
 		});
 	});
-
-
 });
 
-QUnit.asyncTest("instanceStore adds instance references for list membership.", function() {
+QUnit.test("instanceStore adds instance references for list membership.", function(assert) {
+	var done = assert.async();
 	var connection = connect([
 		function(){
 			return {
@@ -338,23 +338,24 @@ QUnit.asyncTest("instanceStore adds instance references for list membership.", f
 
 	connection.getList({}).then(function(list) {
 		var instanceRef = connection.instanceStore.get("abc");
-		QUnit.ok(instanceRef, "instance reference exists in store");
-		QUnit.equal(connection.instanceStore.referenceCount("abc"), 2, "reference count reflects that instance is being loaded");
+		assert.ok(instanceRef, "instance reference exists in store");
+		assert.equal(connection.instanceStore.referenceCount("abc"), 2, "reference count reflects that instance is being loaded");
 		connection.addListReference(list);
-		QUnit.equal(connection.instanceStore.referenceCount("abc"), 3, "reference count reflects that instance is in reffed list");
+		assert.equal(connection.instanceStore.referenceCount("abc"), 3, "reference count reflects that instance is in reffed list");
 
 		return new Promise(function(resolve) {
 			setTimeout(function() {
-				QUnit.equal(connection.instanceStore.referenceCount("abc"), 1, "finished requests reduce instance counts to 1");
+				assert.equal(connection.instanceStore.referenceCount("abc"), 1, "finished requests reduce instance counts to 1");
 				connection.deleteListReference(list);
-				QUnit.ok(!connection.instanceStore.has("abc"), "instance removed from store after last list ref removed");
+				assert.ok(!connection.instanceStore.has("abc"), "instance removed from store after last list ref removed");
 				resolve()
 			}, 1);
 		});
-	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
+	}).then(done);
 });
 
-QUnit.asyncTest("instanceStore adds/removes instances based on list updates.", function() {
+QUnit.test("instanceStore adds/removes instances based on list updates.", function(assert) {
+	var done = assert.async();
 	var connection = connect([
 		function(){
 			var calls = 0;
@@ -381,19 +382,19 @@ QUnit.asyncTest("instanceStore adds/removes instances based on list updates.", f
 		connection.addListReference(list);
 		return new Promise(function(resolve) {
 			setTimeout(function() {
-				QUnit.ok(connection.instanceStore.get("abc"), "first item is in instance store");
+				assert.ok(connection.instanceStore.get("abc"), "first item is in instance store");
 				resolve(connection.getList({}));
 			}, 1);
 		});
 	}).then(function(list) {
 		return new Promise(function(resolve) {
 			setTimeout(function() {
-				QUnit.ok(!connection.instanceStore.get("abc"), "first item is not in instance store");
-				QUnit.ok(connection.instanceStore.get("def"), "second item is in instance store");
+				assert.ok(!connection.instanceStore.get("abc"), "first item is not in instance store");
+				assert.ok(connection.instanceStore.get("def"), "second item is in instance store");
 				resolve();
 			}, 10);
 		});
-	}).then(QUnit.start.bind(QUnit, null), QUnit.start.bind(QUnit, null));
+	}).then(done, done);
 });
 
 QUnit.test("list store keeps date types with query", function(){

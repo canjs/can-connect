@@ -3,13 +3,13 @@ var serviceWorkerCache = require("./service-worker");
 var connect = require("../can-connect");
 
 var logErrorAndStart = function(e){
-	ok(false,"Error "+e);
-	start();
+	assert.ok(false,"Error "+e);
+	done();
 };
 
 if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 	QUnit.module("can-connect/service-worker",{
-		setup: function(){
+		beforeEach: function(assert) {
 			this.connection = connect([serviceWorkerCache],{
 				name: "todos",
 				workerURL: System.stealURL + "?main=can-connect/service-worker/service-worker-main_test"
@@ -17,14 +17,14 @@ if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 		}
 	});
 
-	QUnit.test("updateListData", function(){
+	QUnit.test("updateListData", function(assert) {
 		var connection = this.connection;
 
-		stop();
+		var done = assert.async();
 		connection.getListData({foo: "bar"})
 			.then(function(listData){
-				deepEqual(listData, {data: [{id: 1}, {id: 2}]}, "got back data");
-				start();
+				assert.deepEqual(listData, {data: [{id: 1}, {id: 2}]}, "got back data");
+				done();
 			}, logErrorAndStart);
 
 	});

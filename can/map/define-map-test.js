@@ -45,7 +45,7 @@ var cleanUndefineds = function(obj) {
 };
 
 QUnit.module("can-connect/can/map/map with define",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 		var Todo = Map.extend("Todo",{
 			id: "*",
@@ -99,7 +99,7 @@ require("./test-real-time-super-model")(function(){
 	return {Todo: this.Todo, TodoList: this.TodoList};
 });
 
-test("listQuery works", function(){
+QUnit.test("listQuery works", function(assert) {
 	fixture({
 		"GET /services/todos": function(){
 			return {data: []};
@@ -109,24 +109,24 @@ test("listQuery works", function(){
 	var Todo = this.Todo;
 	var TodoList = this.TodoList;
 	var todoConnection = this.todoConnection;
-	stop();
+	var done = assert.async();
 
 	Promise.all([
 		todoConnection.getList({foo: "bar"}).then(function(list){
-			deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first set");
+			assert.deepEqual( todoConnection.listQuery(list), {foo: "bar"}, "first set");
 		}),
 		Todo.getList({zed: "ted"}).then(function(list){
-			deepEqual( todoConnection.listQuery(list), {zed: "ted"}, "second set");
+			assert.deepEqual( todoConnection.listQuery(list), {zed: "ted"}, "second set");
 		})
 	]).then(function(){
 		var list = new TodoList({"zak": "ack"});
-		deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "hydrated set");
-		start();
+		assert.deepEqual(  todoConnection.listQuery(list), {zak: "ack"}, "hydrated set");
+		done();
 	});
 
 });
 
-test("findAll and findOne alias", function(){
+QUnit.test("findAll and findOne alias", function(assert) {
 
 	fixture({
 		"GET /services/todos": function(){
@@ -139,21 +139,21 @@ test("findAll and findOne alias", function(){
 
 	var Todo = this.Todo;
 
-	stop();
+	var done = assert.async();
 	Promise.all([
 		Todo.findOne({id: 1}).then(function(todo){
-			equal(todo.name, "findOne");
+			assert.equal(todo.name, "findOne");
 		}),
 		Todo.findAll({}).then(function(todos){
-			equal(todos.length, 1);
-			equal(todos[0].name, "findAll");
+			assert.equal(todos.length, 1);
+			assert.equal(todos[0].name, "findAll");
 		})
 	]).then(function(){
-		start();
+		done();
 	});
 });
 
-QUnit.test("reads id from set queryLogic (#82)", function(){
+QUnit.test("reads id from set queryLogic (#82)", function(assert) {
 	var Todo = Map.extend({
 		_id: "*"
 	});
@@ -183,36 +183,37 @@ QUnit.test("reads id from set queryLogic (#82)", function(){
 			)
 		});
 
-	QUnit.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
+	assert.equal(todoConnection.id(new Todo({_id: 5})), 5, "got the right id");
 });
 
 
-QUnit.asyncTest("instances bound before create are moved to instance store (#296)", function(){
-	var todoAlgebra = new set.Algebra(
+QUnit.test("instances bound before create are moved to instance store (#296)", function(assert) {
+    var ready = assert.async();
+    var todoAlgebra = new set.Algebra(
 		set.props.boolean("complete"),
 		set.props.id("id"),
 		set.props.sort("sort")
 	);
 
-	var todoStore = fixture.store([
+    var todoStore = fixture.store([
 		{ name: "mow lawn", complete: false, id: 5 },
 		{ name: "dishes", complete: true, id: 6 },
 		{ name: "learn canjs", complete: false, id: 7 }
 	], todoAlgebra);
 
-	fixture("/theapi/todos", todoStore);
+    fixture("/theapi/todos", todoStore);
 
-	var Todo = Map.extend({
+    var Todo = Map.extend({
 		id: "string",
 		name: "string",
 		complete: {type: "boolean", value: false}
 	});
 
-	Todo.List = List.extend({
+    Todo.List = List.extend({
 		"#": Todo
 	});
 
-	Todo.connection = connect([
+    Todo.connection = connect([
 		constructor,
 		canMap,
 		constructorStore,
@@ -227,16 +228,14 @@ QUnit.asyncTest("instances bound before create are moved to instance store (#296
 		});
 
 
-	var newTodo = new Todo({name: "test superMap"});
-	newTodo.on("name", function(){});
+    var newTodo = new Todo({name: "test superMap"});
+    newTodo.on("name", function(){});
 
-	newTodo.save().then(function(savedTodo){
+    newTodo.save().then(function(savedTodo){
 
 		Todo.get({id: savedTodo.id}).then(function(t){
-			QUnit.equal(t._cid, newTodo._cid); // NOK
-			QUnit.start();
+			assert.equal(t._cid, newTodo._cid); // NOK
+			ready();
 		});
 	});
-
-
 });

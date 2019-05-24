@@ -4,24 +4,24 @@ var set = require("can-set-legacy");
 
 
 QUnit.module("can-connect/core test",{
-	setup: function(){
+	beforeEach: function(assert) {
 
 	}
 });
 
 
-QUnit.test("Determine .id() from queryLogic (#82)", function(){
+QUnit.test("Determine .id() from queryLogic (#82)", function(assert) {
 	var queryLogic = new set.Algebra(
 		set.comparators.id("_id")
 	);
 	var connection = connect([],{
 		queryLogic: queryLogic
 	});
-	QUnit.equal( connection.id({_id: "foo"}), "foo", "got id from queryLogic");
-	QUnit.equal( connection.id({_id: 1}), 1, "got id from queryLogic");
+	assert.equal( connection.id({_id: "foo"}), "foo", "got id from queryLogic");
+	assert.equal( connection.id({_id: 1}), 1, "got id from queryLogic");
 });
 
-QUnit.test("Everything available at can-connect/all", function(){
+QUnit.test("Everything available at can-connect/all", function(assert) {
 	var all = require("./all");
 	var expectedBehaviors = [
 		'cacheRequests',
@@ -41,16 +41,16 @@ QUnit.test("Everything available at can-connect/all", function(){
 		'baseMap',
 	];
 	expectedBehaviors.forEach(function(behaviorName){
-		QUnit.ok(all[behaviorName], 'behavior in place: ' + behaviorName);
+		assert.ok(all[behaviorName], 'behavior in place: ' + behaviorName);
 	});
 });
 
-QUnit.test("queryLogic falls", function(){
+QUnit.test("queryLogic falls", function(assert) {
     var algebra = {};
 
     var connection = connect([{
         methodThatChecksAlgebra: function(){
-            QUnit.equal(this.queryLogic, algebra);
+            assert.equal(this.queryLogic, algebra);
         }
     }],
     {
@@ -61,7 +61,7 @@ QUnit.test("queryLogic falls", function(){
 
 	connection = connect([{
         methodThatChecksAlgebra: function(){
-            QUnit.equal(this.queryLogic, algebra);
+            assert.equal(this.queryLogic, algebra);
         }
     }],
     {
