@@ -58,7 +58,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 				}
 			}
 
-			this.List = this.List || this.Map.List || DefineList.extend({"#": options.Map});
+			this.List = this.List || this.Map.List || DefineList.extend({"#": this.Map});
 
 			overwrite(this, this.Map, mapOverwrites);
 			overwrite(this, this.List, listOverwrites);
