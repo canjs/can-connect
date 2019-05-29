@@ -3,6 +3,7 @@ var $ = require("jquery");
 var Map = require("can-map");
 var List = require("can-list");
 var Observation = require("can-observation");
+var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 
 // load connections
@@ -537,4 +538,32 @@ QUnit.test("should batch model events", function(assert) {
 	queues.batch.stop();
 
 	assert.equal(eventOrder.join(""), "1234", "events are batched");
+});
+
+QUnit.test("list uses can.new", function(assert) {
+	var Todo = function(props) {};
+	var TodoList = function() {
+		var array = Array.apply(this, arguments);
+		return array;
+	};
+	TodoList[canSymbol.for("can.new")] = function(items) {
+		var list = new TodoList();
+		return TodoList.apply(list, items);
+	};
+
+	var todoConnection = connect([
+		constructor,
+		canMap],
+		{
+			url: "/services/todos",
+			Map: Todo,
+			List: TodoList
+		});
+
+	var list = todoConnection.list({
+		data: [{id:1, label: "walk the dog"},
+			{id:2, label: "make dinner"}]
+	});
+
+	assert.equal(list.length, 2, "Has all of the items");
 });

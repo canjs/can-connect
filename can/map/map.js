@@ -336,7 +336,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 		 */
 		list: function(listData, set){
 			var _List = this.List || (this.Map && this.Map.List);
-			var list = new _List(listData.data);
+			var list = canReflect.new(_List, listData.data);
 			canReflect.eachKey(listData, function (val, prop) {
 				if (prop !== 'data') {
 					canReflect.setKeyValue(list, prop, val);
