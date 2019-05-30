@@ -1,6 +1,5 @@
 "use strict";
 
-var DefineList = require("can-define/list/list");
 var canReflect = require("can-reflect");
 var each = canReflect.each;
 var isPlainObject = canReflect.isPlainObject;
@@ -58,7 +57,15 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 				}
 			}
 
-			this.List = this.List || this.Map.List || DefineList.extend({"#": this.Map});
+			this.List = this.List || this.Map.List;
+
+			if (!this.List) {
+				Object.defineProperty(this, 'List', {
+					get: function () {
+						throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" should be configured with a List type.");
+					}
+				});
+			}
 
 			overwrite(this, this.Map, mapOverwrites);
 			overwrite(this, this.List, listOverwrites);
