@@ -58,8 +58,9 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 			}
 
 			this.List = this.List || this.Map.List;
+			var hasList = Boolean(this.List);
 
-			if (!this.List) {
+			if (!hasList) {
 				Object.defineProperty(this, 'List', {
 					get: function () {
 						throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" should be configured with a List type.");
@@ -68,7 +69,9 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 			}
 
 			overwrite(this, this.Map, mapOverwrites);
-			overwrite(this, this.List, listOverwrites);
+			if (hasList) {
+				overwrite(this, this.List, listOverwrites);
+			}
 
 			if(!this.queryLogic) {
 				this.queryLogic = new QueryLogic(this.Map);
@@ -91,28 +94,31 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 					configurable: true
 				});
 				//!steal-remove-end
-				this.Map[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onMapBoundChange)
+				this.Map[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onMapBoundChange);
 			} else {
-				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the Map type")
+				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the Map type");
 			}
 
-			if(this.List[canSymbol.for("can.onInstanceBoundChange")]) {
-				var canConnectMap_onListBoundChange = function(list, isBound){
-					var method = isBound ? "addListReference" : "deleteListReference";
-					if(connection[method]) {
-						connection[method](list);
+			if (hasList) {
+				if(this.List[canSymbol.for("can.onInstanceBoundChange")]) {
+					var canConnectMap_onListBoundChange = function(list, isBound){
+						var method = isBound ? "addListReference" : "deleteListReference";
+						if(connection[method]) {
+							connection[method](list);
+						}
 					}
+					//!steal-remove-start
+					Object.defineProperty(canConnectMap_onListBoundChange, "name", {
+						value: canReflect.getName(this.List) + " boundChange",
+						configurable: true
+					});
+					//!steal-remove-end
+					this.List[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onListBoundChange);
+				} else {
+					console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the List type");
 				}
-				//!steal-remove-start
-				Object.defineProperty(canConnectMap_onListBoundChange, "name", {
-					value: canReflect.getName(this.List) + " boundChange",
-					configurable: true
-				});
-				//!steal-remove-end
-				this.List[canSymbol.for("can.onInstanceBoundChange")](canConnectMap_onListBoundChange);
-			} else {
-				console.warn("can-connect/can/map is unable to listen to onInstanceBoundChange on the List type")
 			}
+
 			// Adds the instance when its `id` property is set
 			if(this.Map[canSymbol.for("can.onInstancePatches")]) {
 				this.Map[canSymbol.for("can.onInstancePatches")](function canConnectMap_onInstancePatches(instance, patches){
