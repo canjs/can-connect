@@ -567,3 +567,20 @@ QUnit.test("list uses can.new", function(assert) {
 
 	assert.equal(list.length, 2, "Has all of the items");
 });
+
+QUnit.test("Handle rejection on save", function(assert) {
+	
+	fixture({
+		"POST /services/todos": function(request, response){
+			response(500, {message: "Rejected"}, "rejected");
+		}
+	});
+
+	var done = assert.async();
+	var todo = new this.Todo({foo: "Bar"});
+	todo.save().catch(function(response) {
+		assert.equal(response.message, "Rejected");
+		done();
+	});
+
+});
