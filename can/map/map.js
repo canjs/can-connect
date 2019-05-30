@@ -812,9 +812,7 @@ var mapOverwrites = {
 			return function(success, error){
 				// return only one item for compatability
 				var promise = connection.save(this);
-				if (success !== undefined || error !== undefined) {
-					promise.then(success,error);
-				}
+				promise.then(success,error);
 				return promise;
 			};
 		},

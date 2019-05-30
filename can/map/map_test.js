@@ -569,18 +569,36 @@ QUnit.test("list uses can.new", function(assert) {
 });
 
 QUnit.test("Handle rejection on save", function(assert) {
+	var done = assert.async();
 	
-	fixture({
-		"POST /services/todos": function(request, response){
-			response(500, {message: "Rejected"}, "rejected");
-		}
+	var Todo = Map.extend({});
+	var TodoList = List.extend({
+		Map: Todo
 	});
 
-	var done = assert.async();
-	var todo = new this.Todo({foo: "Bar"});
-	todo.save().catch(function(response) {
-		assert.equal(response.message, "Rejected");
+	connect([
+		constructor,
+		canMap,
+		constructorStore,
+		dataCallbacks,
+		callbacksCache,
+		combineRequests,
+		dataParse,
+		dataUrl,
+		fallThroughCache,
+		realTime],
+		{
+			url: "/api/todos",
+			Map: Todo,
+			List: TodoList,
+			ajax: $.ajax,
+			queryLogic: new set.Algebra()
+		}
+	);
+
+	var todo = new Todo({foo: "Bar"});
+	todo.save().catch(function(error) {
+		assert.ok(error.statusText, "Method Not Allowed");
 		done();
 	});
-
 });
