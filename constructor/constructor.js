@@ -460,14 +460,20 @@ module.exports = behavior("constructor",function(baseConnection){
 		// returns something, uses that data to call `destroyedInstance`.
 		destroy: function(instance){
 			var serialized = this.serializeInstance(instance),
-				self = this;
+				self = this,
+				id = this.id(instance);
 
-			return this.destroyData(serialized).then(function(data){
-				if(data !== undefined) {
-					self.destroyedInstance(instance, data);
-				}
-				return instance;
-			});
+			if (id !== undefined) {
+				return this.destroyData(serialized).then(function (data) {
+					if (data !== undefined) {
+						self.destroyedInstance(instance, data);
+					}
+					return instance;
+				});
+			} else {
+				this.destroyedInstance(instance, {});
+				return Promise.resolve(instance);
+			}
 		},
 
 		/**

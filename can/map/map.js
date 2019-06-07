@@ -873,15 +873,7 @@ var mapOverwrites = {
 			 *
 			 */
 			return function(success, error){
-				var promise;
-				if (this.isNew()) {
-
-					promise = Promise.resolve(this);
-					connection.destroyedInstance(this, {});
-				} else {
-					promise = connection.destroy(this);
-				}
-
+				var promise = connection.destroy(this);
 				promise.then(success,error);
 				return promise;
 			};
