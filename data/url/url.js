@@ -194,6 +194,21 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * }
  * ```
  *
+ * You can also customize per-method the parameters passed to the [can-connect/data/url/url.ajax ajax implementation], like:
+ * ```
+ * url: {
+ *   resource: "/services/todos",
+ *   getListData: {
+ *     url: "/services/todos",
+ *     method: "GET",
+ *     beforeSend: () => {
+ *       return fetch('/services/context').then(processContext);
+ *     }
+ *   }
+ * }
+ * ```
+ * This can be particularly useful for passing a handler for the [can-ajax <code>beforeSend</code>] hook.
+ *
  * Finally, you can provide your own method to totally control how the request is made:
  *
  * ```
