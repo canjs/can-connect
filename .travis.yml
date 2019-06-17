@@ -2,11 +2,14 @@ sudo: false
 language: node_js
 node_js: node
 addons:
-  firefox: "latest"
+  firefox: latest
   apt:
     packages:
       - xvfb
 before_script:
-  - export DISPLAY=':99.0'
-  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - 'export DISPLAY='':99.0'''
+  - 'Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &'
   - npm i
+dist: xenial
+services:
+  - xvfb
