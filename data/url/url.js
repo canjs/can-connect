@@ -114,8 +114,11 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
 	canReflect.eachKey(defaultRest, function(defaultData, dataInterfaceName){
 		behavior[dataInterfaceName] = function(params) {
 			var meta = methodMetaData[dataInterfaceName];
+			var defaultBeforeSend;
 
 			if(typeof this.url === "object") {
+				defaultBeforeSend = this.url.beforeSend;
+
 				if(typeof this.url[dataInterfaceName] === "function") {
 
 					return makePromise(this.url[dataInterfaceName](params));
@@ -127,7 +130,9 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
 							defaultData.method,
 							this.ajax || ajax,
 							findContentType(this.url, defaultData.method),
-							meta);
+							meta,
+							defaultBeforeSend
+					);
 					return makePromise(promise);
 				}
 			}
@@ -137,11 +142,15 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
 				var idProps = canReflect.getSchema(this.queryLogic).identity;
 				var resourceWithoutTrailingSlashes = resource.replace(/\/+$/, "");
 				var result = makeRest(resourceWithoutTrailingSlashes, idProps[0])[dataInterfaceName];
-				return makePromise(makeAjax( result.url,
-					params, result.method,
+				return makePromise(makeAjax(
+					result.url,
+					params,
+					result.method,
 					this.ajax || ajax,
 					findContentType(this.url, result.method),
-					meta));
+					meta,
+					defaultBeforeSend
+				));
 			}
 
 			return baseConnection[name].call(this, params);
@@ -200,7 +209,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  *   resource: "/services/todos",
  *   getListData: {
  *     url: "/services/todos",
- *     method: "GET",
+ *     type: "GET",
  *     beforeSend: () => {
  *       return fetch('/services/context').then(processContext);
  *     }
@@ -208,6 +217,17 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * }
  * ```
  * This can be particularly useful for passing a handler for the [can-ajax <code>beforeSend</code>] hook.
+ *
+ * The [can-ajax <code>beforeSend</code>] hook can also be passed for all request methods. This can be useful when
+ * attaching a session token header to a request:
+ * ```
+ * url: {
+ *   resource: "/services/todos",
+ *   beforeSend: (xhr) => {
+ *     xhr.setRequestHeader('Authorization', `Bearer: ${Session.current.token}`);
+ *   }
+ * }
+ * ```
  *
  * Finally, you can provide your own method to totally control how the request is made:
  *
@@ -354,7 +374,7 @@ function urlParamEncoder (key, value) {
 	return encodeURIComponent(value)
 }
 
-var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
+var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions, defaultBeforeSend ) {
 
 	var params = {};
 
@@ -385,7 +405,8 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions ) {
 
 	return ajax(canReflect.assignMap({
 		type: type || 'post',
-		dataType: 'json'
+		dataType: 'json',
+		beforeSend: defaultBeforeSend,
 	}, params));
 };
 
