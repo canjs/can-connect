@@ -358,3 +358,43 @@ QUnit.test("fixture stores work with data (#298)", function(assert) {
 		debugger;
 	});
 });
+
+
+QUnit.test("beforeSend works when set for all methods or per-method", function(assert){
+	var done = assert.async();
+	var connection = persist({
+		url: {
+			getListData: {
+				url: "/getList",
+				type: 'POST',
+				beforeSend: () => {
+					assert.ok(true, 'per-method beforeSend called');
+				}
+			},
+			getData: "DELETE /getInstance",
+			beforeSend: () => {
+				assert.ok(true, 'default beforeSend called');
+			}
+		}
+	});
+
+	assert.expect(2);
+
+	fixture({
+		"POST /getList": function(){
+			return [{id: 1}];
+		},
+		"DELETE /getInstance": function(){
+			return {id: 2};
+		},
+	});
+
+	var promises = [
+		connection.getListData({foo: "bar"}),
+		connection.getData({foo: "bar"})
+	];
+
+	Promise.all(promises).then(function(data){
+		done();
+	});
+});
