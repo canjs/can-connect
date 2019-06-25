@@ -31,11 +31,12 @@
  *
  * ```js
  * var todoConnection = connect(
- *    ["real-time",
+ *    ["data/callbacks",
+ *     "real-time",
+ *     "constructor/callbacks-once",
+ *     "constructor/store",
  *     "constructor",
- *     "constructor-store",
- *     "constructor-callbacks-once",
- *     "data-url"],{
+ *     "data/url"],{
  *   url: "/todos"
  * });
  * ```
