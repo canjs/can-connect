@@ -1,4 +1,5 @@
 require("./map-deep-merge-test");
+require("./weak-reference-set-test");
 
 var idMerge = require("./id-merge");
 
