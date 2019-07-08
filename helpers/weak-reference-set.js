@@ -63,6 +63,7 @@ assign(WeakReferenceSet.prototype,{
 				index = i;
 				return false;
 			}
+			return true;
 		});
 		return index !== undefined ? index : -1;
 	},
