@@ -9,7 +9,6 @@
     "can-define": "^2.7.13",
     "can-define-connected-singleton": "^0.2.0",
     "can-diff": "<2.0.0",
-    "can-dom-mutate": "<2.0.0",
     "can-event-queue": "<2.0.0",
     "can-globals": "^1.0.1",
     "can-key": "<2.0.0",
