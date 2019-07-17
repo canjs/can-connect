@@ -68,9 +68,6 @@
   "keywords": [
     "CanJS"
   ],
-  "engines": {
-    "npm": "^3.0.0"
-  },
   "author": "Bitovi",
   "license": "MIT"
 }
