@@ -21,7 +21,6 @@
     "can-query-logic": "^1.0.0",
     "can-queues": "<2.0.0",
     "can-reflect": "^1.17.10",
-    "can-string": "<2.0.0",
     "can-symbol": "^1.6.1",
     "can-validate-interface": "^1.0.0"
   },
