@@ -18,7 +18,7 @@
     "can-make-rest": "<2.0.0",
     "can-memory-store": "<2.0.0",
     "can-namespace": "1.0.0",
-    "can-observable-array": "^0.7.0",
+    "can-observable-array": "^0.8.1",
     "can-observable-object": "^0.2.0",
     "can-observation-recorder": "<2.0.0",
     "can-query-logic": "^1.0.0",
