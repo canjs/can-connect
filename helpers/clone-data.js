@@ -1,6 +1,6 @@
 "use strict";
-var deepAssign = require("can-util/js/deep-assign/deep-assign");
+var canReflect = require("can-reflect");
 
 module.exports = function(data) {
-	return Array.isArray(data) ? data.slice(0) : deepAssign({}, data);
+	return Array.isArray(data) ? data.slice(0) : canReflect.assignDeep({}, data);
 };

@@ -5,7 +5,7 @@
 
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
-var diff = require('can-util/js/diff/diff');
+var diff = require('can-diff');
 var assign = require("can-util/js/assign/assign");
 var each = require("can-util/js/each/each");
 var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
