@@ -44,7 +44,6 @@ var canReflect = require("can-reflect");
 var canSymbol = require("can-symbol");
 var domMutate = require('can-dom-mutate');
 var domMutateNode = require("can-dom-mutate/node");
-var each = require("can-util/js/each/each");
 
 var convertToValue = function(arg){
 	if(typeof arg === "function") {
@@ -96,7 +95,7 @@ connect.tag = function(tagName, connection){
 			var hash = {};
 			if(typeof attrInfo.hash === "object") {
 				// old expression data
-				each(attrInfo.hash, function(val, key) {
+				canReflect.each(attrInfo.hash, function(val, key) {
 					if (val && val.hasOwnProperty("get")) {
 						hash[key] = tagData.scope.read(val.get, {}).value;
 					} else {
@@ -106,7 +105,7 @@ connect.tag = function(tagName, connection){
 			} else if(typeof attrInfo.hash === "function"){
 				// new expression data
 				var getHash = attrInfo.hash(tagData.scope, tagData.options, {});
-				each(getHash(), function(val, key) {
+				canReflect.each(getHash(), function(val, key) {
 					hash[key] = convertToValue(val);
 				});
 			} else {
