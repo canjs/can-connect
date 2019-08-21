@@ -33,12 +33,12 @@ var fixture = require("can-fixture");
 QUnit.module("can-connect/can/map/map with can-observable-object",{
   beforeEach: function(assert) {
     class Todo extends CanObservableObject {
-      static define = {
-        "createId": type.maybeConvert(Number)
+      static get define () {
+        return { "createId": type.maybeConvert(Number) };
       }
     }
     class TodoList extends CanObservableArray {
-      static items = Todo; // jshint ignore:line
+      static get items () { return Todo; }  // jshint ignore:line
     }
 
     // var Todo = Map.extend("Todo",{
