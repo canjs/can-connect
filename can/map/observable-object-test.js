@@ -38,7 +38,7 @@ QUnit.module("can-connect/can/map/map with can-observable-object",{
       }
     }
     class TodoList extends CanObservableArray {
-      static get items () { return Todo; }  // jshint ignore:line
+      static get items () { return Todo; }
     }
 
     // var Todo = Map.extend("Todo",{
