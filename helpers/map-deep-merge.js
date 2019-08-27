@@ -5,10 +5,9 @@
 
 var DefineMap = require('can-define/map/map');
 var DefineList = require('can-define/list/list');
-var diff = require('can-util/js/diff/diff');
-var assign = require("can-util/js/assign/assign");
-var each = require("can-util/js/each/each");
-var isPlainObject = require("can-util/js/is-plain-object/is-plain-object");
+var diff = require('can-diff');
+var assign = require("can-assign");
+var canReflect = require("can-reflect");
 
 /**
  * @module {function} can-connect/helpers/map-deep-merge map-deep-merge
@@ -116,7 +115,7 @@ function mergeInstance( instance, data ) {
 
 			mergeList( value, newValue );
 
-		} else if( value instanceof DefineMap && isPlainObject(newValue) && !newValueIsArray) {
+		} else if( value instanceof DefineMap && canReflect.isPlainObject(newValue) && !newValueIsArray) {
 
 			// TODO: the `TYPE` should probably be infered from the `_define` property definition.
 			var Type = value.constructor;
@@ -137,7 +136,7 @@ function mergeInstance( instance, data ) {
 
 		}
 	});
-	each(data, function(value, prop){
+	canReflect.each(data, function(value, prop){
 		if (prop !== "_cid") {
             instance.set(prop, value);
         }

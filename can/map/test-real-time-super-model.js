@@ -11,6 +11,8 @@ var map = [].map;
 var later = testHelpers.later;
 var queues = require("can-queues");
 var makeRealTimeSuperModel = require("./make-real-time-super-model");
+var constructorStore = require("../../constructor/store/store");
+constructorStore.requestCleanupDelay = 1;
 
 var logErrorAndStart = function(e){
 	assert.ok(false,"Error "+e);
@@ -152,7 +154,7 @@ module.exports = function(makeTypes){
 
 
     	function serverSideDuplicateCreate(){
-    		connection.createInstance({id: 10, due: "today",createdId: 1, type: "important"}).then(function(createdInstance){
+    		connection.createInstance({id: 10, due: "today",createId: 1, type: "important"}).then(function(createdInstance){
     			assert.equal(createdInstance, created, "created instance returned from SSE is the same as what we created earlier");
 
     			assert.ok( importantList.indexOf(created) >= 0, "in important");

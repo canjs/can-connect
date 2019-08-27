@@ -1,15 +1,12 @@
-sudo: false
 language: node_js
-node_js: node
+node_js: 10
 addons:
   firefox: latest
-  apt:
-    packages:
-      - xvfb
+  sauce_connect: true
 before_script:
-  - 'export DISPLAY='':99.0'''
-  - 'Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &'
-  - npm i
+  - npm run http-server &
+  - sleep 2
 dist: xenial
+script: npm run ci
 services:
   - xvfb
