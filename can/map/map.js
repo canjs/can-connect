@@ -41,7 +41,11 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 	var behavior = {
 		init: function(){
 			if(!this.Map) {
-				throw new Error("can-connect/can/map/map must be configured with a Map type");
+				if (this.ObjectType) {
+					this.Map = this.ObjectType;
+				} else {
+					throw new Error("can-connect/can/map/map must be configured with a Map or ObjectType type");
+				}
 			}
 			if(!this[getNameSymbol]) {
 				this[getNameSymbol] = function(){
@@ -57,13 +61,13 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 				}
 			}
 
-			this.List = this.List || this.Map.List;
+			this.List = this.List || this.ArrayType || this.Map.List;
 			var hasList = Boolean(this.List);
 
 			if (!hasList) {
 				Object.defineProperty(this, 'List', {
 					get: function () {
-						throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" should be configured with a List type.");
+						throw new Error("can-connect/can/map/map - "+canReflect.getName(this)+" should be configured with an ArrayType or List type.");
 					}
 				});
 			}
