@@ -29,7 +29,7 @@ var logErrorAndStart = function(e){
 
 constructorStore.requestCleanupDelay = 1;
 
-QUnit.skip("basics", function(assert) {
+QUnit.test("basics", function(assert) {
 	// get two lists
 	// user creates / updates / destroys things
 	// real-time creates / updates / destroys things
