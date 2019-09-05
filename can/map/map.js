@@ -6,7 +6,6 @@ var isPlainObject = canReflect.isPlainObject;
 
 var queues = require("can-queues");
 var eventQueue = require("can-event-queue/map/map");
-var ObservationRecorder = require("can-observation-recorder");
 var canSymbol = require("can-symbol");
 var QueryLogic = require("can-query-logic");
 
@@ -54,7 +53,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 					} else {
 						return "Connection{}";
 					}
-				}
+				};
 			}
 
 			this.List = this.List || this.Map.List;
@@ -87,7 +86,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 					if(connection[method]) {
 						connection[method](instance);
 					}
-				}
+				};
 				//!steal-remove-start
 				Object.defineProperty(canConnectMap_onMapBoundChange, "name", {
 					value: canReflect.getName(this.Map) + " boundChange",
@@ -106,7 +105,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 						if(connection[method]) {
 							connection[method](list);
 						}
-					}
+					};
 					//!steal-remove-start
 					Object.defineProperty(canConnectMap_onListBoundChange, "name", {
 						value: canReflect.getName(this.List) + " boundChange",
@@ -129,7 +128,7 @@ var canMapBehavior = behavior("can/map",function(baseConnection){
 							connection.addInstanceReference(instance);
 						}
 					});
-				})
+				});
 			} else {
 				console.warn("can-connect/can/map is unable to listen to onInstancePatches on the Map type");
 			}
@@ -724,7 +723,7 @@ var mapOverwrites = {
 			 */
 			return function () {
 				return connection.isNew(this);
-			}
+			};
 		},
 
 		isSaving: function (base, connection) {

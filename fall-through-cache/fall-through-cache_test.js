@@ -6,7 +6,6 @@ var testHelpers = require("../test-helpers");
 var constructor = require("../constructor/constructor");
 var fallThroughCache = require("../fall-through-cache/fall-through-cache");
 var constructorStore = require("../constructor/store/store");
-var dataCallbacks = require("../data/callbacks/callbacks");
 var QueryLogic = require("can-query-logic");
 
 var getId = function(d){
@@ -22,7 +21,7 @@ QUnit.test("basics", function(assert) {
 	var firstItems = [ {id: 0, foo: "bar"}, {id: 1, foo: "bar"} ];
 	var secondItems = [ {id: 1, foo: "BAZ"}, {id: 2, foo: "bar"} ];
 
-	var state = testHelpers.makeStateChecker(QUnit,["cache-getListData-empty",
+	var state = testHelpers.makeStateChecker(assert, done, ["cache-getListData-empty",
 		"base-getListData",
 		"cache-updateListData",
 		"connection-foundAll",
@@ -103,14 +102,14 @@ QUnit.test("basics", function(assert) {
 		state.check(assert, "connection-foundAll");
 		assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
 		setTimeout(secondCall, 1);
-	}, testHelpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	function secondCall() {
 		state.check(assert, "connection-getList-2");
 		connection.getList({}).then(function(list){
 			state.check(assert, "connection-foundAll-2");
 			assert.deepEqual( map.call(list, getId), map.call(firstItems, getId) );
-		}, testHelpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 
@@ -127,7 +126,7 @@ QUnit.test("getInstance and getData", function(assert) {
 	var firstData =  {id: 0, foo: "bar"};
 	var secondData = {id: 0, foo: "BAR"};
 
-	var state = testHelpers.makeStateChecker(QUnit,["cache-getData-empty",
+	var state = testHelpers.makeStateChecker(assert, done, ["cache-getData-empty",
 		"base-getData",
 		"cache-updateData",
 		"connection-foundOne",
@@ -208,14 +207,14 @@ QUnit.test("getInstance and getData", function(assert) {
 		state.check(assert, "connection-foundOne");
 		assert.deepEqual( instance, {id: 0, foo: "bar"} );
 		setTimeout(secondCall, 1);
-	}, testHelpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	function secondCall() {
 		state.check(assert, "connection-getInstance-2");
 		connection.get({id: 0}).then(function(instance){
 			state.check(assert, "connection-foundOne-2");
 			assert.deepEqual( instance, {id: 0, foo: "bar"}  );
-		}, testHelpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 });

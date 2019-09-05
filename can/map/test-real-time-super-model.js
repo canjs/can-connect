@@ -1,7 +1,6 @@
 "use strict";
 var QUnit = require("steal-qunit");
 
-var canLog = require("can-log");
 var canReflect = require("can-reflect");
 var fixture = require("can-fixture");
 // load connections
@@ -9,18 +8,10 @@ var testHelpers = require("../../test-helpers");
 var assign = canReflect.assignMap;
 var map = [].map;
 var later = testHelpers.later;
-var queues = require("can-queues");
 var makeRealTimeSuperModel = require("./make-real-time-super-model");
 var constructorStore = require("../../constructor/store/store");
 constructorStore.requestCleanupDelay = 1;
 
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	setTimeout(function(){
-		throw e;
-	},1);
-	done();
-};
 var cleanUndefineds = function(obj) {
 	if(Array.isArray(obj)) {
 		return obj.map(cleanUndefineds);
@@ -48,7 +39,9 @@ module.exports = function(makeTypes){
     	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
     	var secondItems = [ {id: 2, due: "today"}, {id: 3, due: "today"} ];
 
-    	var state = testHelpers.makeStateChecker(assert, [
+      var done = assert.async();
+
+    	var state = testHelpers.makeStateChecker(assert, done, [
     		"getListData-important",
     		"getListData-today",
     		"createData-today+important",
@@ -57,8 +50,6 @@ module.exports = function(makeTypes){
     		"destroyData-important-1",
     		"getListData-today-2"
     	]);
-
-    	var done = assert.async();
 
     	fixture({
     		"GET /services/todos": function(){
@@ -113,7 +104,7 @@ module.exports = function(makeTypes){
     	var importantList,
     		todayList,
     		bindFunc = function(){
-    			//canLog.log("length changing");
+    			// console.log("length changing");
     		};
 
     	Promise.all([connection.getList({type: "important"}), connection.getList({due: "today"})])
@@ -127,7 +118,7 @@ module.exports = function(makeTypes){
 
     		setTimeout(createImportantToday,1);
 
-    	}, logErrorAndStart);
+    	}, testHelpers.logErrorAndStart(assert, done));
 
     	var created;
     	function createImportantToday() {
@@ -139,7 +130,7 @@ module.exports = function(makeTypes){
     			created = task;
     			canReflect.onKeyValue( task,"type",bindFunc);
     			setTimeout(checkLists, 1);
-    		}, logErrorAndStart);
+    		}, testHelpers.logErrorAndStart(assert, done));
     	}
 
 
@@ -181,7 +172,7 @@ module.exports = function(makeTypes){
     	// remove due from created
     	function update1() {
     		created.due = undefined;
-    		connection.save(created).then(later(checkLists2), logErrorAndStart);
+    		connection.save(created).then(later(checkLists2), testHelpers.logErrorAndStart(assert, done));
     	}
     	function checkLists2() {
     		assert.ok( importantList.indexOf(created) >= 0, "still in important");
@@ -192,7 +183,7 @@ module.exports = function(makeTypes){
     	function update2() {
     		created.type = undefined;
     		created.due = "today";
-    		connection.save(created).then(later(checkLists3), logErrorAndStart);
+    		connection.save(created).then(later(checkLists3), testHelpers.logErrorAndStart(assert, done));
     	}
     	function checkLists3() {
     		assert.equal( importantList.indexOf(created),  -1, "removed from important");
@@ -225,7 +216,7 @@ module.exports = function(makeTypes){
     		firstImportant = importantList[0];
 
     		connection.destroy(firstImportant)
-    			.then(later(checkLists4),logErrorAndStart);
+    			.then(later(checkLists4), testHelpers.logErrorAndStart(assert, done));
     	}
 
     	function checkLists4(){

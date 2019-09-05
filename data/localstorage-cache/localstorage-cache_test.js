@@ -2,11 +2,7 @@ var QUnit = require("steal-qunit");
 var dataLocalStorage = require("./localstorage-cache");
 var connect = require("../../can-connect");
 var canSet = require("can-set-legacy");
-
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	done();
-};
+var testHelpers = require("../../test-helpers");
 
 var items = [{id: 1, foo:"bar"},{id: 2, foo:"bar"},{id: 3, foo:"bar"}];
 var aItems = [{id: 10, name: "A"},{id: 11, name: "A"},{id: 12, name: "A"}];
@@ -41,9 +37,9 @@ QUnit.test("updateListData", function(assert) {
 
 						done();
 
-					},logErrorAndStart);
+					}, testHelpers.logErrorAndStart(assert, done));
 
-				}, logErrorAndStart);
+				}, testHelpers.logErrorAndStart(assert, done));
 
 		});
 
@@ -62,9 +58,9 @@ QUnit.test("updateData", function(assert) {
 
 	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 
-	Promise.all([a1, a2]).then(updateItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(updateItem, testHelpers.logErrorAndStart(assert, done) );
 	function updateItem(){
-		connection.updateData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.updateData({id: 4, foo:"bar"}).then(checkItems, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -73,10 +69,10 @@ QUnit.test("updateData", function(assert) {
 
 			updateItem2();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function updateItem2(){
-		connection.updateData({id: 4, name:"A"}).then(checkItems2, logErrorAndStart);
+		connection.updateData({id: 4, name:"A"}).then(checkItems2, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -85,7 +81,7 @@ QUnit.test("updateData", function(assert) {
 
 			checkItems3();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
@@ -94,7 +90,7 @@ QUnit.test("updateData", function(assert) {
 
 			done();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 });
 
@@ -109,9 +105,9 @@ QUnit.test("createData", function(assert) {
 
 	var a2 = connection.updateListData( { data: aItems.slice(0) }, {name: "A"});
 
-	Promise.all([a1, a2]).then(createItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(createItem, testHelpers.logErrorAndStart(assert, done) );
 	function createItem(){
-		connection.createData({id: 4, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.createData({id: 4, foo:"bar"}).then(checkItems, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -120,10 +116,10 @@ QUnit.test("createData", function(assert) {
 
 			createItem2();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function createItem2(){
-		connection.updateData({id: 5, name:"A"}).then(checkItems2, logErrorAndStart);
+		connection.updateData({id: 5, name:"A"}).then(checkItems2, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -132,7 +128,7 @@ QUnit.test("createData", function(assert) {
 
 			checkItems3();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
@@ -141,7 +137,7 @@ QUnit.test("createData", function(assert) {
 
 			done();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 });
 
@@ -156,9 +152,9 @@ QUnit.test("destroyData", function(assert) {
 
 	var a2 = connection.updateListData({ data: aItems.slice(0) }, {name: "A"});
 
-	Promise.all([a1, a2]).then(destroyItem,logErrorAndStart );
+	Promise.all([a1, a2]).then(destroyItem, testHelpers.logErrorAndStart(assert, done) );
 	function destroyItem(){
-		connection.destroyData({id: 1, foo:"bar"}).then(checkItems, logErrorAndStart);
+		connection.destroyData({id: 1, foo:"bar"}).then(checkItems, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -167,10 +163,10 @@ QUnit.test("destroyData", function(assert) {
 
 			destroyItem2();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function destroyItem2(){
-		connection.destroyData({id: 10, name: "A"}).then(checkItems2, logErrorAndStart);
+		connection.destroyData({id: 10, name: "A"}).then(checkItems2, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems2() {
 		connection.getListData({foo: "bar"}).then(function(listData){
@@ -179,7 +175,7 @@ QUnit.test("destroyData", function(assert) {
 
 			checkItems3();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkItems3() {
 		connection.getListData({name: "A"}).then(function(listData){
@@ -188,7 +184,7 @@ QUnit.test("destroyData", function(assert) {
 
 			done();
 
-		},logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 });
 
@@ -213,9 +209,9 @@ QUnit.test("getData can pull from updateListData", function(assert) {
 
 					updateData();
 
-				},logErrorAndStart);
+				}, testHelpers.logErrorAndStart(assert, done));
 
-			}, logErrorAndStart);
+			}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 	function updateData(){
@@ -227,20 +223,20 @@ QUnit.test("getData can pull from updateListData", function(assert) {
 
 				setTimeout(destroyData, 1);
 
-			},logErrorAndStart);
+			}, testHelpers.logErrorAndStart(assert, done));
 
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 	function destroyData(){
 		connection.destroyData({id: 1, foo:"BAR"}).then(function(){
 
-			connection.getData({id: 1}).then(logErrorAndStart,function(){
+			connection.getData({id: 1}).then(testHelpers.logErrorAndStart(assert, done),function(){
 				assert.ok(true, "nothing there!");
 				done();
 			});
 
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 });

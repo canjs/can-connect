@@ -9,14 +9,14 @@ QUnit.module("helpers");
 
 QUnit.test("id-merge", function(assert) {
 
-	var onSplice = function(arr, fn) {
-		var splice = arr.splice;
-		arr.splice = function() {
-			fn.apply(this, arguments);
-			return splice.apply(this, arguments);
-		};
-		return arr;
-	};
+	// var onSplice = function(arr, fn) {
+	// 	var splice = arr.splice;
+	// 	arr.splice = function() {
+	// 		fn.apply(this, arguments);
+	// 		return splice.apply(this, arguments);
+	// 	};
+	// 	return arr;
+	// };
 
 	var returnArg = function(arg){ return arg; };
 

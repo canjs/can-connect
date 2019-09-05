@@ -6,7 +6,6 @@ var constructorStore = require("../constructor/store/store");
 var dataCallbacks = require("../data/callbacks/callbacks");
 var callbacksOnce = require("../constructor/callbacks-once/callbacks-once");
 var testHelpers = require("../test-helpers");
-var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
 var QUnit = require("steal-qunit");
 var assign = require("can-reflect").assignMap;
@@ -22,11 +21,6 @@ var later = function(fn){
 	};
 };
 
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	done();
-};
-
 constructorStore.requestCleanupDelay = 1;
 
 QUnit.test("basics", function(assert) {
@@ -35,7 +29,7 @@ QUnit.test("basics", function(assert) {
 	// real-time creates / updates / destroys things
 	var done = assert.async();
 
-	var state = testHelpers.makeStateChecker(QUnit, [
+	var state = testHelpers.makeStateChecker(assert, done, [
 		"getListData-important",
 		"getListData-today",
 		"createData-today+important",
@@ -134,7 +128,7 @@ QUnit.test("basics", function(assert) {
 
 		setTimeout(createImportantToday,1);
 
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	function createImportantToday() {
 		connection.save({
@@ -144,7 +138,7 @@ QUnit.test("basics", function(assert) {
 		}).then( function(task){
 			connection.addInstanceReference(task);
 			setTimeout(checkLists, 1);
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 	var created;
@@ -170,7 +164,7 @@ QUnit.test("basics", function(assert) {
 
 	function update1() {
 		delete created.due;
-		connection.save(created).then(later(checkLists2), logErrorAndStart);
+		connection.save(created).then(later(checkLists2), testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkLists2() {
 		assert.ok( importantList.indexOf(created) >= 0, "still in important");
@@ -181,7 +175,7 @@ QUnit.test("basics", function(assert) {
 	function update2() {
 		delete created.type;
 		created.due = "today";
-		connection.save(created).then(later(checkLists3), logErrorAndStart);
+		connection.save(created).then(later(checkLists3), testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkLists3() {
 		assert.equal( importantList.indexOf(created),  -1, "removed from important");
@@ -210,7 +204,7 @@ QUnit.test("basics", function(assert) {
 		connection.addInstanceReference( firstImportant );
 
 		connection.destroy(firstImportant)
-			.then(later(checkLists4),logErrorAndStart);
+			.then(later(checkLists4), testHelpers.logErrorAndStart(assert, done));
 	}
 
 	function checkLists4(){
@@ -450,7 +444,7 @@ QUnit.test("handling if createInstance happens before createdData", function (as
 
 	var savePromise = connection.save(data).then(function(dataAgain){
 		connection.addInstanceReference(data);
-		assert.equal(data, dataAgain, "same instance in memory .save()")
+		assert.equal(data, dataAgain, "same instance in memory .save()");
 		assert.equal(data.id, 1, ".save() has the id");
 	});
 
@@ -652,6 +646,6 @@ QUnit.test("real-time doesn't handle updates when the id doesn't change (#436)",
 			throw err;
 		},1);
 		done();
-	})
+	});
 
 });

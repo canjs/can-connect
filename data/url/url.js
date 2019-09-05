@@ -371,7 +371,7 @@ var findContentType = function( url, method ) {
 };
 
 function urlParamEncoder (key, value) {
-	return encodeURIComponent(value)
+	return encodeURIComponent(value);
 }
 
 var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions, defaultBeforeSend ) {

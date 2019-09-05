@@ -63,7 +63,7 @@
   "scripts": {
     "ci": "npm run test && node test/test-saucelabs.js",
     "http-server": "http-server -p 3000 --silent",
-    "jshint": "jshint --config .jshintrc",
+    "jshint": "jshint --config .jshintrc --exclude ./node_modules,./dist .",
     "test": "npm run jshint && testee --browsers firefox test/test.html",
     "preversion": "npm test",
     "postpublish": "git push --tags && git push",

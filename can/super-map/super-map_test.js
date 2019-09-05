@@ -46,7 +46,7 @@ QUnit.test("uses idProp", function(assert) {
 });
 
 
-QUnit.skip("creates map if none is provided (#8)", function(){
+QUnit.skip("creates map if none is provided (#8)", function(assert){
 
 	var connection = superMap({
 		url: "/api/restaurants",
