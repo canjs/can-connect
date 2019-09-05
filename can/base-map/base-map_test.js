@@ -2,7 +2,6 @@ var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var Map = require("can-map");
 var baseMap = require("./base-map");
-var canTestHelpers = require("can-test-helpers/lib/dev");
 var GLOBAL = require("can-globals/global/global");
 var stealClone = require("steal-clone");
 var QueryLogic = require("can-query-logic");
@@ -38,8 +37,21 @@ QUnit.test("uses idProp", function(assert) {
 
 });
 
+QUnit.test("ArrayType and ObjectType are mapped to List and Map", function(assert) {
+	var ArrayType = function() {};
+	var ObjectType = function() {};
+	var connection = baseMap({
+		ArrayType: ArrayType,
+		idProp: '_id',
+		name: "restaurant",
+		ObjectType: ObjectType,
+		url: "/api/restaurants"
+	});
+	assert.strictEqual(connection.List, ArrayType, "List is ArrayType");
+	assert.strictEqual(connection.Map, ObjectType, "Map is ObjectType");
+});
 
-canTestHelpers.devOnlyTest("throws an error if neither Map nor ObjectType are provided", function(assert) {
+QUnit.test("throws an error if neither Map nor ObjectType are provided", function(assert) {
 	assert.throws(
 		function() {
 			baseMap({
@@ -54,7 +66,7 @@ canTestHelpers.devOnlyTest("throws an error if neither Map nor ObjectType are pr
 	);
 });
 
-canTestHelpers.devOnlyTest("throws an error when List is accessed if neither List nor ArrayType are provided", function(assert) {
+QUnit.test("throws an error when List is accessed if neither List nor ArrayType are provided", function(assert) {
 	assert.throws(
 		function() {
 			var connection = baseMap({
