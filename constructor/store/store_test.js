@@ -91,9 +91,9 @@ QUnit.test("instance reference is updated and then discarded after reference is 
 				assert.equal(people[0].age, 32, "age property from data");
 				assert.ok(!people[0].name, "does not have name");
 				done();
-			}, testHelpers.logErrorAndStart);
+			}, testHelpers.logErrorAndStart(assert, done));
 		},1);
-	}, testHelpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 });
 
@@ -145,7 +145,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(ass
 		// put in store
 		connection.addListReference(list);
 		setTimeout(checkStore,1);
-	}, testHelpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	var done = assert.async();
 
@@ -157,7 +157,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(ass
 			assert.equal(list[1].id, 2);
 			connection.deleteListReference(list);
 			setTimeout(checkEmpty,1);
-		}, testHelpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 	function checkEmpty() {
@@ -165,7 +165,7 @@ QUnit.test("list store is kept and re-used and possibly discarded", function(ass
 
 			assert.ok(list !== resolvedList);
 			done();
-		}, testHelpers.logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 
 	}
 
@@ -288,7 +288,6 @@ QUnit.test("instances bound before create are moved to instance store (#296)", f
 
     var connection = connect([
 		function(){
-			var calls = 0;
 			return {
 				getData: function(){
 					return Promise.resolve({name: "test store", id: "abc"});
@@ -348,7 +347,7 @@ QUnit.test("instanceStore adds instance references for list membership.", functi
 				assert.equal(connection.instanceStore.referenceCount("abc"), 1, "finished requests reduce instance counts to 1");
 				connection.deleteListReference(list);
 				assert.ok(!connection.instanceStore.has("abc"), "instance removed from store after last list ref removed");
-				resolve()
+				resolve();
 			}, 1);
 		});
 	}).then(done);
@@ -412,7 +411,6 @@ QUnit.test("list store keeps date types with query", function(assert){
 	};
 
 	connection = connect([function(){
-		var calls = 0;
 		return {
 			getListData: function(){
 				// nothing to get, it's just about the list set.
@@ -445,6 +443,6 @@ QUnit.test("list store keeps date types with query", function(assert){
 		var listKeyObject = JSON.parse(listKey);
 		assert.equal(listKeyObject.date, d.toISOString());
 		done();
-	}, testHelpers.logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 });

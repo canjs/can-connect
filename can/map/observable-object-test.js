@@ -26,7 +26,6 @@ var realTime = require("../../real-time/real-time");
 var connect = require("../../can-connect");
 
 var QUnit = require("steal-qunit");
-var fixture = require("can-fixture");
 
 
 

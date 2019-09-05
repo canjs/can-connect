@@ -41,7 +41,7 @@
     "can-set-legacy": "<2.0.0",
     "can-simple-observable": "^2.0.0",
     "can-test-helpers": "^1.1.2",
-    "can-type": "^0.1.13",
+    "can-type": "<2.0.0",
     "http-server": "^0.11.0",
     "jquery": "2.x - 3.x",
     "jshint": "^2.9.4",
@@ -61,7 +61,7 @@
   "scripts": {
     "ci": "npm run test && node test/test-saucelabs.js",
     "http-server": "http-server -p 3000 --silent",
-    "jshint": "jshint --config .jshintrc",
+    "jshint": "jshint --config .jshintrc --exclude ./node_modules,./dist .",
     "test": "npm run jshint && testee --browsers firefox test/test.html",
     "preversion": "npm test",
     "postpublish": "git push --tags && git push",

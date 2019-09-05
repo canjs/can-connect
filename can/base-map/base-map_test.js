@@ -42,7 +42,7 @@ QUnit.test("ArrayType and ObjectType are mapped to List and Map", function(asser
 	var ObjectType = function() {};
 	var connection = baseMap({
 		ArrayType: ArrayType,
-		idProp: '_id',
+		idProp: "_id",
 		name: "restaurant",
 		ObjectType: ObjectType,
 		url: "/api/restaurants"
@@ -75,7 +75,7 @@ QUnit.test("throws an error when List is accessed if neither List nor ArrayType 
 				name: "restaurant",
 				url: "/api/restaurants"
 			});
-			connection.List;
+			assert.equal(typeof connection.List, "undefined");
 		},
 		/should be configured with an ArrayType or List type/g,
 		"throws"

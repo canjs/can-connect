@@ -1,7 +1,5 @@
 "use strict";
 var stealTools = require("steal-tools");
-var path = require("path");
-var fs = require("fs");
 
 var modules = [];
 

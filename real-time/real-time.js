@@ -191,7 +191,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 	behavior = {
 		createData: function(){
 			var promise = baseConnection.createData.apply(this, arguments);
-			var cleanPromise = promise.catch(function () { return ''; })
+			var cleanPromise = promise.catch(function () { return ''; });
 			createPromise = Promise.all([createPromise, cleanPromise]);
 			return promise;
 		},
@@ -443,12 +443,14 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 				for(var item, i = 0, l = items.data.length; i < l; i++) {
 					item = items.data[i];
 					if( !self.queryLogic.isMember(set, item) ) {
-						var msg = "One or more items were retrieved which do not match the 'Set' parameters used to load them. "
-							+ "Read the docs for more information: https://canjs.com/doc/can-query-logic.html#TestingyourQueryLogic"
-							+ "\n\nBelow are the 'query' parameters:"
-							+ "\n" + canDev.stringify(set)
-							+ "\n\nAnd below is an item which does not match those parameters:"
-							+ "\n" + canDev.stringify(item);
+						var msg = [
+							"One or more items were retrieved which do not match the 'Set' parameters used to load them. ",
+							"Read the docs for more information: https://canjs.com/doc/can-query-logic.html#TestingyourQueryLogic",
+							"\n\nBelow are the 'query' parameters:",
+							"\n" + canDev.stringify(set),
+							"\n\nAnd below is an item which does not match those parameters:",
+							"\n" + canDev.stringify(item)
+						].join("");
 						canDev.warn(msg);
 						break;
 					}
@@ -456,7 +458,7 @@ module.exports = connect.behavior("real-time",function(baseConnection){
 			}
 
 			return Promise.resolve(items);
-		}
+		};
 	}
 	//!steal-remove-end
 

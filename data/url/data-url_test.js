@@ -262,7 +262,7 @@ QUnit.test('URL parameters should be encoded', function (assert) {
 	});
 	fixture({
 		"GET /dogs/%23asher": function () {
-			return {id: '#asher'}
+			return {id: '#asher'};
 		}
 	});
 
@@ -352,10 +352,8 @@ QUnit.test("fixture stores work with data (#298)", function(assert) {
 			assert.equal(todo.name, "todo 1");
 			ready();
 		}, function(error){
-			debugger;
 		});
 	}, function(){
-		debugger;
 	});
 });
 

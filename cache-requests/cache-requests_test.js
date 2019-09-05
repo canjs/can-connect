@@ -68,7 +68,6 @@ QUnit.test("Incrementally load data", function(assert) {
 
 	var behavior = cacheRequests( {
 		getListData: function(params){
-			console.log("gld", params)
 			assert.equal(params.start, count * 10 + 1, "start is right "+params.start);
 			count++;
 			assert.equal(params.end, count * 10, "end is right "+params.end);
@@ -160,7 +159,7 @@ QUnit.test("Filters are preserved for different pagination", function(assert) {
 					type: "a"
 				});
 			}
-			isSecondRun = true
+			isSecondRun = true;
 			return Promise.resolve({data: items});
 		},
 		queryLogic: queryLogic,
@@ -217,7 +216,7 @@ QUnit.test("QueryLogic usage example", function(assert) {
 	var done = assert.async();
 
 	todoConnection.getListData({filter: {status: "critical"}}).then(function(){
-		return todoConnection.getListData({})
+		return todoConnection.getListData({});
 	}).then(function(){
 		done();
 	});

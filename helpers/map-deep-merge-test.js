@@ -43,7 +43,7 @@ QUnit.noop = function(){};
 //	contributionMonth.osProjects.splice(1,0, new OSProject({id: 3, name: 'StealJS'}) ) // 3
 //	contributionMonth.author = hydrateInstance( {id: 6, name: 'ilya'} ) // 4
 
-var OSProject, Author, ContributionMonth, origEventDispatch, onPatches,
+var OSProject, Author, ContributionMonth, onPatches,
 	addPatches = function(obj, patches){
 		patches.forEach(function(patch){
 			onPatches.push({object: obj, patch: patch});
@@ -68,11 +68,6 @@ ContributionMonth = DefineMap.extend("ContributionMonth",{
 	osProjects: OSProject.List
 });
 
-function notEq(a){
-	return function(b){
-		return a !== b;
-	};
-}
 function prop(prop){
 	return function(o){
 		return get(o, prop);
@@ -210,7 +205,6 @@ QUnit.test('smartMerge can-connect behavior', function(assert) {
 
 	item.save().then(function(updated){
 		assert.deepEqual(updated.serialize(), updatedData, 'updated data should be correct');
-		console.log(onPatches)
 		var patchInfo = onPatches.map(function(patchData){
 			if(patchData.patch.type === "set") {
 				return "set "+patchData.patch.key;

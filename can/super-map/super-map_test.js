@@ -1,5 +1,4 @@
 var QUnit = require("steal-qunit");
-var canTestHelpers = require("can-test-helpers/lib/dev");
 var fixture = require("can-fixture");
 var Map = require("can-map");
 var DefineMap = require("can-define/map/map");
@@ -46,8 +45,21 @@ QUnit.test("uses idProp", function(assert) {
 
 });
 
+QUnit.test("ArrayType and ObjectType are mapped to List and Map", function(assert) {
+	var ArrayType = function() {};
+	var ObjectType = function() {};
+	var connection = superMap({
+		ArrayType: ArrayType,
+		idProp: "_id",
+		name: "restaurant",
+		ObjectType: ObjectType,
+		url: "/api/restaurants"
+	});
+	assert.strictEqual(connection.List, ArrayType, "List is ArrayType");
+	assert.strictEqual(connection.Map, ObjectType, "Map is ObjectType");
+});
 
-canTestHelpers.devOnlyTest("throws an error if neither Map nor ObjectType are provided", function(assert) {
+QUnit.test("throws an error if neither Map nor ObjectType are provided", function(assert) {
 	assert.throws(
 		function() {
 			superMap({
@@ -62,7 +74,7 @@ canTestHelpers.devOnlyTest("throws an error if neither Map nor ObjectType are pr
 	);
 });
 
-canTestHelpers.devOnlyTest("throws an error when List is accessed if neither List nor ArrayType are provided", function(assert) {
+QUnit.test("throws an error when List is accessed if neither List nor ArrayType are provided", function(assert) {
 	assert.throws(
 		function() {
 			var connection = superMap({
@@ -71,7 +83,7 @@ canTestHelpers.devOnlyTest("throws an error when List is accessed if neither Lis
 				name: "restaurant",
 				url: "/api/restaurants"
 			});
-			connection.List;
+			assert.equal(typeof connection.List, "undefined");
 		},
 		/should be configured with an ArrayType or List type/g,
 		"throws"

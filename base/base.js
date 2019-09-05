@@ -89,7 +89,7 @@ module.exports = behavior("base",function(baseConnection){
 			} else if(this.idProp) {
 				return instance[this.idProp];
 			} else {
-				throw new Error("can-connect/base/base - Please add a queryLogic option.")
+				throw new Error("can-connect/base/base - Please add a queryLogic option.");
 			}
 		},
 

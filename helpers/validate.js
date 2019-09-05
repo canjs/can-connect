@@ -27,7 +27,7 @@ function validateArgumentInterface(func, argIndex, interfaces, errorHandler) {
 		}
 
 		return func.apply(this, arguments);
-	}
+	};
 }
 
 
@@ -35,8 +35,7 @@ function validateArgumentInterface(func, argIndex, interfaces, errorHandler) {
 function BehaviorInterfaceError(baseBehavior, extendingBehavior, missingProps) {
 	var extendingName = extendingBehavior.behaviorName || 'anonymous behavior',
 		baseName = baseBehavior.__behaviorName || 'anonymous behavior',
-		message = 'can-connect: Extending behavior "' + extendingName + '" found base behavior "' + baseName
-			+ '" was missing required properties: ' + JSON.stringify(missingProps.related),
+		message = 'can-connect: Extending behavior "' + extendingName + '" found base behavior "' + baseName + '" was missing required properties: ' + JSON.stringify(missingProps.related),
 		instance = new Error(message);
 
 	if (Object.setPrototypeOf){
@@ -50,5 +49,6 @@ BehaviorInterfaceError.prototype = Object.create(Error.prototype, {
 if (Object.setPrototypeOf){
 	Object.setPrototypeOf(BehaviorInterfaceError, Error);
 } else {
+	/* jshint proto: true */
 	BehaviorInterfaceError.__proto__ = Error;
 }

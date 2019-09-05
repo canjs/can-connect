@@ -1,11 +1,7 @@
 var QUnit = require("steal-qunit");
 var serviceWorkerCache = require("./service-worker");
 var connect = require("../can-connect");
-
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	done();
-};
+var testHelpers = require("../test-helpers");
 
 if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 	QUnit.module("can-connect/service-worker",{
@@ -25,7 +21,7 @@ if(typeof Worker !== "undefined" && !System.isEnv('production')) {
 			.then(function(listData){
 				assert.deepEqual(listData, {data: [{id: 1}, {id: 2}]}, "got back data");
 				done();
-			}, logErrorAndStart);
+			}, testHelpers.logErrorAndStart(assert, done));
 
 	});
 }

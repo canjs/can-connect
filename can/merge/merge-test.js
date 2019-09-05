@@ -94,7 +94,6 @@ QUnit.test("basics", function(assert) {
 		setTimeout(function(){
 			throw err;
 		},1);
-		debugger;
 		done();
 	});
 

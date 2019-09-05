@@ -30,13 +30,6 @@ var map = [].map;
 
 var later = testHelpers.later;
 
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	done();
-	return Promise.reject(e);
-
-};
-
 constructorStore.requestCleanupDelay = 1;
 var queues = require("can-queues");
 
@@ -93,7 +86,9 @@ QUnit.test("real-time super model", function(assert) {
 	var firstItems = [ {id: 0, type: "important"}, {id: 1, type: "important"} ];
 	var secondItems = [ {id: 2, due: "today"}, {id: 3, due: "today"} ];
 
-	var state = testHelpers.makeStateChecker(assert, [
+	var done = assert.async();
+
+	var state = testHelpers.makeStateChecker(assert, done, [
 		"getListData-important",
 		"getListData-today",
 		"createData-today+important",
@@ -102,8 +97,6 @@ QUnit.test("real-time super model", function(assert) {
 		"destroyData-important-1",
 		"getListData-today-2"
 	]);
-
-	var done = assert.async();
 
 	fixture({
 		"GET /services/todos": function(){
@@ -178,7 +171,7 @@ QUnit.test("real-time super model", function(assert) {
 
 		setTimeout(createImportantToday,1);
 
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	var created;
 	function createImportantToday() {
@@ -189,7 +182,7 @@ QUnit.test("real-time super model", function(assert) {
 		})).then( function(task){
 			created = task;
 			setTimeout(checkLists, 1);
-		}, logErrorAndStart);
+		}, testHelpers.logErrorAndStart(assert, done));
 	}
 
 
@@ -230,7 +223,7 @@ QUnit.test("real-time super model", function(assert) {
 
 	function update1() {
 		created.removeAttr("due");
-		connection.save(created).then(later(checkLists2), logErrorAndStart);
+		connection.save(created).then(later(checkLists2), testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkLists2() {
 		assert.ok( importantList.indexOf(created) >= 0, "still in important");
@@ -241,7 +234,7 @@ QUnit.test("real-time super model", function(assert) {
 	function update2() {
 		created.removeAttr("type");
 		created.attr("due","today");
-		connection.save(created).then(later(checkLists3), logErrorAndStart);
+		connection.save(created).then(later(checkLists3), testHelpers.logErrorAndStart(assert, done));
 	}
 	function checkLists3() {
 		assert.equal( importantList.indexOf(created),  -1, "removed from important");
@@ -274,7 +267,7 @@ QUnit.test("real-time super model", function(assert) {
 		firstImportant = importantList[0];
 
 		connection.destroy(firstImportant)
-			.then(later(checkLists4),logErrorAndStart);
+			.then(later(checkLists4), testHelpers.logErrorAndStart(assert, done));
 	}
 
 	function checkLists4(){
@@ -516,7 +509,7 @@ QUnit.test("additional properties are included in getList responses", function(a
 
 QUnit.test("should batch model events", function(assert) {
 	var eventOrder = [];
-	var Type = Map.extend({})
+	var Type = Map.extend({});
 	var instance = new Type();
 
 	instance.on("updated", function() {
@@ -530,10 +523,10 @@ QUnit.test("should batch model events", function(assert) {
 	queues.batch.start();
 	queues.notifyQueue.enqueue(function() {
 		eventOrder.push(1);
-	})
+	});
 	queues.deriveQueue.enqueue(function() {
 		eventOrder.push(4);
-	})
+	});
 	canMap.callbackInstanceEvents("updated", instance);
 	queues.batch.stop();
 

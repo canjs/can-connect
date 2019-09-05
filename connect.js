@@ -1,4 +1,3 @@
-var assign = require("can-reflect").assignMap;
 var behavior = require("./behavior");
 
 /**
