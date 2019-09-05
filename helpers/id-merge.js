@@ -1,8 +1,8 @@
 "use strict";
-var map = [].map;
 
-var diffList = require("can-diff/list/list")
 var canReflect = require("can-reflect");
+var diffList = require("can-diff/list/list");
+
 module.exports = function(list, update, id, make){
 
 	var patches = diffList(list, update, function(a, b){

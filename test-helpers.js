@@ -1,6 +1,6 @@
 "use strict";
 module.exports = {
-	makeStateChecker: function(assert, names){
+	makeStateChecker: function(assert, done, names){
 
 		return {
 			check: function(assert, value){
@@ -30,12 +30,14 @@ module.exports = {
 			setTimeout(fn, 1);
 		};
 	},
-	logErrorAndStart: function(e){
-		assert.ok(false,"Error "+e);
-		setTimeout(function(){
-			throw e;
-		},1);
-		done();
+	logErrorAndStart: function(assert, done) {
+		return function(e) {
+			assert.ok(false,"Error "+e);
+			setTimeout(function(){
+				throw e;
+			},1);
+			done();
+		};
 	},
 	getId: function(o){
 		return o.id;

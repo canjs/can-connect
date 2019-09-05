@@ -394,7 +394,7 @@ var makeRef = function(connection) {
 		"can.getName": function(){
 			return canReflect.getName(this.constructor)+"{"+this[idProp]+"}";
 		}
-	})
+	});
 
 	var baseEventSetup = Ref.prototype._eventSetup;
 	Ref.prototype._eventSetup = function() {

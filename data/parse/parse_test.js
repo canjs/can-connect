@@ -1,18 +1,15 @@
 var QUnit = require("steal-qunit");
 var fixture = require("can-fixture");
 var connect = require("../../can-connect");
-var dataUrl = require("../../data/url/url"),
-	dataParse = require("../../data/parse/parse");
+var dataParse = require("../../data/parse/parse");
+var dataUrl = require("../../data/url/url");
+var testHelpers = require("../../test-helpers");
 
 QUnit.module("can-connect/data-parse",{
 	beforeEach: function(assert) {
 		fixture.delay = 1;
 	}
 });
-var logErrorAndStart = function(e){
-	assert.ok(false,"Error "+e);
-	done();
-};
 
 QUnit.test("basics", function(assert){
 
@@ -51,22 +48,22 @@ QUnit.test("basics", function(assert){
 	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
 		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 
 	connection.getData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 2}, "getInstance");
-	},logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 
 	connection.createData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 3}, "create");
-	},logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	connection.destroyData({foo: "bar", id: 3}).then(function(data){
 		assert.deepEqual(data, {destroy: true}, "update");
 		done();
-	},logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 });
 
@@ -111,11 +108,11 @@ QUnit.test("parseListData and parseInstanceData don't use options correctly (#27
 	var done = assert.async();
 	connection.getListData({foo: "bar"}).then(function(items){
 		assert.deepEqual(items, {data: [{id: 1}]}, "getList");
-	}, logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 	connection.getData({foo: "bar"}).then(function(data){
 		assert.deepEqual(data, {id: 2}, "getInstance");
 		done();
-	},logErrorAndStart);
+	}, testHelpers.logErrorAndStart(assert, done));
 
 });

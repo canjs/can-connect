@@ -24,7 +24,7 @@ QUnit.test("basics", function(assert) {
 	var myPage = new (DefineMap.extend({
 		hub: { Type: Hub },
 		hub2: { Type: Hub },
-	}));
+	}))();
 
 	myPage.hub = {id: 1, name: 'One'};
 	HubConnection.addInstanceReference(myPage.hub);
@@ -51,6 +51,6 @@ QUnit.test("Two objects with no id", function(assert) {
 	var hub1 = new Hub({name: 'One'});
 	HubConnection.addInstanceReference(hub1);
 	assert.ok(!HubConnection.instanceStore.has(undefined), 'The instanceStore should not have an "undefined" key item');
-	var hub2 = new Hub({name: 'One'});
+	new Hub({name: 'One'});
 	assert.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
 });

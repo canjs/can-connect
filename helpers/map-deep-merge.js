@@ -181,7 +181,7 @@ function idFromType( Type ){
 		};
 }
 function hydratorFromType( Type ){
-	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ) };
+	return Type && Type.connection && Type.connection.makeInstance || function( data ){ return new Type( data ); };
 }
 
 

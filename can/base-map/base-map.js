@@ -5,7 +5,6 @@ var canMap = require("../map/map");
 var canRef = require("../ref/ref");
 var constructorStore = require("../../constructor/store/store");
 var dataCallbacks = require("../../data/callbacks/callbacks");
-var callbacksCache = require("../../data/callbacks-cache/callbacks-cache");
 var dataParse = require("../../data/parse/parse");
 var dataUrl = require("../../data/url/url");
 var realTime = require("../../real-time/real-time");

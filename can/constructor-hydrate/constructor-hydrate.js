@@ -109,7 +109,7 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 			};
 			baseConnect.init.apply(this, arguments);
 		}
-	}
+	};
 });
 
 module.exports = constructorHydrateBehavior;

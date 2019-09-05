@@ -300,7 +300,7 @@ QUnit.test("serialize-able", function(assert) {
 	constructorStore.requests.one("end", function(){
 		assert.deepEqual( canReflect.serialize(game), {id: "123", teamRefA: "321", teamRefB: "321"} );
 		done();
-	})
+	});
 
 	constructorStore.requests.decrement();
 
