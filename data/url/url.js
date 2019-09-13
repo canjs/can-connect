@@ -183,7 +183,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * @option {Object} If an object is provided, it can customize each method and URL directly
  * like:
  *
- * ```
+ * ```js
  * url: {
  *   getListData: "GET /services/todos",
  *   getData: "GET /services/todo/{id}",
@@ -196,7 +196,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * You can provide a `resource` property that works like providing `url` as a string, but overwrite
  * other values like:
  *
- * ```
+ * ```js
  * url: {
  *   resource: "/services/todo",
  *   getListData: "GET /services/todos"
@@ -204,7 +204,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * ```
  *
  * You can also customize per-method the parameters passed to the [can-connect/data/url/url.ajax ajax implementation], like:
- * ```
+ * ```js
  * url: {
  *   resource: "/services/todos",
  *   getListData: {
@@ -220,7 +220,8 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  *
  * The [can-ajax <code>beforeSend</code>] hook can also be passed for all request methods. This can be useful when
  * attaching a session token header to a request:
- * ```
+ * 
+ * ```js
  * url: {
  *   resource: "/services/todos",
  *   beforeSend: (xhr) => {
@@ -231,7 +232,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  *
  * Finally, you can provide your own method to totally control how the request is made:
  *
- * ```
+ * ```js
  * url: {
  *   resource: "/services/todo",
  *   getListData: "GET /services/todos",
