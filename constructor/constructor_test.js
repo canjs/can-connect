@@ -59,38 +59,40 @@ QUnit.test("basics", function(assert) {
 	}) ));
 
 	var done = assert.async();
-	peopleConnection.getList().then(function(people){
+	var promises = [];
+
+	promises.push(peopleConnection.getList().then(function(people){
 		assert.ok(people.isList, "is a list");
 		assert.equal(people.length, 1, "got a list");
 		assert.ok(people[0] instanceof Person);
-	}, testHelpers.logErrorAndStart(assert, done)); //-> instances
+	}, testHelpers.logErrorAndStart(assert, done))); //-> instances
 
 
-	peopleConnection.get({id: 5}).then(function(person){
+	promises.push(peopleConnection.get({id: 5}).then(function(person){
 		assert.equal(person.id, 5, "got a list");
 		assert.ok(person instanceof Person);
-	}, testHelpers.logErrorAndStart(assert, done));
+	}, testHelpers.logErrorAndStart(assert, done)));
 
 	var p = new Person({name: "justin"});
 
-	peopleConnection.save(p).then(function(updatedP){
+	promises.push(peopleConnection.save(p).then(function(updatedP){
 		assert.equal(p, updatedP, "same instances");
 		assert.equal(p.id, 3);
-	});
+	}));
 
 	var p2 = new Person({name: "justin", id: 3});
 
-	peopleConnection.save(p2).then(function(updatedP){
+	promises.push(peopleConnection.save(p2).then(function(updatedP){
 		assert.equal(p2, updatedP, "same instances");
 		assert.equal(p2.update, true);
-	}, testHelpers.logErrorAndStart(assert, done));
+	}, testHelpers.logErrorAndStart(assert, done)));
 
 	var p3 = new Person({name: "justin", id: 3});
 
-	peopleConnection.destroy(p3).then(function(updatedP){
+	promises.push(peopleConnection.destroy(p3).then(function(updatedP){
 		assert.equal(p3, updatedP, "same instances");
 		assert.equal(p3.destroy, true);
-	}, testHelpers.logErrorAndStart(assert, done));
-	done();
+	}, testHelpers.logErrorAndStart(assert, done)));
 
+	Promise.all(promises).then(done, done);
 });

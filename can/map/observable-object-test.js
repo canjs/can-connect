@@ -1,6 +1,5 @@
-/**
- * Created by Nils Lundquist (nils@bitovi.com) on 2019-07-31.
- */
+/* jshint esversion: 6 */
+"use strict";
 
 var set = require("can-set-legacy");
 var $ = require("jquery");
