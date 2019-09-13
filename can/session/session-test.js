@@ -29,10 +29,10 @@ function setupFixtures(fixtureType) {
 
 	fixture(
 		{ method: "get", url: "/api/session" },
-		( request, response, headers, ajaxSettings ) => {
+		function(request, response, headers, ajaxSettings) {
 			QUnit.assert.ok(true, 'GET /api/session called');
 
-			const token = isCookie ? (request.headers['Fake-Cookie'] || '').split('=')[1]
+			var token = isCookie ? (request.headers['Fake-Cookie'] || '').split('=')[1]
 				: (request.headers.Authorization || '').split(' ')[1];
 
 			if (token === sessionResponse.token) {
@@ -50,7 +50,7 @@ function setupFixtures(fixtureType) {
 
 	fixture(
 		{ method: "post", url: "/api/session" },
-		( request, response, headers, ajaxSettings ) => {
+		function(request, response, headers, ajaxSettings) {
 			QUnit.assert.ok(true, 'POST /api/session called');
 			QUnit.assert.equal(request.data.username, 'nils', 'Username passed during login.');
 			QUnit.assert.equal(request.data.password, 'foobar', 'Password passed during login.');
@@ -61,7 +61,7 @@ function setupFixtures(fixtureType) {
 
 	fixture(
 		{ method: "delete", url: "/api/session" },
-		( request, response, headers, ajaxSettings ) => {
+		function(request, response, headers, ajaxSettings) {
 			QUnit.assert.ok(true, 'DELETE /api/session called');
 			return {};
 		}
@@ -79,17 +79,17 @@ QUnit.module("can-connect/can/session", {
 		var fixtureType = context.test.testName.indexOf('Cookie') > -1 ? 'cookie' : 'bearer';
 		setupFixtures(fixtureType);
 	},
-	afterEach: () => {
+	afterEach: function() {
 		tearDownFixtures();
 	}
 });
 
 QUnit.test("Faked Cookies - Session retrieved when .current is accessed", function(assert) {
-	const done = assert.async();
+	var done = assert.async();
 	assert.expect(3);
 
-	const Session = DefineMap.extend(sessionParams);
-	const options = {
+	var Session = DefineMap.extend(sessionParams);
+	var options = {
 		Map: Session,
 		url: {
 			resource: '/api/session',
@@ -97,19 +97,21 @@ QUnit.test("Faked Cookies - Session retrieved when .current is accessed", functi
 				method: 'get',
 				url: '/api/session',
 				// this isn't needed during a real cookie auth scenario since the browser will be adding cookies to the request
-				beforeSend: (xhr) => {
+				beforeSend: function(xhr) {
 					xhr.setRequestHeader('Fake-Cookie', 'SESSIONID=DUMMY.TOKEN');
 				}
 			}
 		},
 	};
 
-	const behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
-	const connection = behaviors.reduce((conn, behavior) => behavior(conn), options);
+	var behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
+	var connection = behaviors.reduce(function(conn, behavior) {
+		return behavior(conn);
+	}, options);
 	connection.init();
 
 	assert.equal(Session.current, undefined, 'Session.current starts undefined.');
-	setTimeout(() => {
+	setTimeout(function() {
 		assert.propEqual(Session.current.serialize(), sessionResponse, 'Session.current is loaded as expected.');
 		done();
 	}, 10);
@@ -118,11 +120,11 @@ QUnit.test("Faked Cookies - Session retrieved when .current is accessed", functi
 QUnit.test("Faked Cookies - Session.currentPromise & current are instantiated when .save is called", function(assert) {
 	// if this expect fails chances are too many requests are being made & .currentPromise or .current is causing a
 	// request when they shouldn't since a .save is pending
-	const done = assert.async();
+	var done = assert.async();
 	assert.expect(6);
 
-	const Session = DefineMap.extend(sessionParams);
-	const options = {
+	var Session = DefineMap.extend(sessionParams);
+	var options = {
 		Map: Session,
 		url: {
 			resource: '/api/session',
@@ -130,25 +132,27 @@ QUnit.test("Faked Cookies - Session.currentPromise & current are instantiated wh
 		},
 	};
 
-	const behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
-	const connection = behaviors.reduce((conn, behavior) => behavior(conn), options);
+	var behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
+	var connection = behaviors.reduce(function(conn, behavior) {
+		return behavior(conn);
+	}, options);
 	connection.init();
 
-	const savePromise = (new Session({ username: 'nils', password: 'foobar' })).save();
+	var savePromise = (new Session({ username: 'nils', password: 'foobar' })).save();
 	assert.equal(Session.current, undefined, 'Session.current starts undefined');
 	assert.ok(Session.currentPromise instanceof Promise, 'Session.currentPromise is set by .save()');
-	savePromise.then(() => {
+	savePromise.then(function() {
 		assert.propEqual(Session.current.serialize(), sessionResponse, 'Session.current set after successful save.');
 		done();
 	});
 });
 
 QUnit.test("Faked Cookies - Session undefined after .destroy called", function(assert) {
-	const done = assert.async();
+	var done = assert.async();
 	assert.expect(3);
 
-	const Session = DefineMap.extend(sessionParams);
-	const options = {
+	var Session = DefineMap.extend(sessionParams);
+	var options = {
 		Map: Session,
 		url: {
 			resource: '/api/session',
@@ -157,19 +161,21 @@ QUnit.test("Faked Cookies - Session undefined after .destroy called", function(a
 				method: 'get',
 				url: '/api/session',
 				// this isn't needed during a real cookie auth scenario since the browser will be adding cookies to the request
-				beforeSend: (xhr) => {
+				beforeSend: function(xhr) {
 					xhr.setRequestHeader('Fake-Cookie', 'SESSIONID=DUMMY.TOKEN');
 				}
 			}
 		},
 	};
 
-	const behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
-	const connection = behaviors.reduce((conn, behavior) => behavior(conn), options);
+	var behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
+	var connection = behaviors.reduce(function(conn, behavior) {
+		return behavior(conn);
+	}, options);
 	connection.init();
 
-	Session.currentPromise.then(() => {
-		Session.current.destroy().then(() => {
+	Session.currentPromise.then(function() {
+		Session.current.destroy().then(function() {
 			assert.equal(Session.current, undefined);
 			done();
 		});
@@ -177,11 +183,11 @@ QUnit.test("Faked Cookies - Session undefined after .destroy called", function(a
 });
 
 QUnit.test("Computed observations dependant on Session.current recalculate after `new Session().save`", function(assert) {
-	const done = assert.async();
+	var done = assert.async();
 	assert.expect(6);
 
-	const Session = DefineMap.extend(sessionParams);
-	const options = {
+	var Session = DefineMap.extend(sessionParams);
+	var options = {
 		Map: Session,
 		url: {
 			resource: '/api/session',
@@ -189,11 +195,13 @@ QUnit.test("Computed observations dependant on Session.current recalculate after
 		},
 	};
 
-	const behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
-	const connection = behaviors.reduce((conn, behavior) => behavior(conn), options);
+	var behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
+	var connection = behaviors.reduce(function(conn, behavior) {
+		return behavior(conn);
+	}, options);
 	connection.init();
 
-	const testObs = new Observation(function() {
+	var testObs = new Observation(function() {
 		return Session.current ? 'session available' : 'session absent';
 	});
 
@@ -201,23 +209,23 @@ QUnit.test("Computed observations dependant on Session.current recalculate after
 		assert.equal(message, 'session available', 'Observation recomputed after Session.current updates.');
 	});
 
-	Session.currentPromise.catch(() => {
+	Session.currentPromise.catch(function() {
 		// session absent since currentPromise rejected
 		assert.equal(testObs.value, 'session absent', 'Session absent prior to successful login.');
 
 		// session will be available after .save and testObs handler will run
-		(new Session({ username: 'nils', password: 'foobar' })).save().then((session) => {
+		(new Session({ username: 'nils', password: 'foobar' })).save().then(function(session) {
 			setTimeout(done, 10);
 		});
 	});
 });
 
 QUnit.test("Singleton instances created/deleted by directly using connection object update the .current & .currentPromise as expected.", function(assert) {
-	const done = assert.async();
+	var done = assert.async();
 	assert.expect(8);
 
-	const Session = DefineMap.extend(sessionParams);
-	const options = {
+	var Session = DefineMap.extend(sessionParams);
+	var options = {
 		Map: Session,
 		url: {
 			resource: '/api/session',
@@ -226,21 +234,23 @@ QUnit.test("Singleton instances created/deleted by directly using connection obj
 		},
 	};
 
-	const behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
-	const connection = behaviors.reduce((conn, behavior) => behavior(conn), options);
+	var behaviors = [base, dataUrl, constructor, canMap, sessionBehavior];
+	var connection = behaviors.reduce(function(conn, behavior) {
+		return behavior(conn);
+	}, options);
 	connection.init();
 
-	connection.save(new Session({ username: 'nils', password: 'foobar' })).then((instance) => {
+	connection.save(new Session({ username: 'nils', password: 'foobar' })).then(function(instance) {
 		assert.equal(Session.current, instance, 'Session.current is expected value after save.');
 
-		Session.currentPromise.then((res) => {
+		Session.currentPromise.then(function(res) {
 			assert.equal(instance, res, 'Session.currentPromise is expected value after save.');
 		});
 
-		connection.destroy(instance).then(() => {
+		connection.destroy(instance).then(function() {
 			assert.equal(Session.current, undefined, 'Session.current is expected value after destroy.');
 
-			Session.currentPromise.catch(() => {
+			Session.currentPromise.catch(function() {
 				assert.ok(true, 'Session.currentPromise is expected value after destroy.');
 				done();
 			});

@@ -365,12 +365,12 @@ QUnit.test("beforeSend works when set for all methods or per-method", function(a
 			getListData: {
 				url: "/getList",
 				type: 'POST',
-				beforeSend: () => {
+				beforeSend: function() {
 					assert.ok(true, 'per-method beforeSend called');
 				}
 			},
 			getData: "DELETE /getInstance",
-			beforeSend: () => {
+			beforeSend: function() {
 				assert.ok(true, 'default beforeSend called');
 			}
 		}
