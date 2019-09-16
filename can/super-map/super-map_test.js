@@ -83,7 +83,8 @@ QUnit.test("throws an error when List is accessed if neither List nor ArrayType 
 				name: "restaurant",
 				url: "/api/restaurants"
 			});
-			assert.equal(typeof connection.List, "undefined");
+			var connectionList = connection.List;
+			assert.equal(typeof connectionList, "undefined");
 		},
 		/should be configured with an ArrayType or List type/g,
 		"throws"
