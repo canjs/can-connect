@@ -18,7 +18,6 @@
 	"browser": true,
 	"phantom": true,
 	"node": true,
-	"esversion": 6,
 	"predef": [
 		"-Map"
 	],
@@ -41,4 +40,3 @@
 		"ActiveXObject": true
 	}
 }
-
