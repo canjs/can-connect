@@ -218,6 +218,7 @@ var urlBehavior = behavior("data/url", function(baseConnection) {
  * ```
  * This can be particularly useful for passing a handler for the [can-ajax <code>beforeSend</code>] hook.
  *
+ * <a id="beforeSend"></a>
  * The [can-ajax <code>beforeSend</code>] hook can also be passed for all request methods. This can be useful when
  * attaching a session token header to a request:
  * 
