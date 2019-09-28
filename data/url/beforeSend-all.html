@@ -1,0 +1,69 @@
+<person-list></person-list>
+
+<script type="module">
+import {
+  fixture,
+  restModel,
+  ObservableObject,
+  StacheElement,
+} from "can/ecosystem";
+
+setupFixtures();
+
+class Person extends ObservableObject {
+  static props = {
+    firstName: String,
+    lastName: String,
+    age: Number,
+  };
+}
+
+const personConnection = restModel({
+  Map: Person,
+  url: {
+    resource: '/api/person',
+    beforeSend(xhr) {
+      xhr.setRequestHeader('Authorization', 'Bearer: some-authorization-token');
+    }
+  }
+});
+
+class PersonList extends StacheElement {
+  static view =`
+    <button on:click="this.getList()">Make request for person list</button>
+    <ul>
+      {{#for(person of this.people)}}
+        <li>{{person.firstName}} {{person.lastName}} - {{person.age}}</li>
+      {{else}}
+        <li>No people loaded.</li>
+      {{/for}}
+    </ul>
+  `;
+
+  static props = {
+    people: {
+      get default() { return []; }
+    }
+  };
+
+  getList() {
+    personConnection.getList().then((list) => {;
+      this.people = list;
+    });
+  }
+}
+customElements.define("person-list", PersonList);
+
+function setupFixtures() {
+  fixture("GET /api/person", function (request, response) {
+    if (request.headers.Authorization) { // validate auth header
+      response([
+        {firstName: 'Keanu', lastName: 'Reeves', age: 55},
+        {firstName: 'Tom', lastName: 'Cruise', age: 57},
+      ]);
+    } else {
+      response(401, {message: "Unauthorized"}, {}, "unauthorized");
+    }
+  });
+}
+</script>

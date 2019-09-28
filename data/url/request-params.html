@@ -1,0 +1,85 @@
+<todo-list></todo-list>
+
+<script type="module">
+  import {
+    ajax,
+    fixture,
+    restModel,
+    ObservableObject,
+    StacheElement,
+  } from "can/ecosystem";
+
+  setupFixtures();
+
+  class Todo extends ObservableObject {
+    static props = {
+      id: Number,
+      content: String,
+      complete: Boolean,
+    };
+  }
+
+  function processContext() {
+    // react to the response of the '/services/context' request before sending getListData request
+  }
+
+  const todoConnection = restModel({
+    Map: Todo,
+    url: {
+      resource: "/services/todos",
+      getListData: {
+        url: "/services/todos",
+        type: "GET",
+        beforeSend: () => {
+          return ajax({url: '/services/context'}).then(processContext);
+        }
+      }
+    }
+  });
+
+  class TodoList extends StacheElement {
+    static view =`
+      <button on:click="this.getList()">Make request for Todo list</button>
+      <ul>
+        {{#for(todo of this.todos)}}
+          <li>
+            <input type="checkbox" disabled checked:from="{{todo.complete}}">
+            {{todo.id}} - {{todo.content}}
+          </li>
+        {{else}}
+          <li>No todos loaded.</li>
+        {{/for}}
+      </ul>
+    `;
+
+    static props = {
+      todos: {
+        get default() { return []; }
+      },
+    };
+
+    getList() {
+      todoConnection.getList().then((list) => {
+        this.todos = list;
+      });
+    }
+  }
+  customElements.define("todo-list", TodoList);
+
+  function setupFixtures() {
+    const todos = [
+      {id: 1, content: 'Do the dishes', complete: true},
+      {id: 2, content: 'Walk the dog', complete: false},
+      {id: 3, content: 'Sweep the floor', complete: false},
+    ];
+
+    fixture("GET /services/todos", function (request, response) {
+      response(todos);
+    });
+
+    // arbitrary preliminary request
+    fixture("GET /services/context", function (request, response) {
+      response({});
+    });
+  }
+</script>

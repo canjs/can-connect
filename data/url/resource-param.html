@@ -1,0 +1,83 @@
+<todo-list></todo-list>
+
+<script type="module">
+  import {
+    ajax,
+    fixture,
+    restModel,
+    ObservableObject,
+    StacheElement,
+  } from "can/ecosystem";
+
+  setupFixtures();
+
+  class Todo extends ObservableObject {
+    static props = {
+      id: Number,
+      content: String,
+      complete: Boolean,
+    };
+  }
+
+  const todoConnection = restModel({
+    Map: Todo,
+    url: {
+      resource: "/services/todo",
+      getListData: "GET /services/todos",
+    }
+  });
+
+  class TodoList extends StacheElement {
+    static view =`
+      <button on:click="this.getList()">Make request for Todo list</button>
+      <ul>
+        {{#for(todo of this.todos)}}
+          <li on:click="this.getTodo(todo.id)">{{todo.id}}</li>
+        {{else}}
+          <li>No todos loaded.</li>
+        {{/for}}
+      </ul>
+
+      {{#if this.activeTodo}}
+        <h3>Active Todo:</h3>
+        <p>{{this.activeTodo.content}} - <input type="checkbox" disabled checked:from="{{this.activeTodo.complete}}"></p>
+      {{/if}}
+    `;
+
+    static props = {
+      todos: {
+        get default() { return []; }
+      },
+      activeTodo: Todo
+    };
+
+    getList() {
+      todoConnection.getList().then((list) => {
+        this.todos = list;
+      });
+    }
+
+    getTodo(id) {
+      todoConnection.get({id}).then((todo) => {
+        this.activeTodo = todo;
+      })
+    }
+  }
+  customElements.define("todo-list", TodoList);
+
+  function setupFixtures() {
+    const todos = [
+      {id: 1, content: 'Do the dishes', complete: true},
+      {id: 2, content: 'Walk the dog', complete: false},
+      {id: 3, content: 'Sweep the floor', complete: false},
+    ];
+
+    fixture("GET /services/todos", function (request, response) {
+      response(todos);
+    });
+
+    fixture("GET /services/todo/{id}", function (request, response) {
+      response(todos[parseInt(request.data.id) - 1]);
+    })
+  }
+</script>
