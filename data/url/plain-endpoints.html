@@ -1,0 +1,96 @@
+<request-demo></request-demo>
+
+<script type="module">
+import {
+  fixture,
+  restModel,
+  ObservableObject,
+  StacheElement,
+} from "can/ecosystem";
+
+setupFixtures();
+
+class Todo extends ObservableObject {
+  static props = {
+    id: Number,
+    content: String,
+    complete: Boolean,
+  };
+}
+
+const todoConnection = restModel({
+  Map: Todo,
+  url: {
+    getListData: "GET /services/todos",
+    getData: "GET /services/todo/{id}",
+    createData: "POST /services/todo",
+    updateData: "PUT /services/todo/{id}",
+    destroyData: "DELETE /services/todo/{id}"
+  }
+});
+
+class RequestDemo extends StacheElement {
+  static view =`
+    <button on:click="this.getList()">Todo list request</button>
+    <button on:click="this.get()">Single todo request</button>
+    <button on:click="this.create()">Todo creation request</button>
+    <button on:click="this.update()">Todo update request</button>
+    <button on:click="this.delete()">Todo deletion request</button>
+  `;
+
+  getList() {
+    todoConnection.getList();
+  }
+
+  get() {
+    todoConnection.get({id: 5});
+  }
+
+  create() {
+    new Todo({
+      content: 'New todo',
+      complete: false,
+    }).save();
+  }
+
+  update() {
+    new Todo({
+      id: 1,
+      content: 'Old todo',
+      complete: true,
+    }).save(); // makes an update request since this instance already has an id
+  }
+
+  delete() {
+    new Todo({
+      id: 1,
+      content: 'Old todo',
+      complete: true,
+    }).destroy();
+  }
+}
+customElements.define("request-demo", RequestDemo);
+
+function setupFixtures() {
+  fixture("GET /services/todos", function (request, response) {
+    console.log('Todo list request');
+    response([]);
+  });
+  fixture("GET /services/todo/{id}", function (request, response) {
+    console.log(`Todo id ${request.data.id} request`);
+    response({});
+  });
+  fixture("POST /services/todo", function (request, response) {
+    console.log(`Todo created`);
+    response({});
+  });
+  fixture("PUT /services/todo/{id}", function (request, response) {
+    console.log(`Todo id ${request.data.id} updated`);
+    response({});
+  });
+  fixture("DELETE /services/todo/{id}", function (request, response) {
+    console.log(`Todo id ${request.data.id} deleted`);
+    response({});
+  });
+}
+</script>
