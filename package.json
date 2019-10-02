@@ -1,6 +1,6 @@
 {
   "name": "can-connect",
-  "version": "3.2.5",
+  "version": "4.0.0-pre.3",
   "description": "Data connection middleware and utilities",
   "main": "can-connect.js",
   "dependencies": {
@@ -10,7 +10,6 @@
     "can-define": "^2.7.13",
     "can-define-connected-singleton": "^0.2.0",
     "can-diff": "<2.0.0",
-    "can-dom-mutate": "<2.0.0",
     "can-event-queue": "<2.0.0",
     "can-globals": "^1.0.1",
     "can-key": "<2.0.0",
@@ -25,7 +24,6 @@
     "can-query-logic": "^1.0.0",
     "can-queues": "<2.0.0",
     "can-reflect": "^1.17.10",
-    "can-string": "<2.0.0",
     "can-symbol": "^1.6.1",
     "can-validate-interface": "^1.0.0"
   },
@@ -35,7 +33,7 @@
   },
   "devDependencies": {
     "can-dom-events": "^1.1.0",
-    "can-fixture": "^3.0.0-pre.9",
+    "can-fixture": "^3.1.7",
     "can-list": "^4.0.0",
     "can-map": "^4.0.0",
     "can-observation": "^4.0.0",
@@ -43,7 +41,7 @@
     "can-set-legacy": "<2.0.0",
     "can-simple-observable": "^2.0.0",
     "can-test-helpers": "^1.1.2",
-    "can-type": "^0.2.0",
+    "can-type": "<2.0.0",
     "http-server": "^0.11.0",
     "jquery": "2.x - 3.x",
     "jshint": "^2.9.4",
