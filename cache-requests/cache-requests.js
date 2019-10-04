@@ -282,6 +282,6 @@ module.exports = cacheRequestsBehaviour;
 //!steal-remove-start
 if(process.env.NODE_ENV !== 'production') {
 	var validate = require("../helpers/validate");
+	module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
 }
-module.exports = validate(cacheRequestsBehaviour, ['getListData', 'cacheConnection']);
 //!steal-remove-end
