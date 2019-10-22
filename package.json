@@ -45,7 +45,7 @@
     "http-server": "^0.11.0",
     "jquery": "2.x - 3.x",
     "jshint": "^2.9.4",
-    "steal": "^2.2.1",
+    "steal": "^2.2.4",
     "steal-css": "^1.0.0",
     "steal-qunit": "^2.0.0",
     "steal-tools": "^1.0.0",
