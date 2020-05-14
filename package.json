@@ -44,7 +44,7 @@
     "can-type": "<2.0.0",
     "http-server": "^0.11.0",
     "jquery": "2.x - 3.x",
-    "jshint": "^2.9.4",
+    "jshint": "^2.11.1",
     "steal": "^2.2.1",
     "steal-css": "^1.0.0",
     "steal-qunit": "^2.0.0",
