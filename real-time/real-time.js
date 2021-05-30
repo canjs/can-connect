@@ -136,10 +136,13 @@ var canReflect = require("can-reflect");
 var spliceSymbol = canSymbol.for("can.splice");
 
 function updateList(list, getRecord, currentIndex, newIndex) {
+
 	if(currentIndex === -1) { // item is not in the list
 
 		if(newIndex !== -1) { // item should be in the list
 			canReflect.splice(list, newIndex, 0, [getRecord()]);
+		} else {
+			canReflect.splice(list, 0, 0, [getRecord()]);
 		}
 	}
 	else { // item is already in the list
@@ -164,6 +167,10 @@ function updateList(list, getRecord, currentIndex, newIndex) {
 
 
 function updateListWithItem(list, recordData, currentIndex, newIndex, connection, set){
+	// this is cleaning up a bug with QueryLogic.index where it can return undefined
+	if( newIndex === undefined ) {
+		newIndex = -1;
+	}
 	// we are inserting right where we already are.
 	if(currentIndex !== -1 && (newIndex === currentIndex + 1 || newIndex === currentIndex)) {
 		return;

@@ -12,6 +12,7 @@ var assign = require("can-reflect").assignMap;
 var canDev = require('can-log/dev/dev');
 var QueryLogic = require("can-query-logic");
 var canReflect = require("can-reflect");
+var canSymbol = require("can-symbol");
 
 QUnit.module("can-connect/real-time",{});
 
@@ -648,4 +649,67 @@ QUnit.test("real-time doesn't handle updates when the id doesn't change (#436)",
 		done();
 	});
 
+});
+
+QUnit.test("Properly inserts in an empty list", function(assert){
+	var done = assert.async();
+	assert.expect(1);
+
+	var todos = [];
+	var connection = connect([
+		function(){
+			return {
+				list: function(items) {
+					var list = new DefineList(items.data);
+					var oldSplice = list[canSymbol.for("can.splice")];
+
+
+					list[canSymbol.for("can.splice")] = function(index){
+						assert.equal(index, 0, "inserted in the 0 spot, not undefined");
+						oldSplice.call(this, arguments);
+					};
+					// simulate the can-connet/can/map/map behaviour
+					// adding the list to the listStore
+					connection.addListReference(list, {});
+					return list;
+				},
+				getListData: function(){
+					return Promise.resolve(todos);
+				},
+				destroyData: function() {
+					// simulate an empty object response from server
+					return Promise.resolve({});
+				},
+				updateData: function(data){
+					return Promise.resolve(canReflect.serialize(data));
+				},
+				createData: function(data){
+					return Promise.resolve(canReflect.serialize({name: data.name, id: "xyz"}));
+				}
+			};
+		},
+		dataCallbacks,
+		realTime,
+		constructor,
+		constructorStore
+	], {
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	});
+
+	connection.getList({}).then(function(list){
+		list.on("length", function(){
+			assert.ok(true, "Length should change");
+		});
+		connection.save( {name: "new-item"} );
+		return list;
+	}).then(function(){
+		done();
+	}, function(err){
+		setTimeout(function(){
+			throw err;
+		},1);
+		done();
+	});
 });
