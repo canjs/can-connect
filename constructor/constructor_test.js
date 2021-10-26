@@ -127,11 +127,13 @@ QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", funct
 	var done = assert.async();
 	var promises = [];
 	var callArgs = [];
-	
+
 	var p = new Person({name: "ed"});
-	// observer made to p
+
+	// Observer made to p
 	var person = observe(p);
 	
+	// Observation made on person
 	var nameAndDate = new Observation(function() {
 		return person.name + " " + person.createdAt;
 	});
@@ -140,17 +142,16 @@ QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", funct
 		callArgs.push(value);
 	});
 	
+	// The properties that are set are batched together
 	queues.batch.start();
 	person.name = "edward";
 	person.createdAt = "10-07-13";
 	queues.batch.stop();
 	
-	
+	// Saving p should be done once
 	peopleConnection.save(p).then(function(updatedP) {
 		assert.deepEqual(callArgs, ["edward 10-07-13"])
-		console.log("callArgs in callback", callArgs);
-		console.log("reg P", p);
-		console.log("updated P", updatedP);
+		assert.equal(p, updatedP, "same instances");
 	}, testHelpers.logErrorAndStart(assert, done));
 
 	Promise.all(promises).then(done, done);
