@@ -4,6 +4,9 @@ var persist = require("../data/url/url");
 var connect = require("../can-connect");
 var constructor = require("./constructor");
 var assign = require("can-reflect").assignMap;
+var queues = require("can-queues");
+var observe = require("can-observe");
+var Observation = require("can-observation");
 var QueryLogic = require("can-query-logic");
 var testHelpers = require("../test-helpers");
 
@@ -96,3 +99,61 @@ QUnit.test("basics", function(assert) {
 
 	Promise.all(promises).then(done, done);
 });
+
+
+QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", function(assert) {
+	var Person = function(values){
+		assign(this, values);
+	};
+	var PersonList = function(people){
+		var listed = people.slice(0);
+		listed.isList = true;
+		return listed;
+	};
+
+	var peopleConnection = constructor( persist( connect.base({
+		instance: function(values){
+			return new Person(values);
+		},
+		list: function(arr){
+			return new PersonList(arr.data);
+		},
+		url: "/constructor/people",
+		queryLogic: new QueryLogic({
+			identity: ["id"]
+		})
+	}) ));
+
+	var done = assert.async();
+	var promises = [];
+	var callArgs = [];
+	
+	var p = new Person({name: "ed"});
+	// observer made to p
+	var person = observe(p);
+	
+	var nameAndDate = new Observation(function() {
+		return person.name + " " + person.createdAt;
+	});
+	
+	nameAndDate.on(function(value) {
+		callArgs.push(value);
+	});
+	
+	queues.batch.start();
+	person.name = "edward";
+	person.createdAt = "10-07-13";
+	queues.batch.stop();
+	
+	
+	peopleConnection.save(p).then(function(updatedP) {
+		assert.deepEqual(callArgs, ["edward 10-07-13"])
+		console.log("callArgs in callback", callArgs);
+		console.log("reg P", p);
+		console.log("updated P", updatedP);
+	}, testHelpers.logErrorAndStart(assert, done));
+
+	Promise.all(promises).then(done, done);
+});
+
+
