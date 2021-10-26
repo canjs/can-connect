@@ -123,6 +123,7 @@ var WeakReferenceMap = require("../helpers/weak-reference-map");
 var updateDeepExceptIdentity = require("can-diff/update-deep-except-identity/update-deep-except-identity");
 var idMerge = require("../helpers/id-merge");
 var behavior = require("../behavior");
+var queues = require("can-queues");
 
 module.exports = behavior("constructor",function(baseConnection){
 
@@ -386,22 +387,26 @@ module.exports = behavior("constructor",function(baseConnection){
 				var cid = this._cid++;
 				// cid is really a token to be able to reference this transaction.
 				this.cidStore.addReference(cid, instance);
-
+				
 				// Call the data layer.
 				// If the data returned is undefined, don't call `createdInstance`
 				return this.createData(serialized, cid).then(function(data){
+					queues.batch.start();
 					// if undefined is returned, this can't be created, or someone has taken care of it
 					if(data !== undefined) {
 						self.createdInstance(instance, data);
 					}
 					self.cidStore.deleteReference(cid, instance);
+					queues.batch.stop();
 					return instance;
 				});
 			} else {
 				return this.updateData(serialized).then(function(data){
+					queues.batch.start();
 					if(data !== undefined) {
 						self.updatedInstance(instance, data);
 					}
+					queues.batch.stop();
 					return instance;
 				});
 			}

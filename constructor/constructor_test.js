@@ -129,13 +129,12 @@ QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", funct
 	var callArgs = [];
 
 	var p = new Person({name: "ed"});
-
 	// Observer made to p
-	var person = observe(p);
+	var personObserver = observe(p);
 	
-	// Observation made on person
+	// Observation made on personObserver
 	var nameAndDate = new Observation(function() {
-		return person.name + " " + person.createdAt;
+		return personObserver.name + " " + personObserver.createdAt;
 	});
 	
 	nameAndDate.on(function(value) {
@@ -144,14 +143,14 @@ QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", funct
 	
 	// The properties that are set are batched together
 	queues.batch.start();
-	person.name = "edward";
-	person.createdAt = "10-07-13";
+	personObserver.name="edward";
+	personObserver.createdAt = "10-07-13";
 	queues.batch.stop();
-	
+
 	// Saving p should be done once
-	peopleConnection.save(p).then(function(updatedP) {
+	peopleConnection.save(p).then(function() {
 		assert.deepEqual(callArgs, ["edward 10-07-13"])
-		assert.equal(p, updatedP, "same instances");
+		assert.deepEqual(p, personObserver, "same instances");
 	}, testHelpers.logErrorAndStart(assert, done));
 
 	Promise.all(promises).then(done, done);
