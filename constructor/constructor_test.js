@@ -149,7 +149,7 @@ QUnit.test("atomic saving for createdInstance and updateInstance (#5518)", funct
 
 	// Saving p should be done once
 	peopleConnection.save(p).then(function() {
-		assert.deepEqual(callArgs, ["edward 10-07-13"])
+		assert.deepEqual(callArgs, ["edward 10-07-13"]);
 		assert.deepEqual(p, personObserver, "same instances");
 	}, testHelpers.logErrorAndStart(assert, done));
 
