@@ -31,17 +31,17 @@ var platforms = [{
 
 SauceLabs({
 	urls: [{
-		name: "can-connect",
-		url : 'http://localhost:3000/test/test-ie.html?hidepassed',
-		platforms: [{
-			browserName: 'internet explorer',
-			platform: 'Windows 10',
-			version: '11.0',
-			maxDuration: maxDuration,
-			commandTimeout: commandTimeout,
-			idleTimeout: idleTimeout
-		}]
-	}, {
+// 		name: "can-connect",
+// 		url : 'http://localhost:3000/test/test-ie.html?hidepassed',
+// 		platforms: [{
+// 			browserName: 'internet explorer',
+// 			platform: 'Windows 10',
+// 			version: '11.0',
+// 			maxDuration: maxDuration,
+// 			commandTimeout: commandTimeout,
+// 			idleTimeout: idleTimeout
+// 		}]
+// 	}, {
 		name: "can-connect",
 		url: "http://localhost:3000/test/test.html?hidepassed",
 		platforms: platforms
