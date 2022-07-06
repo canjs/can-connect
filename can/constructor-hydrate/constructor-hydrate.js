@@ -105,9 +105,9 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 			this.Map.prototype.setup = function(props){
 				if (
 					canReflect.isMapLike(props) && 
-					connection.instanceStore.has( connection.id(props) )
+					connection.instanceStore.has(connection.id(props))
 				) {
-					return new Construct.ReturnValue( connection.hydrateInstance(props) );
+					return new Construct.ReturnValue(connection.hydrateInstance(props));
 				}
 				return oldSetup.apply(this, arguments);
 			};
