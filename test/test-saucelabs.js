@@ -46,6 +46,6 @@ SauceLabs({
 		url: "http://localhost:3000/test/test.html?hidepassed",
 		platforms: platforms
 	}],
-	runInSeries: true,
+	runInParallel: false,
 	zeroAssertionsPass: false
 });

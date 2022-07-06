@@ -95,6 +95,7 @@
 
 var connect = require("../../can-connect");
 var Construct = require("can-construct");
+var canReflect = require("can-reflect");
 
 var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hydrate", function(baseConnect){
 	return {
@@ -102,8 +103,11 @@ var constructorHydrateBehavior = connect.behavior("can-connect/can/construct-hyd
 			var oldSetup = this.Map.prototype.setup;
 			var connection = this;
 			this.Map.prototype.setup = function(props){
-				if (connection.instanceStore.has( connection.id(props) )) {
-					return new Construct.ReturnValue( connection.hydrateInstance(props) );
+				if (
+					canReflect.isMapLike(props) && 
+					connection.instanceStore.has(connection.id(props))
+				) {
+					return new Construct.ReturnValue(connection.hydrateInstance(props));
 				}
 				return oldSetup.apply(this, arguments);
 			};

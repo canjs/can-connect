@@ -54,3 +54,23 @@ QUnit.test("Two objects with no id", function(assert) {
 	new Hub({name: 'One'});
 	assert.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
 });
+
+QUnit.test("No Props passed to new DefineMap, doesn't blow up", function(assert) {
+	var Hub = DefineMap.extend({});
+	Hub.List = DefineList.extend({
+		'#': { Type: Hub }
+	});
+	var HubConnection = connect([
+		constructorBehavior,
+		constructorStore,
+		mapBehavior,
+		hydrateBehavior,
+	], { Map: Hub, List: Hub.List });
+
+	var hub1 = new Hub();
+	hub1.name = 'One';
+	HubConnection.addInstanceReference(hub1);
+	assert.ok(!HubConnection.instanceStore.has(undefined), 'The instanceStore should not have an "undefined" key item');
+	new Hub({name: 'One'});
+	assert.ok(true, 'Should allow to create two instances without an id (no Max Call Stack error)');
+});
