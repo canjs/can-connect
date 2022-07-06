@@ -2,9 +2,9 @@
 
 var SauceLabs = require("test-saucelabs");
 
-var maxDuration = 10800; // seconds, default 1800, max 10800
-var commandTimeout = 600; // seconds, default 300, max 600
-var idleTimeout = 1000; // seconds, default 90, max 1000
+// var maxDuration = 10800; // seconds, default 1800, max 10800
+// var commandTimeout = 600; // seconds, default 300, max 600
+// var idleTimeout = 1000; // seconds, default 90, max 1000
 
 // https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities
 var platforms = [{
