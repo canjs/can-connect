@@ -7,7 +7,6 @@ require("../cache-requests/cache-requests_test");
 require("../can/test-without-proxy");
 
 require("../constructor/callbacks-once/callbacks-once_test");
-require("../constructor/constructor_test");
 require("../constructor/store/store_test");
 
 require("../data/url/data-url_test");
