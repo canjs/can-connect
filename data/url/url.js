@@ -397,7 +397,7 @@ var makeAjax = function ( ajaxOb, data, type, ajax, contentType, reqOptions, def
 		canReflect.assignMap(params.data || {}, data) : data;
 
 	// Substitute in data for any templated parts of the URL.
-	params.url = replaceWith(params.url, params.data, urlParamEncoder, true);
+	params.url = replaceWith(params.url, params.data, urlParamEncoder, reqOptions.shouldRemoveMatchedPaths !== false);
 	params.contentType = contentType;
 
 	if(reqOptions.includeData === false) {
